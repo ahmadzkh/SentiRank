@@ -1,0 +1,14 @@
+node_modules/
+.next/
+.env
+.env.local
+*.db
+*.sqlite
+*.sqlite3
+
+ml-service/.venv/
+ml-service/__pycache__/
+*.pyc
+
+openai-api-key.txt
+openrouter-api-key*
