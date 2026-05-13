@@ -17,8 +17,8 @@ model Review {
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 
-  sentimentResult SentimentAnalysisResult?
-  aspectResult    AspectClassificationResult?
+  sentimentResults SentimentAnalysisResult[]
+  aspectResults    AspectClassificationResult[]
 
   @@index([source])
   @@index([externalId])
@@ -27,23 +27,27 @@ model Review {
 }
 
 model SentimentAnalysisResult {
-  id          String   @id @default(cuid())
-  reviewId    String   @unique
-  label       String
-  confidence  Float?
-  modelName   String?
+  id           String   @id @default(cuid())
+  reviewId     String
+  runLabel     String   @default("default")
+  label        String
+  confidence   Float?
+  modelName    String?
   modelVersion String?
-  analyzedAt  DateTime @default(now())
+  analyzedAt   DateTime @default(now())
 
   review Review @relation(fields: [reviewId], references: [id], onDelete: Cascade)
 
+  @@unique([reviewId, runLabel])
+  @@index([runLabel])
   @@index([label])
   @@index([modelName])
 }
 
 model AspectClassificationResult {
   id           String   @id @default(cuid())
-  reviewId     String   @unique
+  reviewId     String
+  runLabel     String   @default("default")
   aspect       String
   confidence   Float?
   modelName    String?
@@ -52,13 +56,17 @@ model AspectClassificationResult {
 
   review Review @relation(fields: [reviewId], references: [id], onDelete: Cascade)
 
+  @@unique([reviewId, runLabel])
+  @@index([runLabel])
   @@index([aspect])
   @@index([modelName])
 }
 
 model ModelEvaluationSummary {
   id           String   @id @default(cuid())
+  runLabel     String   @default("default")
   modelName    String
+  modelVersion String?
   modelType    String
   datasetSplit String?
   accuracy     Float?
@@ -68,9 +76,34 @@ model ModelEvaluationSummary {
   notes        String?
   evaluatedAt  DateTime @default(now())
 
+  @@index([runLabel])
   @@index([modelType])
   @@index([modelName])
   @@index([evaluatedAt])
+}
+
+model InferenceHistory {
+  id                String   @id @default(cuid())
+  inputText         String
+  cleanText         String?
+  taskType          String   @default("sentiment")
+  modelUsed         String
+  modelVersion      String?
+  predictedLabel    String?
+  confidence        Float?
+  probPositive      Float?
+  probNeutral       Float?
+  probNegative      Float?
+  predictedAspect   String?
+  aspectConfidence  Float?
+  executionTimeMs   Float?
+  createdAt         DateTime @default(now())
+
+  @@index([taskType])
+  @@index([modelUsed])
+  @@index([predictedLabel])
+  @@index([predictedAspect])
+  @@index([createdAt])
 }
 
 model AhpWeight {
@@ -81,6 +114,7 @@ model AhpWeight {
   consistencyRatio Float?
   computedAt       DateTime @default(now())
 
+  @@unique([runLabel, criterion])
   @@index([runLabel])
   @@index([criterion])
 }
@@ -94,6 +128,7 @@ model FuzzyAhpWeight {
   upperBound Float?
   computedAt DateTime @default(now())
 
+  @@unique([runLabel, criterion])
   @@index([runLabel])
   @@index([criterion])
 }
@@ -106,6 +141,8 @@ model AhpRankingResult {
   rank         Int
   generatedAt  DateTime @default(now())
 
+  @@unique([runLabel, priorityArea])
+  @@unique([runLabel, rank])
   @@index([runLabel])
   @@index([rank])
   @@index([priorityArea])
@@ -119,6 +156,8 @@ model FuzzyAhpRankingResult {
   rank         Int
   generatedAt  DateTime @default(now())
 
+  @@unique([runLabel, priorityArea])
+  @@unique([runLabel, rank])
   @@index([runLabel])
   @@index([rank])
   @@index([priorityArea])
@@ -135,6 +174,7 @@ model RankingComparisonResult {
   rankDelta     Int?
   generatedAt   DateTime @default(now())
 
+  @@unique([runLabel, priorityArea])
   @@index([runLabel])
   @@index([priorityArea])
   @@index([ahpRank])
