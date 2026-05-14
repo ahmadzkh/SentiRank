@@ -13,20 +13,36 @@ ml-service/.mypy_cache/
 ml-service/.ruff_cache/
 ml-service/**/__pycache__/
 *.pyc
-**/.ipynb_checkpoints/
 
+.ipynb_checkpoints/
+**/.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# Raw datasets must stay local
 datasets/raw/*
-datasets/processed/*
-datasets/external/*
-datasets/outputs/*
 !datasets/raw/.gitkeep
+
+# Processed datasets ignored by default
+datasets/processed/*
 !datasets/processed/.gitkeep
+
+# External resources ignored by default
+datasets/external/*
 !datasets/external/.gitkeep
+
+# Generated outputs ignored by default
+datasets/outputs/*
 !datasets/outputs/.gitkeep
 
+# Allow aggregate EDA metrics for frontend/dashboard
+!datasets/outputs/eda/
+!datasets/outputs/eda/**
+
+# Ignore trained model artifacts
 ml-service/saved_models/**/*
 !ml-service/saved_models/**/
 !ml-service/saved_models/**/.gitkeep
+
 ml-service/models/**/*.pt
 ml-service/models/**/*.pth
 ml-service/models/**/*.bin
@@ -37,10 +53,6 @@ ml-service/models/**/*.h5
 ml-service/models/**/*.joblib
 ml-service/models/**/*.pkl
 ml-service/models/**/*.pickle
-
-.ipynb_checkpoints/
-**/.ipynb_checkpoints/
-*.ipynb_checkpoints
 
 openai-api-key.txt
 openrouter-api-key*
