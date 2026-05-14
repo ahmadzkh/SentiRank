@@ -5,12 +5,24 @@ import {
   createSuccessResponse,
   type ApiResponse,
 } from "@/lib/utils/apiResponse";
+import {
+  requestAhpRanking,
+  type MlPlaceholderData,
+} from "@/services/ml/mlServiceClient";
 
-export function GET(): NextResponse<ApiResponse<null>> {
+type AhpApiResponse = NextResponse<
+  ApiResponse<MlPlaceholderData> | ApiResponse<null>
+>;
+
+export async function GET(): Promise<AhpApiResponse> {
   try {
-    return createSuccessResponse(
-      "AHP API boundary is ready. AHP calculation is not implemented yet.",
-    );
+    const mlResponse = await requestAhpRanking();
+
+    if (!mlResponse.success) {
+      return createErrorResponse(mlResponse.message, mlResponse.statusCode);
+    }
+
+    return createSuccessResponse(mlResponse.message, mlResponse.data);
   } catch {
     return createErrorResponse("Unable to resolve AHP API boundary.");
   }

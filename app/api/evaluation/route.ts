@@ -5,12 +5,24 @@ import {
   createSuccessResponse,
   type ApiResponse,
 } from "@/lib/utils/apiResponse";
+import {
+  requestModelEvaluation,
+  type MlPlaceholderData,
+} from "@/services/ml/mlServiceClient";
 
-export function GET(): NextResponse<ApiResponse<null>> {
+type EvaluationApiResponse = NextResponse<
+  ApiResponse<MlPlaceholderData> | ApiResponse<null>
+>;
+
+export async function GET(): Promise<EvaluationApiResponse> {
   try {
-    return createSuccessResponse(
-      "Evaluation API boundary is ready. Model metrics are not implemented yet.",
-    );
+    const mlResponse = await requestModelEvaluation();
+
+    if (!mlResponse.success) {
+      return createErrorResponse(mlResponse.message, mlResponse.statusCode);
+    }
+
+    return createSuccessResponse(mlResponse.message, mlResponse.data);
   } catch {
     return createErrorResponse("Unable to resolve evaluation API boundary.");
   }

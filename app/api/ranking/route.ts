@@ -5,12 +5,24 @@ import {
   createSuccessResponse,
   type ApiResponse,
 } from "@/lib/utils/apiResponse";
+import {
+  requestRanking,
+  type MlPlaceholderData,
+} from "@/services/ml/mlServiceClient";
 
-export function GET(): NextResponse<ApiResponse<null>> {
+type RankingApiResponse = NextResponse<
+  ApiResponse<MlPlaceholderData> | ApiResponse<null>
+>;
+
+export async function GET(): Promise<RankingApiResponse> {
   try {
-    return createSuccessResponse(
-      "Ranking API boundary is ready. Priority ranking is not implemented yet.",
-    );
+    const mlResponse = await requestRanking();
+
+    if (!mlResponse.success) {
+      return createErrorResponse(mlResponse.message, mlResponse.statusCode);
+    }
+
+    return createSuccessResponse(mlResponse.message, mlResponse.data);
   } catch {
     return createErrorResponse("Unable to resolve ranking API boundary.");
   }
