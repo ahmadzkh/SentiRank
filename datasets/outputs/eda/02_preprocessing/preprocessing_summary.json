@@ -1,0 +1,13 @@
+{
+  "empty_text_indobert_count": 0,
+  "empty_text_svm_count": 91,
+  "generated_at": "2026-05-14T11:27:56.906230+00:00",
+  "label_column": "final_sentiment",
+  "label_distribution_final": {
+    "Negative": 39686,
+    "Neutral": 17629,
+    "Positive": 40467
+  },
+  "missing_source_text_count": 0,
+  "total_rows": 97782
+}

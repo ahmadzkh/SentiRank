@@ -1,0 +1,18 @@
+{
+  "audit_candidate_count": 6853,
+  "changed_label_count": 10153,
+  "changed_label_percentage": 10.3833,
+  "generated_at": "2026-05-14T11:27:32.086300+00:00",
+  "label_distribution_after": {
+    "Negative": 39686,
+    "Neutral": 17629,
+    "Positive": 40467
+  },
+  "label_distribution_before": {
+    "Negative": 35000,
+    "Neutral": 27782,
+    "Positive": 35000
+  },
+  "rating_3_changed_count": 10153,
+  "total_rows": 97782
+}

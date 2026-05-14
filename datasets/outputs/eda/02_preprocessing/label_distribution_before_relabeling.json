@@ -1,0 +1,14 @@
+[
+  {
+    "sentiment_label": "Negative",
+    "count": 35000
+  },
+  {
+    "sentiment_label": "Neutral",
+    "count": 27782
+  },
+  {
+    "sentiment_label": "Positive",
+    "count": 35000
+  }
+]
