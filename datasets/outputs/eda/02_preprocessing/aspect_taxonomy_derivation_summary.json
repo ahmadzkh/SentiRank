@@ -1,0 +1,814 @@
+{
+  "focus_labels": [
+    "Negative",
+    "Neutral"
+  ],
+  "focused_rows": 57315,
+  "generated_at": "2026-05-14T12:13:32.785330+00:00",
+  "methodology_note": "Candidate aspects are derived from exploratory analysis of user reviews and must be validated through expert judgement before being used as final AHP/Fuzzy AHP criteria.",
+  "top_bigrams_if_available": [
+    {
+      "count": 1430,
+      "term": "dengerin lagu"
+    },
+    {
+      "count": 1260,
+      "term": "beli premium"
+    },
+    {
+      "count": 1123,
+      "term": "kebanyakan iklan"
+    },
+    {
+      "count": 1057,
+      "term": "kasih bintang"
+    },
+    {
+      "count": 943,
+      "term": "milih lagu"
+    },
+    {
+      "count": 916,
+      "term": "tiba tiba"
+    },
+    {
+      "count": 880,
+      "term": "lagu iklan"
+    },
+    {
+      "count": 783,
+      "term": "denger lagu"
+    },
+    {
+      "count": 744,
+      "term": "pilih lagu"
+    },
+    {
+      "count": 743,
+      "term": "putar lagu"
+    },
+    {
+      "count": 727,
+      "term": "lagu lain"
+    },
+    {
+      "count": 719,
+      "term": "terlalu iklan"
+    },
+    {
+      "count": 646,
+      "term": "tolong perbaiki"
+    },
+    {
+      "count": 628,
+      "term": "ganti lagu"
+    },
+    {
+      "count": 626,
+      "term": "dikit dikit"
+    },
+    {
+      "count": 609,
+      "term": "dengerin musik"
+    },
+    {
+      "count": 555,
+      "term": "lagu premium"
+    },
+    {
+      "count": 529,
+      "term": "tolong dong"
+    },
+    {
+      "count": 477,
+      "term": "lirik lagu"
+    },
+    {
+      "count": 456,
+      "term": "muter lagu"
+    },
+    {
+      "count": 448,
+      "term": "makin lama"
+    },
+    {
+      "count": 424,
+      "term": "liat lirik"
+    },
+    {
+      "count": 419,
+      "term": "lagu malah"
+    },
+    {
+      "count": 407,
+      "term": "tolong diperbaiki"
+    },
+    {
+      "count": 381,
+      "term": "lama makin"
+    },
+    {
+      "count": 377,
+      "term": "dikit premium"
+    },
+    {
+      "count": 365,
+      "term": "setelah update"
+    },
+    {
+      "count": 360,
+      "term": "makin kesini"
+    },
+    {
+      "count": 342,
+      "term": "lagu kita"
+    },
+    {
+      "count": 339,
+      "term": "memutar lagu"
+    },
+    {
+      "count": 339,
+      "term": "bagus sih"
+    },
+    {
+      "count": 335,
+      "term": "lagu playlist"
+    },
+    {
+      "count": 330,
+      "term": "lagu lagu"
+    },
+    {
+      "count": 323,
+      "term": "satu lagu"
+    },
+    {
+      "count": 307,
+      "term": "padahal udah"
+    },
+    {
+      "count": 306,
+      "term": "dengar lagu"
+    },
+    {
+      "count": 303,
+      "term": "malah lagu"
+    },
+    {
+      "count": 298,
+      "term": "paket premium"
+    },
+    {
+      "count": 291,
+      "term": "nyetel lagu"
+    },
+    {
+      "count": 288,
+      "term": "kenapa sekarang"
+    },
+    {
+      "count": 286,
+      "term": "mati sendiri"
+    },
+    {
+      "count": 285,
+      "term": "lama lama"
+    },
+    {
+      "count": 282,
+      "term": "iklan iklan"
+    },
+    {
+      "count": 270,
+      "term": "lagu udah"
+    },
+    {
+      "count": 267,
+      "term": "skip lagu"
+    },
+    {
+      "count": 266,
+      "term": "maksa premium"
+    },
+    {
+      "count": 262,
+      "term": "beberapa lagu"
+    },
+    {
+      "count": 261,
+      "term": "padahal jaringan"
+    },
+    {
+      "count": 261,
+      "term": "bayar premium"
+    },
+    {
+      "count": 259,
+      "term": "lagu gak"
+    },
+    {
+      "count": 257,
+      "term": "kesini makin"
+    },
+    {
+      "count": 254,
+      "term": "makin kikir"
+    },
+    {
+      "count": 253,
+      "term": "play lagu"
+    },
+    {
+      "count": 249,
+      "term": "mutar lagu"
+    },
+    {
+      "count": 248,
+      "term": "iklan mulu"
+    },
+    {
+      "count": 247,
+      "term": "apk kikir"
+    },
+    {
+      "count": 247,
+      "term": "dikit iklan"
+    },
+    {
+      "count": 231,
+      "term": "download lagu"
+    },
+    {
+      "count": 230,
+      "term": "tolong lah"
+    },
+    {
+      "count": 230,
+      "term": "mendengarkan lagu"
+    },
+    {
+      "count": 218,
+      "term": "lagu doang"
+    },
+    {
+      "count": 216,
+      "term": "dengerin iklan"
+    },
+    {
+      "count": 216,
+      "term": "lagu langsung"
+    },
+    {
+      "count": 215,
+      "term": "update malah"
+    },
+    {
+      "count": 211,
+      "term": "puter lagu"
+    },
+    {
+      "count": 210,
+      "term": "iklan mana"
+    },
+    {
+      "count": 210,
+      "term": "iklan terlalu"
+    },
+    {
+      "count": 207,
+      "term": "gak jelas"
+    },
+    {
+      "count": 204,
+      "term": "iklan horor"
+    },
+    {
+      "count": 202,
+      "term": "udah iklan"
+    },
+    {
+      "count": 202,
+      "term": "langsung iklan"
+    },
+    {
+      "count": 201,
+      "term": "denger musik"
+    },
+    {
+      "count": 199,
+      "term": "suruh premium"
+    },
+    {
+      "count": 195,
+      "term": "setiap lagu"
+    },
+    {
+      "count": 195,
+      "term": "keluar sendiri"
+    },
+    {
+      "count": 194,
+      "term": "premium padahal"
+    },
+    {
+      "count": 191,
+      "term": "fitur premium"
+    },
+    {
+      "count": 191,
+      "term": "muncul iklan"
+    },
+    {
+      "count": 190,
+      "term": "memilih lagu"
+    },
+    {
+      "count": 190,
+      "term": "gimana sih"
+    },
+    {
+      "count": 189,
+      "term": "sekarang premium"
+    },
+    {
+      "count": 188,
+      "term": "lagu putar"
+    },
+    {
+      "count": 186,
+      "term": "jaringan bagus"
+    },
+    {
+      "count": 184,
+      "term": "lirik lagunya"
+    },
+    {
+      "count": 183,
+      "term": "premium iklan"
+    },
+    {
+      "count": 183,
+      "term": "iklan lagu"
+    },
+    {
+      "count": 182,
+      "term": "terima kasih"
+    },
+    {
+      "count": 182,
+      "term": "premium kalo"
+    },
+    {
+      "count": 181,
+      "term": "udah bagus"
+    },
+    {
+      "count": 179,
+      "term": "udah premium"
+    },
+    {
+      "count": 178,
+      "term": "iklan premium"
+    },
+    {
+      "count": 178,
+      "term": "iklan gak"
+    },
+    {
+      "count": 175,
+      "term": "sekarang malah"
+    },
+    {
+      "count": 174,
+      "term": "cari lagu"
+    },
+    {
+      "count": 172,
+      "term": "sama sekali"
+    },
+    {
+      "count": 170,
+      "term": "iklan tolong"
+    },
+    {
+      "count": 169,
+      "term": "premium tolong"
+    },
+    {
+      "count": 168,
+      "term": "gak premium"
+    },
+    {
+      "count": 167,
+      "term": "berhenti sendiri"
+    },
+    {
+      "count": 167,
+      "term": "kurang lengkap"
+    }
+  ],
+  "top_terms": [
+    {
+      "count": 19195,
+      "term": "lagu"
+    },
+    {
+      "count": 15668,
+      "term": "iklan"
+    },
+    {
+      "count": 13155,
+      "term": "premium"
+    },
+    {
+      "count": 5509,
+      "term": "gak"
+    },
+    {
+      "count": 4458,
+      "term": "tolong"
+    },
+    {
+      "count": 4325,
+      "term": "kenapa"
+    },
+    {
+      "count": 4037,
+      "term": "bagus"
+    },
+    {
+      "count": 3763,
+      "term": "malah"
+    },
+    {
+      "count": 3700,
+      "term": "sekarang"
+    },
+    {
+      "count": 3696,
+      "term": "udah"
+    },
+    {
+      "count": 3604,
+      "term": "musik"
+    },
+    {
+      "count": 3427,
+      "term": "padahal"
+    },
+    {
+      "count": 3410,
+      "term": "makin"
+    },
+    {
+      "count": 3216,
+      "term": "lirik"
+    },
+    {
+      "count": 3193,
+      "term": "apk"
+    },
+    {
+      "count": 3147,
+      "term": "iklannya"
+    },
+    {
+      "count": 2979,
+      "term": "kalo"
+    },
+    {
+      "count": 2964,
+      "term": "dengerin"
+    },
+    {
+      "count": 2721,
+      "term": "sih"
+    },
+    {
+      "count": 2481,
+      "term": "lagunya"
+    },
+    {
+      "count": 2440,
+      "term": "lama"
+    },
+    {
+      "count": 2370,
+      "term": "bintang"
+    },
+    {
+      "count": 2283,
+      "term": "kikir"
+    },
+    {
+      "count": 2203,
+      "term": "update"
+    },
+    {
+      "count": 2130,
+      "term": "coba"
+    },
+    {
+      "count": 2110,
+      "term": "bayar"
+    },
+    {
+      "count": 2105,
+      "term": "pas"
+    },
+    {
+      "count": 2087,
+      "term": "sama"
+    },
+    {
+      "count": 2058,
+      "term": "download"
+    },
+    {
+      "count": 2032,
+      "term": "kasih"
+    },
+    {
+      "count": 2027,
+      "term": "putar"
+    },
+    {
+      "count": 2011,
+      "term": "tiba"
+    },
+    {
+      "count": 1997,
+      "term": "suka"
+    },
+    {
+      "count": 1968,
+      "term": "lah"
+    },
+    {
+      "count": 1932,
+      "term": "playlist"
+    },
+    {
+      "count": 1914,
+      "term": "terlalu"
+    },
+    {
+      "count": 1870,
+      "term": "beli"
+    },
+    {
+      "count": 1841,
+      "term": "lain"
+    },
+    {
+      "count": 1784,
+      "term": "masa"
+    },
+    {
+      "count": 1660,
+      "term": "dikit"
+    },
+    {
+      "count": 1633,
+      "term": "udh"
+    },
+    {
+      "count": 1626,
+      "term": "sendiri"
+    },
+    {
+      "count": 1620,
+      "term": "kebanyakan"
+    },
+    {
+      "count": 1608,
+      "term": "gabisa"
+    },
+    {
+      "count": 1600,
+      "term": "bgt"
+    },
+    {
+      "count": 1532,
+      "term": "jelek"
+    },
+    {
+      "count": 1504,
+      "term": "cuma"
+    },
+    {
+      "count": 1502,
+      "term": "kali"
+    },
+    {
+      "count": 1493,
+      "term": "liriknya"
+    },
+    {
+      "count": 1461,
+      "term": "denger"
+    },
+    {
+      "count": 1433,
+      "term": "dong"
+    },
+    {
+      "count": 1430,
+      "term": "muncul"
+    },
+    {
+      "count": 1393,
+      "term": "sering"
+    },
+    {
+      "count": 1382,
+      "term": "sangat"
+    },
+    {
+      "count": 1375,
+      "term": "kita"
+    },
+    {
+      "count": 1359,
+      "term": "setiap"
+    },
+    {
+      "count": 1342,
+      "term": "perbaiki"
+    },
+    {
+      "count": 1290,
+      "term": "fitur"
+    },
+    {
+      "count": 1261,
+      "term": "kurang"
+    },
+    {
+      "count": 1259,
+      "term": "selalu"
+    },
+    {
+      "count": 1248,
+      "term": "milih"
+    },
+    {
+      "count": 1226,
+      "term": "ganti"
+    },
+    {
+      "count": 1216,
+      "term": "lumayan"
+    },
+    {
+      "count": 1208,
+      "term": "klo"
+    },
+    {
+      "count": 1195,
+      "term": "mana"
+    },
+    {
+      "count": 1163,
+      "term": "pilih"
+    },
+    {
+      "count": 1151,
+      "term": "gitu"
+    },
+    {
+      "count": 1131,
+      "term": "akun"
+    },
+    {
+      "count": 1100,
+      "term": "bug"
+    },
+    {
+      "count": 1093,
+      "term": "susah"
+    },
+    {
+      "count": 1085,
+      "term": "buka"
+    },
+    {
+      "count": 1065,
+      "term": "offline"
+    },
+    {
+      "count": 1063,
+      "term": "kan"
+    },
+    {
+      "count": 1058,
+      "term": "masuk"
+    },
+    {
+      "count": 1042,
+      "term": "bikin"
+    },
+    {
+      "count": 1037,
+      "term": "play"
+    },
+    {
+      "count": 1026,
+      "term": "enak"
+    },
+    {
+      "count": 992,
+      "term": "mulu"
+    },
+    {
+      "count": 992,
+      "term": "gua"
+    },
+    {
+      "count": 979,
+      "term": "gimana"
+    },
+    {
+      "count": 944,
+      "term": "dah"
+    },
+    {
+      "count": 935,
+      "term": "satu"
+    },
+    {
+      "count": 929,
+      "term": "sekali"
+    },
+    {
+      "count": 928,
+      "term": "gratis"
+    },
+    {
+      "count": 896,
+      "term": "dlu"
+    },
+    {
+      "count": 894,
+      "term": "orang"
+    },
+    {
+      "count": 880,
+      "term": "maksa"
+    },
+    {
+      "count": 874,
+      "term": "langsung"
+    },
+    {
+      "count": 852,
+      "term": "kadang"
+    },
+    {
+      "count": 845,
+      "term": "kaya"
+    },
+    {
+      "count": 831,
+      "term": "diperbaiki"
+    },
+    {
+      "count": 824,
+      "term": "aneh"
+    },
+    {
+      "count": 822,
+      "term": "login"
+    },
+    {
+      "count": 820,
+      "term": "tau"
+    },
+    {
+      "count": 815,
+      "term": "kecewa"
+    },
+    {
+      "count": 807,
+      "term": "karna"
+    },
+    {
+      "count": 802,
+      "term": "doang"
+    },
+    {
+      "count": 802,
+      "term": "muter"
+    },
+    {
+      "count": 801,
+      "term": "setelah"
+    },
+    {
+      "count": 797,
+      "term": "keluar"
+    }
+  ],
+  "total_rows": 97782
+}

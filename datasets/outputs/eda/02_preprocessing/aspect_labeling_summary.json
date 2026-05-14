@@ -1,0 +1,19 @@
+{
+  "aspect_distribution": {
+    "Account/Login": 1555,
+    "Ads Experience": 16540,
+    "Audio Quality": 435,
+    "Features & Content": 19217,
+    "General": 46704,
+    "Performance & Stability": 2487,
+    "Subscription & Pricing": 10735,
+    "UI/UX": 109
+  },
+  "general_label_count": 46704,
+  "general_label_percentage": 47.7634,
+  "generated_at": "2026-05-14T12:11:31.669480+00:00",
+  "methodology_note": "Weak aspect labels are generated using keyword dictionaries for exploratory SVM preparation and are not expert-validated ground truth.",
+  "rows_with_keyword_match": 51078,
+  "rows_without_keyword_match": 46704,
+  "total_rows": 97782
+}

@@ -1,0 +1,201 @@
+term,term_type,count,focus_labels,text_column
+lagu,unigram,19195,"Negative,Neutral",text_svm
+iklan,unigram,15668,"Negative,Neutral",text_svm
+premium,unigram,13155,"Negative,Neutral",text_svm
+gak,unigram,5509,"Negative,Neutral",text_svm
+tolong,unigram,4458,"Negative,Neutral",text_svm
+kenapa,unigram,4325,"Negative,Neutral",text_svm
+bagus,unigram,4037,"Negative,Neutral",text_svm
+malah,unigram,3763,"Negative,Neutral",text_svm
+sekarang,unigram,3700,"Negative,Neutral",text_svm
+udah,unigram,3696,"Negative,Neutral",text_svm
+musik,unigram,3604,"Negative,Neutral",text_svm
+padahal,unigram,3427,"Negative,Neutral",text_svm
+makin,unigram,3410,"Negative,Neutral",text_svm
+lirik,unigram,3216,"Negative,Neutral",text_svm
+apk,unigram,3193,"Negative,Neutral",text_svm
+iklannya,unigram,3147,"Negative,Neutral",text_svm
+kalo,unigram,2979,"Negative,Neutral",text_svm
+dengerin,unigram,2964,"Negative,Neutral",text_svm
+sih,unigram,2721,"Negative,Neutral",text_svm
+lagunya,unigram,2481,"Negative,Neutral",text_svm
+lama,unigram,2440,"Negative,Neutral",text_svm
+bintang,unigram,2370,"Negative,Neutral",text_svm
+kikir,unigram,2283,"Negative,Neutral",text_svm
+update,unigram,2203,"Negative,Neutral",text_svm
+coba,unigram,2130,"Negative,Neutral",text_svm
+bayar,unigram,2110,"Negative,Neutral",text_svm
+pas,unigram,2105,"Negative,Neutral",text_svm
+sama,unigram,2087,"Negative,Neutral",text_svm
+download,unigram,2058,"Negative,Neutral",text_svm
+kasih,unigram,2032,"Negative,Neutral",text_svm
+putar,unigram,2027,"Negative,Neutral",text_svm
+tiba,unigram,2011,"Negative,Neutral",text_svm
+suka,unigram,1997,"Negative,Neutral",text_svm
+lah,unigram,1968,"Negative,Neutral",text_svm
+playlist,unigram,1932,"Negative,Neutral",text_svm
+terlalu,unigram,1914,"Negative,Neutral",text_svm
+beli,unigram,1870,"Negative,Neutral",text_svm
+lain,unigram,1841,"Negative,Neutral",text_svm
+masa,unigram,1784,"Negative,Neutral",text_svm
+dikit,unigram,1660,"Negative,Neutral",text_svm
+udh,unigram,1633,"Negative,Neutral",text_svm
+sendiri,unigram,1626,"Negative,Neutral",text_svm
+kebanyakan,unigram,1620,"Negative,Neutral",text_svm
+gabisa,unigram,1608,"Negative,Neutral",text_svm
+bgt,unigram,1600,"Negative,Neutral",text_svm
+jelek,unigram,1532,"Negative,Neutral",text_svm
+cuma,unigram,1504,"Negative,Neutral",text_svm
+kali,unigram,1502,"Negative,Neutral",text_svm
+liriknya,unigram,1493,"Negative,Neutral",text_svm
+denger,unigram,1461,"Negative,Neutral",text_svm
+dong,unigram,1433,"Negative,Neutral",text_svm
+muncul,unigram,1430,"Negative,Neutral",text_svm
+sering,unigram,1393,"Negative,Neutral",text_svm
+sangat,unigram,1382,"Negative,Neutral",text_svm
+kita,unigram,1375,"Negative,Neutral",text_svm
+setiap,unigram,1359,"Negative,Neutral",text_svm
+perbaiki,unigram,1342,"Negative,Neutral",text_svm
+fitur,unigram,1290,"Negative,Neutral",text_svm
+kurang,unigram,1261,"Negative,Neutral",text_svm
+selalu,unigram,1259,"Negative,Neutral",text_svm
+milih,unigram,1248,"Negative,Neutral",text_svm
+ganti,unigram,1226,"Negative,Neutral",text_svm
+lumayan,unigram,1216,"Negative,Neutral",text_svm
+klo,unigram,1208,"Negative,Neutral",text_svm
+mana,unigram,1195,"Negative,Neutral",text_svm
+pilih,unigram,1163,"Negative,Neutral",text_svm
+gitu,unigram,1151,"Negative,Neutral",text_svm
+akun,unigram,1131,"Negative,Neutral",text_svm
+bug,unigram,1100,"Negative,Neutral",text_svm
+susah,unigram,1093,"Negative,Neutral",text_svm
+buka,unigram,1085,"Negative,Neutral",text_svm
+offline,unigram,1065,"Negative,Neutral",text_svm
+kan,unigram,1063,"Negative,Neutral",text_svm
+masuk,unigram,1058,"Negative,Neutral",text_svm
+bikin,unigram,1042,"Negative,Neutral",text_svm
+play,unigram,1037,"Negative,Neutral",text_svm
+enak,unigram,1026,"Negative,Neutral",text_svm
+mulu,unigram,992,"Negative,Neutral",text_svm
+gua,unigram,992,"Negative,Neutral",text_svm
+gimana,unigram,979,"Negative,Neutral",text_svm
+dah,unigram,944,"Negative,Neutral",text_svm
+satu,unigram,935,"Negative,Neutral",text_svm
+sekali,unigram,929,"Negative,Neutral",text_svm
+gratis,unigram,928,"Negative,Neutral",text_svm
+dlu,unigram,896,"Negative,Neutral",text_svm
+orang,unigram,894,"Negative,Neutral",text_svm
+maksa,unigram,880,"Negative,Neutral",text_svm
+langsung,unigram,874,"Negative,Neutral",text_svm
+kadang,unigram,852,"Negative,Neutral",text_svm
+kaya,unigram,845,"Negative,Neutral",text_svm
+diperbaiki,unigram,831,"Negative,Neutral",text_svm
+aneh,unigram,824,"Negative,Neutral",text_svm
+login,unigram,822,"Negative,Neutral",text_svm
+tau,unigram,820,"Negative,Neutral",text_svm
+kecewa,unigram,815,"Negative,Neutral",text_svm
+karna,unigram,807,"Negative,Neutral",text_svm
+doang,unigram,802,"Negative,Neutral",text_svm
+muter,unigram,802,"Negative,Neutral",text_svm
+setelah,unigram,801,"Negative,Neutral",text_svm
+keluar,unigram,797,"Negative,Neutral",text_svm
+dengerin lagu,bigram,1430,"Negative,Neutral",text_svm
+beli premium,bigram,1260,"Negative,Neutral",text_svm
+kebanyakan iklan,bigram,1123,"Negative,Neutral",text_svm
+kasih bintang,bigram,1057,"Negative,Neutral",text_svm
+milih lagu,bigram,943,"Negative,Neutral",text_svm
+tiba tiba,bigram,916,"Negative,Neutral",text_svm
+lagu iklan,bigram,880,"Negative,Neutral",text_svm
+denger lagu,bigram,783,"Negative,Neutral",text_svm
+pilih lagu,bigram,744,"Negative,Neutral",text_svm
+putar lagu,bigram,743,"Negative,Neutral",text_svm
+lagu lain,bigram,727,"Negative,Neutral",text_svm
+terlalu iklan,bigram,719,"Negative,Neutral",text_svm
+tolong perbaiki,bigram,646,"Negative,Neutral",text_svm
+ganti lagu,bigram,628,"Negative,Neutral",text_svm
+dikit dikit,bigram,626,"Negative,Neutral",text_svm
+dengerin musik,bigram,609,"Negative,Neutral",text_svm
+lagu premium,bigram,555,"Negative,Neutral",text_svm
+tolong dong,bigram,529,"Negative,Neutral",text_svm
+lirik lagu,bigram,477,"Negative,Neutral",text_svm
+muter lagu,bigram,456,"Negative,Neutral",text_svm
+makin lama,bigram,448,"Negative,Neutral",text_svm
+liat lirik,bigram,424,"Negative,Neutral",text_svm
+lagu malah,bigram,419,"Negative,Neutral",text_svm
+tolong diperbaiki,bigram,407,"Negative,Neutral",text_svm
+lama makin,bigram,381,"Negative,Neutral",text_svm
+dikit premium,bigram,377,"Negative,Neutral",text_svm
+setelah update,bigram,365,"Negative,Neutral",text_svm
+makin kesini,bigram,360,"Negative,Neutral",text_svm
+lagu kita,bigram,342,"Negative,Neutral",text_svm
+memutar lagu,bigram,339,"Negative,Neutral",text_svm
+bagus sih,bigram,339,"Negative,Neutral",text_svm
+lagu playlist,bigram,335,"Negative,Neutral",text_svm
+lagu lagu,bigram,330,"Negative,Neutral",text_svm
+satu lagu,bigram,323,"Negative,Neutral",text_svm
+padahal udah,bigram,307,"Negative,Neutral",text_svm
+dengar lagu,bigram,306,"Negative,Neutral",text_svm
+malah lagu,bigram,303,"Negative,Neutral",text_svm
+paket premium,bigram,298,"Negative,Neutral",text_svm
+nyetel lagu,bigram,291,"Negative,Neutral",text_svm
+kenapa sekarang,bigram,288,"Negative,Neutral",text_svm
+mati sendiri,bigram,286,"Negative,Neutral",text_svm
+lama lama,bigram,285,"Negative,Neutral",text_svm
+iklan iklan,bigram,282,"Negative,Neutral",text_svm
+lagu udah,bigram,270,"Negative,Neutral",text_svm
+skip lagu,bigram,267,"Negative,Neutral",text_svm
+maksa premium,bigram,266,"Negative,Neutral",text_svm
+beberapa lagu,bigram,262,"Negative,Neutral",text_svm
+padahal jaringan,bigram,261,"Negative,Neutral",text_svm
+bayar premium,bigram,261,"Negative,Neutral",text_svm
+lagu gak,bigram,259,"Negative,Neutral",text_svm
+kesini makin,bigram,257,"Negative,Neutral",text_svm
+makin kikir,bigram,254,"Negative,Neutral",text_svm
+play lagu,bigram,253,"Negative,Neutral",text_svm
+mutar lagu,bigram,249,"Negative,Neutral",text_svm
+iklan mulu,bigram,248,"Negative,Neutral",text_svm
+apk kikir,bigram,247,"Negative,Neutral",text_svm
+dikit iklan,bigram,247,"Negative,Neutral",text_svm
+download lagu,bigram,231,"Negative,Neutral",text_svm
+tolong lah,bigram,230,"Negative,Neutral",text_svm
+mendengarkan lagu,bigram,230,"Negative,Neutral",text_svm
+lagu doang,bigram,218,"Negative,Neutral",text_svm
+dengerin iklan,bigram,216,"Negative,Neutral",text_svm
+lagu langsung,bigram,216,"Negative,Neutral",text_svm
+update malah,bigram,215,"Negative,Neutral",text_svm
+puter lagu,bigram,211,"Negative,Neutral",text_svm
+iklan mana,bigram,210,"Negative,Neutral",text_svm
+iklan terlalu,bigram,210,"Negative,Neutral",text_svm
+gak jelas,bigram,207,"Negative,Neutral",text_svm
+iklan horor,bigram,204,"Negative,Neutral",text_svm
+udah iklan,bigram,202,"Negative,Neutral",text_svm
+langsung iklan,bigram,202,"Negative,Neutral",text_svm
+denger musik,bigram,201,"Negative,Neutral",text_svm
+suruh premium,bigram,199,"Negative,Neutral",text_svm
+setiap lagu,bigram,195,"Negative,Neutral",text_svm
+keluar sendiri,bigram,195,"Negative,Neutral",text_svm
+premium padahal,bigram,194,"Negative,Neutral",text_svm
+fitur premium,bigram,191,"Negative,Neutral",text_svm
+muncul iklan,bigram,191,"Negative,Neutral",text_svm
+memilih lagu,bigram,190,"Negative,Neutral",text_svm
+gimana sih,bigram,190,"Negative,Neutral",text_svm
+sekarang premium,bigram,189,"Negative,Neutral",text_svm
+lagu putar,bigram,188,"Negative,Neutral",text_svm
+jaringan bagus,bigram,186,"Negative,Neutral",text_svm
+lirik lagunya,bigram,184,"Negative,Neutral",text_svm
+premium iklan,bigram,183,"Negative,Neutral",text_svm
+iklan lagu,bigram,183,"Negative,Neutral",text_svm
+terima kasih,bigram,182,"Negative,Neutral",text_svm
+premium kalo,bigram,182,"Negative,Neutral",text_svm
+udah bagus,bigram,181,"Negative,Neutral",text_svm
+udah premium,bigram,179,"Negative,Neutral",text_svm
+iklan premium,bigram,178,"Negative,Neutral",text_svm
+iklan gak,bigram,178,"Negative,Neutral",text_svm
+sekarang malah,bigram,175,"Negative,Neutral",text_svm
+cari lagu,bigram,174,"Negative,Neutral",text_svm
+sama sekali,bigram,172,"Negative,Neutral",text_svm
+iklan tolong,bigram,170,"Negative,Neutral",text_svm
+premium tolong,bigram,169,"Negative,Neutral",text_svm
+gak premium,bigram,168,"Negative,Neutral",text_svm
+berhenti sendiri,bigram,167,"Negative,Neutral",text_svm
+kurang lengkap,bigram,167,"Negative,Neutral",text_svm

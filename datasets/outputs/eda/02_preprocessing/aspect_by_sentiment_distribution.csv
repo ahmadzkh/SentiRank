@@ -1,0 +1,25 @@
+final_sentiment,aspect_label,count
+Negative,Performance & Stability,1763
+Negative,Ads Experience,10712
+Negative,Subscription & Pricing,6962
+Negative,Features & Content,7479
+Negative,Audio Quality,95
+Negative,UI/UX,33
+Negative,Account/Login,1189
+Negative,General,11453
+Neutral,Performance & Stability,291
+Neutral,Ads Experience,1224
+Neutral,Subscription & Pricing,1759
+Neutral,Features & Content,3622
+Neutral,Audio Quality,78
+Neutral,UI/UX,26
+Neutral,Account/Login,219
+Neutral,General,10410
+Positive,Performance & Stability,433
+Positive,Ads Experience,4604
+Positive,Subscription & Pricing,2014
+Positive,Features & Content,8116
+Positive,Audio Quality,262
+Positive,UI/UX,50
+Positive,Account/Login,147
+Positive,General,24841
