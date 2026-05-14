@@ -1,0 +1,10 @@
+split,label,label_id,count
+train,Negative,0,27780
+train,Neutral,1,12340
+train,Positive,2,28326
+validation,Negative,0,5953
+validation,Neutral,1,2644
+validation,Positive,2,6071
+test,Negative,0,5953
+test,Neutral,1,2645
+test,Positive,2,6070

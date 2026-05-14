@@ -1,0 +1,56 @@
+[
+  {
+    "split": "train",
+    "label": "Negative",
+    "label_id": 0,
+    "count": 27780
+  },
+  {
+    "split": "train",
+    "label": "Neutral",
+    "label_id": 1,
+    "count": 12340
+  },
+  {
+    "split": "train",
+    "label": "Positive",
+    "label_id": 2,
+    "count": 28326
+  },
+  {
+    "split": "validation",
+    "label": "Negative",
+    "label_id": 0,
+    "count": 5953
+  },
+  {
+    "split": "validation",
+    "label": "Neutral",
+    "label_id": 1,
+    "count": 2644
+  },
+  {
+    "split": "validation",
+    "label": "Positive",
+    "label_id": 2,
+    "count": 6071
+  },
+  {
+    "split": "test",
+    "label": "Negative",
+    "label_id": 0,
+    "count": 5953
+  },
+  {
+    "split": "test",
+    "label": "Neutral",
+    "label_id": 1,
+    "count": 2645
+  },
+  {
+    "split": "test",
+    "label": "Positive",
+    "label_id": 2,
+    "count": 6070
+  }
+]
