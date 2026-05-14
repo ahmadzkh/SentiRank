@@ -1,0 +1,32 @@
+[
+  {
+    "rating": 1,
+    "target_count": 20000,
+    "actual_count": 20000,
+    "achievement_rate": 1.0
+  },
+  {
+    "rating": 2,
+    "target_count": 15000,
+    "actual_count": 15000,
+    "achievement_rate": 1.0
+  },
+  {
+    "rating": 3,
+    "target_count": 30000,
+    "actual_count": 27782,
+    "achievement_rate": 0.926067
+  },
+  {
+    "rating": 4,
+    "target_count": 15000,
+    "actual_count": 15000,
+    "achievement_rate": 1.0
+  },
+  {
+    "rating": 5,
+    "target_count": 20000,
+    "actual_count": 20000,
+    "achievement_rate": 1.0
+  }
+]

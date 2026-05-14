@@ -1,0 +1,18 @@
+[
+  {
+    "field": "external_id",
+    "missing_count": 0
+  },
+  {
+    "field": "rating",
+    "missing_count": 0
+  },
+  {
+    "field": "content",
+    "missing_count": 0
+  },
+  {
+    "field": "reviewed_at",
+    "missing_count": 0
+  }
+]

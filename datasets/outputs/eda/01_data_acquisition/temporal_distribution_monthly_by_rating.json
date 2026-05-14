@@ -1,0 +1,1289 @@
+[
+  {
+    "review_month": "2014-07",
+    "rating_1": 0,
+    "rating_2": 0,
+    "rating_3": 1,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 1
+  },
+  {
+    "review_month": "2014-08",
+    "rating_1": 0,
+    "rating_2": 0,
+    "rating_3": 0,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 0
+  },
+  {
+    "review_month": "2014-09",
+    "rating_1": 0,
+    "rating_2": 0,
+    "rating_3": 0,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 0
+  },
+  {
+    "review_month": "2014-10",
+    "rating_1": 0,
+    "rating_2": 0,
+    "rating_3": 0,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 0
+  },
+  {
+    "review_month": "2014-11",
+    "rating_1": 0,
+    "rating_2": 0,
+    "rating_3": 0,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 0
+  },
+  {
+    "review_month": "2014-12",
+    "rating_1": 0,
+    "rating_2": 0,
+    "rating_3": 0,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 0
+  },
+  {
+    "review_month": "2015-01",
+    "rating_1": 0,
+    "rating_2": 0,
+    "rating_3": 1,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 1
+  },
+  {
+    "review_month": "2015-02",
+    "rating_1": 0,
+    "rating_2": 0,
+    "rating_3": 1,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 1
+  },
+  {
+    "review_month": "2015-03",
+    "rating_1": 0,
+    "rating_2": 0,
+    "rating_3": 0,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 0
+  },
+  {
+    "review_month": "2015-04",
+    "rating_1": 0,
+    "rating_2": 0,
+    "rating_3": 0,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 0
+  },
+  {
+    "review_month": "2015-05",
+    "rating_1": 0,
+    "rating_2": 0,
+    "rating_3": 0,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 0
+  },
+  {
+    "review_month": "2015-06",
+    "rating_1": 0,
+    "rating_2": 0,
+    "rating_3": 3,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 3
+  },
+  {
+    "review_month": "2015-07",
+    "rating_1": 0,
+    "rating_2": 0,
+    "rating_3": 2,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 2
+  },
+  {
+    "review_month": "2015-08",
+    "rating_1": 0,
+    "rating_2": 0,
+    "rating_3": 0,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 0
+  },
+  {
+    "review_month": "2015-09",
+    "rating_1": 0,
+    "rating_2": 0,
+    "rating_3": 2,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 2
+  },
+  {
+    "review_month": "2015-10",
+    "rating_1": 0,
+    "rating_2": 0,
+    "rating_3": 2,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 2
+  },
+  {
+    "review_month": "2015-11",
+    "rating_1": 0,
+    "rating_2": 0,
+    "rating_3": 3,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 3
+  },
+  {
+    "review_month": "2015-12",
+    "rating_1": 0,
+    "rating_2": 0,
+    "rating_3": 2,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 2
+  },
+  {
+    "review_month": "2016-01",
+    "rating_1": 0,
+    "rating_2": 0,
+    "rating_3": 0,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 0
+  },
+  {
+    "review_month": "2016-02",
+    "rating_1": 0,
+    "rating_2": 0,
+    "rating_3": 2,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 2
+  },
+  {
+    "review_month": "2016-03",
+    "rating_1": 0,
+    "rating_2": 0,
+    "rating_3": 12,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 12
+  },
+  {
+    "review_month": "2016-04",
+    "rating_1": 0,
+    "rating_2": 0,
+    "rating_3": 106,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 106
+  },
+  {
+    "review_month": "2016-05",
+    "rating_1": 0,
+    "rating_2": 0,
+    "rating_3": 132,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 132
+  },
+  {
+    "review_month": "2016-06",
+    "rating_1": 0,
+    "rating_2": 0,
+    "rating_3": 266,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 266
+  },
+  {
+    "review_month": "2016-07",
+    "rating_1": 0,
+    "rating_2": 0,
+    "rating_3": 164,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 164
+  },
+  {
+    "review_month": "2016-08",
+    "rating_1": 0,
+    "rating_2": 0,
+    "rating_3": 210,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 210
+  },
+  {
+    "review_month": "2016-09",
+    "rating_1": 0,
+    "rating_2": 0,
+    "rating_3": 244,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 244
+  },
+  {
+    "review_month": "2016-10",
+    "rating_1": 0,
+    "rating_2": 0,
+    "rating_3": 172,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 172
+  },
+  {
+    "review_month": "2016-11",
+    "rating_1": 0,
+    "rating_2": 0,
+    "rating_3": 171,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 171
+  },
+  {
+    "review_month": "2016-12",
+    "rating_1": 0,
+    "rating_2": 0,
+    "rating_3": 280,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 280
+  },
+  {
+    "review_month": "2017-01",
+    "rating_1": 0,
+    "rating_2": 0,
+    "rating_3": 335,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 335
+  },
+  {
+    "review_month": "2017-02",
+    "rating_1": 0,
+    "rating_2": 0,
+    "rating_3": 138,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 138
+  },
+  {
+    "review_month": "2017-03",
+    "rating_1": 0,
+    "rating_2": 0,
+    "rating_3": 186,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 186
+  },
+  {
+    "review_month": "2017-04",
+    "rating_1": 0,
+    "rating_2": 0,
+    "rating_3": 145,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 145
+  },
+  {
+    "review_month": "2017-05",
+    "rating_1": 0,
+    "rating_2": 0,
+    "rating_3": 115,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 115
+  },
+  {
+    "review_month": "2017-06",
+    "rating_1": 0,
+    "rating_2": 0,
+    "rating_3": 123,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 123
+  },
+  {
+    "review_month": "2017-07",
+    "rating_1": 0,
+    "rating_2": 0,
+    "rating_3": 168,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 168
+  },
+  {
+    "review_month": "2017-08",
+    "rating_1": 0,
+    "rating_2": 0,
+    "rating_3": 146,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 146
+  },
+  {
+    "review_month": "2017-09",
+    "rating_1": 0,
+    "rating_2": 0,
+    "rating_3": 133,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 133
+  },
+  {
+    "review_month": "2017-10",
+    "rating_1": 0,
+    "rating_2": 0,
+    "rating_3": 142,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 142
+  },
+  {
+    "review_month": "2017-11",
+    "rating_1": 0,
+    "rating_2": 0,
+    "rating_3": 129,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 129
+  },
+  {
+    "review_month": "2017-12",
+    "rating_1": 0,
+    "rating_2": 0,
+    "rating_3": 143,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 143
+  },
+  {
+    "review_month": "2018-01",
+    "rating_1": 0,
+    "rating_2": 0,
+    "rating_3": 192,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 192
+  },
+  {
+    "review_month": "2018-02",
+    "rating_1": 0,
+    "rating_2": 0,
+    "rating_3": 207,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 207
+  },
+  {
+    "review_month": "2018-03",
+    "rating_1": 0,
+    "rating_2": 0,
+    "rating_3": 227,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 227
+  },
+  {
+    "review_month": "2018-04",
+    "rating_1": 0,
+    "rating_2": 0,
+    "rating_3": 142,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 142
+  },
+  {
+    "review_month": "2018-05",
+    "rating_1": 0,
+    "rating_2": 0,
+    "rating_3": 189,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 189
+  },
+  {
+    "review_month": "2018-06",
+    "rating_1": 0,
+    "rating_2": 0,
+    "rating_3": 344,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 344
+  },
+  {
+    "review_month": "2018-07",
+    "rating_1": 0,
+    "rating_2": 0,
+    "rating_3": 297,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 297
+  },
+  {
+    "review_month": "2018-08",
+    "rating_1": 0,
+    "rating_2": 0,
+    "rating_3": 251,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 251
+  },
+  {
+    "review_month": "2018-09",
+    "rating_1": 0,
+    "rating_2": 0,
+    "rating_3": 147,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 147
+  },
+  {
+    "review_month": "2018-10",
+    "rating_1": 0,
+    "rating_2": 0,
+    "rating_3": 352,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 352
+  },
+  {
+    "review_month": "2018-11",
+    "rating_1": 0,
+    "rating_2": 0,
+    "rating_3": 386,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 386
+  },
+  {
+    "review_month": "2018-12",
+    "rating_1": 0,
+    "rating_2": 0,
+    "rating_3": 268,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 268
+  },
+  {
+    "review_month": "2019-01",
+    "rating_1": 0,
+    "rating_2": 0,
+    "rating_3": 187,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 187
+  },
+  {
+    "review_month": "2019-02",
+    "rating_1": 0,
+    "rating_2": 0,
+    "rating_3": 230,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 230
+  },
+  {
+    "review_month": "2019-03",
+    "rating_1": 0,
+    "rating_2": 0,
+    "rating_3": 257,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 257
+  },
+  {
+    "review_month": "2019-04",
+    "rating_1": 0,
+    "rating_2": 0,
+    "rating_3": 245,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 245
+  },
+  {
+    "review_month": "2019-05",
+    "rating_1": 0,
+    "rating_2": 111,
+    "rating_3": 341,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 452
+  },
+  {
+    "review_month": "2019-06",
+    "rating_1": 0,
+    "rating_2": 149,
+    "rating_3": 278,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 427
+  },
+  {
+    "review_month": "2019-07",
+    "rating_1": 0,
+    "rating_2": 127,
+    "rating_3": 265,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 392
+  },
+  {
+    "review_month": "2019-08",
+    "rating_1": 0,
+    "rating_2": 114,
+    "rating_3": 239,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 353
+  },
+  {
+    "review_month": "2019-09",
+    "rating_1": 0,
+    "rating_2": 124,
+    "rating_3": 250,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 374
+  },
+  {
+    "review_month": "2019-10",
+    "rating_1": 0,
+    "rating_2": 146,
+    "rating_3": 253,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 399
+  },
+  {
+    "review_month": "2019-11",
+    "rating_1": 0,
+    "rating_2": 124,
+    "rating_3": 252,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 376
+  },
+  {
+    "review_month": "2019-12",
+    "rating_1": 0,
+    "rating_2": 123,
+    "rating_3": 241,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 364
+  },
+  {
+    "review_month": "2020-01",
+    "rating_1": 0,
+    "rating_2": 136,
+    "rating_3": 246,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 382
+  },
+  {
+    "review_month": "2020-02",
+    "rating_1": 0,
+    "rating_2": 100,
+    "rating_3": 183,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 283
+  },
+  {
+    "review_month": "2020-03",
+    "rating_1": 0,
+    "rating_2": 163,
+    "rating_3": 267,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 430
+  },
+  {
+    "review_month": "2020-04",
+    "rating_1": 0,
+    "rating_2": 199,
+    "rating_3": 321,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 520
+  },
+  {
+    "review_month": "2020-05",
+    "rating_1": 0,
+    "rating_2": 173,
+    "rating_3": 334,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 507
+  },
+  {
+    "review_month": "2020-06",
+    "rating_1": 0,
+    "rating_2": 172,
+    "rating_3": 283,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 455
+  },
+  {
+    "review_month": "2020-07",
+    "rating_1": 0,
+    "rating_2": 166,
+    "rating_3": 287,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 453
+  },
+  {
+    "review_month": "2020-08",
+    "rating_1": 0,
+    "rating_2": 191,
+    "rating_3": 235,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 426
+  },
+  {
+    "review_month": "2020-09",
+    "rating_1": 0,
+    "rating_2": 127,
+    "rating_3": 247,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 374
+  },
+  {
+    "review_month": "2020-10",
+    "rating_1": 0,
+    "rating_2": 156,
+    "rating_3": 267,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 423
+  },
+  {
+    "review_month": "2020-11",
+    "rating_1": 0,
+    "rating_2": 144,
+    "rating_3": 246,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 390
+  },
+  {
+    "review_month": "2020-12",
+    "rating_1": 0,
+    "rating_2": 161,
+    "rating_3": 205,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 366
+  },
+  {
+    "review_month": "2021-01",
+    "rating_1": 0,
+    "rating_2": 107,
+    "rating_3": 214,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 321
+  },
+  {
+    "review_month": "2021-02",
+    "rating_1": 0,
+    "rating_2": 106,
+    "rating_3": 176,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 282
+  },
+  {
+    "review_month": "2021-03",
+    "rating_1": 0,
+    "rating_2": 190,
+    "rating_3": 269,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 459
+  },
+  {
+    "review_month": "2021-04",
+    "rating_1": 0,
+    "rating_2": 155,
+    "rating_3": 225,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 380
+  },
+  {
+    "review_month": "2021-05",
+    "rating_1": 0,
+    "rating_2": 178,
+    "rating_3": 257,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 435
+  },
+  {
+    "review_month": "2021-06",
+    "rating_1": 0,
+    "rating_2": 141,
+    "rating_3": 208,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 349
+  },
+  {
+    "review_month": "2021-07",
+    "rating_1": 0,
+    "rating_2": 94,
+    "rating_3": 170,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 264
+  },
+  {
+    "review_month": "2021-08",
+    "rating_1": 0,
+    "rating_2": 112,
+    "rating_3": 178,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 290
+  },
+  {
+    "review_month": "2021-09",
+    "rating_1": 0,
+    "rating_2": 101,
+    "rating_3": 216,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 317
+  },
+  {
+    "review_month": "2021-10",
+    "rating_1": 0,
+    "rating_2": 115,
+    "rating_3": 151,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 266
+  },
+  {
+    "review_month": "2021-11",
+    "rating_1": 0,
+    "rating_2": 124,
+    "rating_3": 154,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 278
+  },
+  {
+    "review_month": "2021-12",
+    "rating_1": 0,
+    "rating_2": 140,
+    "rating_3": 188,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 328
+  },
+  {
+    "review_month": "2022-01",
+    "rating_1": 0,
+    "rating_2": 89,
+    "rating_3": 161,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 250
+  },
+  {
+    "review_month": "2022-02",
+    "rating_1": 0,
+    "rating_2": 128,
+    "rating_3": 167,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 295
+  },
+  {
+    "review_month": "2022-03",
+    "rating_1": 0,
+    "rating_2": 138,
+    "rating_3": 190,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 328
+  },
+  {
+    "review_month": "2022-04",
+    "rating_1": 0,
+    "rating_2": 161,
+    "rating_3": 167,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 328
+  },
+  {
+    "review_month": "2022-05",
+    "rating_1": 0,
+    "rating_2": 147,
+    "rating_3": 194,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 341
+  },
+  {
+    "review_month": "2022-06",
+    "rating_1": 0,
+    "rating_2": 168,
+    "rating_3": 172,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 340
+  },
+  {
+    "review_month": "2022-07",
+    "rating_1": 0,
+    "rating_2": 173,
+    "rating_3": 202,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 375
+  },
+  {
+    "review_month": "2022-08",
+    "rating_1": 0,
+    "rating_2": 142,
+    "rating_3": 192,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 334
+  },
+  {
+    "review_month": "2022-09",
+    "rating_1": 0,
+    "rating_2": 143,
+    "rating_3": 154,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 297
+  },
+  {
+    "review_month": "2022-10",
+    "rating_1": 0,
+    "rating_2": 150,
+    "rating_3": 169,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 319
+  },
+  {
+    "review_month": "2022-11",
+    "rating_1": 0,
+    "rating_2": 170,
+    "rating_3": 179,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 349
+  },
+  {
+    "review_month": "2022-12",
+    "rating_1": 0,
+    "rating_2": 139,
+    "rating_3": 218,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 357
+  },
+  {
+    "review_month": "2023-01",
+    "rating_1": 0,
+    "rating_2": 115,
+    "rating_3": 142,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 257
+  },
+  {
+    "review_month": "2023-02",
+    "rating_1": 0,
+    "rating_2": 84,
+    "rating_3": 112,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 196
+  },
+  {
+    "review_month": "2023-03",
+    "rating_1": 0,
+    "rating_2": 109,
+    "rating_3": 159,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 268
+  },
+  {
+    "review_month": "2023-04",
+    "rating_1": 0,
+    "rating_2": 106,
+    "rating_3": 160,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 266
+  },
+  {
+    "review_month": "2023-05",
+    "rating_1": 0,
+    "rating_2": 134,
+    "rating_3": 189,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 323
+  },
+  {
+    "review_month": "2023-06",
+    "rating_1": 0,
+    "rating_2": 269,
+    "rating_3": 365,
+    "rating_4": 0,
+    "rating_5": 0,
+    "total": 634
+  },
+  {
+    "review_month": "2023-07",
+    "rating_1": 0,
+    "rating_2": 249,
+    "rating_3": 378,
+    "rating_4": 95,
+    "rating_5": 0,
+    "total": 722
+  },
+  {
+    "review_month": "2023-08",
+    "rating_1": 0,
+    "rating_2": 233,
+    "rating_3": 291,
+    "rating_4": 529,
+    "rating_5": 0,
+    "total": 1053
+  },
+  {
+    "review_month": "2023-09",
+    "rating_1": 0,
+    "rating_2": 357,
+    "rating_3": 357,
+    "rating_4": 448,
+    "rating_5": 0,
+    "total": 1162
+  },
+  {
+    "review_month": "2023-10",
+    "rating_1": 0,
+    "rating_2": 384,
+    "rating_3": 487,
+    "rating_4": 572,
+    "rating_5": 0,
+    "total": 1443
+  },
+  {
+    "review_month": "2023-11",
+    "rating_1": 0,
+    "rating_2": 299,
+    "rating_3": 320,
+    "rating_4": 498,
+    "rating_5": 0,
+    "total": 1117
+  },
+  {
+    "review_month": "2023-12",
+    "rating_1": 0,
+    "rating_2": 412,
+    "rating_3": 495,
+    "rating_4": 621,
+    "rating_5": 0,
+    "total": 1528
+  },
+  {
+    "review_month": "2024-01",
+    "rating_1": 0,
+    "rating_2": 344,
+    "rating_3": 421,
+    "rating_4": 569,
+    "rating_5": 0,
+    "total": 1334
+  },
+  {
+    "review_month": "2024-02",
+    "rating_1": 0,
+    "rating_2": 314,
+    "rating_3": 331,
+    "rating_4": 414,
+    "rating_5": 0,
+    "total": 1059
+  },
+  {
+    "review_month": "2024-03",
+    "rating_1": 0,
+    "rating_2": 266,
+    "rating_3": 296,
+    "rating_4": 366,
+    "rating_5": 0,
+    "total": 928
+  },
+  {
+    "review_month": "2024-04",
+    "rating_1": 0,
+    "rating_2": 211,
+    "rating_3": 224,
+    "rating_4": 344,
+    "rating_5": 0,
+    "total": 779
+  },
+  {
+    "review_month": "2024-05",
+    "rating_1": 0,
+    "rating_2": 463,
+    "rating_3": 455,
+    "rating_4": 671,
+    "rating_5": 0,
+    "total": 1589
+  },
+  {
+    "review_month": "2024-06",
+    "rating_1": 397,
+    "rating_2": 240,
+    "rating_3": 305,
+    "rating_4": 502,
+    "rating_5": 0,
+    "total": 1444
+  },
+  {
+    "review_month": "2024-07",
+    "rating_1": 776,
+    "rating_2": 201,
+    "rating_3": 247,
+    "rating_4": 460,
+    "rating_5": 0,
+    "total": 1684
+  },
+  {
+    "review_month": "2024-08",
+    "rating_1": 731,
+    "rating_2": 143,
+    "rating_3": 183,
+    "rating_4": 368,
+    "rating_5": 0,
+    "total": 1425
+  },
+  {
+    "review_month": "2024-09",
+    "rating_1": 670,
+    "rating_2": 177,
+    "rating_3": 192,
+    "rating_4": 364,
+    "rating_5": 0,
+    "total": 1403
+  },
+  {
+    "review_month": "2024-10",
+    "rating_1": 574,
+    "rating_2": 151,
+    "rating_3": 173,
+    "rating_4": 357,
+    "rating_5": 0,
+    "total": 1255
+  },
+  {
+    "review_month": "2024-11",
+    "rating_1": 576,
+    "rating_2": 150,
+    "rating_3": 168,
+    "rating_4": 361,
+    "rating_5": 0,
+    "total": 1255
+  },
+  {
+    "review_month": "2024-12",
+    "rating_1": 1378,
+    "rating_2": 268,
+    "rating_3": 331,
+    "rating_4": 486,
+    "rating_5": 0,
+    "total": 2463
+  },
+  {
+    "review_month": "2025-01",
+    "rating_1": 869,
+    "rating_2": 217,
+    "rating_3": 223,
+    "rating_4": 441,
+    "rating_5": 0,
+    "total": 1750
+  },
+  {
+    "review_month": "2025-02",
+    "rating_1": 721,
+    "rating_2": 181,
+    "rating_3": 190,
+    "rating_4": 409,
+    "rating_5": 0,
+    "total": 1501
+  },
+  {
+    "review_month": "2025-03",
+    "rating_1": 679,
+    "rating_2": 180,
+    "rating_3": 219,
+    "rating_4": 428,
+    "rating_5": 0,
+    "total": 1506
+  },
+  {
+    "review_month": "2025-04",
+    "rating_1": 765,
+    "rating_2": 194,
+    "rating_3": 205,
+    "rating_4": 497,
+    "rating_5": 0,
+    "total": 1661
+  },
+  {
+    "review_month": "2025-05",
+    "rating_1": 533,
+    "rating_2": 149,
+    "rating_3": 185,
+    "rating_4": 491,
+    "rating_5": 0,
+    "total": 1358
+  },
+  {
+    "review_month": "2025-06",
+    "rating_1": 633,
+    "rating_2": 172,
+    "rating_3": 210,
+    "rating_4": 495,
+    "rating_5": 0,
+    "total": 1510
+  },
+  {
+    "review_month": "2025-07",
+    "rating_1": 585,
+    "rating_2": 140,
+    "rating_3": 203,
+    "rating_4": 419,
+    "rating_5": 0,
+    "total": 1347
+  },
+  {
+    "review_month": "2025-08",
+    "rating_1": 559,
+    "rating_2": 110,
+    "rating_3": 127,
+    "rating_4": 283,
+    "rating_5": 0,
+    "total": 1079
+  },
+  {
+    "review_month": "2025-09",
+    "rating_1": 787,
+    "rating_2": 131,
+    "rating_3": 162,
+    "rating_4": 393,
+    "rating_5": 0,
+    "total": 1473
+  },
+  {
+    "review_month": "2025-10",
+    "rating_1": 671,
+    "rating_2": 148,
+    "rating_3": 190,
+    "rating_4": 365,
+    "rating_5": 0,
+    "total": 1374
+  },
+  {
+    "review_month": "2025-11",
+    "rating_1": 879,
+    "rating_2": 211,
+    "rating_3": 209,
+    "rating_4": 344,
+    "rating_5": 2186,
+    "total": 3829
+  },
+  {
+    "review_month": "2025-12",
+    "rating_1": 952,
+    "rating_2": 242,
+    "rating_3": 298,
+    "rating_4": 505,
+    "rating_5": 3602,
+    "total": 5599
+  },
+  {
+    "review_month": "2026-01",
+    "rating_1": 626,
+    "rating_2": 157,
+    "rating_3": 235,
+    "rating_4": 440,
+    "rating_5": 3430,
+    "total": 4888
+  },
+  {
+    "review_month": "2026-02",
+    "rating_1": 814,
+    "rating_2": 133,
+    "rating_3": 174,
+    "rating_4": 362,
+    "rating_5": 2850,
+    "total": 4333
+  },
+  {
+    "review_month": "2026-03",
+    "rating_1": 3011,
+    "rating_2": 366,
+    "rating_3": 353,
+    "rating_4": 405,
+    "rating_5": 3033,
+    "total": 7168
+  },
+  {
+    "review_month": "2026-04",
+    "rating_1": 1311,
+    "rating_2": 247,
+    "rating_3": 283,
+    "rating_4": 471,
+    "rating_5": 3447,
+    "total": 5759
+  },
+  {
+    "review_month": "2026-05",
+    "rating_1": 503,
+    "rating_2": 126,
+    "rating_3": 124,
+    "rating_4": 227,
+    "rating_5": 1452,
+    "total": 2432
+  }
+]

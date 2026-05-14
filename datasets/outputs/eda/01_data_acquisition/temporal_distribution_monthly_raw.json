@@ -1,0 +1,574 @@
+[
+  {
+    "review_month": "2014-07",
+    "total": 1
+  },
+  {
+    "review_month": "2014-08",
+    "total": 0
+  },
+  {
+    "review_month": "2014-09",
+    "total": 0
+  },
+  {
+    "review_month": "2014-10",
+    "total": 0
+  },
+  {
+    "review_month": "2014-11",
+    "total": 0
+  },
+  {
+    "review_month": "2014-12",
+    "total": 0
+  },
+  {
+    "review_month": "2015-01",
+    "total": 1
+  },
+  {
+    "review_month": "2015-02",
+    "total": 1
+  },
+  {
+    "review_month": "2015-03",
+    "total": 0
+  },
+  {
+    "review_month": "2015-04",
+    "total": 0
+  },
+  {
+    "review_month": "2015-05",
+    "total": 0
+  },
+  {
+    "review_month": "2015-06",
+    "total": 3
+  },
+  {
+    "review_month": "2015-07",
+    "total": 2
+  },
+  {
+    "review_month": "2015-08",
+    "total": 0
+  },
+  {
+    "review_month": "2015-09",
+    "total": 2
+  },
+  {
+    "review_month": "2015-10",
+    "total": 2
+  },
+  {
+    "review_month": "2015-11",
+    "total": 3
+  },
+  {
+    "review_month": "2015-12",
+    "total": 2
+  },
+  {
+    "review_month": "2016-01",
+    "total": 0
+  },
+  {
+    "review_month": "2016-02",
+    "total": 2
+  },
+  {
+    "review_month": "2016-03",
+    "total": 12
+  },
+  {
+    "review_month": "2016-04",
+    "total": 106
+  },
+  {
+    "review_month": "2016-05",
+    "total": 132
+  },
+  {
+    "review_month": "2016-06",
+    "total": 266
+  },
+  {
+    "review_month": "2016-07",
+    "total": 164
+  },
+  {
+    "review_month": "2016-08",
+    "total": 210
+  },
+  {
+    "review_month": "2016-09",
+    "total": 244
+  },
+  {
+    "review_month": "2016-10",
+    "total": 172
+  },
+  {
+    "review_month": "2016-11",
+    "total": 171
+  },
+  {
+    "review_month": "2016-12",
+    "total": 280
+  },
+  {
+    "review_month": "2017-01",
+    "total": 335
+  },
+  {
+    "review_month": "2017-02",
+    "total": 138
+  },
+  {
+    "review_month": "2017-03",
+    "total": 186
+  },
+  {
+    "review_month": "2017-04",
+    "total": 145
+  },
+  {
+    "review_month": "2017-05",
+    "total": 115
+  },
+  {
+    "review_month": "2017-06",
+    "total": 123
+  },
+  {
+    "review_month": "2017-07",
+    "total": 168
+  },
+  {
+    "review_month": "2017-08",
+    "total": 146
+  },
+  {
+    "review_month": "2017-09",
+    "total": 133
+  },
+  {
+    "review_month": "2017-10",
+    "total": 142
+  },
+  {
+    "review_month": "2017-11",
+    "total": 129
+  },
+  {
+    "review_month": "2017-12",
+    "total": 143
+  },
+  {
+    "review_month": "2018-01",
+    "total": 192
+  },
+  {
+    "review_month": "2018-02",
+    "total": 207
+  },
+  {
+    "review_month": "2018-03",
+    "total": 227
+  },
+  {
+    "review_month": "2018-04",
+    "total": 142
+  },
+  {
+    "review_month": "2018-05",
+    "total": 189
+  },
+  {
+    "review_month": "2018-06",
+    "total": 344
+  },
+  {
+    "review_month": "2018-07",
+    "total": 297
+  },
+  {
+    "review_month": "2018-08",
+    "total": 251
+  },
+  {
+    "review_month": "2018-09",
+    "total": 147
+  },
+  {
+    "review_month": "2018-10",
+    "total": 352
+  },
+  {
+    "review_month": "2018-11",
+    "total": 386
+  },
+  {
+    "review_month": "2018-12",
+    "total": 268
+  },
+  {
+    "review_month": "2019-01",
+    "total": 187
+  },
+  {
+    "review_month": "2019-02",
+    "total": 230
+  },
+  {
+    "review_month": "2019-03",
+    "total": 257
+  },
+  {
+    "review_month": "2019-04",
+    "total": 245
+  },
+  {
+    "review_month": "2019-05",
+    "total": 452
+  },
+  {
+    "review_month": "2019-06",
+    "total": 427
+  },
+  {
+    "review_month": "2019-07",
+    "total": 392
+  },
+  {
+    "review_month": "2019-08",
+    "total": 353
+  },
+  {
+    "review_month": "2019-09",
+    "total": 374
+  },
+  {
+    "review_month": "2019-10",
+    "total": 399
+  },
+  {
+    "review_month": "2019-11",
+    "total": 376
+  },
+  {
+    "review_month": "2019-12",
+    "total": 364
+  },
+  {
+    "review_month": "2020-01",
+    "total": 382
+  },
+  {
+    "review_month": "2020-02",
+    "total": 283
+  },
+  {
+    "review_month": "2020-03",
+    "total": 430
+  },
+  {
+    "review_month": "2020-04",
+    "total": 520
+  },
+  {
+    "review_month": "2020-05",
+    "total": 507
+  },
+  {
+    "review_month": "2020-06",
+    "total": 455
+  },
+  {
+    "review_month": "2020-07",
+    "total": 453
+  },
+  {
+    "review_month": "2020-08",
+    "total": 426
+  },
+  {
+    "review_month": "2020-09",
+    "total": 374
+  },
+  {
+    "review_month": "2020-10",
+    "total": 423
+  },
+  {
+    "review_month": "2020-11",
+    "total": 390
+  },
+  {
+    "review_month": "2020-12",
+    "total": 366
+  },
+  {
+    "review_month": "2021-01",
+    "total": 321
+  },
+  {
+    "review_month": "2021-02",
+    "total": 282
+  },
+  {
+    "review_month": "2021-03",
+    "total": 459
+  },
+  {
+    "review_month": "2021-04",
+    "total": 380
+  },
+  {
+    "review_month": "2021-05",
+    "total": 435
+  },
+  {
+    "review_month": "2021-06",
+    "total": 349
+  },
+  {
+    "review_month": "2021-07",
+    "total": 264
+  },
+  {
+    "review_month": "2021-08",
+    "total": 290
+  },
+  {
+    "review_month": "2021-09",
+    "total": 317
+  },
+  {
+    "review_month": "2021-10",
+    "total": 266
+  },
+  {
+    "review_month": "2021-11",
+    "total": 278
+  },
+  {
+    "review_month": "2021-12",
+    "total": 328
+  },
+  {
+    "review_month": "2022-01",
+    "total": 250
+  },
+  {
+    "review_month": "2022-02",
+    "total": 295
+  },
+  {
+    "review_month": "2022-03",
+    "total": 328
+  },
+  {
+    "review_month": "2022-04",
+    "total": 328
+  },
+  {
+    "review_month": "2022-05",
+    "total": 341
+  },
+  {
+    "review_month": "2022-06",
+    "total": 340
+  },
+  {
+    "review_month": "2022-07",
+    "total": 375
+  },
+  {
+    "review_month": "2022-08",
+    "total": 334
+  },
+  {
+    "review_month": "2022-09",
+    "total": 297
+  },
+  {
+    "review_month": "2022-10",
+    "total": 319
+  },
+  {
+    "review_month": "2022-11",
+    "total": 349
+  },
+  {
+    "review_month": "2022-12",
+    "total": 357
+  },
+  {
+    "review_month": "2023-01",
+    "total": 257
+  },
+  {
+    "review_month": "2023-02",
+    "total": 196
+  },
+  {
+    "review_month": "2023-03",
+    "total": 268
+  },
+  {
+    "review_month": "2023-04",
+    "total": 266
+  },
+  {
+    "review_month": "2023-05",
+    "total": 323
+  },
+  {
+    "review_month": "2023-06",
+    "total": 634
+  },
+  {
+    "review_month": "2023-07",
+    "total": 722
+  },
+  {
+    "review_month": "2023-08",
+    "total": 1053
+  },
+  {
+    "review_month": "2023-09",
+    "total": 1162
+  },
+  {
+    "review_month": "2023-10",
+    "total": 1443
+  },
+  {
+    "review_month": "2023-11",
+    "total": 1117
+  },
+  {
+    "review_month": "2023-12",
+    "total": 1528
+  },
+  {
+    "review_month": "2024-01",
+    "total": 1334
+  },
+  {
+    "review_month": "2024-02",
+    "total": 1059
+  },
+  {
+    "review_month": "2024-03",
+    "total": 928
+  },
+  {
+    "review_month": "2024-04",
+    "total": 779
+  },
+  {
+    "review_month": "2024-05",
+    "total": 1589
+  },
+  {
+    "review_month": "2024-06",
+    "total": 1444
+  },
+  {
+    "review_month": "2024-07",
+    "total": 1684
+  },
+  {
+    "review_month": "2024-08",
+    "total": 1425
+  },
+  {
+    "review_month": "2024-09",
+    "total": 1403
+  },
+  {
+    "review_month": "2024-10",
+    "total": 1255
+  },
+  {
+    "review_month": "2024-11",
+    "total": 1255
+  },
+  {
+    "review_month": "2024-12",
+    "total": 2463
+  },
+  {
+    "review_month": "2025-01",
+    "total": 1750
+  },
+  {
+    "review_month": "2025-02",
+    "total": 1501
+  },
+  {
+    "review_month": "2025-03",
+    "total": 1506
+  },
+  {
+    "review_month": "2025-04",
+    "total": 1661
+  },
+  {
+    "review_month": "2025-05",
+    "total": 1358
+  },
+  {
+    "review_month": "2025-06",
+    "total": 1510
+  },
+  {
+    "review_month": "2025-07",
+    "total": 1347
+  },
+  {
+    "review_month": "2025-08",
+    "total": 1079
+  },
+  {
+    "review_month": "2025-09",
+    "total": 1473
+  },
+  {
+    "review_month": "2025-10",
+    "total": 1374
+  },
+  {
+    "review_month": "2025-11",
+    "total": 3829
+  },
+  {
+    "review_month": "2025-12",
+    "total": 5599
+  },
+  {
+    "review_month": "2026-01",
+    "total": 4888
+  },
+  {
+    "review_month": "2026-02",
+    "total": 4333
+  },
+  {
+    "review_month": "2026-03",
+    "total": 7168
+  },
+  {
+    "review_month": "2026-04",
+    "total": 5759
+  },
+  {
+    "review_month": "2026-05",
+    "total": 2432
+  }
+]
