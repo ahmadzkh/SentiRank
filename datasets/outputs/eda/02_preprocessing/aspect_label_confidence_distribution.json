@@ -1,0 +1,18 @@
+[
+  {
+    "aspect_label_confidence": "none",
+    "count": 44267
+  },
+  {
+    "aspect_label_confidence": "low",
+    "count": 36532
+  },
+  {
+    "aspect_label_confidence": "medium",
+    "count": 9811
+  },
+  {
+    "aspect_label_confidence": "high",
+    "count": 7172
+  }
+]

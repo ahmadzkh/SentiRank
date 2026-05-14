@@ -1,0 +1,122 @@
+[
+  {
+    "final_sentiment": "Negative",
+    "aspect_label": "Performance & Stability",
+    "count": 1808
+  },
+  {
+    "final_sentiment": "Negative",
+    "aspect_label": "Ads Experience",
+    "count": 10564
+  },
+  {
+    "final_sentiment": "Negative",
+    "aspect_label": "Subscription & Pricing",
+    "count": 6944
+  },
+  {
+    "final_sentiment": "Negative",
+    "aspect_label": "Features & Content",
+    "count": 8392
+  },
+  {
+    "final_sentiment": "Negative",
+    "aspect_label": "Audio Quality",
+    "count": 107
+  },
+  {
+    "final_sentiment": "Negative",
+    "aspect_label": "UI/UX",
+    "count": 166
+  },
+  {
+    "final_sentiment": "Negative",
+    "aspect_label": "Account/Login",
+    "count": 1131
+  },
+  {
+    "final_sentiment": "Negative",
+    "aspect_label": "General",
+    "count": 10574
+  },
+  {
+    "final_sentiment": "Neutral",
+    "aspect_label": "Performance & Stability",
+    "count": 304
+  },
+  {
+    "final_sentiment": "Neutral",
+    "aspect_label": "Ads Experience",
+    "count": 1193
+  },
+  {
+    "final_sentiment": "Neutral",
+    "aspect_label": "Subscription & Pricing",
+    "count": 1737
+  },
+  {
+    "final_sentiment": "Neutral",
+    "aspect_label": "Features & Content",
+    "count": 4152
+  },
+  {
+    "final_sentiment": "Neutral",
+    "aspect_label": "Audio Quality",
+    "count": 75
+  },
+  {
+    "final_sentiment": "Neutral",
+    "aspect_label": "UI/UX",
+    "count": 89
+  },
+  {
+    "final_sentiment": "Neutral",
+    "aspect_label": "Account/Login",
+    "count": 213
+  },
+  {
+    "final_sentiment": "Neutral",
+    "aspect_label": "General",
+    "count": 9866
+  },
+  {
+    "final_sentiment": "Positive",
+    "aspect_label": "Performance & Stability",
+    "count": 488
+  },
+  {
+    "final_sentiment": "Positive",
+    "aspect_label": "Ads Experience",
+    "count": 4525
+  },
+  {
+    "final_sentiment": "Positive",
+    "aspect_label": "Subscription & Pricing",
+    "count": 1982
+  },
+  {
+    "final_sentiment": "Positive",
+    "aspect_label": "Features & Content",
+    "count": 9159
+  },
+  {
+    "final_sentiment": "Positive",
+    "aspect_label": "Audio Quality",
+    "count": 260
+  },
+  {
+    "final_sentiment": "Positive",
+    "aspect_label": "UI/UX",
+    "count": 96
+  },
+  {
+    "final_sentiment": "Positive",
+    "aspect_label": "Account/Login",
+    "count": 130
+  },
+  {
+    "final_sentiment": "Positive",
+    "aspect_label": "General",
+    "count": 23827
+  }
+]

@@ -1,0 +1,601 @@
+term,term_type,count,subset,focus_aspect,text_column
+bagus,unigram,10288,general,General,text_svm
+sangat,unigram,2709,general,General,text_svm
+mantap,unigram,1816,general,General,text_svm
+suka,unigram,1728,general,General,text_svm
+bintang,unigram,1722,general,General,text_svm
+good,unigram,1482,general,General,text_svm
+coba,unigram,1461,general,General,text_svm
+lumayan,unigram,1436,general,General,text_svm
+lagunya,unigram,1369,general,General,text_svm
+apk,unigram,1265,general,General,text_svm
+gak,unigram,1206,general,General,text_svm
+kasih,unigram,1182,general,General,text_svm
+baguss,unigram,1131,general,General,text_svm
+keren,unigram,1023,general,General,text_svm
+kenapa,unigram,1002,general,General,text_svm
+enak,unigram,974,general,General,text_svm
+kikir,unigram,964,general,General,text_svm
+sih,unigram,883,general,General,text_svm
+liriknya,unigram,826,general,General,text_svm
+update,unigram,778,general,General,text_svm
+baik,unigram,748,general,General,text_svm
+kalo,unigram,746,general,General,text_svm
+tolong,unigram,738,general,General,text_svm
+jelek,unigram,688,general,General,text_svm
+makin,unigram,673,general,General,text_svm
+lah,unigram,628,general,General,text_svm
+the,unigram,601,general,General,text_svm
+kurang,unigram,596,general,General,text_svm
+bgt,unigram,587,general,General,text_svm
+padahal,unigram,583,general,General,text_svm
+music,unigram,582,general,General,text_svm
+udah,unigram,570,general,General,text_svm
+sekali,unigram,546,general,General,text_svm
+klo,unigram,537,general,General,text_svm
+oke,unigram,536,general,General,text_svm
+dlu,unigram,534,general,General,text_svm
+offline,unigram,517,general,General,text_svm
+seru,unigram,506,general,General,text_svm
+aplikasinya,unigram,502,general,General,text_svm
+sekarang,unigram,496,general,General,text_svm
+bgus,unigram,479,general,General,text_svm
+cukup,unigram,470,general,General,text_svm
+tambah,unigram,464,general,General,text_svm
+sama,unigram,443,general,General,text_svm
+lama,unigram,411,general,General,text_svm
+lengkap,unigram,383,general,General,text_svm
+bangett,unigram,371,general,General,text_svm
+buka,unigram,363,general,General,text_svm
+malah,unigram,363,general,General,text_svm
+pas,unigram,355,general,General,text_svm
+app,unigram,355,general,General,text_svm
+sendiri,unigram,353,general,General,text_svm
+deh,unigram,336,general,General,text_svm
+gabisa,unigram,326,general,General,text_svm
+sering,unigram,317,general,General,text_svm
+nice,unigram,313,general,General,text_svm
+tiba,unigram,311,general,General,text_svm
+nanti,unigram,307,general,General,text_svm
+cocok,unigram,306,general,General,text_svm
+selalu,unigram,302,general,General,text_svm
+tau,unigram,302,general,General,text_svm
+mati,unigram,300,general,General,text_svm
+musiknya,unigram,292,general,General,text_svm
+main,unigram,287,general,General,text_svm
+best,unigram,275,general,General,text_svm
+menghibur,unigram,273,general,General,text_svm
+tiga,unigram,272,general,General,text_svm
+boikot,unigram,271,general,General,text_svm
+yaa,unigram,269,general,General,text_svm
+dong,unigram,266,general,General,text_svm
+asik,unigram,265,general,General,text_svm
+karna,unigram,261,general,General,text_svm
+kadang,unigram,258,general,General,text_svm
+dengerin,unigram,254,general,General,text_svm
+lain,unigram,250,general,General,text_svm
+udh,unigram,246,general,General,text_svm
+cuma,unigram,245,general,General,text_svm
+bikin,unigram,245,general,General,text_svm
+perbaiki,unigram,244,general,General,text_svm
+pokoknya,unigram,243,general,General,text_svm
+susah,unigram,241,general,General,text_svm
+belum,unigram,232,general,General,text_svm
+hari,unigram,230,general,General,text_svm
+tambahin,unigram,228,general,General,text_svm
+dah,unigram,226,general,General,text_svm
+gua,unigram,223,general,General,text_svm
+data,unigram,220,general,General,text_svm
+pelit,unigram,217,general,General,text_svm
+putar,unigram,217,general,General,text_svm
+memuaskan,unigram,217,general,General,text_svm
+membantu,unigram,215,general,General,text_svm
+puas,unigram,214,general,General,text_svm
+gitu,unigram,213,general,General,text_svm
+game,unigram,212,general,General,text_svm
+nyoba,unigram,212,general,General,text_svm
+share,unigram,212,general,General,text_svm
+semoga,unigram,211,general,General,text_svm
+jelas,unigram,207,general,General,text_svm
+gimana,unigram,206,general,General,text_svm
+knp,unigram,206,general,General,text_svm
+sangat bagus,bigram,1076,general,General,text_svm
+kasih bintang,bigram,641,general,General,text_svm
+lumayan bagus,bigram,272,general,General,text_svm
+bagus sekali,bigram,256,general,General,text_svm
+bagus sih,bigram,229,general,General,text_svm
+kalo bagus,bigram,189,general,General,text_svm
+the best,bigram,163,general,General,text_svm
+klo bagus,bigram,155,general,General,text_svm
+cukup bagus,bigram,152,general,General,text_svm
+bagus tambah,bigram,147,general,General,text_svm
+apk bagus,bigram,144,general,General,text_svm
+main game,bigram,142,general,General,text_svm
+mati sendiri,bigram,140,general,General,text_svm
+bagus suka,bigram,140,general,General,text_svm
+bagus bgt,bigram,139,general,General,text_svm
+coba dlu,bigram,138,general,General,text_svm
+tiba tiba,bigram,137,general,General,text_svm
+lumayan lah,bigram,133,general,General,text_svm
+sangat membantu,bigram,133,general,General,text_svm
+sangat baik,bigram,131,general,General,text_svm
+tolong perbaiki,bigram,125,general,General,text_svm
+apk kikir,bigram,119,general,General,text_svm
+aplikasinya bagus,bigram,116,general,General,text_svm
+sangat suka,bigram,115,general,General,text_svm
+kasi bintang,bigram,107,general,General,text_svm
+makin kikir,bigram,104,general,General,text_svm
+baguss bangett,bigram,101,general,General,text_svm
+terima kasih,bigram,100,general,General,text_svm
+sangat baguss,bigram,99,general,General,text_svm
+sangat menghibur,bigram,99,general,General,text_svm
+bagus bagus,bigram,99,general,General,text_svm
+enak dengar,bigram,98,general,General,text_svm
+bagus kasih,bigram,98,general,General,text_svm
+bagus lagunya,bigram,94,general,General,text_svm
+bintang dlu,bigram,94,general,General,text_svm
+kurang lengkap,bigram,93,general,General,text_svm
+bagus bangett,bigram,91,general,General,text_svm
+bagus tambahin,bigram,90,general,General,text_svm
+setelah update,bigram,89,general,General,text_svm
+tambah bintang,bigram,86,general,General,text_svm
+lagunya bagus,bigram,84,general,General,text_svm
+tolong diperbaiki,bigram,84,general,General,text_svm
+sangat cocok,bigram,81,general,General,text_svm
+tolong dong,bigram,75,general,General,text_svm
+not bad,bigram,74,general,General,text_svm
+klo bgus,bigram,74,general,General,text_svm
+kurang bagus,bigram,73,general,General,text_svm
+makin lama,bigram,72,general,General,text_svm
+lama makin,bigram,69,general,General,text_svm
+suka sama,bigram,69,general,General,text_svm
+padahal jaringan,bigram,68,general,General,text_svm
+sangat puas,bigram,66,general,General,text_svm
+lagunya enak,bigram,66,general,General,text_svm
+makin kesini,bigram,65,general,General,text_svm
+luar biasa,bigram,65,general,General,text_svm
+dlu klo,bigram,65,general,General,text_svm
+sambil main,bigram,64,general,General,text_svm
+bagus aplikasinya,bigram,64,general,General,text_svm
+bagus enak,bigram,64,general,General,text_svm
+beri bintang,bigram,63,general,General,text_svm
+kenapa sekarang,bigram,62,general,General,text_svm
+cukup baik,bigram,62,general,General,text_svm
+very good,bigram,61,general,General,text_svm
+bagus nanti,bigram,60,general,General,text_svm
+kenapa liriknya,bigram,60,general,General,text_svm
+jaringan bagus,bigram,59,general,General,text_svm
+suka mati,bigram,59,general,General,text_svm
+koneksi internet,bigram,58,general,General,text_svm
+the lyrics,bigram,58,general,General,text_svm
+bintang tiga,bigram,58,general,General,text_svm
+update malah,bigram,57,general,General,text_svm
+bintang lima,bigram,56,general,General,text_svm
+lagunya lengkap,bigram,55,general,General,text_svm
+sangat memuaskan,bigram,55,general,General,text_svm
+bagus cuma,bigram,54,general,General,text_svm
+nanti tambah,bigram,53,general,General,text_svm
+tiga bintang,bigram,53,general,General,text_svm
+good job,bigram,52,general,General,text_svm
+gak jelas,bigram,50,general,General,text_svm
+offline padahal,bigram,50,general,General,text_svm
+bagus cuman,bigram,50,general,General,text_svm
+udah bagus,bigram,49,general,General,text_svm
+bagus sangat,bigram,49,general,General,text_svm
+mode offline,bigram,49,general,General,text_svm
+sering mati,bigram,49,general,General,text_svm
+the song,bigram,49,general,General,text_svm
+apk sangat,bigram,49,general,General,text_svm
+bagus apk,bigram,48,general,General,text_svm
+sangat berguna,bigram,48,general,General,text_svm
+suka bgt,bigram,48,general,General,text_svm
+tambah bintangnya,bigram,48,general,General,text_svm
+coba klo,bigram,48,general,General,text_svm
+gak liriknya,bigram,47,general,General,text_svm
+bintang karna,bigram,47,general,General,text_svm
+kenapa gak,bigram,46,general,General,text_svm
+coba kalo,bigram,46,general,General,text_svm
+kesini makin,bigram,45,general,General,text_svm
+share instagram,bigram,45,general,General,text_svm
+padahal udah,bigram,44,general,General,text_svm
+bagus cocok,bigram,44,general,General,text_svm
+bagus,unigram,1024,general_negative,General,text_svm
+kikir,unigram,863,general_negative,General,text_svm
+gak,unigram,704,general_negative,General,text_svm
+apk,unigram,642,general_negative,General,text_svm
+jelek,unigram,585,general_negative,General,text_svm
+kenapa,unigram,579,general_negative,General,text_svm
+makin,unigram,535,general_negative,General,text_svm
+bintang,unigram,424,general_negative,General,text_svm
+update,unigram,419,general_negative,General,text_svm
+padahal,unigram,366,general_negative,General,text_svm
+lagunya,unigram,353,general_negative,General,text_svm
+tolong,unigram,313,general_negative,General,text_svm
+sekarang,unigram,288,general_negative,General,text_svm
+udah,unigram,284,general_negative,General,text_svm
+suka,unigram,281,general_negative,General,text_svm
+kasih,unigram,280,general_negative,General,text_svm
+sangat,unigram,265,general_negative,General,text_svm
+liriknya,unigram,264,general_negative,General,text_svm
+sih,unigram,263,general_negative,General,text_svm
+boikot,unigram,252,general_negative,General,text_svm
+malah,unigram,246,general_negative,General,text_svm
+coba,unigram,242,general_negative,General,text_svm
+offline,unigram,242,general_negative,General,text_svm
+lama,unigram,242,general_negative,General,text_svm
+buka,unigram,226,general_negative,General,text_svm
+susah,unigram,201,general_negative,General,text_svm
+kurang,unigram,195,general_negative,General,text_svm
+gabisa,unigram,190,general_negative,General,text_svm
+pelit,unigram,179,general_negative,General,text_svm
+sendiri,unigram,169,general_negative,General,text_svm
+tiba,unigram,165,general_negative,General,text_svm
+jelas,unigram,158,general_negative,General,text_svm
+sama,unigram,153,general_negative,General,text_svm
+kalo,unigram,151,general_negative,General,text_svm
+the,unigram,144,general_negative,General,text_svm
+bgt,unigram,143,general_negative,General,text_svm
+aplikasinya,unigram,141,general_negative,General,text_svm
+music,unigram,140,general_negative,General,text_svm
+pas,unigram,139,general_negative,General,text_svm
+lumayan,unigram,138,general_negative,General,text_svm
+kecewa,unigram,135,general_negative,General,text_svm
+share,unigram,134,general_negative,General,text_svm
+aneh,unigram,133,general_negative,General,text_svm
+udh,unigram,131,general_negative,General,text_svm
+mati,unigram,131,general_negative,General,text_svm
+isriwil,unigram,130,general_negative,General,text_svm
+sering,unigram,129,general_negative,General,text_svm
+mulu,unigram,127,general_negative,General,text_svm
+jaringan,unigram,126,general_negative,General,text_svm
+data,unigram,118,general_negative,General,text_svm
+putar,unigram,117,general_negative,General,text_svm
+selalu,unigram,116,general_negative,General,text_svm
+perbaiki,unigram,116,general_negative,General,text_svm
+baik,unigram,113,general_negative,General,text_svm
+internet,unigram,112,general_negative,General,text_svm
+lain,unigram,112,general_negative,General,text_svm
+buruk,unigram,111,general_negative,General,text_svm
+lah,unigram,109,general_negative,General,text_svm
+berlangganan,unigram,108,general_negative,General,text_svm
+wifi,unigram,108,general_negative,General,text_svm
+dua,unigram,108,general_negative,General,text_svm
+knp,unigram,105,general_negative,General,text_svm
+ribet,unigram,105,general_negative,General,text_svm
+tau,unigram,104,general_negative,General,text_svm
+mantap,unigram,103,general_negative,General,text_svm
+app,unigram,102,general_negative,General,text_svm
+gua,unigram,101,general_negative,General,text_svm
+masa,unigram,100,general_negative,General,text_svm
+play,unigram,99,general_negative,General,text_svm
+gajelas,unigram,98,general_negative,General,text_svm
+gimana,unigram,97,general_negative,General,text_svm
+berbayar,unigram,96,general_negative,General,text_svm
+dlu,unigram,96,general_negative,General,text_svm
+dah,unigram,95,general_negative,General,text_svm
+setelah,unigram,94,general_negative,General,text_svm
+karna,unigram,94,general_negative,General,text_svm
+terlalu,unigram,90,general_negative,General,text_svm
+bikin,unigram,89,general_negative,General,text_svm
+dong,unigram,89,general_negative,General,text_svm
+klo,unigram,89,general_negative,General,text_svm
+iklanya,unigram,88,general_negative,General,text_svm
+tambah,unigram,86,general_negative,General,text_svm
+musiknya,unigram,86,general_negative,General,text_svm
+enak,unigram,85,general_negative,General,text_svm
+eror,unigram,83,general_negative,General,text_svm
+nih,unigram,81,general_negative,General,text_svm
+diperbaiki,unigram,81,general_negative,General,text_svm
+cuma,unigram,79,general_negative,General,text_svm
+dibuka,unigram,78,general_negative,General,text_svm
+good,unigram,78,general_negative,General,text_svm
+hapus,unigram,77,general_negative,General,text_svm
+sekali,unigram,76,general_negative,General,text_svm
+kali,unigram,76,general_negative,General,text_svm
+kaya,unigram,75,general_negative,General,text_svm
+maaf,unigram,74,general_negative,General,text_svm
+yaa,unigram,74,general_negative,General,text_svm
+instal,unigram,73,general_negative,General,text_svm
+kuota,unigram,73,general_negative,General,text_svm
+pro,unigram,72,general_negative,General,text_svm
+koneksi,unigram,71,general_negative,General,text_svm
+kasih bintang,bigram,175,general_negative,General,text_svm
+apk kikir,bigram,113,general_negative,General,text_svm
+makin kikir,bigram,96,general_negative,General,text_svm
+tiba tiba,bigram,73,general_negative,General,text_svm
+sangat bagus,bigram,64,general_negative,General,text_svm
+lama makin,bigram,63,general_negative,General,text_svm
+tolong perbaiki,bigram,63,general_negative,General,text_svm
+makin lama,bigram,62,general_negative,General,text_svm
+mati sendiri,bigram,57,general_negative,General,text_svm
+setelah update,bigram,54,general_negative,General,text_svm
+makin kesini,bigram,54,general_negative,General,text_svm
+tolong diperbaiki,bigram,47,general_negative,General,text_svm
+padahal jaringan,bigram,46,general_negative,General,text_svm
+jaringan bagus,bigram,44,general_negative,General,text_svm
+kurang bagus,bigram,43,general_negative,General,text_svm
+gak jelas,bigram,42,general_negative,General,text_svm
+kesini makin,bigram,41,general_negative,General,text_svm
+koneksi internet,bigram,40,general_negative,General,text_svm
+update malah,bigram,39,general_negative,General,text_svm
+offline padahal,bigram,38,general_negative,General,text_svm
+kenapa sekarang,bigram,35,general_negative,General,text_svm
+tolong dong,bigram,35,general_negative,General,text_svm
+kenapa gak,bigram,34,general_negative,General,text_svm
+makin jelek,bigram,33,general_negative,General,text_svm
+pro isriwil,bigram,33,general_negative,General,text_svm
+bagus sih,bigram,33,general_negative,General,text_svm
+kasi bintang,bigram,31,general_negative,General,text_svm
+bintang dua,bigram,31,general_negative,General,text_svm
+sedang offline,bigram,30,general_negative,General,text_svm
+share instastory,bigram,30,general_negative,General,text_svm
+makin hari,bigram,29,general_negative,General,text_svm
+update makin,bigram,29,general_negative,General,text_svm
+makin pelit,bigram,28,general_negative,General,text_svm
+lama lama,bigram,28,general_negative,General,text_svm
+apk jelek,bigram,28,general_negative,General,text_svm
+hari makin,bigram,27,general_negative,General,text_svm
+kebelet haji,bigram,27,general_negative,General,text_svm
+lumayan bagus,bigram,27,general_negative,General,text_svm
+kenapa liriknya,bigram,27,general_negative,General,text_svm
+share story,bigram,27,general_negative,General,text_svm
+padahal udah,bigram,26,general_negative,General,text_svm
+sangat buruk,bigram,26,general_negative,General,text_svm
+suka mati,bigram,26,general_negative,General,text_svm
+bintang dlu,bigram,26,general_negative,General,text_svm
+lagunya gak,bigram,25,general_negative,General,text_svm
+apk lain,bigram,25,general_negative,General,text_svm
+gak buka,bigram,25,general_negative,General,text_svm
+share instagram,bigram,25,general_negative,General,text_svm
+mode offline,bigram,24,general_negative,General,text_svm
+pas buka,bigram,23,general_negative,General,text_svm
+udah update,bigram,23,general_negative,General,text_svm
+main game,bigram,23,general_negative,General,text_svm
+kenapa share,bigram,23,general_negative,General,text_svm
+apk bagus,bigram,22,general_negative,General,text_svm
+makin update,bigram,22,general_negative,General,text_svm
+gak putar,bigram,22,general_negative,General,text_svm
+kikir bet,bigram,21,general_negative,General,text_svm
+padahal sinyal,bigram,21,general_negative,General,text_svm
+data seluler,bigram,21,general_negative,General,text_svm
+gak share,bigram,21,general_negative,General,text_svm
+gimana sih,bigram,20,general_negative,General,text_svm
+malah gak,bigram,20,general_negative,General,text_svm
+bagus tambah,bigram,20,general_negative,General,text_svm
+udah gak,bigram,19,general_negative,General,text_svm
+sinyal bagus,bigram,19,general_negative,General,text_svm
+aplikasinya bagus,bigram,19,general_negative,General,text_svm
+bagus kasih,bigram,19,general_negative,General,text_svm
+insta story,bigram,19,general_negative,General,text_svm
+klo bagus,bigram,19,general_negative,General,text_svm
+kalo bagus,bigram,18,general_negative,General,text_svm
+story instagram,bigram,18,general_negative,General,text_svm
+bintang satu,bigram,17,general_negative,General,text_svm
+padahal kuota,bigram,17,general_negative,General,text_svm
+dukung isriwil,bigram,17,general_negative,General,text_svm
+kikir bgt,bigram,17,general_negative,General,text_svm
+buka apk,bigram,17,general_negative,General,text_svm
+gak update,bigram,17,general_negative,General,text_svm
+padahal udh,bigram,17,general_negative,General,text_svm
+gak offline,bigram,17,general_negative,General,text_svm
+dikit dikit,bigram,17,general_negative,General,text_svm
+gaada liriknya,bigram,17,general_negative,General,text_svm
+gabisa dibuka,bigram,16,general_negative,General,text_svm
+please fix,bigram,16,general_negative,General,text_svm
+bintang karna,bigram,16,general_negative,General,text_svm
+apk sampah,bigram,16,general_negative,General,text_svm
+mata duitan,bigram,16,general_negative,General,text_svm
+sering mati,bigram,16,general_negative,General,text_svm
+the song,bigram,16,general_negative,General,text_svm
+offline mulu,bigram,16,general_negative,General,text_svm
+kasih dua,bigram,16,general_negative,General,text_svm
+dua bintang,bigram,16,general_negative,General,text_svm
+sangat jelek,bigram,15,general_negative,General,text_svm
+internet padahal,bigram,15,general_negative,General,text_svm
+play music,bigram,15,general_negative,General,text_svm
+udh update,bigram,15,general_negative,General,text_svm
+semenjak update,bigram,15,general_negative,General,text_svm
+the lyrics,bigram,15,general_negative,General,text_svm
+kenapa gabisa,bigram,14,general_negative,General,text_svm
+makin aneh,bigram,14,general_negative,General,text_svm
+naik haji,bigram,14,general_negative,General,text_svm
+coba,unigram,915,general_neutral,General,text_svm
+lumayan,unigram,750,general_neutral,General,text_svm
+bintang,unigram,625,general_neutral,General,text_svm
+good,unigram,421,general_neutral,General,text_svm
+kasih,unigram,420,general_neutral,General,text_svm
+dlu,unigram,343,general_neutral,General,text_svm
+liriknya,unigram,331,general_neutral,General,text_svm
+lagunya,unigram,259,general_neutral,General,text_svm
+lah,unigram,243,general_neutral,General,text_svm
+gak,unigram,241,general_neutral,General,text_svm
+kenapa,unigram,240,general_neutral,General,text_svm
+klo,unigram,224,general_neutral,General,text_svm
+baik,unigram,223,general_neutral,General,text_svm
+kurang,unigram,219,general_neutral,General,text_svm
+tolong,unigram,218,general_neutral,General,text_svm
+update,unigram,211,general_neutral,General,text_svm
+bgus,unigram,200,general_neutral,General,text_svm
+oke,unigram,199,general_neutral,General,text_svm
+tiga,unigram,198,general_neutral,General,text_svm
+sih,unigram,186,general_neutral,General,text_svm
+the,unigram,165,general_neutral,General,text_svm
+kalo,unigram,153,general_neutral,General,text_svm
+cukup,unigram,150,general_neutral,General,text_svm
+tambah,unigram,150,general_neutral,General,text_svm
+offline,unigram,138,general_neutral,General,text_svm
+nyoba,unigram,135,general_neutral,General,text_svm
+sangat,unigram,124,general_neutral,General,text_svm
+lengkap,unigram,122,general_neutral,General,text_svm
+belum,unigram,122,general_neutral,General,text_svm
+music,unigram,120,general_neutral,General,text_svm
+apk,unigram,115,general_neutral,General,text_svm
+udah,unigram,113,general_neutral,General,text_svm
+sekarang,unigram,108,general_neutral,General,text_svm
+nanti,unigram,107,general_neutral,General,text_svm
+tau,unigram,106,general_neutral,General,text_svm
+padahal,unigram,105,general_neutral,General,text_svm
+dong,unigram,104,general_neutral,General,text_svm
+baguss,unigram,103,general_neutral,General,text_svm
+enak,unigram,102,general_neutral,General,text_svm
+yaa,unigram,98,general_neutral,General,text_svm
+deh,unigram,97,general_neutral,General,text_svm
+lama,unigram,92,general_neutral,General,text_svm
+gabisa,unigram,92,general_neutral,General,text_svm
+sering,unigram,91,general_neutral,General,text_svm
+lyrics,unigram,91,general_neutral,General,text_svm
+bgs,unigram,87,general_neutral,General,text_svm
+please,unigram,86,general_neutral,General,text_svm
+app,unigram,83,general_neutral,General,text_svm
+sama,unigram,82,general_neutral,General,text_svm
+not,unigram,80,general_neutral,General,text_svm
+bagus,unigram,79,general_neutral,General,text_svm
+nice,unigram,79,general_neutral,General,text_svm
+cara,unigram,77,general_neutral,General,text_svm
+gimana,unigram,75,general_neutral,General,text_svm
+memuaskan,unigram,73,general_neutral,General,text_svm
+makin,unigram,72,general_neutral,General,text_svm
+soalnya,unigram,71,general_neutral,General,text_svm
+biasa,unigram,71,general_neutral,General,text_svm
+sendiri,unigram,70,general_neutral,General,text_svm
+blm,unigram,70,general_neutral,General,text_svm
+pas,unigram,69,general_neutral,General,text_svm
+malah,unigram,68,general_neutral,General,text_svm
+share,unigram,68,general_neutral,General,text_svm
+yah,unigram,68,general_neutral,General,text_svm
+lgi,unigram,67,general_neutral,General,text_svm
+menghibur,unigram,67,general_neutral,General,text_svm
+perbaiki,unigram,66,general_neutral,General,text_svm
+buka,unigram,66,general_neutral,General,text_svm
+semoga,unigram,65,general_neutral,General,text_svm
+tambahin,unigram,65,general_neutral,General,text_svm
+kadang,unigram,64,general_neutral,General,text_svm
+but,unigram,64,general_neutral,General,text_svm
+song,unigram,64,general_neutral,General,text_svm
+mati,unigram,63,general_neutral,General,text_svm
+kasi,unigram,61,general_neutral,General,text_svm
+ribet,unigram,60,general_neutral,General,text_svm
+kuota,unigram,59,general_neutral,General,text_svm
+mencoba,unigram,59,general_neutral,General,text_svm
+can,unigram,59,general_neutral,General,text_svm
+joox,unigram,58,general_neutral,General,text_svm
+tiba,unigram,57,general_neutral,General,text_svm
+bintangnya,unigram,57,general_neutral,General,text_svm
+acak,unigram,57,general_neutral,General,text_svm
+like,unigram,56,general_neutral,General,text_svm
+terlalu,unigram,55,general_neutral,General,text_svm
+bad,unigram,55,general_neutral,General,text_svm
+play,unigram,54,general_neutral,General,text_svm
+asik,unigram,54,general_neutral,General,text_svm
+tak,unigram,54,general_neutral,General,text_svm
+kikir,unigram,53,general_neutral,General,text_svm
+biar,unigram,53,general_neutral,General,text_svm
+jelek,unigram,53,general_neutral,General,text_svm
+knp,unigram,53,general_neutral,General,text_svm
+muncul,unigram,52,general_neutral,General,text_svm
+lain,unigram,51,general_neutral,General,text_svm
+you,unigram,51,general_neutral,General,text_svm
+aplikasinya,unigram,50,general_neutral,General,text_svm
+why,unigram,50,general_neutral,General,text_svm
+tes,unigram,50,general_neutral,General,text_svm
+putar,unigram,49,general_neutral,General,text_svm
+kasih bintang,bigram,232,general_neutral,General,text_svm
+coba dlu,bigram,103,general_neutral,General,text_svm
+lumayan lah,bigram,86,general_neutral,General,text_svm
+klo bgus,bigram,66,general_neutral,General,text_svm
+kurang lengkap,bigram,60,general_neutral,General,text_svm
+bintang dlu,bigram,44,general_neutral,General,text_svm
+bintang tiga,bigram,41,general_neutral,General,text_svm
+not bad,bigram,41,general_neutral,General,text_svm
+kasi bintang,bigram,36,general_neutral,General,text_svm
+tiga bintang,bigram,36,general_neutral,General,text_svm
+cukup baik,bigram,34,general_neutral,General,text_svm
+tolong perbaiki,bigram,33,general_neutral,General,text_svm
+dlu klo,bigram,33,general_neutral,General,text_svm
+the lyrics,bigram,33,general_neutral,General,text_svm
+mati sendiri,bigram,29,general_neutral,General,text_svm
+tambah bintang,bigram,29,general_neutral,General,text_svm
+cba dlu,bigram,28,general_neutral,General,text_svm
+setelah update,bigram,26,general_neutral,General,text_svm
+gak liriknya,bigram,25,general_neutral,General,text_svm
+tiba tiba,bigram,24,general_neutral,General,text_svm
+nanti tambah,bigram,24,general_neutral,General,text_svm
+beri bintang,bigram,23,general_neutral,General,text_svm
+terima kasih,bigram,23,general_neutral,General,text_svm
+bintang soalnya,bigram,21,general_neutral,General,text_svm
+tolong diperbaiki,bigram,20,general_neutral,General,text_svm
+kasih tiga,bigram,20,general_neutral,General,text_svm
+sangat baik,bigram,20,general_neutral,General,text_svm
+tolong dong,bigram,19,general_neutral,General,text_svm
+belum coba,bigram,19,general_neutral,General,text_svm
+coba klo,bigram,19,general_neutral,General,text_svm
+the song,bigram,19,general_neutral,General,text_svm
+share instagram,bigram,18,general_neutral,General,text_svm
+kenapa liriknya,bigram,18,general_neutral,General,text_svm
+klo bgs,bigram,18,general_neutral,General,text_svm
+liriknya ilang,bigram,17,general_neutral,General,text_svm
+cukup menghibur,bigram,17,general_neutral,General,text_svm
+bgus tambah,bigram,17,general_neutral,General,text_svm
+gaada liriknya,bigram,16,general_neutral,General,text_svm
+cukup memuaskan,bigram,16,general_neutral,General,text_svm
+ksih bintang,bigram,16,general_neutral,General,text_svm
+bintang klo,bigram,16,general_neutral,General,text_svm
+blm coba,bigram,16,general_neutral,General,text_svm
+the best,bigram,16,general_neutral,General,text_svm
+udah update,bigram,15,general_neutral,General,text_svm
+gabisa share,bigram,15,general_neutral,General,text_svm
+coba kasih,bigram,15,general_neutral,General,text_svm
+update malah,bigram,15,general_neutral,General,text_svm
+sangat menghibur,bigram,15,general_neutral,General,text_svm
+lumayan sih,bigram,15,general_neutral,General,text_svm
+ksh bintang,bigram,15,general_neutral,General,text_svm
+good but,bigram,15,general_neutral,General,text_svm
+please fix,bigram,15,general_neutral,General,text_svm
+padahal udah,bigram,14,general_neutral,General,text_svm
+sering mati,bigram,14,general_neutral,General,text_svm
+kenapa gabisa,bigram,14,general_neutral,General,text_svm
+liriknya gak,bigram,14,general_neutral,General,text_svm
+kurang memuaskan,bigram,14,general_neutral,General,text_svm
+bintang karna,bigram,14,general_neutral,General,text_svm
+tiga dlu,bigram,14,general_neutral,General,text_svm
+kasih dlu,bigram,13,general_neutral,General,text_svm
+oke lah,bigram,13,general_neutral,General,text_svm
+lagunya kurang,bigram,13,general_neutral,General,text_svm
+pas buka,bigram,12,general_neutral,General,text_svm
+update liriknya,bigram,12,general_neutral,General,text_svm
+belum tau,bigram,12,general_neutral,General,text_svm
+gimana cara,bigram,12,general_neutral,General,text_svm
+gak tau,bigram,12,general_neutral,General,text_svm
+liriknya dong,bigram,12,general_neutral,General,text_svm
+nanti klo,bigram,12,general_neutral,General,text_svm
+thank you,bigram,12,general_neutral,General,text_svm
+very good,bigram,12,general_neutral,General,text_svm
+the music,bigram,12,general_neutral,General,text_svm
+kenapa sekarang,bigram,11,general_neutral,General,text_svm
+liriknya hilang,bigram,11,general_neutral,General,text_svm
+mode offline,bigram,11,general_neutral,General,text_svm
+liriknya muncul,bigram,11,general_neutral,General,text_svm
+tambahin bintang,bigram,11,general_neutral,General,text_svm
+tambah lgi,bigram,11,general_neutral,General,text_svm
+coba deh,bigram,11,general_neutral,General,text_svm
+bagusan joox,bigram,11,general_neutral,General,text_svm
+please add,bigram,11,general_neutral,General,text_svm
+nanti tambahin,bigram,10,general_neutral,General,text_svm
+koneksi internet,bigram,10,general_neutral,General,text_svm
+coba nanti,bigram,10,general_neutral,General,text_svm
+maaf kasih,bigram,10,general_neutral,General,text_svm
+tambah bintangnya,bigram,10,general_neutral,General,text_svm
+lengkap lagunya,bigram,10,general_neutral,General,text_svm
+nnti klo,bigram,10,general_neutral,General,text_svm
+coba bintang,bigram,10,general_neutral,General,text_svm
+klw bgus,bigram,10,general_neutral,General,text_svm
+why can,bigram,10,general_neutral,General,text_svm
+sekarang udah,bigram,9,general_neutral,General,text_svm
+lagunya lengkap,bigram,9,general_neutral,General,text_svm
+sering eror,bigram,9,general_neutral,General,text_svm
+bagus sih,bigram,9,general_neutral,General,text_svm
+tak kasih,bigram,9,general_neutral,General,text_svm
+coba kalo,bigram,9,general_neutral,General,text_svm
+coba lah,bigram,9,general_neutral,General,text_svm
+klu bgus,bigram,9,general_neutral,General,text_svm
+sangat memuaskan,bigram,9,general_neutral,General,text_svm

@@ -1,0 +1,813 @@
+{
+  "general_negative_rows": 11453,
+  "general_neutral_rows": 10410,
+  "general_percentage": 47.7634,
+  "general_rows": 46704,
+  "generated_at": "2026-05-14T12:32:54.850739+00:00",
+  "methodology_note": "General fallback rows are analyzed to identify uncovered themes for weak label refinement. These terms are exploratory and must not be treated as expert-validated aspect criteria.",
+  "top_general_bigrams": [
+    {
+      "count": 1076,
+      "term": "sangat bagus"
+    },
+    {
+      "count": 641,
+      "term": "kasih bintang"
+    },
+    {
+      "count": 272,
+      "term": "lumayan bagus"
+    },
+    {
+      "count": 256,
+      "term": "bagus sekali"
+    },
+    {
+      "count": 229,
+      "term": "bagus sih"
+    },
+    {
+      "count": 189,
+      "term": "kalo bagus"
+    },
+    {
+      "count": 163,
+      "term": "the best"
+    },
+    {
+      "count": 155,
+      "term": "klo bagus"
+    },
+    {
+      "count": 152,
+      "term": "cukup bagus"
+    },
+    {
+      "count": 147,
+      "term": "bagus tambah"
+    },
+    {
+      "count": 144,
+      "term": "apk bagus"
+    },
+    {
+      "count": 142,
+      "term": "main game"
+    },
+    {
+      "count": 140,
+      "term": "mati sendiri"
+    },
+    {
+      "count": 140,
+      "term": "bagus suka"
+    },
+    {
+      "count": 139,
+      "term": "bagus bgt"
+    },
+    {
+      "count": 138,
+      "term": "coba dlu"
+    },
+    {
+      "count": 137,
+      "term": "tiba tiba"
+    },
+    {
+      "count": 133,
+      "term": "lumayan lah"
+    },
+    {
+      "count": 133,
+      "term": "sangat membantu"
+    },
+    {
+      "count": 131,
+      "term": "sangat baik"
+    },
+    {
+      "count": 125,
+      "term": "tolong perbaiki"
+    },
+    {
+      "count": 119,
+      "term": "apk kikir"
+    },
+    {
+      "count": 116,
+      "term": "aplikasinya bagus"
+    },
+    {
+      "count": 115,
+      "term": "sangat suka"
+    },
+    {
+      "count": 107,
+      "term": "kasi bintang"
+    },
+    {
+      "count": 104,
+      "term": "makin kikir"
+    },
+    {
+      "count": 101,
+      "term": "baguss bangett"
+    },
+    {
+      "count": 100,
+      "term": "terima kasih"
+    },
+    {
+      "count": 99,
+      "term": "sangat baguss"
+    },
+    {
+      "count": 99,
+      "term": "sangat menghibur"
+    },
+    {
+      "count": 99,
+      "term": "bagus bagus"
+    },
+    {
+      "count": 98,
+      "term": "enak dengar"
+    },
+    {
+      "count": 98,
+      "term": "bagus kasih"
+    },
+    {
+      "count": 94,
+      "term": "bagus lagunya"
+    },
+    {
+      "count": 94,
+      "term": "bintang dlu"
+    },
+    {
+      "count": 93,
+      "term": "kurang lengkap"
+    },
+    {
+      "count": 91,
+      "term": "bagus bangett"
+    },
+    {
+      "count": 90,
+      "term": "bagus tambahin"
+    },
+    {
+      "count": 89,
+      "term": "setelah update"
+    },
+    {
+      "count": 86,
+      "term": "tambah bintang"
+    },
+    {
+      "count": 84,
+      "term": "lagunya bagus"
+    },
+    {
+      "count": 84,
+      "term": "tolong diperbaiki"
+    },
+    {
+      "count": 81,
+      "term": "sangat cocok"
+    },
+    {
+      "count": 75,
+      "term": "tolong dong"
+    },
+    {
+      "count": 74,
+      "term": "not bad"
+    },
+    {
+      "count": 74,
+      "term": "klo bgus"
+    },
+    {
+      "count": 73,
+      "term": "kurang bagus"
+    },
+    {
+      "count": 72,
+      "term": "makin lama"
+    },
+    {
+      "count": 69,
+      "term": "lama makin"
+    },
+    {
+      "count": 69,
+      "term": "suka sama"
+    },
+    {
+      "count": 68,
+      "term": "padahal jaringan"
+    },
+    {
+      "count": 66,
+      "term": "sangat puas"
+    },
+    {
+      "count": 66,
+      "term": "lagunya enak"
+    },
+    {
+      "count": 65,
+      "term": "makin kesini"
+    },
+    {
+      "count": 65,
+      "term": "luar biasa"
+    },
+    {
+      "count": 65,
+      "term": "dlu klo"
+    },
+    {
+      "count": 64,
+      "term": "sambil main"
+    },
+    {
+      "count": 64,
+      "term": "bagus aplikasinya"
+    },
+    {
+      "count": 64,
+      "term": "bagus enak"
+    },
+    {
+      "count": 63,
+      "term": "beri bintang"
+    },
+    {
+      "count": 62,
+      "term": "kenapa sekarang"
+    },
+    {
+      "count": 62,
+      "term": "cukup baik"
+    },
+    {
+      "count": 61,
+      "term": "very good"
+    },
+    {
+      "count": 60,
+      "term": "bagus nanti"
+    },
+    {
+      "count": 60,
+      "term": "kenapa liriknya"
+    },
+    {
+      "count": 59,
+      "term": "jaringan bagus"
+    },
+    {
+      "count": 59,
+      "term": "suka mati"
+    },
+    {
+      "count": 58,
+      "term": "koneksi internet"
+    },
+    {
+      "count": 58,
+      "term": "the lyrics"
+    },
+    {
+      "count": 58,
+      "term": "bintang tiga"
+    },
+    {
+      "count": 57,
+      "term": "update malah"
+    },
+    {
+      "count": 56,
+      "term": "bintang lima"
+    },
+    {
+      "count": 55,
+      "term": "lagunya lengkap"
+    },
+    {
+      "count": 55,
+      "term": "sangat memuaskan"
+    },
+    {
+      "count": 54,
+      "term": "bagus cuma"
+    },
+    {
+      "count": 53,
+      "term": "nanti tambah"
+    },
+    {
+      "count": 53,
+      "term": "tiga bintang"
+    },
+    {
+      "count": 52,
+      "term": "good job"
+    },
+    {
+      "count": 50,
+      "term": "gak jelas"
+    },
+    {
+      "count": 50,
+      "term": "offline padahal"
+    },
+    {
+      "count": 50,
+      "term": "bagus cuman"
+    },
+    {
+      "count": 49,
+      "term": "udah bagus"
+    },
+    {
+      "count": 49,
+      "term": "bagus sangat"
+    },
+    {
+      "count": 49,
+      "term": "mode offline"
+    },
+    {
+      "count": 49,
+      "term": "sering mati"
+    },
+    {
+      "count": 49,
+      "term": "the song"
+    },
+    {
+      "count": 49,
+      "term": "apk sangat"
+    },
+    {
+      "count": 48,
+      "term": "bagus apk"
+    },
+    {
+      "count": 48,
+      "term": "sangat berguna"
+    },
+    {
+      "count": 48,
+      "term": "suka bgt"
+    },
+    {
+      "count": 48,
+      "term": "tambah bintangnya"
+    },
+    {
+      "count": 48,
+      "term": "coba klo"
+    },
+    {
+      "count": 47,
+      "term": "gak liriknya"
+    },
+    {
+      "count": 47,
+      "term": "bintang karna"
+    },
+    {
+      "count": 46,
+      "term": "kenapa gak"
+    },
+    {
+      "count": 46,
+      "term": "coba kalo"
+    },
+    {
+      "count": 45,
+      "term": "kesini makin"
+    },
+    {
+      "count": 45,
+      "term": "share instagram"
+    },
+    {
+      "count": 44,
+      "term": "padahal udah"
+    },
+    {
+      "count": 44,
+      "term": "bagus cocok"
+    }
+  ],
+  "top_general_terms": [
+    {
+      "count": 10288,
+      "term": "bagus"
+    },
+    {
+      "count": 2709,
+      "term": "sangat"
+    },
+    {
+      "count": 1816,
+      "term": "mantap"
+    },
+    {
+      "count": 1728,
+      "term": "suka"
+    },
+    {
+      "count": 1722,
+      "term": "bintang"
+    },
+    {
+      "count": 1482,
+      "term": "good"
+    },
+    {
+      "count": 1461,
+      "term": "coba"
+    },
+    {
+      "count": 1436,
+      "term": "lumayan"
+    },
+    {
+      "count": 1369,
+      "term": "lagunya"
+    },
+    {
+      "count": 1265,
+      "term": "apk"
+    },
+    {
+      "count": 1206,
+      "term": "gak"
+    },
+    {
+      "count": 1182,
+      "term": "kasih"
+    },
+    {
+      "count": 1131,
+      "term": "baguss"
+    },
+    {
+      "count": 1023,
+      "term": "keren"
+    },
+    {
+      "count": 1002,
+      "term": "kenapa"
+    },
+    {
+      "count": 974,
+      "term": "enak"
+    },
+    {
+      "count": 964,
+      "term": "kikir"
+    },
+    {
+      "count": 883,
+      "term": "sih"
+    },
+    {
+      "count": 826,
+      "term": "liriknya"
+    },
+    {
+      "count": 778,
+      "term": "update"
+    },
+    {
+      "count": 748,
+      "term": "baik"
+    },
+    {
+      "count": 746,
+      "term": "kalo"
+    },
+    {
+      "count": 738,
+      "term": "tolong"
+    },
+    {
+      "count": 688,
+      "term": "jelek"
+    },
+    {
+      "count": 673,
+      "term": "makin"
+    },
+    {
+      "count": 628,
+      "term": "lah"
+    },
+    {
+      "count": 601,
+      "term": "the"
+    },
+    {
+      "count": 596,
+      "term": "kurang"
+    },
+    {
+      "count": 587,
+      "term": "bgt"
+    },
+    {
+      "count": 583,
+      "term": "padahal"
+    },
+    {
+      "count": 582,
+      "term": "music"
+    },
+    {
+      "count": 570,
+      "term": "udah"
+    },
+    {
+      "count": 546,
+      "term": "sekali"
+    },
+    {
+      "count": 537,
+      "term": "klo"
+    },
+    {
+      "count": 536,
+      "term": "oke"
+    },
+    {
+      "count": 534,
+      "term": "dlu"
+    },
+    {
+      "count": 517,
+      "term": "offline"
+    },
+    {
+      "count": 506,
+      "term": "seru"
+    },
+    {
+      "count": 502,
+      "term": "aplikasinya"
+    },
+    {
+      "count": 496,
+      "term": "sekarang"
+    },
+    {
+      "count": 479,
+      "term": "bgus"
+    },
+    {
+      "count": 470,
+      "term": "cukup"
+    },
+    {
+      "count": 464,
+      "term": "tambah"
+    },
+    {
+      "count": 443,
+      "term": "sama"
+    },
+    {
+      "count": 411,
+      "term": "lama"
+    },
+    {
+      "count": 383,
+      "term": "lengkap"
+    },
+    {
+      "count": 371,
+      "term": "bangett"
+    },
+    {
+      "count": 363,
+      "term": "buka"
+    },
+    {
+      "count": 363,
+      "term": "malah"
+    },
+    {
+      "count": 355,
+      "term": "pas"
+    },
+    {
+      "count": 355,
+      "term": "app"
+    },
+    {
+      "count": 353,
+      "term": "sendiri"
+    },
+    {
+      "count": 336,
+      "term": "deh"
+    },
+    {
+      "count": 326,
+      "term": "gabisa"
+    },
+    {
+      "count": 317,
+      "term": "sering"
+    },
+    {
+      "count": 313,
+      "term": "nice"
+    },
+    {
+      "count": 311,
+      "term": "tiba"
+    },
+    {
+      "count": 307,
+      "term": "nanti"
+    },
+    {
+      "count": 306,
+      "term": "cocok"
+    },
+    {
+      "count": 302,
+      "term": "selalu"
+    },
+    {
+      "count": 302,
+      "term": "tau"
+    },
+    {
+      "count": 300,
+      "term": "mati"
+    },
+    {
+      "count": 292,
+      "term": "musiknya"
+    },
+    {
+      "count": 287,
+      "term": "main"
+    },
+    {
+      "count": 275,
+      "term": "best"
+    },
+    {
+      "count": 273,
+      "term": "menghibur"
+    },
+    {
+      "count": 272,
+      "term": "tiga"
+    },
+    {
+      "count": 271,
+      "term": "boikot"
+    },
+    {
+      "count": 269,
+      "term": "yaa"
+    },
+    {
+      "count": 266,
+      "term": "dong"
+    },
+    {
+      "count": 265,
+      "term": "asik"
+    },
+    {
+      "count": 261,
+      "term": "karna"
+    },
+    {
+      "count": 258,
+      "term": "kadang"
+    },
+    {
+      "count": 254,
+      "term": "dengerin"
+    },
+    {
+      "count": 250,
+      "term": "lain"
+    },
+    {
+      "count": 246,
+      "term": "udh"
+    },
+    {
+      "count": 245,
+      "term": "cuma"
+    },
+    {
+      "count": 245,
+      "term": "bikin"
+    },
+    {
+      "count": 244,
+      "term": "perbaiki"
+    },
+    {
+      "count": 243,
+      "term": "pokoknya"
+    },
+    {
+      "count": 241,
+      "term": "susah"
+    },
+    {
+      "count": 232,
+      "term": "belum"
+    },
+    {
+      "count": 230,
+      "term": "hari"
+    },
+    {
+      "count": 228,
+      "term": "tambahin"
+    },
+    {
+      "count": 226,
+      "term": "dah"
+    },
+    {
+      "count": 223,
+      "term": "gua"
+    },
+    {
+      "count": 220,
+      "term": "data"
+    },
+    {
+      "count": 217,
+      "term": "pelit"
+    },
+    {
+      "count": 217,
+      "term": "putar"
+    },
+    {
+      "count": 217,
+      "term": "memuaskan"
+    },
+    {
+      "count": 215,
+      "term": "membantu"
+    },
+    {
+      "count": 214,
+      "term": "puas"
+    },
+    {
+      "count": 213,
+      "term": "gitu"
+    },
+    {
+      "count": 212,
+      "term": "game"
+    },
+    {
+      "count": 212,
+      "term": "nyoba"
+    },
+    {
+      "count": 212,
+      "term": "share"
+    },
+    {
+      "count": 211,
+      "term": "semoga"
+    },
+    {
+      "count": 207,
+      "term": "jelas"
+    },
+    {
+      "count": 206,
+      "term": "gimana"
+    },
+    {
+      "count": 206,
+      "term": "knp"
+    }
+  ],
+  "total_rows": 97782
+}

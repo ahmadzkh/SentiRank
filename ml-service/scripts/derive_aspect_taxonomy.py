@@ -20,6 +20,11 @@ METHODOLOGY_NOTE = (
     "must be validated through expert judgement before being used as final "
     "AHP/Fuzzy AHP criteria."
 )
+GENERAL_FALLBACK_METHODOLOGY_NOTE = (
+    "General fallback rows are analyzed to identify uncovered themes for weak "
+    "label refinement. These terms are exploratory and must not be treated as "
+    "expert-validated aspect criteria."
+)
 DEFAULT_FIGURES_DIR = Path("../docs/figures/02_preprocessing")
 MIN_TOKEN_LENGTH = 3
 TOKEN_EXCEPTIONS = {"ui", "ux"}
@@ -95,6 +100,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--text-column", default="text_svm")
     parser.add_argument("--label-column", default="final_sentiment")
     parser.add_argument("--focus-labels", default="Negative,Neutral")
+    parser.add_argument("--focus-aspect", default=None)
+    parser.add_argument("--aspect-column", default="aspect_label")
     parser.add_argument("--top-n", type=int, default=100)
 
     return parser.parse_args()
@@ -189,6 +196,109 @@ def build_candidate_terms_dataframe(
     )
 
 
+def build_general_fallback_terms_dataframe(
+    general_unigrams: Counter[str],
+    general_bigrams: Counter[str],
+    negative_unigrams: Counter[str],
+    negative_bigrams: Counter[str],
+    neutral_unigrams: Counter[str],
+    neutral_bigrams: Counter[str],
+    focus_aspect: str,
+    text_column: str,
+    top_n: int,
+) -> pd.DataFrame:
+    rows = []
+
+    add_term_rows(
+        rows=rows,
+        counts=general_unigrams,
+        subset="general",
+        term_type="unigram",
+        focus_aspect=focus_aspect,
+        text_column=text_column,
+        top_n=top_n,
+    )
+    add_term_rows(
+        rows=rows,
+        counts=general_bigrams,
+        subset="general",
+        term_type="bigram",
+        focus_aspect=focus_aspect,
+        text_column=text_column,
+        top_n=top_n,
+    )
+    add_term_rows(
+        rows=rows,
+        counts=negative_unigrams,
+        subset="general_negative",
+        term_type="unigram",
+        focus_aspect=focus_aspect,
+        text_column=text_column,
+        top_n=top_n,
+    )
+    add_term_rows(
+        rows=rows,
+        counts=negative_bigrams,
+        subset="general_negative",
+        term_type="bigram",
+        focus_aspect=focus_aspect,
+        text_column=text_column,
+        top_n=top_n,
+    )
+    add_term_rows(
+        rows=rows,
+        counts=neutral_unigrams,
+        subset="general_neutral",
+        term_type="unigram",
+        focus_aspect=focus_aspect,
+        text_column=text_column,
+        top_n=top_n,
+    )
+    add_term_rows(
+        rows=rows,
+        counts=neutral_bigrams,
+        subset="general_neutral",
+        term_type="bigram",
+        focus_aspect=focus_aspect,
+        text_column=text_column,
+        top_n=top_n,
+    )
+
+    return pd.DataFrame(
+        rows,
+        columns=[
+            "term",
+            "term_type",
+            "count",
+            "subset",
+            "focus_aspect",
+            "text_column",
+        ],
+    )
+
+
+def add_term_rows(
+    rows: list[dict[str, object]],
+    counts: Counter[str],
+    subset: str,
+    term_type: str,
+    focus_aspect: str,
+    text_column: str,
+    top_n: int,
+) -> None:
+    for term, count in counts.most_common(top_n):
+        rows.append(
+            {
+                "term": term,
+                "term_type": term_type,
+                "count": int(count),
+                "subset": subset,
+                "focus_aspect": focus_aspect,
+                "text_column": text_column,
+            }
+        )
+
+
 def build_summary(
     dataframe: pd.DataFrame,
     focused_dataframe: pd.DataFrame,
@@ -211,6 +321,39 @@ def build_summary(
         ],
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "methodology_note": METHODOLOGY_NOTE,
+    }
+
+
+def build_general_fallback_summary(
+    dataframe: pd.DataFrame,
+    general_dataframe: pd.DataFrame,
+    negative_general_dataframe: pd.DataFrame,
+    neutral_general_dataframe: pd.DataFrame,
+    general_unigrams: Counter[str],
+    general_bigrams: Counter[str],
+    top_n: int,
+) -> dict[str, object]:
+    total_rows = int(len(dataframe))
+    general_rows = int(len(general_dataframe))
+
+    return {
+        "total_rows": total_rows,
+        "general_rows": general_rows,
+        "general_percentage": round(general_rows / total_rows * 100, 4)
+        if total_rows
+        else 0.0,
+        "general_negative_rows": int(len(negative_general_dataframe)),
+        "general_neutral_rows": int(len(neutral_general_dataframe)),
+        "top_general_terms": [
+            {"term": term, "count": int(count)}
+            for term, count in general_unigrams.most_common(top_n)
+        ],
+        "top_general_bigrams": [
+            {"term": term, "count": int(count)}
+            for term, count in general_bigrams.most_common(top_n)
+        ],
+        "generated_at": datetime.now(timezone.utc).isoformat(),
+        "methodology_note": GENERAL_FALLBACK_METHODOLOGY_NOTE,
     }
 
 
@@ -251,8 +394,100 @@ def save_candidate_terms_figure(
     return output_path
 
 
-def main() -> None:
-    args = parse_args()
+def save_general_fallback_terms_figure(
+    fallback_terms: pd.DataFrame,
+    figures_dir: Path = DEFAULT_FIGURES_DIR,
+) -> Path:
+    output_path = figures_dir / "general_fallback_top_terms.png"
+    figures_dir.mkdir(parents=True, exist_ok=True)
+    top_terms = fallback_terms[
+        (fallback_terms["subset"] == "general")
+        & (fallback_terms["term_type"] == "unigram")
+    ].head(20)
+
+    plt.figure(figsize=(9, 6))
+
+    if top_terms.empty:
+        plt.text(0.5, 0.5, "No fallback terms available", ha="center", va="center")
+        plt.axis("off")
+    else:
+        top_terms = top_terms.sort_values("count")
+        plt.barh(top_terms["term"], top_terms["count"], color="#2f6f9f")
+        plt.xlabel("Frequency")
+        plt.ylabel("General Fallback Term")
+
+    plt.title("Top General Fallback Terms")
+    plt.tight_layout()
+    plt.savefig(output_path)
+    plt.close()
+
+    return output_path
+
+
+def run_general_fallback_analysis(args: argparse.Namespace) -> None:
+    dataframe = pd.read_csv(args.input)
+    validate_columns(dataframe, [args.text_column, args.aspect_column])
+
+    general_dataframe = dataframe[dataframe[args.aspect_column].eq(args.focus_aspect)]
+
+    if args.label_column in dataframe.columns:
+        negative_general_dataframe = general_dataframe[
+            general_dataframe[args.label_column].eq("Negative")
+        ]
+        neutral_general_dataframe = general_dataframe[
+            general_dataframe[args.label_column].eq("Neutral")
+        ]
+    else:
+        negative_general_dataframe = general_dataframe.iloc[0:0]
+        neutral_general_dataframe = general_dataframe.iloc[0:0]
+
+    general_unigrams, general_bigrams = count_terms(general_dataframe[args.text_column])
+    negative_unigrams, negative_bigrams = count_terms(
+        negative_general_dataframe[args.text_column]
+    )
+    neutral_unigrams, neutral_bigrams = count_terms(
+        neutral_general_dataframe[args.text_column]
+    )
+    fallback_terms = build_general_fallback_terms_dataframe(
+        general_unigrams=general_unigrams,
+        general_bigrams=general_bigrams,
+        negative_unigrams=negative_unigrams,
+        negative_bigrams=negative_bigrams,
+        neutral_unigrams=neutral_unigrams,
+        neutral_bigrams=neutral_bigrams,
+        focus_aspect=args.focus_aspect,
+        text_column=args.text_column,
+        top_n=args.top_n,
+    )
+    summary = build_general_fallback_summary(
+        dataframe=dataframe,
+        general_dataframe=general_dataframe,
+        negative_general_dataframe=negative_general_dataframe,
+        neutral_general_dataframe=neutral_general_dataframe,
+        general_unigrams=general_unigrams,
+        general_bigrams=general_bigrams,
+        top_n=args.top_n,
+    )
+    keyword_output = save_candidate_terms(fallback_terms, args.output_keywords)
+    summary_output = save_summary(summary, args.output_summary)
+    figure_output = save_general_fallback_terms_figure(fallback_terms)
+
+    print(
+        json.dumps(
+            {
+                "output_keywords": str(keyword_output),
+                "output_summary": str(summary_output),
+                "figure": str(figure_output),
+                "general_rows": int(len(general_dataframe)),
+                "general_percentage": summary["general_percentage"],
+            },
+            indent=2,
+            sort_keys=True,
+        )
+    )
+
+
+def run_default_taxonomy_derivation(args: argparse.Namespace) -> None:
     focus_labels = parse_focus_labels(args.focus_labels)
     dataframe = pd.read_csv(args.input)
     validate_columns(dataframe, [args.text_column, args.label_column])
@@ -290,6 +525,15 @@ def main() -> None:
             sort_keys=True,
         )
     )
+
+
+def main() -> None:
+    args = parse_args()
+
+    if args.focus_aspect:
+        run_general_fallback_analysis(args)
+    else:
+        run_default_taxonomy_derivation(args)
 
 
 if __name__ == "__main__":

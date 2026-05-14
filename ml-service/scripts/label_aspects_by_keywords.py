@@ -19,9 +19,17 @@ METHODOLOGY_NOTE = (
     "Weak aspect labels are generated using keyword dictionaries for "
     "exploratory SVM preparation and are not expert-validated ground truth."
 )
+REFINED_METHODOLOGY_NOTE = (
+    "Refined weak aspect labels include keyword scores and confidence metadata "
+    "for exploratory SVM preparation. They are not expert-validated ground truth "
+    "or final AHP/Fuzzy AHP criteria."
+)
 DEFAULT_METRICS_DIR = Path("../datasets/outputs/eda/02_preprocessing")
 DEFAULT_FIGURES_DIR = Path("../docs/figures/02_preprocessing")
 DEFAULT_SENTIMENT_COLUMN = "final_sentiment"
+PREVIOUS_SUMMARY_PATH = (
+    DEFAULT_METRICS_DIR / "aspect_labeling_summary.json"
+)
 GENERAL_ASPECT = "General"
 ACTIONABLE_ASPECTS = (
     "Performance & Stability",
@@ -37,22 +45,39 @@ ASPECT_KEYWORDS: OrderedDict[str, tuple[str, ...]] = OrderedDict(
         "Performance & Stability": (
             "lemot",
             "lambat",
+            "lambat banget",
             "loading",
+            "loading terus",
+            "loading lama",
             "lag",
+            "ngelag",
             "nge lag",
             "berat",
+            "aplikasi berat",
             "error",
+            "error terus",
             "bug",
+            "bug parah",
             "crash",
+            "crash terus",
             "force close",
             "keluar sendiri",
+            "suka keluar",
             "macet",
+            "macet terus",
             "tidak bisa dibuka",
+            "aplikasi berhenti",
             "berhenti sendiri",
             "sering keluar",
+            "tidak merespon",
+            "respon lambat",
+            "ngeload",
         ),
         "Ads Experience": (
             "iklan",
+            "iklan terus",
+            "iklan banyak",
+            "iklan terlalu banyak",
             "ads",
             "promosi",
             "ganggu",
@@ -60,70 +85,142 @@ ASPECT_KEYWORDS: OrderedDict[str, tuple[str, ...]] = OrderedDict(
             "terlalu banyak iklan",
             "kebanyakan iklan",
             "iklannya",
+            "iklan mengganggu",
+            "iklan muncul",
+            "iklan mulu",
+            "skip iklan",
+            "jeda iklan",
         ),
         "Subscription & Pricing": (
             "premium",
+            "premium mahal",
             "langganan",
+            "langganan mahal",
             "bayar",
+            "bayar premium",
             "mahal",
+            "harga mahal",
             "gratis",
+            "gratisan",
             "paket",
+            "paket premium",
             "subscription",
             "pembayaran",
+            "metode pembayaran",
+            "tidak bisa bayar",
             "harga",
+            "potong pulsa",
+            "akun premium",
+            "pulsa",
+            "kartu",
+            "saldo",
+            "refund",
+            "dana",
+            "gopay",
         ),
         "Features & Content": (
             "fitur",
+            "fitur download",
+            "fitur shuffle",
             "shuffle",
+            "shuffle error",
             "playlist",
+            "playlist hilang",
+            "playlist error",
             "lirik",
+            "lirik tidak muncul",
             "download",
+            "tidak bisa download",
+            "download gagal",
             "rekomendasi",
+            "rekomendasi lagu",
             "podcast",
             "equalizer",
             "lagu",
+            "lagu hilang",
+            "lagu tidak ada",
+            "lagu tidak lengkap",
             "musik",
             "album",
             "artis",
             "konten",
             "library",
             "koleksi",
+            "offline",
+            "repeat",
+            "random",
+            "acak",
+            "queue",
+            "unduh",
+            "simpan",
+            "cari lagu",
+            "lagunya",
         ),
         "Audio Quality": (
             "suara",
+            "suara kecil",
+            "suara pecah",
+            "suara tidak jernih",
             "audio",
+            "audio jelek",
             "kualitas lagu",
             "kualitas suara",
+            "kualitas audio",
             "jernih",
             "volume",
+            "volume kecil",
             "bass",
+            "bass kurang",
             "noise",
             "putus putus",
+            "lagu putus putus",
+            "suara putus putus",
         ),
         "UI/UX": (
             "tampilan",
+            "tampilan jelek",
+            "tampilan baru",
             "ui",
             "ux",
             "interface",
+            "interface ribet",
             "desain",
             "menu",
+            "menu membingungkan",
             "navigasi",
+            "navigasi susah",
             "tombol",
+            "tombol tidak berfungsi",
             "layout",
             "mudah digunakan",
             "sulit digunakan",
+            "susah digunakan",
+            "ribet",
+            "layar",
+            "halaman",
         ),
         "Account/Login": (
             "login",
-            "akun",
-            "daftar",
-            "masuk",
-            "logout",
-            "password",
-            "email",
-            "verifikasi",
             "tidak bisa login",
             "gagal login",
+            "susah login",
+            "akun",
+            "akun hilang",
+            "akun bermasalah",
+            "daftar",
+            "masuk",
+            "tidak bisa masuk",
+            "logout",
+            "password",
+            "password salah",
+            "email",
+            "email tidak bisa",
+            "verifikasi",
+            "verifikasi gagal",
+            "otp",
+            "nomor hp",
+            "facebook",
+            "google",
         ),
     }
 )
@@ -170,30 +267,77 @@ def find_keyword_hits(text: str, keywords: tuple[str, ...]) -> list[str]:
     return hits
 
 
-def score_aspects(text: str) -> dict[str, list[str]]:
+def score_keyword(keyword: str) -> int:
+    return 2 if " " in normalize_for_matching(keyword) else 1
+
+
+def score_aspects(text: str) -> dict[str, dict[str, object]]:
     return {
-        aspect: find_keyword_hits(text, keywords)
+        aspect: build_aspect_score(text, keywords)
         for aspect, keywords in ASPECT_KEYWORDS.items()
     }
 
 
-def choose_aspect(scored_hits: dict[str, list[str]]) -> tuple[str, str]:
+def build_aspect_score(
+    text: str,
+    keywords: tuple[str, ...],
+) -> dict[str, object]:
+    hits = find_keyword_hits(text, keywords)
+    score = sum(score_keyword(keyword) for keyword in hits)
+    has_phrase_match = any(" " in normalize_for_matching(keyword) for keyword in hits)
+
+    return {
+        "score": int(score),
+        "hits": hits,
+        "has_phrase_match": has_phrase_match,
+    }
+
+
+def choose_aspect(scored_hits: dict[str, dict[str, object]]) -> tuple[str, str, int, str, str]:
     best_aspect = GENERAL_ASPECT
+    best_score = 0
     best_hits: list[str] = []
+    best_has_phrase_match = False
 
     for aspect in ACTIONABLE_ASPECTS:
-        hits = scored_hits[aspect]
+        aspect_score = scored_hits[aspect]
+        score = int(aspect_score["score"])
+        hits = list(aspect_score["hits"])
+        has_phrase_match = bool(aspect_score["has_phrase_match"])
 
-        if len(hits) > len(best_hits):
+        if score > best_score:
             best_aspect = aspect
+            best_score = score
             best_hits = hits
+            best_has_phrase_match = has_phrase_match
 
     if not best_hits:
-        return GENERAL_ASPECT, "fallback_no_keyword_match"
+        return GENERAL_ASPECT, "fallback_no_keyword_match", 0, "", "none"
 
     compact_hits = ", ".join(best_hits[:5])
+    keywords_matched = "|".join(best_hits)
+    confidence = determine_confidence(best_score, best_has_phrase_match)
 
-    return best_aspect, f"matched_keywords: {compact_hits}"
+    return (
+        best_aspect,
+        f"matched_keywords: {compact_hits}",
+        best_score,
+        keywords_matched,
+        confidence,
+    )
+
+
+def determine_confidence(score: int, has_phrase_match: bool) -> str:
+    if score >= 3:
+        return "high"
+
+    if has_phrase_match or score == 2:
+        return "medium"
+
+    if score == 1:
+        return "low"
+
+    return "none"
 
 
 def validate_columns(dataframe: pd.DataFrame, columns: list[str]) -> None:
@@ -212,15 +356,24 @@ def label_dataframe(
     labeled_dataframe = dataframe.copy()
     labels = []
     reasons = []
+    scores = []
+    matched_keywords = []
+    confidences = []
 
     for value in labeled_dataframe[text_column].fillna(""):
         text = normalize_for_matching(value)
-        aspect, reason = choose_aspect(score_aspects(text))
+        aspect, reason, score, keywords, confidence = choose_aspect(score_aspects(text))
         labels.append(aspect)
         reasons.append(reason)
+        scores.append(score)
+        matched_keywords.append(keywords)
+        confidences.append(confidence)
 
     labeled_dataframe[aspect_column] = labels
     labeled_dataframe["aspect_label_reason"] = reasons
+    labeled_dataframe["aspect_keyword_score"] = scores
+    labeled_dataframe["aspect_keywords_matched"] = matched_keywords
+    labeled_dataframe["aspect_label_confidence"] = confidences
 
     return labeled_dataframe
 
@@ -271,6 +424,21 @@ def build_aspect_by_sentiment_distribution(
     )
 
 
+def build_confidence_distribution(dataframe: pd.DataFrame) -> pd.DataFrame:
+    confidence_order = ["none", "low", "medium", "high"]
+    counts = dataframe["aspect_label_confidence"].value_counts().reindex(
+        confidence_order,
+        fill_value=0,
+    )
+
+    return pd.DataFrame(
+        {
+            "aspect_label_confidence": list(counts.index),
+            "count": [int(count) for count in counts.values],
+        }
+    )
+
+
 def build_summary(
     dataframe: pd.DataFrame,
     aspect_column: str,
@@ -278,6 +446,7 @@ def build_summary(
     total_rows = int(len(dataframe))
     general_count = int(dataframe[aspect_column].eq(GENERAL_ASPECT).sum())
     rows_with_keyword_match = int(total_rows - general_count)
+    confidence_counts = build_confidence_distribution(dataframe)
 
     return {
         "total_rows": total_rows,
@@ -290,8 +459,12 @@ def build_summary(
         else 0.0,
         "rows_with_keyword_match": rows_with_keyword_match,
         "rows_without_keyword_match": general_count,
+        "aspect_label_confidence_distribution": {
+            str(row["aspect_label_confidence"]): int(row["count"])
+            for row in confidence_counts.to_dict(orient="records")
+        },
         "generated_at": datetime.now(timezone.utc).isoformat(),
-        "methodology_note": METHODOLOGY_NOTE,
+        "methodology_note": REFINED_METHODOLOGY_NOTE,
     }
 
 
@@ -341,20 +514,28 @@ def save_metrics(
         dataframe,
         aspect_column,
     )
+    confidence_distribution = build_confidence_distribution(dataframe)
     summary = build_summary(dataframe, aspect_column)
     generated_paths = []
     generated_paths.extend(
         save_dataframe_metric(
             aspect_distribution,
-            metrics_dir / "aspect_label_distribution.csv",
-            metrics_dir / "aspect_label_distribution.json",
+            metrics_dir / "aspect_label_distribution_refined.csv",
+            metrics_dir / "aspect_label_distribution_refined.json",
         )
     )
     generated_paths.extend(
         save_dataframe_metric(
             aspect_by_sentiment,
-            metrics_dir / "aspect_by_sentiment_distribution.csv",
-            metrics_dir / "aspect_by_sentiment_distribution.json",
+            metrics_dir / "aspect_by_sentiment_distribution_refined.csv",
+            metrics_dir / "aspect_by_sentiment_distribution_refined.json",
+        )
+    )
+    generated_paths.extend(
+        save_dataframe_metric(
+            confidence_distribution,
+            metrics_dir / "aspect_label_confidence_distribution.csv",
+            metrics_dir / "aspect_label_confidence_distribution.json",
         )
     )
     generated_paths.append(save_summary(summary, summary_output))
@@ -366,7 +547,7 @@ def save_aspect_distribution_figure(
     aspect_distribution: pd.DataFrame,
     figures_dir: Path = DEFAULT_FIGURES_DIR,
 ) -> Path:
-    output_path = figures_dir / "aspect_label_distribution.png"
+    output_path = figures_dir / "aspect_label_distribution_refined.png"
     figures_dir.mkdir(parents=True, exist_ok=True)
     ordered_distribution = aspect_distribution.sort_values("count")
 
@@ -376,7 +557,7 @@ def save_aspect_distribution_figure(
         ordered_distribution["count"],
         color="#2f6f9f",
     )
-    plt.title("Weak Aspect Label Distribution")
+    plt.title("Refined Weak Aspect Label Distribution")
     plt.xlabel("Review Count")
     plt.ylabel("Aspect Label")
     plt.tight_layout()
@@ -391,7 +572,7 @@ def save_aspect_by_sentiment_figure(
     aspect_column: str,
     figures_dir: Path = DEFAULT_FIGURES_DIR,
 ) -> Path:
-    output_path = figures_dir / "aspect_by_sentiment_distribution.png"
+    output_path = figures_dir / "aspect_by_sentiment_distribution_refined.png"
     figures_dir.mkdir(parents=True, exist_ok=True)
     aspect_order = [*ACTIONABLE_ASPECTS, GENERAL_ASPECT]
 
@@ -408,7 +589,7 @@ def save_aspect_by_sentiment_figure(
         .reindex(aspect_order, fill_value=0)
     )
     pivot.plot(kind="bar", stacked=True, figsize=(10, 6))
-    plt.title("Weak Aspect Labels by Final Sentiment")
+    plt.title("Refined Weak Aspect Labels by Final Sentiment")
     plt.xlabel("Aspect Label")
     plt.ylabel("Review Count")
     plt.xticks(rotation=35, ha="right")
@@ -419,12 +600,77 @@ def save_aspect_by_sentiment_figure(
     return output_path
 
 
+def save_confidence_distribution_figure(
+    dataframe: pd.DataFrame,
+    figures_dir: Path = DEFAULT_FIGURES_DIR,
+) -> Path:
+    output_path = figures_dir / "aspect_label_confidence_distribution.png"
+    figures_dir.mkdir(parents=True, exist_ok=True)
+    confidence_distribution = build_confidence_distribution(dataframe)
+
+    plt.figure(figsize=(8, 5))
+    plt.bar(
+        confidence_distribution["aspect_label_confidence"],
+        confidence_distribution["count"],
+        color="#2f6f9f",
+    )
+    plt.title("Aspect Label Confidence Distribution")
+    plt.xlabel("Confidence")
+    plt.ylabel("Review Count")
+    plt.tight_layout()
+    plt.savefig(output_path)
+    plt.close()
+
+    return output_path
+
+
+def save_general_rate_before_after_figure(
+    dataframe: pd.DataFrame,
+    aspect_column: str,
+    figures_dir: Path = DEFAULT_FIGURES_DIR,
+    previous_summary_path: Path = PREVIOUS_SUMMARY_PATH,
+) -> Path:
+    output_path = figures_dir / "general_rate_before_after.png"
+    figures_dir.mkdir(parents=True, exist_ok=True)
+    refined_general_rate = build_summary(
+        dataframe,
+        aspect_column,
+    )["general_label_percentage"]
+    previous_general_rate = load_previous_general_rate(previous_summary_path)
+
+    plt.figure(figsize=(8, 5))
+    plt.bar(
+        ["Phase 7B", "Phase 7C refined"],
+        [previous_general_rate, refined_general_rate],
+        color=["#8c8c8c", "#2f6f9f"],
+    )
+    plt.title("General Fallback Rate Before and After Refinement")
+    plt.xlabel("Weak Labeling Phase")
+    plt.ylabel("General Fallback Rate (%)")
+    plt.tight_layout()
+    plt.savefig(output_path)
+    plt.close()
+
+    return output_path
+
+
+def load_previous_general_rate(summary_path: Path) -> float:
+    if not summary_path.is_file():
+        return 0.0
+
+    summary = json.loads(summary_path.read_text(encoding="utf-8"))
+
+    return float(summary.get("general_label_percentage", 0.0))
+
+
 def save_figures(dataframe: pd.DataFrame, aspect_column: str) -> list[Path]:
     aspect_distribution = build_aspect_distribution(dataframe, aspect_column)
 
     return [
         save_aspect_distribution_figure(aspect_distribution),
         save_aspect_by_sentiment_figure(dataframe, aspect_column),
+        save_confidence_distribution_figure(dataframe),
+        save_general_rate_before_after_figure(dataframe, aspect_column),
     ]
 
 
