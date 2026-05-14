@@ -1,7 +1,9 @@
-"""Placeholder script for SVM preprocessing."""
+"""SVM preprocessing placeholder for the SentiRank workflow."""
 
 
 def main() -> None:
+    # TODO: Implement SVM feature extraction in a later phase.
+    # TODO: Write generated features only to datasets/processed/.
     pass
 
 

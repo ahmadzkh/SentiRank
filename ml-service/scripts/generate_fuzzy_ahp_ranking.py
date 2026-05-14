@@ -1,7 +1,9 @@
-"""Placeholder script for Fuzzy AHP ranking generation."""
+"""Fuzzy AHP priority ranking placeholder for the SentiRank workflow."""
 
 
 def main() -> None:
+    # TODO: Implement Fuzzy AHP weighting and ranking in a later phase.
+    # TODO: Keep Fuzzy AHP calculation separate from standard AHP calculation.
     pass
 
 
