@@ -7,7 +7,8 @@ node_modules/
 *.sqlite3
 
 ml-service/.venv/
-ml-service/__pycache__/
+ml-service/.pytest_cache/
+ml-service/**/__pycache__/
 *.pyc
 
 openai-api-key.txt

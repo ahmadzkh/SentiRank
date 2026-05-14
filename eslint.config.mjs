@@ -14,6 +14,13 @@ const eslintConfig = [
     ignores: [
       ".next/**",
       "node_modules/**",
+      "ml-service/.venv/**",
+      "ml-service/.pytest_cache/**",
+      "ml-service/**/__pycache__/**",
+      "prisma/migrations/**",
+      "*.db",
+      "*.sqlite",
+      "*.sqlite3",
       "next-env.d.ts",
     ],
   },
