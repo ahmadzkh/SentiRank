@@ -1,0 +1,31 @@
+{
+  "batch_size": 16,
+  "epochs": 3,
+  "gradient_accumulation_steps": 1,
+  "learning_rate": 2e-05,
+  "max_length": 128,
+  "model_name": "indobenchmark/indobert-base-p1",
+  "random_state": 42,
+  "test_metrics": {
+    "epoch": 3.0,
+    "test_accuracy": 0.7416143986910281,
+    "test_f1_macro": 0.6926732991543059,
+    "test_f1_weighted": 0.7364500011773212,
+    "test_loss": 0.600659966468811,
+    "test_precision_macro": 0.7027378283409657,
+    "test_precision_weighted": 0.7345392906854232,
+    "test_recall_macro": 0.6875208604456247,
+    "test_recall_weighted": 0.7416143986910281,
+    "test_runtime": 57.1841,
+    "test_samples_per_second": 256.505,
+    "test_steps_per_second": 16.036
+  },
+  "train_metrics": {
+    "epoch": 3.0,
+    "total_flos": 5879529349189524.0,
+    "train_loss": 0.5508261156431403,
+    "train_runtime": 2638.6714,
+    "train_samples_per_second": 77.819,
+    "train_steps_per_second": 4.864
+  }
+}
