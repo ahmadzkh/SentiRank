@@ -1,0 +1,55 @@
+{
+  "test_metrics": {
+    "epoch": 3.0,
+    "test_accuracy": 0.7321379874556858,
+    "test_f1_macro": 0.6939878316231963,
+    "test_f1_weighted": 0.736052816178128,
+    "test_loss": 0.7319409847259521,
+    "test_precision_macro": 0.6922605686958595,
+    "test_precision_weighted": 0.74198034467131,
+    "test_recall_macro": 0.6984392289797938,
+    "test_recall_weighted": 0.7321379874556858,
+    "test_runtime": 56.3966,
+    "test_samples_per_second": 260.087,
+    "test_steps_per_second": 16.26
+  },
+  "train_metrics": {
+    "epoch": 3.0,
+    "total_flos": 5882588042670612.0,
+    "train_loss": 0.6548766947171576,
+    "train_runtime": 2653.9755,
+    "train_samples_per_second": 77.37,
+    "train_steps_per_second": 4.836
+  },
+  "training_config": {
+    "batch_size": 16,
+    "class_weights": {
+      "method": "sklearn.utils.class_weight.compute_class_weight(class_weight='balanced')",
+      "run_name": "run_4_weighted_loss_lr_1e-5_slang_norm",
+      "train_distribution": {
+        "Negative": 27780,
+        "Neutral": 12340,
+        "Positive": 28326
+      },
+      "weights_by_id": {
+        "0": 0.8212862970962324,
+        "1": 1.848892490545651,
+        "2": 0.8054555296665019
+      },
+      "weights_by_label": {
+        "Negative": 0.8212862970962324,
+        "Neutral": 1.848892490545651,
+        "Positive": 0.8054555296665019
+      }
+    },
+    "epochs": 3,
+    "gradient_accumulation_steps": 1,
+    "learning_rate": 1e-05,
+    "loss": "weighted_cross_entropy",
+    "max_length": 128,
+    "model_name": "indobenchmark/indobert-base-p1",
+    "random_state": 42,
+    "run_name": "run_4_weighted_loss_lr_1e-5_slang_norm",
+    "text_column": "text_indobert_slang"
+  }
+}
