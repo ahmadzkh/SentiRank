@@ -1,0 +1,56 @@
+{
+  "test_metrics": {
+    "epoch": 3.0,
+    "test_accuracy": 0.7362285246795746,
+    "test_f1_macro": 0.7093262951288682,
+    "test_f1_weighted": 0.7444675721927735,
+    "test_loss": 0.6657047867774963,
+    "test_precision_macro": 0.7085677044571099,
+    "test_precision_weighted": 0.7618704869351424,
+    "test_recall_macro": 0.7234010488718962,
+    "test_recall_weighted": 0.7362285246795746,
+    "test_runtime": 53.2816,
+    "test_samples_per_second": 275.292,
+    "test_steps_per_second": 17.21
+  },
+  "train_metrics": {
+    "epoch": 3.0,
+    "total_flos": 5879529349189524.0,
+    "train_loss": 0.6119208613046887,
+    "train_runtime": 2538.8359,
+    "train_samples_per_second": 80.879,
+    "train_steps_per_second": 5.055
+  },
+  "training_config": {
+    "baseline_run_name": "run_1_baseline",
+    "batch_size": 16,
+    "class_weights": {
+      "method": "sklearn.utils.class_weight.compute_class_weight(class_weight='balanced')",
+      "run_name": "run_3_weighted_loss_lr_1e-5",
+      "train_distribution": {
+        "Negative": 27780,
+        "Neutral": 12340,
+        "Positive": 28326
+      },
+      "weights_by_id": {
+        "0": 0.8212862970962324,
+        "1": 1.848892490545651,
+        "2": 0.8054555296665019
+      },
+      "weights_by_label": {
+        "Negative": 0.8212862970962324,
+        "Neutral": 1.848892490545651,
+        "Positive": 0.8054555296665019
+      }
+    },
+    "epochs": 3,
+    "gradient_accumulation_steps": 1,
+    "learning_rate": 1e-05,
+    "loss": "weighted_cross_entropy",
+    "max_length": 128,
+    "model_name": "indobenchmark/indobert-base-p1",
+    "random_state": 42,
+    "run_2_name": "run_2_weighted_loss",
+    "run_name": "run_3_weighted_loss_lr_1e-5"
+  }
+}
