@@ -1,0 +1,19 @@
+{
+  "method": "sklearn.utils.class_weight.compute_class_weight(class_weight='balanced')",
+  "run_name": "run_2_weighted_loss",
+  "train_distribution": {
+    "Negative": 27780,
+    "Neutral": 12340,
+    "Positive": 28326
+  },
+  "weights_by_id": {
+    "0": 0.8212862970962324,
+    "1": 1.848892490545651,
+    "2": 0.8054555296665019
+  },
+  "weights_by_label": {
+    "Negative": 0.8212862970962324,
+    "Neutral": 1.848892490545651,
+    "Positive": 0.8054555296665019
+  }
+}
