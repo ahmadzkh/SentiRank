@@ -1,0 +1,6 @@
+criterion_id,criterion_name,description,source_labels,use_in_ahp,expert_validation_required
+C1,"Features, Content & Audio Experience","Issues or improvement priorities related to music/content availability, playlist, lyrics, shuffle, download, podcast, recommendations, and audio listening experience.","Features & Content; Audio Quality",true,true
+C2,App Reliability & Usability,"Issues or improvement priorities related to app performance, stability, loading, bugs, crashes, responsiveness, navigation, layout, and ease of use.","Performance & Stability; UI/UX",true,true
+C3,Ads Experience,"Issues or improvement priorities related to advertisement frequency, intrusiveness, interruption, and overall advertising experience.",Ads Experience,true,true
+C4,Subscription & Pricing,"Issues or improvement priorities related to premium subscription, pricing, payment, package value, and perceived affordability.",Subscription & Pricing,true,true
+C5,Account/Login,"Issues or improvement priorities related to account access, login, registration, password, email verification, and account-related problems.",Account/Login,true,true

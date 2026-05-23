@@ -1,0 +1,11 @@
+respondent_id,respondent_role,comparison_id,criterion_a,criterion_b,preferred_criterion,intensity_saaty,ahp_value_a_over_b,justification
+,,P01,"Features, Content & Audio Experience",App Reliability & Usability,,,,
+,,P02,"Features, Content & Audio Experience",Ads Experience,,,,
+,,P03,"Features, Content & Audio Experience",Subscription & Pricing,,,,
+,,P04,"Features, Content & Audio Experience",Account/Login,,,,
+,,P05,App Reliability & Usability,Ads Experience,,,,
+,,P06,App Reliability & Usability,Subscription & Pricing,,,,
+,,P07,App Reliability & Usability,Account/Login,,,,
+,,P08,Ads Experience,Subscription & Pricing,,,,
+,,P09,Ads Experience,Account/Login,,,,
+,,P10,Subscription & Pricing,Account/Login,,,,

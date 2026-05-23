@@ -1,0 +1,112 @@
+[
+  {
+    "respondent_id": "",
+    "respondent_role": "",
+    "comparison_id": "P01",
+    "criterion_a": "Features, Content & Audio Experience",
+    "criterion_b": "App Reliability & Usability",
+    "preferred_criterion": "",
+    "intensity_saaty": "",
+    "ahp_value_a_over_b": "",
+    "justification": ""
+  },
+  {
+    "respondent_id": "",
+    "respondent_role": "",
+    "comparison_id": "P02",
+    "criterion_a": "Features, Content & Audio Experience",
+    "criterion_b": "Ads Experience",
+    "preferred_criterion": "",
+    "intensity_saaty": "",
+    "ahp_value_a_over_b": "",
+    "justification": ""
+  },
+  {
+    "respondent_id": "",
+    "respondent_role": "",
+    "comparison_id": "P03",
+    "criterion_a": "Features, Content & Audio Experience",
+    "criterion_b": "Subscription & Pricing",
+    "preferred_criterion": "",
+    "intensity_saaty": "",
+    "ahp_value_a_over_b": "",
+    "justification": ""
+  },
+  {
+    "respondent_id": "",
+    "respondent_role": "",
+    "comparison_id": "P04",
+    "criterion_a": "Features, Content & Audio Experience",
+    "criterion_b": "Account/Login",
+    "preferred_criterion": "",
+    "intensity_saaty": "",
+    "ahp_value_a_over_b": "",
+    "justification": ""
+  },
+  {
+    "respondent_id": "",
+    "respondent_role": "",
+    "comparison_id": "P05",
+    "criterion_a": "App Reliability & Usability",
+    "criterion_b": "Ads Experience",
+    "preferred_criterion": "",
+    "intensity_saaty": "",
+    "ahp_value_a_over_b": "",
+    "justification": ""
+  },
+  {
+    "respondent_id": "",
+    "respondent_role": "",
+    "comparison_id": "P06",
+    "criterion_a": "App Reliability & Usability",
+    "criterion_b": "Subscription & Pricing",
+    "preferred_criterion": "",
+    "intensity_saaty": "",
+    "ahp_value_a_over_b": "",
+    "justification": ""
+  },
+  {
+    "respondent_id": "",
+    "respondent_role": "",
+    "comparison_id": "P07",
+    "criterion_a": "App Reliability & Usability",
+    "criterion_b": "Account/Login",
+    "preferred_criterion": "",
+    "intensity_saaty": "",
+    "ahp_value_a_over_b": "",
+    "justification": ""
+  },
+  {
+    "respondent_id": "",
+    "respondent_role": "",
+    "comparison_id": "P08",
+    "criterion_a": "Ads Experience",
+    "criterion_b": "Subscription & Pricing",
+    "preferred_criterion": "",
+    "intensity_saaty": "",
+    "ahp_value_a_over_b": "",
+    "justification": ""
+  },
+  {
+    "respondent_id": "",
+    "respondent_role": "",
+    "comparison_id": "P09",
+    "criterion_a": "Ads Experience",
+    "criterion_b": "Account/Login",
+    "preferred_criterion": "",
+    "intensity_saaty": "",
+    "ahp_value_a_over_b": "",
+    "justification": ""
+  },
+  {
+    "respondent_id": "",
+    "respondent_role": "",
+    "comparison_id": "P10",
+    "criterion_a": "Subscription & Pricing",
+    "criterion_b": "Account/Login",
+    "preferred_criterion": "",
+    "intensity_saaty": "",
+    "ahp_value_a_over_b": "",
+    "justification": ""
+  }
+]
