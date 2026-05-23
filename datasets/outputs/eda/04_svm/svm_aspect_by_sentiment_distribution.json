@@ -1,0 +1,107 @@
+[
+  {
+    "aspect_label": "Account/Login",
+    "count": 515,
+    "final_sentiment": "Negative"
+  },
+  {
+    "aspect_label": "Ads Experience",
+    "count": 3479,
+    "final_sentiment": "Negative"
+  },
+  {
+    "aspect_label": "Audio Quality",
+    "count": 58,
+    "final_sentiment": "Negative"
+  },
+  {
+    "aspect_label": "Features & Content",
+    "count": 3871,
+    "final_sentiment": "Negative"
+  },
+  {
+    "aspect_label": "Performance & Stability",
+    "count": 501,
+    "final_sentiment": "Negative"
+  },
+  {
+    "aspect_label": "Subscription & Pricing",
+    "count": 1907,
+    "final_sentiment": "Negative"
+  },
+  {
+    "aspect_label": "UI/UX",
+    "count": 11,
+    "final_sentiment": "Negative"
+  },
+  {
+    "aspect_label": "Account/Login",
+    "count": 72,
+    "final_sentiment": "Neutral"
+  },
+  {
+    "aspect_label": "Ads Experience",
+    "count": 299,
+    "final_sentiment": "Neutral"
+  },
+  {
+    "aspect_label": "Audio Quality",
+    "count": 31,
+    "final_sentiment": "Neutral"
+  },
+  {
+    "aspect_label": "Features & Content",
+    "count": 1548,
+    "final_sentiment": "Neutral"
+  },
+  {
+    "aspect_label": "Performance & Stability",
+    "count": 116,
+    "final_sentiment": "Neutral"
+  },
+  {
+    "aspect_label": "Subscription & Pricing",
+    "count": 466,
+    "final_sentiment": "Neutral"
+  },
+  {
+    "aspect_label": "UI/UX",
+    "count": 5,
+    "final_sentiment": "Neutral"
+  },
+  {
+    "aspect_label": "Account/Login",
+    "count": 53,
+    "final_sentiment": "Positive"
+  },
+  {
+    "aspect_label": "Ads Experience",
+    "count": 913,
+    "final_sentiment": "Positive"
+  },
+  {
+    "aspect_label": "Audio Quality",
+    "count": 130,
+    "final_sentiment": "Positive"
+  },
+  {
+    "aspect_label": "Features & Content",
+    "count": 2348,
+    "final_sentiment": "Positive"
+  },
+  {
+    "aspect_label": "Performance & Stability",
+    "count": 161,
+    "final_sentiment": "Positive"
+  },
+  {
+    "aspect_label": "Subscription & Pricing",
+    "count": 467,
+    "final_sentiment": "Positive"
+  },
+  {
+    "aspect_label": "UI/UX",
+    "count": 32,
+    "final_sentiment": "Positive"
+  }
+]

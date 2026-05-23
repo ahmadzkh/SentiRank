@@ -1,0 +1,37 @@
+[
+  {
+    "aspect_label": "Features & Content",
+    "count": 7767,
+    "percentage": 45.7339692634
+  },
+  {
+    "aspect_label": "Ads Experience",
+    "count": 4691,
+    "percentage": 27.6217393864
+  },
+  {
+    "aspect_label": "Subscription & Pricing",
+    "count": 2840,
+    "percentage": 16.7226049579
+  },
+  {
+    "aspect_label": "Performance & Stability",
+    "count": 778,
+    "percentage": 4.5810516399
+  },
+  {
+    "aspect_label": "Account/Login",
+    "count": 640,
+    "percentage": 3.7684743567
+  },
+  {
+    "aspect_label": "Audio Quality",
+    "count": 219,
+    "percentage": 1.2895248189
+  },
+  {
+    "aspect_label": "UI/UX",
+    "count": 48,
+    "percentage": 0.2826355768
+  }
+]

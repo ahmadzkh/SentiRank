@@ -1,0 +1,52 @@
+{
+  "actionable_aspect_labels": [
+    "Performance & Stability",
+    "Ads Experience",
+    "Subscription & Pricing",
+    "Features & Content",
+    "Audio Quality",
+    "UI/UX",
+    "Account/Login"
+  ],
+  "allowed_confidence": [
+    "medium",
+    "high"
+  ],
+  "aspect_distribution": {
+    "Account/Login": 640,
+    "Ads Experience": 4691,
+    "Audio Quality": 219,
+    "Features & Content": 7767,
+    "Performance & Stability": 778,
+    "Subscription & Pricing": 2840,
+    "UI/UX": 48
+  },
+  "confidence_column": "aspect_label_confidence",
+  "confidence_distribution": {
+    "high": 7172,
+    "medium": 9811
+  },
+  "excluded_labels": [
+    "General"
+  ],
+  "final_dataset_rows": 16983,
+  "generated_at": "2026-05-23T05:53:32.695702+00:00",
+  "label_column": "aspect_label",
+  "methodology_note": "The SVM aspect classifier uses weak labels derived from keyword-based aspect labeling. General fallback labels and low-confidence labels are excluded to reduce label noise. These labels are not treated as expert-validated ground truth.",
+  "removed_empty_text_count": 91,
+  "removed_excluded_label_count": 44176,
+  "removed_general_count": 44176,
+  "removed_low_confidence_count": 36532,
+  "removed_non_actionable_count": 0,
+  "rows_after_actionable_filter": 53515,
+  "rows_after_confidence_filter": 16983,
+  "rows_after_excluding_general": 53515,
+  "rows_after_text_filter": 97691,
+  "sentiment_distribution": {
+    "Negative": 10342,
+    "Neutral": 2537,
+    "Positive": 4104
+  },
+  "text_column": "text_svm",
+  "total_input_rows": 97782
+}
