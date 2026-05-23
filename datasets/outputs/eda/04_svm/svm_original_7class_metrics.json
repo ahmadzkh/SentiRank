@@ -1,0 +1,70 @@
+{
+  "generated_at": "2026-05-23T06:45:17.781720+00:00",
+  "labels": [
+    "Features & Content",
+    "Ads Experience",
+    "Subscription & Pricing",
+    "Performance & Stability",
+    "Account/Login",
+    "Audio Quality",
+    "UI/UX"
+  ],
+  "methodology_note": "SVM aspect classifier experiments use weak labels derived from keyword-based aspect labeling. Results measure performance against weak labels, not expert-validated ground truth.",
+  "model_config": {
+    "char_tfidf": {
+      "analyzer": "char_wb",
+      "min_df": 2,
+      "ngram_range": [
+        3,
+        5
+      ],
+      "sublinear_tf": true
+    },
+    "classifier": "LinearSVC(class_weight='balanced')",
+    "feature_strategy": "FeatureUnion(word_tfidf, char_wb_tfidf)",
+    "random_state": 42,
+    "word_tfidf": {
+      "analyzer": "word",
+      "max_df": 0.95,
+      "min_df": 2,
+      "ngram_range": [
+        1,
+        2
+      ],
+      "sublinear_tf": true
+    }
+  },
+  "preparation": {
+    "conflicting_duplicate_text_count": 0,
+    "duplicate_text_removed_count": 922,
+    "removed_empty_text_count": 0,
+    "rows_after_deduplication": 16061,
+    "rows_after_label_mapping": 16983,
+    "total_input_rows": 16983
+  },
+  "scenario": "original_7class",
+  "split_sizes": {
+    "test": 2410,
+    "train": 11242,
+    "validation": 2409
+  },
+  "target_column": "aspect_label",
+  "test_metrics": {
+    "accuracy": 0.9452282157676348,
+    "f1_macro": 0.8919681273171379,
+    "f1_weighted": 0.9449450858445525,
+    "precision_macro": 0.9405558504106801,
+    "precision_weighted": 0.9452074397502042,
+    "recall_macro": 0.8676421044572781,
+    "recall_weighted": 0.9452282157676348
+  },
+  "validation_metrics": {
+    "accuracy": 0.9468659194686592,
+    "f1_macro": 0.9159327979878434,
+    "f1_weighted": 0.9467921000884989,
+    "precision_macro": 0.945335204708745,
+    "precision_weighted": 0.9469775595369185,
+    "recall_macro": 0.8963125261018187,
+    "recall_weighted": 0.9468659194686592
+  }
+}

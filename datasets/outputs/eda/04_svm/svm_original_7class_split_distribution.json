@@ -1,0 +1,149 @@
+[
+  {
+    "count": 445,
+    "label": "Account/Login",
+    "percentage": 3.9583703967,
+    "scenario": "original_7class",
+    "split": "train"
+  },
+  {
+    "count": 2676,
+    "label": "Ads Experience",
+    "percentage": 23.8035936666,
+    "scenario": "original_7class",
+    "split": "train"
+  },
+  {
+    "count": 147,
+    "label": "Audio Quality",
+    "percentage": 1.3075965131,
+    "scenario": "original_7class",
+    "split": "train"
+  },
+  {
+    "count": 5425,
+    "label": "Features & Content",
+    "percentage": 48.2565379826,
+    "scenario": "original_7class",
+    "split": "train"
+  },
+  {
+    "count": 539,
+    "label": "Performance & Stability",
+    "percentage": 4.7945205479,
+    "scenario": "original_7class",
+    "split": "train"
+  },
+  {
+    "count": 1981,
+    "label": "Subscription & Pricing",
+    "percentage": 17.6214196762,
+    "scenario": "original_7class",
+    "split": "train"
+  },
+  {
+    "count": 29,
+    "label": "UI/UX",
+    "percentage": 0.2579612169,
+    "scenario": "original_7class",
+    "split": "train"
+  },
+  {
+    "count": 95,
+    "label": "Account/Login",
+    "percentage": 3.9435450394,
+    "scenario": "original_7class",
+    "split": "validation"
+  },
+  {
+    "count": 574,
+    "label": "Ads Experience",
+    "percentage": 23.8273142383,
+    "scenario": "original_7class",
+    "split": "validation"
+  },
+  {
+    "count": 32,
+    "label": "Audio Quality",
+    "percentage": 1.3283520133,
+    "scenario": "original_7class",
+    "split": "validation"
+  },
+  {
+    "count": 1162,
+    "label": "Features & Content",
+    "percentage": 48.2357824824,
+    "scenario": "original_7class",
+    "split": "validation"
+  },
+  {
+    "count": 115,
+    "label": "Performance & Stability",
+    "percentage": 4.7737650477,
+    "scenario": "original_7class",
+    "split": "validation"
+  },
+  {
+    "count": 425,
+    "label": "Subscription & Pricing",
+    "percentage": 17.6421751764,
+    "scenario": "original_7class",
+    "split": "validation"
+  },
+  {
+    "count": 6,
+    "label": "UI/UX",
+    "percentage": 0.2490660025,
+    "scenario": "original_7class",
+    "split": "validation"
+  },
+  {
+    "count": 95,
+    "label": "Account/Login",
+    "percentage": 3.9419087137,
+    "scenario": "original_7class",
+    "split": "test"
+  },
+  {
+    "count": 574,
+    "label": "Ads Experience",
+    "percentage": 23.8174273859,
+    "scenario": "original_7class",
+    "split": "test"
+  },
+  {
+    "count": 32,
+    "label": "Audio Quality",
+    "percentage": 1.3278008299,
+    "scenario": "original_7class",
+    "split": "test"
+  },
+  {
+    "count": 1163,
+    "label": "Features & Content",
+    "percentage": 48.2572614108,
+    "scenario": "original_7class",
+    "split": "test"
+  },
+  {
+    "count": 115,
+    "label": "Performance & Stability",
+    "percentage": 4.7717842324,
+    "scenario": "original_7class",
+    "split": "test"
+  },
+  {
+    "count": 425,
+    "label": "Subscription & Pricing",
+    "percentage": 17.6348547718,
+    "scenario": "original_7class",
+    "split": "test"
+  },
+  {
+    "count": 6,
+    "label": "UI/UX",
+    "percentage": 0.2489626556,
+    "scenario": "original_7class",
+    "split": "test"
+  }
+]

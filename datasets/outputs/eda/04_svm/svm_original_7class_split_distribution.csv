@@ -1,0 +1,22 @@
+scenario,split,label,count,percentage
+original_7class,train,Account/Login,445,3.9583703967265613
+original_7class,train,Ads Experience,2676,23.803593666607366
+original_7class,train,Audio Quality,147,1.3075965130759652
+original_7class,train,Features & Content,5425,48.256537982565376
+original_7class,train,Performance & Stability,539,4.794520547945205
+original_7class,train,Subscription & Pricing,1981,17.6214196762142
+original_7class,train,UI/UX,29,0.25796121686532647
+original_7class,validation,Account/Login,95,3.9435450394354503
+original_7class,validation,Ads Experience,574,23.827314238273143
+original_7class,validation,Audio Quality,32,1.32835201328352
+original_7class,validation,Features & Content,1162,48.23578248235783
+original_7class,validation,Performance & Stability,115,4.77376504773765
+original_7class,validation,Subscription & Pricing,425,17.642175176421752
+original_7class,validation,UI/UX,6,0.24906600249066002
+original_7class,test,Account/Login,95,3.941908713692946
+original_7class,test,Ads Experience,574,23.817427385892113
+original_7class,test,Audio Quality,32,1.3278008298755186
+original_7class,test,Features & Content,1163,48.25726141078838
+original_7class,test,Performance & Stability,115,4.771784232365145
+original_7class,test,Subscription & Pricing,425,17.634854771784234
+original_7class,test,UI/UX,6,0.24896265560165973

@@ -1,0 +1,57 @@
+{
+  "Account/Login": {
+    "f1-score": 0.9489795918367347,
+    "precision": 0.9207920792079208,
+    "recall": 0.9789473684210527,
+    "support": 95.0
+  },
+  "Ads Experience": {
+    "f1-score": 0.947002606429192,
+    "precision": 0.9445407279029463,
+    "recall": 0.9494773519163763,
+    "support": 574.0
+  },
+  "Audio Quality": {
+    "f1-score": 0.9206349206349206,
+    "precision": 0.9354838709677419,
+    "recall": 0.90625,
+    "support": 32.0
+  },
+  "Features & Content": {
+    "f1-score": 0.9579399141630901,
+    "precision": 0.9562982005141388,
+    "recall": 0.9595872742906277,
+    "support": 1163.0
+  },
+  "Performance & Stability": {
+    "f1-score": 0.8711111111111111,
+    "precision": 0.8909090909090909,
+    "recall": 0.8521739130434782,
+    "support": 115.0
+  },
+  "Subscription & Pricing": {
+    "f1-score": 0.9314420803782506,
+    "precision": 0.9358669833729216,
+    "recall": 0.9270588235294117,
+    "support": 425.0
+  },
+  "UI/UX": {
+    "f1-score": 0.6666666666666666,
+    "precision": 1.0,
+    "recall": 0.5,
+    "support": 6.0
+  },
+  "accuracy": 0.9452282157676348,
+  "macro avg": {
+    "f1-score": 0.8919681273171381,
+    "precision": 0.9405558504106801,
+    "recall": 0.8676421044572782,
+    "support": 2410.0
+  },
+  "weighted avg": {
+    "f1-score": 0.9449450858445525,
+    "precision": 0.9452074397502042,
+    "recall": 0.9452282157676348,
+    "support": 2410.0
+  }
+}

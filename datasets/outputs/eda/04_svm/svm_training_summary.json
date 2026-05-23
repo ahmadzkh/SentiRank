@@ -1,0 +1,145 @@
+{
+  "candidate_selection": {
+    "selected_metrics": {
+      "accuracy": 0.950207468879668,
+      "class_count": 5,
+      "f1_macro": 0.9367812076632358,
+      "f1_weighted": 0.9501424835741542,
+      "min_class_f1": 0.8898305084745762,
+      "precision_macro": 0.9341269083471747,
+      "precision_weighted": 0.9502595428801952,
+      "recall_macro": 0.9402876428365226,
+      "recall_weighted": 0.950207468879668,
+      "scenario": "merged_5class"
+    },
+    "selected_scenario": "merged_5class",
+    "selection_rule": "Highest test macro F1, then better minority-class F1, then weighted F1."
+  },
+  "comparison_figure": "..\\docs\\figures\\04_svm\\svm_scenario_comparison.png",
+  "comparison_files": [
+    "..\\datasets\\outputs\\eda\\04_svm\\svm_scenario_comparison.csv",
+    "..\\datasets\\outputs\\eda\\04_svm\\svm_scenario_comparison.json"
+  ],
+  "generated_at": "2026-05-23T06:45:25.403626+00:00",
+  "methodology_note": "SVM aspect classifier experiments use weak labels derived from keyword-based aspect labeling. Results measure performance against weak labels, not expert-validated ground truth.",
+  "scenario_results": [
+    {
+      "artifact_files": [
+        "saved_models\\svm\\svm_original_7class_pipeline.joblib",
+        "saved_models\\svm\\svm_original_7class_label_mapping.json"
+      ],
+      "figure_files": [
+        "..\\docs\\figures\\04_svm\\svm_original_7class_confusion_matrix.png",
+        "..\\docs\\figures\\04_svm\\svm_original_7class_class_f1.png"
+      ],
+      "labels": [
+        "Features & Content",
+        "Ads Experience",
+        "Subscription & Pricing",
+        "Performance & Stability",
+        "Account/Login",
+        "Audio Quality",
+        "UI/UX"
+      ],
+      "metrics_files": [
+        "..\\datasets\\outputs\\eda\\04_svm\\svm_original_7class_metrics.json",
+        "..\\datasets\\outputs\\eda\\04_svm\\svm_original_7class_classification_report.json",
+        "..\\datasets\\outputs\\eda\\04_svm\\svm_original_7class_confusion_matrix.csv",
+        "..\\datasets\\outputs\\eda\\04_svm\\svm_original_7class_predictions.csv",
+        "..\\datasets\\outputs\\eda\\04_svm\\svm_original_7class_split_distribution.csv",
+        "..\\datasets\\outputs\\eda\\04_svm\\svm_original_7class_split_distribution.json"
+      ],
+      "preparation": {
+        "conflicting_duplicate_text_count": 0,
+        "duplicate_text_removed_count": 922,
+        "removed_empty_text_count": 0,
+        "rows_after_deduplication": 16061,
+        "rows_after_label_mapping": 16983,
+        "total_input_rows": 16983
+      },
+      "scenario": "original_7class",
+      "split_sizes": {
+        "test": 2410,
+        "train": 11242,
+        "validation": 2409
+      },
+      "target_column": "aspect_label",
+      "test_metrics": {
+        "accuracy": 0.9452282157676348,
+        "f1_macro": 0.8919681273171379,
+        "f1_weighted": 0.9449450858445525,
+        "precision_macro": 0.9405558504106801,
+        "precision_weighted": 0.9452074397502042,
+        "recall_macro": 0.8676421044572781,
+        "recall_weighted": 0.9452282157676348
+      },
+      "validation_metrics": {
+        "accuracy": 0.9468659194686592,
+        "f1_macro": 0.9159327979878434,
+        "f1_weighted": 0.9467921000884989,
+        "precision_macro": 0.945335204708745,
+        "precision_weighted": 0.9469775595369185,
+        "recall_macro": 0.8963125261018187,
+        "recall_weighted": 0.9468659194686592
+      }
+    },
+    {
+      "artifact_files": [
+        "saved_models\\svm\\svm_merged_5class_pipeline.joblib",
+        "saved_models\\svm\\svm_merged_5class_label_mapping.json"
+      ],
+      "figure_files": [
+        "..\\docs\\figures\\04_svm\\svm_merged_5class_confusion_matrix.png",
+        "..\\docs\\figures\\04_svm\\svm_merged_5class_class_f1.png"
+      ],
+      "labels": [
+        "Account/Login",
+        "Ads Experience",
+        "App Reliability & Usability",
+        "Features, Content & Audio Experience",
+        "Subscription & Pricing"
+      ],
+      "metrics_files": [
+        "..\\datasets\\outputs\\eda\\04_svm\\svm_merged_5class_metrics.json",
+        "..\\datasets\\outputs\\eda\\04_svm\\svm_merged_5class_classification_report.json",
+        "..\\datasets\\outputs\\eda\\04_svm\\svm_merged_5class_confusion_matrix.csv",
+        "..\\datasets\\outputs\\eda\\04_svm\\svm_merged_5class_predictions.csv",
+        "..\\datasets\\outputs\\eda\\04_svm\\svm_merged_5class_split_distribution.csv",
+        "..\\datasets\\outputs\\eda\\04_svm\\svm_merged_5class_split_distribution.json"
+      ],
+      "preparation": {
+        "conflicting_duplicate_text_count": 0,
+        "duplicate_text_removed_count": 922,
+        "removed_empty_text_count": 0,
+        "rows_after_deduplication": 16061,
+        "rows_after_label_mapping": 16983,
+        "total_input_rows": 16983
+      },
+      "scenario": "merged_5class",
+      "split_sizes": {
+        "test": 2410,
+        "train": 11242,
+        "validation": 2409
+      },
+      "target_column": "aspect_label_merged",
+      "test_metrics": {
+        "accuracy": 0.950207468879668,
+        "f1_macro": 0.9367812076632358,
+        "f1_weighted": 0.9501424835741542,
+        "precision_macro": 0.9341269083471747,
+        "precision_weighted": 0.9502595428801952,
+        "recall_macro": 0.9402876428365226,
+        "recall_weighted": 0.950207468879668
+      },
+      "validation_metrics": {
+        "accuracy": 0.9414694894146949,
+        "f1_macro": 0.9312640240285402,
+        "f1_weighted": 0.9413993967489023,
+        "precision_macro": 0.9348962278831372,
+        "precision_weighted": 0.94138072422056,
+        "recall_macro": 0.9277474494328958,
+        "recall_weighted": 0.9414694894146949
+      }
+    }
+  ]
+}

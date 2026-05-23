@@ -1,0 +1,107 @@
+[
+  {
+    "count": 445,
+    "label": "Account/Login",
+    "percentage": 3.9583703967,
+    "scenario": "merged_5class",
+    "split": "train"
+  },
+  {
+    "count": 2677,
+    "label": "Ads Experience",
+    "percentage": 23.812488881,
+    "scenario": "merged_5class",
+    "split": "train"
+  },
+  {
+    "count": 567,
+    "label": "App Reliability & Usability",
+    "percentage": 5.0435865504,
+    "scenario": "merged_5class",
+    "split": "train"
+  },
+  {
+    "count": 5572,
+    "label": "Features, Content & Audio Experience",
+    "percentage": 49.5641344956,
+    "scenario": "merged_5class",
+    "split": "train"
+  },
+  {
+    "count": 1981,
+    "label": "Subscription & Pricing",
+    "percentage": 17.6214196762,
+    "scenario": "merged_5class",
+    "split": "train"
+  },
+  {
+    "count": 95,
+    "label": "Account/Login",
+    "percentage": 3.9435450394,
+    "scenario": "merged_5class",
+    "split": "validation"
+  },
+  {
+    "count": 573,
+    "label": "Ads Experience",
+    "percentage": 23.7858032379,
+    "scenario": "merged_5class",
+    "split": "validation"
+  },
+  {
+    "count": 122,
+    "label": "App Reliability & Usability",
+    "percentage": 5.0643420506,
+    "scenario": "merged_5class",
+    "split": "validation"
+  },
+  {
+    "count": 1194,
+    "label": "Features, Content & Audio Experience",
+    "percentage": 49.5641344956,
+    "scenario": "merged_5class",
+    "split": "validation"
+  },
+  {
+    "count": 425,
+    "label": "Subscription & Pricing",
+    "percentage": 17.6421751764,
+    "scenario": "merged_5class",
+    "split": "validation"
+  },
+  {
+    "count": 95,
+    "label": "Account/Login",
+    "percentage": 3.9419087137,
+    "scenario": "merged_5class",
+    "split": "test"
+  },
+  {
+    "count": 574,
+    "label": "Ads Experience",
+    "percentage": 23.8174273859,
+    "scenario": "merged_5class",
+    "split": "test"
+  },
+  {
+    "count": 121,
+    "label": "App Reliability & Usability",
+    "percentage": 5.020746888,
+    "scenario": "merged_5class",
+    "split": "test"
+  },
+  {
+    "count": 1195,
+    "label": "Features, Content & Audio Experience",
+    "percentage": 49.5850622407,
+    "scenario": "merged_5class",
+    "split": "test"
+  },
+  {
+    "count": 425,
+    "label": "Subscription & Pricing",
+    "percentage": 17.6348547718,
+    "scenario": "merged_5class",
+    "split": "test"
+  }
+]

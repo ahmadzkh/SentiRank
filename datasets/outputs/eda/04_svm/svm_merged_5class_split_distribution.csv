@@ -1,0 +1,16 @@
+scenario,split,label,count,percentage
+merged_5class,train,Account/Login,445,3.9583703967265613
+merged_5class,train,Ads Experience,2677,23.812488880982034
+merged_5class,train,App Reliability & Usability,567,5.043586550435865
+merged_5class,train,"Features, Content & Audio Experience",5572,49.56413449564134
+merged_5class,train,Subscription & Pricing,1981,17.6214196762142
+merged_5class,validation,Account/Login,95,3.9435450394354503
+merged_5class,validation,Ads Experience,573,23.785803237858033
+merged_5class,validation,App Reliability & Usability,122,5.06434205064342
+merged_5class,validation,"Features, Content & Audio Experience",1194,49.56413449564134
+merged_5class,validation,Subscription & Pricing,425,17.642175176421752
+merged_5class,test,Account/Login,95,3.941908713692946
+merged_5class,test,Ads Experience,574,23.817427385892113
+merged_5class,test,App Reliability & Usability,121,5.020746887966805
+merged_5class,test,"Features, Content & Audio Experience",1195,49.5850622406639
+merged_5class,test,Subscription & Pricing,425,17.634854771784234
