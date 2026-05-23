@@ -1,0 +1,28 @@
+{
+  "artifact_git_policy": "ignored_not_committed",
+  "expected_artifacts": [
+    {
+      "exists_locally": true,
+      "path": "ml-service/saved_models/svm/svm_original_7class_pipeline.joblib",
+      "size_bytes": 4672608
+    },
+    {
+      "exists_locally": true,
+      "path": "ml-service/saved_models/svm/svm_original_7class_label_mapping.json",
+      "size_bytes": 521
+    },
+    {
+      "exists_locally": true,
+      "path": "ml-service/saved_models/svm/svm_merged_5class_pipeline.joblib",
+      "size_bytes": 3699008
+    },
+    {
+      "exists_locally": true,
+      "path": "ml-service/saved_models/svm/svm_merged_5class_label_mapping.json",
+      "size_bytes": 482
+    }
+  ],
+  "generated_at": "2026-05-23T11:28:09.236455+00:00",
+  "selected_label_mapping": "ml-service/saved_models/svm/svm_merged_5class_label_mapping.json",
+  "selected_pipeline": "ml-service/saved_models/svm/svm_merged_5class_pipeline.joblib"
+}

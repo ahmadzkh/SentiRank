@@ -1,0 +1,56 @@
+{
+  "criteria": [
+    {
+      "description": "Issues related to available features, playlists, lyrics, recommendations, content completeness, music/podcast availability, and audio listening quality.",
+      "name": "Features, Content & Audio Experience",
+      "note": "Candidate AHP/Fuzzy AHP criterion; requires expert judgement validation before final weighting.",
+      "source_labels": [
+        "Features & Content",
+        "Audio Quality"
+      ],
+      "use_in_ahp": true
+    },
+    {
+      "description": "Issues related to performance, stability, errors, crashes, loading, responsiveness, interface usability, navigation, and interaction flow.",
+      "name": "App Reliability & Usability",
+      "note": "Candidate AHP/Fuzzy AHP criterion; requires expert judgement validation before final weighting.",
+      "source_labels": [
+        "Performance & Stability",
+        "UI/UX"
+      ],
+      "use_in_ahp": true
+    },
+    {
+      "description": "Issues related to advertisement frequency, interruption, placement, skipping, and perceived disruption in the listening experience.",
+      "name": "Ads Experience",
+      "note": "Candidate AHP/Fuzzy AHP criterion; requires expert judgement validation before final weighting.",
+      "source_labels": [
+        "Ads Experience"
+      ],
+      "use_in_ahp": true
+    },
+    {
+      "description": "Issues related to premium subscription, price, payment methods, billing, packages, and perceived value for money.",
+      "name": "Subscription & Pricing",
+      "note": "Candidate AHP/Fuzzy AHP criterion; requires expert judgement validation before final weighting.",
+      "source_labels": [
+        "Subscription & Pricing"
+      ],
+      "use_in_ahp": true
+    },
+    {
+      "description": "Issues related to account access, login failures, password, email, verification, registration, and account state problems.",
+      "name": "Account/Login",
+      "note": "Candidate AHP/Fuzzy AHP criterion; requires expert judgement validation before final weighting.",
+      "source_labels": [
+        "Account/Login"
+      ],
+      "use_in_ahp": true
+    }
+  ],
+  "criteria_count": 5,
+  "expert_validation_required": true,
+  "generated_at": "2026-05-23T11:28:09.225577+00:00",
+  "note": "These criteria are candidate criteria for AHP/Fuzzy AHP and still require expert judgement validation before final weighting.",
+  "selected_scenario": "merged_5class"
+}
