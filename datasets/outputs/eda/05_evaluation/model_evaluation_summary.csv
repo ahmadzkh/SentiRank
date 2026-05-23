@@ -1,0 +1,7 @@
+model_component,candidate_name,task,accuracy,precision_macro,recall_macro,f1_macro,precision_weighted,recall_weighted,f1_weighted,status,note
+IndoBERT,run_1_baseline,Sentiment classification,0.7416143987,0.7027378283,0.6875208604,0.6926732992,0.7345392907,0.7416143987,0.7364500012,baseline,Baseline fine-tuning; highest accuracy but weaker Neutral recall/F1.
+IndoBERT,run_2_weighted_loss,Sentiment classification,0.7328197437,0.7031446998,0.7150734299,0.7033754261,0.7563532385,0.7328197437,0.7403101705,experiment,Weighted loss improved Neutral recall and Macro F1 over baseline.
+IndoBERT,run_3_weighted_loss_lr_1e-5,Sentiment classification,0.7362285247,0.7085677045,0.7234010489,0.7093262951,0.7618704869,0.7362285247,0.7444675722,selected,"Selected final candidate; best Macro F1, Weighted F1, and Neutral F1 among completed runs."
+IndoBERT,run_4_weighted_loss_lr_1e-5_slang_norm,Sentiment classification,0.7321379875,0.6922605687,0.698439229,0.6939878316,0.7419803447,0.7321379875,0.7360528162,experiment,Slang normalization experiment; did not outperform Run 3.
+SVM,original_7class,Aspect classification,0.9452282158,0.9405558504,0.8676421045,0.8919681273,0.9452074398,0.9452282158,0.9449450858,baseline,Exploratory 7-class baseline with higher minority-class instability.
+SVM,merged_5class,Aspect classification,0.9502074689,0.9341269083,0.9402876428,0.9367812077,0.9502595429,0.9502074689,0.9501424836,selected,Selected stable taxonomy aligned with AHP/Fuzzy AHP criteria.
