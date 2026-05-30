@@ -8,7 +8,7 @@
 | Module           | Frontend UI/UX                     |
 | Document         | Design Decision Log                |
 | Track            | Frontend Track                     |
-| Current Phase    | FE-07 — Mock Data and Types        |
+| Current Phase    | FE-08 — Main Layout                |
 | Default Theme    | Light Mode                         |
 | Visual Direction | SentiRank Research Analytics Light |
 | Status           | Draft                              |
@@ -880,13 +880,13 @@ FE-08 — Layout Utama
 ## Date
 
 ```txt
-TBD
+2026-05-30
 ```
 
 ## Status
 
 ```txt
-Draft
+Approved
 ```
 
 ---
@@ -936,7 +936,7 @@ Keputusan ini akan memengaruhi:
 ## Next Action
 
 ```txt
-Implementasikan layout utama setelah NextJS setup selesai.
+Gunakan layout utama FE-08 sebagai foundation FE-09 saat fase dashboard dimulai.
 ```
 
 ---

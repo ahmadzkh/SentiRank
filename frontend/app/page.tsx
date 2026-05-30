@@ -1,17 +1,26 @@
+import { PageHeader } from "@/components/layout";
+
 export default function Home() {
   return (
-    <main className="flex min-h-screen items-center justify-center bg-background px-6 py-16 text-foreground">
-      <section className="w-full max-w-2xl rounded-lg border border-border bg-card p-8 shadow-sm">
-        <p className="text-sm font-medium text-primary">SentiRank Frontend</p>
-        <h1 className="mt-3 text-3xl font-bold tracking-normal text-foreground">
-          NextJS foundation is ready.
-        </h1>
-        <p className="mt-4 text-sm leading-6 text-muted-foreground">
-          FE-06 sets up the frontend foundation only. Dashboard pages, mock
-          data, and the full application layout are intentionally reserved for
-          later frontend phases.
-        </p>
+    <>
+      <PageHeader
+        description="Main layout foundation for SentiRank. Dashboard analytics content, metrics, charts, and tables are intentionally reserved for FE-09."
+        eyebrow="FE-08 Layout Foundation"
+        title="Dashboard"
+      />
+
+      <section className="rounded-lg border border-border bg-card p-6 shadow-sm">
+        <div className="max-w-3xl">
+          <h3 className="text-base font-semibold text-foreground">
+            Dashboard shell is ready
+          </h3>
+          <p className="mt-2 text-sm leading-6 text-muted-foreground">
+            The application now has a reusable sidebar, topbar, and responsive
+            main content area. This placeholder confirms the layout structure
+            without adding dashboard data or page-specific workflows.
+          </p>
+        </div>
       </section>
-    </main>
+    </>
   );
 }

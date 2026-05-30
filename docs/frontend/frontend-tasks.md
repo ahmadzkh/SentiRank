@@ -16,7 +16,7 @@
 - [x] FE-05 — Component map selesai
 - [x] FE-06 — NextJS setup selesai
 - [x] FE-07 — Mock data dan types selesai
-- [ ] FE-08 — Layout utama selesai
+- [x] FE-08 — Layout utama selesai
 - [ ] FE-09 — Dashboard selesai
 - [ ] FE-10 — Core pages selesai
 - [ ] FE-11 — AHP/Fuzzy AHP prototype selesai
@@ -498,4 +498,71 @@ Implementation scope:
 
 ```txt
 No layout, dashboard UI, core pages, or FE-08 implementation was started.
+```
+
+---
+
+## FE-08 — Layout Utama
+
+### Objective
+
+Membuat foundation layout utama SentiRank menggunakan reusable dashboard app shell dengan sidebar, topbar, dan main content area yang siap dipakai oleh halaman-halaman frontend berikutnya.
+
+### Task Checklist
+
+- [x] Buat `frontend/components/layout/AppShell.tsx`.
+- [x] Buat `frontend/components/layout/AppSidebar.tsx`.
+- [x] Buat `frontend/components/layout/AppTopbar.tsx`.
+- [x] Buat `frontend/components/layout/PageHeader.tsx`.
+- [x] Buat mobile navigation foundation melalui `frontend/components/layout/MobileSidebar.tsx`.
+- [x] Buat barrel export `frontend/components/layout/index.ts`.
+- [x] Update `frontend/app/layout.tsx` agar memakai `AppShell`.
+- [x] Update `frontend/app/page.tsx` sebagai placeholder layout-only untuk route dashboard.
+- [x] Gunakan navigation constants dari FE-07.
+- [x] Siapkan active route handling pada sidebar.
+- [x] Pastikan layout menggunakan Light Mode default dan arah `SentiRank Research Analytics Light`.
+- [x] Pastikan main content area responsive.
+- [x] Pastikan `PageHeader` mendukung title, description, eyebrow, dan optional action slot.
+- [x] Jalankan `npm run lint`.
+- [x] Jalankan `npm run build`.
+- [x] Tidak mengimplementasikan full dashboard content.
+- [x] Tidak membuat core pages.
+- [x] Tidak membuat AHP/Fuzzy AHP prototype.
+- [x] Tidak memulai FE-09 atau fase setelahnya.
+
+### Acceptance Criteria
+
+- [x] Layout menggunakan NextJS App Router.
+- [x] Layout menggunakan TypeScript.
+- [x] Layout menggunakan Tailwind CSS.
+- [x] Sidebar menampilkan primary navigation items dari existing navigation constants.
+- [x] Active route handling tersedia pada sidebar dan mobile navigation.
+- [x] Layout memakai struktur sidebar + topbar + main content area.
+- [x] `AppShell` reusable untuk halaman dashboard berikutnya.
+- [x] `PageHeader` reusable dan mendukung title, description, dan optional action slot.
+- [x] Main content area responsive.
+- [x] Default theme tetap Light Mode.
+- [x] `frontend/DESIGN.md` tetap dipertahankan.
+- [x] FE-07 types, constants, dan mock data tetap dipertahankan.
+- [x] Tidak ada dependency baru.
+- [x] Tidak ada dashboard metrics, core page implementation, atau AHP/Fuzzy AHP prototype.
+- [x] `npm run lint` berhasil.
+- [x] `npm run build` berhasil.
+
+### Completion Note
+
+Completed on 2026-05-30. FE-08 implements the reusable SentiRank dashboard layout foundation with `AppShell`, `AppSidebar`, `AppTopbar`, `PageHeader`, and mobile navigation support. The root app now uses sidebar, topbar, and responsive main content structure without adding dashboard metrics, core pages, or AHP/Fuzzy AHP prototype logic.
+
+### Final Decision
+
+Main layout selected:
+
+```txt
+Sidebar + topbar + responsive main content app shell
+```
+
+Implementation scope:
+
+```txt
+Layout foundation only. FE-09 dashboard content and later page implementations remain not started.
 ```
