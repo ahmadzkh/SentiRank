@@ -8,7 +8,7 @@
 | Module           | Frontend UI/UX                     |
 | Document         | Design Decision Log                |
 | Track            | Frontend Track                     |
-| Current Phase    | FE-08 — Main Layout                |
+| Current Phase    | FE-09 — Dashboard                  |
 | Default Theme    | Light Mode                         |
 | Visual Direction | SentiRank Research Analytics Light |
 | Status           | Draft                              |
@@ -958,13 +958,13 @@ FE-09 — Dashboard
 ## Date
 
 ```txt
-TBD
+2026-05-30
 ```
 
 ## Status
 
 ```txt
-Draft
+Approved
 ```
 
 ---
@@ -995,6 +995,7 @@ Negative Aspect Ranking Chart
 Model Performance Summary
 AHP/Fuzzy AHP Priority Preview
 Latest Negative Reviews Table
+Short Recommendation Summary
 ```
 
 ---
@@ -1025,7 +1026,7 @@ Keputusan ini akan memengaruhi:
 ## Next Action
 
 ```txt
-Implementasikan dashboard setelah layout utama selesai.
+Gunakan dashboard FE-09 sebagai input FE-10 saat fase core pages dimulai.
 ```
 
 ---

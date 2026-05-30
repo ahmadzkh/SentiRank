@@ -17,7 +17,7 @@
 - [x] FE-06 — NextJS setup selesai
 - [x] FE-07 — Mock data dan types selesai
 - [x] FE-08 — Layout utama selesai
-- [ ] FE-09 — Dashboard selesai
+- [x] FE-09 — Dashboard selesai
 - [ ] FE-10 — Core pages selesai
 - [ ] FE-11 — AHP/Fuzzy AHP prototype selesai
 - [ ] FE-12 — API integration preparation selesai
@@ -565,4 +565,81 @@ Implementation scope:
 
 ```txt
 Layout foundation only. FE-09 dashboard content and later page implementations remain not started.
+```
+
+---
+
+## FE-09 — Dashboard
+
+### Objective
+
+Mengimplementasikan halaman dashboard utama SentiRank menggunakan layout FE-08, mock data FE-07, dan komponen reusable untuk summary cards, charts, ranking preview, model metrics, review table, badge, dan recommendation summary.
+
+### Task Checklist
+
+- [x] Buat `frontend/components/cards/StatCard.tsx`.
+- [x] Buat `frontend/components/cards/ChartCard.tsx`.
+- [x] Buat `frontend/components/cards/RankingCard.tsx`.
+- [x] Buat `frontend/components/cards/ModelMetricCard.tsx`.
+- [x] Buat `frontend/components/charts/SentimentDistributionChart.tsx`.
+- [x] Buat `frontend/components/charts/AspectRankingChart.tsx`.
+- [x] Buat `frontend/components/charts/AhpRankingComparisonChart.tsx`.
+- [x] Buat `frontend/components/tables/ReviewTable.tsx`.
+- [x] Buat `frontend/components/badges/SentimentBadge.tsx`.
+- [x] Buat `frontend/components/badges/AspectBadge.tsx`.
+- [x] Update `frontend/app/page.tsx` sebagai dashboard page.
+- [x] Tampilkan page header.
+- [x] Tampilkan summary cards: Total Reviews, Positive Reviews, Neutral Reviews, Negative Reviews, Top Negative Aspect, dan Priority Score.
+- [x] Tampilkan sentiment distribution chart.
+- [x] Tampilkan negative aspect ranking chart.
+- [x] Tampilkan AHP/Fuzzy AHP priority preview.
+- [x] Tampilkan model performance summary.
+- [x] Tampilkan latest negative reviews table.
+- [x] Tampilkan short recommendation/insight summary.
+- [x] Gunakan FE-07 mock data.
+- [x] Pastikan komponen reusable dan memakai TypeScript props.
+- [x] Pastikan empty state tersedia pada chart, ranking, dan table yang relevan.
+- [x] Jalankan `npm run lint`.
+- [x] Jalankan `npm run build`.
+- [x] Tidak membuat Dataset, Sentiment, Aspect, AHP/Fuzzy AHP, Evaluation, Reports, atau Settings pages.
+- [x] Tidak membuat real API calls.
+- [x] Tidak mengimplementasikan kalkulasi AHP/Fuzzy AHP di frontend.
+- [x] Tidak memulai FE-10 atau fase setelahnya.
+
+### Acceptance Criteria
+
+- [x] Dashboard mengikuti `SentiRank Research Analytics Light`.
+- [x] Dashboard menggunakan Light Mode default.
+- [x] Dashboard tampil sebagai clean academic analytics dashboard.
+- [x] Dashboard menggunakan white cards, slate/off-white background, dan blue accent.
+- [x] Dashboard memiliki readable table dan minimal charts.
+- [x] Dashboard responsif untuk layar laptop.
+- [x] Semua required dashboard sections tersedia.
+- [x] Data dashboard berasal dari FE-07 mock data.
+- [x] Dashboard tetap API-contract-ready.
+- [x] Tidak ada data dashboard reusable yang di-hardcode langsung di komponen.
+- [x] Tidak ada real API call.
+- [x] Tidak ada kalkulasi AHP/Fuzzy AHP aktual di frontend.
+- [x] Komponen dashboard reusable dan memakai TypeScript props.
+- [x] Recharts digunakan untuk chart dashboard.
+- [x] Tidak ada dependency baru.
+- [x] `npm run lint` berhasil.
+- [x] `npm run build` berhasil.
+
+### Completion Note
+
+Completed on 2026-05-30. FE-09 implements the main SentiRank dashboard page with reusable cards, charts, badges, review table, model metric summary, AHP/Fuzzy AHP priority preview, and recommendation summary using FE-07 mock data only. No FE-10 pages, real API calls, or frontend AHP/Fuzzy AHP calculations were added.
+
+### Final Decision
+
+Dashboard implementation selected:
+
+```txt
+Mock-data-driven research analytics dashboard
+```
+
+Implementation scope:
+
+```txt
+Dashboard route only. Core pages and later phase implementations remain not started.
 ```
