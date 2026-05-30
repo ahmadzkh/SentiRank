@@ -17,7 +17,7 @@ export function AspectBadge({ aspect, count, className }: AspectBadgeProps) {
           className,
         )}
       >
-        Unclassified
+        Belum diklasifikasi
       </span>
     );
   }

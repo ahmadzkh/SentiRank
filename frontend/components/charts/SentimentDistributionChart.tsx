@@ -40,43 +40,48 @@ export function SentimentDistributionChart({
   if (data.length === 0) {
     return (
       <div className="flex h-64 items-center justify-center rounded-md border border-dashed border-border bg-background text-sm text-muted-foreground">
-        No sentiment data available.
+        Data sentimen belum tersedia.
       </div>
     );
   }
 
   if (!mounted) {
-    return <div className="h-64 rounded-md bg-background" />;
+    return <div className="h-96 rounded-md bg-background" />;
   }
 
   return (
     <div
-      aria-label="Sentiment distribution chart"
-      className="h-64"
-      role="img"
+      aria-label="Grafik distribusi sentimen"
+      className="space-y-5"
+      role="group"
     >
-      <ResponsiveContainer height="100%" width="100%">
-        <PieChart>
-          <Pie
-            cx="50%"
-            cy="50%"
-            data={data}
-            dataKey="count"
-            innerRadius={58}
-            nameKey="name"
-            outerRadius={86}
-            paddingAngle={3}
-          >
-            {data.map((item) => (
-              <Cell fill={item.color} key={item.label} />
-            ))}
-          </Pie>
-          <Tooltip />
-        </PieChart>
-      </ResponsiveContainer>
-      <div className="mt-2 grid grid-cols-3 gap-2">
+      <div className="h-72 min-h-72">
+        <ResponsiveContainer height="100%" width="100%">
+          <PieChart>
+            <Pie
+              cx="50%"
+              cy="50%"
+              data={data}
+              dataKey="count"
+              innerRadius={58}
+              nameKey="name"
+              outerRadius={92}
+              paddingAngle={3}
+            >
+              {data.map((item) => (
+                <Cell fill={item.color} key={item.label} />
+              ))}
+            </Pie>
+            <Tooltip formatter={(value) => [value, "Jumlah"]} />
+          </PieChart>
+        </ResponsiveContainer>
+      </div>
+      <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
         {data.map((item) => (
-          <div className="text-center" key={item.label}>
+          <div
+            className="rounded-md border border-border bg-background px-3 py-2 text-center"
+            key={item.label}
+          >
             <p className="text-xs font-medium text-muted-foreground">
               {item.name}
             </p>

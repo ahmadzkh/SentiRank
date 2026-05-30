@@ -8,7 +8,7 @@ interface ReviewTableProps {
 }
 
 function formatDate(value: string) {
-  return new Intl.DateTimeFormat("en", {
+  return new Intl.DateTimeFormat("id-ID", {
     day: "2-digit",
     month: "short",
     year: "numeric",
@@ -17,7 +17,7 @@ function formatDate(value: string) {
 
 export function ReviewTable({
   reviews,
-  emptyMessage = "No reviews available.",
+  emptyMessage = "Belum ada ulasan yang tersedia.",
 }: ReviewTableProps) {
   if (reviews.length === 0) {
     return (
@@ -33,11 +33,11 @@ export function ReviewTable({
         <table className="min-w-[840px] w-full border-collapse bg-card text-left text-sm">
           <thead className="bg-slate-50 text-xs font-semibold uppercase tracking-normal text-muted-foreground">
             <tr>
-              <th className="px-4 py-3">Review</th>
-              <th className="px-4 py-3">Sentiment</th>
-              <th className="px-4 py-3">Aspects</th>
+              <th className="px-4 py-3">Ulasan</th>
+              <th className="px-4 py-3">Sentimen</th>
+              <th className="px-4 py-3">Aspek</th>
               <th className="px-4 py-3 text-right">Rating</th>
-              <th className="px-4 py-3">Date</th>
+              <th className="px-4 py-3">Tanggal</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border">

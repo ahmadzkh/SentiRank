@@ -44,7 +44,7 @@ export function AspectRankingChart({ data }: AspectRankingChartProps) {
   if (data.length === 0) {
     return (
       <div className="flex h-64 items-center justify-center rounded-md border border-dashed border-border bg-background text-sm text-muted-foreground">
-        No negative aspect data available.
+        Data aspek negatif belum tersedia.
       </div>
     );
   }
@@ -54,7 +54,7 @@ export function AspectRankingChart({ data }: AspectRankingChartProps) {
   }
 
   return (
-    <div aria-label="Negative aspect ranking chart" className="h-72" role="img">
+    <div aria-label="Grafik ranking aspek negatif" className="h-72" role="img">
       <ResponsiveContainer height="100%" width="100%">
         <BarChart
           data={data}
@@ -75,8 +75,8 @@ export function AspectRankingChart({ data }: AspectRankingChartProps) {
             type="category"
             width={132}
           />
-          <Tooltip />
-          <Bar dataKey="count" fill="#2563eb" radius={[0, 6, 6, 0]} />
+          <Tooltip formatter={(value) => [value, "Jumlah"]} />
+          <Bar dataKey="count" fill="#2563eb" name="Jumlah" radius={[0, 6, 6, 0]} />
         </BarChart>
       </ResponsiveContainer>
     </div>

@@ -56,9 +56,12 @@ export function MobileSidebar({ items }: MobileSidebarProps) {
     <details className="border-b border-border bg-card lg:hidden">
       <summary className="flex min-h-12 cursor-pointer list-none items-center gap-2 px-4 text-sm font-medium text-foreground">
         <Menu aria-hidden="true" className="size-4 text-primary" />
-        Navigation
+        Navigasi
       </summary>
-      <nav className="grid gap-1 px-3 pb-4" aria-label="Mobile primary">
+      <nav
+        className="grid gap-1 px-3 pb-4"
+        aria-label="Navigasi utama mobile"
+      >
         {items.map((item) => {
           const active = isActiveRoute(pathname, item.href);
           const Icon = getNavigationIcon(item.iconName);

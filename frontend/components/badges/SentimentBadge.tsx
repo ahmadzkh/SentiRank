@@ -16,7 +16,7 @@ export function SentimentBadge({ sentiment, className }: SentimentBadgeProps) {
           className,
         )}
       >
-        Unknown
+        Tidak diketahui
       </span>
     );
   }

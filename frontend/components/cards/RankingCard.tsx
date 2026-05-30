@@ -20,7 +20,7 @@ export function RankingCard({
   title,
   description,
   items,
-  emptyMessage = "No ranking data available.",
+  emptyMessage = "Data ranking belum tersedia.",
   className,
 }: RankingCardProps) {
   return (

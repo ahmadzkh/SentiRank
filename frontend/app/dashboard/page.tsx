@@ -107,44 +107,44 @@ export default function DashboardPage() {
   return (
     <AppShell>
       <PageHeader
-        description="A thesis demo overview of Spotify review sentiment, negative aspects, AHP/Fuzzy AHP priority preview, model performance, and latest negative feedback."
-        eyebrow="SentiRank Research Analytics Light"
+        description="Ringkasan demo skripsi untuk sentimen ulasan Spotify, aspek negatif, preview prioritas AHP/Fuzzy AHP, performa model, dan ulasan negatif terbaru."
+        eyebrow="Dashboard Analitik Penelitian"
         title="Dashboard"
       />
 
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
         <StatCard
-          description="Synthetic Spotify reviews available for UI development."
-          label="Total Reviews"
+          description="Ulasan Spotify sintetis yang digunakan untuk pengembangan UI."
+          label="Total Ulasan"
           value={mockSentimentSummary.totalReviews.toLocaleString("en")}
         />
         <StatCard
-          description={`${mockSentimentSummary.percentages.positive}% of analyzed reviews.`}
-          label="Positive Reviews"
+          description={`${mockSentimentSummary.percentages.positive}% dari ulasan yang dianalisis.`}
+          label="Ulasan Positif"
           tone="positive"
           value={mockSentimentSummary.counts.positive}
         />
         <StatCard
-          description={`${mockSentimentSummary.percentages.neutral}% of analyzed reviews.`}
-          label="Neutral Reviews"
+          description={`${mockSentimentSummary.percentages.neutral}% dari ulasan yang dianalisis.`}
+          label="Ulasan Netral"
           tone="neutral"
           value={mockSentimentSummary.counts.neutral}
         />
         <StatCard
-          description={`${mockSentimentSummary.percentages.negative}% of analyzed reviews.`}
-          label="Negative Reviews"
+          description={`${mockSentimentSummary.percentages.negative}% dari ulasan yang dianalisis.`}
+          label="Ulasan Negatif"
           tone="negative"
           value={mockSentimentSummary.counts.negative}
         />
         <StatCard
-          description={`${mockAspectSummary.negativeCounts[mockAspectSummary.topNegativeAspect]} negative review signals.`}
-          label="Top Negative Aspect"
+          description={`${mockAspectSummary.negativeCounts[mockAspectSummary.topNegativeAspect]} sinyal ulasan negatif.`}
+          label="Aspek Negatif Tertinggi"
           tone="primary"
           value={topNegativeAspectLabel}
         />
         <StatCard
-          description="AHP weight from mock priority preview."
-          label="Priority Score"
+          description="Bobot AHP dari preview prioritas mock."
+          label="Skor Prioritas"
           tone="primary"
           value={formatWeight(mockReportSummary.prioritization.ahpWeight)}
         />
@@ -152,17 +152,17 @@ export default function DashboardPage() {
 
       <section className="grid gap-6 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
         <ChartCard
-          description="Positive, neutral, and negative review distribution from FE-07 mock summary."
-          insight={`${mockSentimentSummary.counts.negative} of ${mockSentimentSummary.totalReviews} reviews are negative in the synthetic dashboard sample.`}
-          title="Sentiment Distribution"
+          description="Distribusi ulasan positif, netral, dan negatif dari ringkasan mock FE-07."
+          insight={`${mockSentimentSummary.counts.negative} dari ${mockSentimentSummary.totalReviews} ulasan bernilai negatif pada sampel dashboard sintetis.`}
+          title="Distribusi Sentimen"
         >
           <SentimentDistributionChart data={sentimentDistributionData} />
         </ChartCard>
 
         <ChartCard
-          description="Negative aspect counts from the mock SVM aspect classification summary."
-          insight={`${topNegativeAspectLabel} is the current top negative aspect in this mock dataset.`}
-          title="Negative Aspect Ranking"
+          description="Jumlah aspek negatif dari ringkasan mock klasifikasi aspek SVM."
+          insight={`${topNegativeAspectLabel} menjadi aspek negatif tertinggi pada dataset mock ini.`}
+          title="Ranking Aspek Negatif"
         >
           <AspectRankingChart data={negativeAspectRankingData} />
         </ChartCard>
@@ -170,28 +170,29 @@ export default function DashboardPage() {
 
       <section className="grid gap-6 xl:grid-cols-[minmax(0,1.2fr)_minmax(320px,0.8fr)]">
         <ChartCard
-          description="Prototype comparison of AHP and Fuzzy AHP weights from FE-07 mock outputs."
-          insight="These values are mock method outputs only; the frontend does not calculate AHP or Fuzzy AHP."
-          title="AHP / Fuzzy AHP Priority Preview"
+          description="Perbandingan prototype bobot AHP dan Fuzzy AHP dari output mock FE-07."
+          insight="Nilai ini hanya output metode mock; frontend tidak menghitung AHP atau Fuzzy AHP."
+          title="Preview Prioritas AHP / Fuzzy AHP"
         >
           <AhpRankingComparisonChart data={priorityComparisonData} />
         </ChartCard>
 
         <RankingCard
-          description="Top priority candidates based on mock AHP ranking output."
+          description="Kandidat prioritas tertinggi berdasarkan output ranking AHP mock."
           items={priorityRankingItems}
-          title="Priority Ranking"
+          title="Ranking Prioritas"
         />
       </section>
 
       <section>
         <div className="mb-4">
           <h3 className="text-base font-semibold text-foreground">
-            Model Performance Summary
+            Ringkasan Performa Model
           </h3>
           <p className="mt-1 text-sm leading-5 text-muted-foreground">
-            Mock evaluation metrics are shown to support a thesis demo view.
-            Final values must come from validated model artifacts.
+            Metrik evaluasi mock ditampilkan untuk mendukung tampilan demo
+            skripsi. Nilai final harus berasal dari artefak model yang sudah
+            divalidasi.
           </p>
         </div>
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
@@ -208,18 +209,18 @@ export default function DashboardPage() {
       </section>
 
       <ChartCard
-        description="Recent negative Spotify review examples with sentiment and aspect labels."
-        title="Latest Negative Reviews"
+        description="Contoh ulasan Spotify negatif terbaru dengan label sentimen dan aspek."
+        title="Ulasan Negatif Terbaru"
       >
         <ReviewTable
-          emptyMessage="No negative reviews available in the current mock data."
+          emptyMessage="Belum ada ulasan negatif pada data mock saat ini."
           reviews={latestNegativeReviews}
         />
       </ChartCard>
 
       <section className="rounded-lg border border-blue-100 bg-blue-50 p-5 shadow-sm">
         <p className="text-sm font-semibold text-blue-900">
-          Recommendation Summary
+          Ringkasan Rekomendasi
         </p>
         <p className="mt-2 max-w-4xl text-sm leading-6 text-blue-900">
           {mockReportSummary.prioritization.interpretation}

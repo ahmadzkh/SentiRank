@@ -17,7 +17,7 @@ export function AppShell({
   children,
   sidebarItems = NAVIGATION_ITEMS,
   topbarTitle = "SentiRank",
-  topbarContextLabel = "Research analytics dashboard",
+  topbarContextLabel = "Dashboard analitik penelitian",
   topbarActions,
 }: AppShellProps) {
   return (

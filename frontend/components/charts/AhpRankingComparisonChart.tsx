@@ -48,7 +48,7 @@ export function AhpRankingComparisonChart({
   if (data.length === 0) {
     return (
       <div className="flex h-64 items-center justify-center rounded-md border border-dashed border-border bg-background text-sm text-muted-foreground">
-        No priority ranking data available.
+        Data ranking prioritas belum tersedia.
       </div>
     );
   }
@@ -58,7 +58,7 @@ export function AhpRankingComparisonChart({
   }
 
   return (
-    <div aria-label="AHP and Fuzzy AHP comparison chart" className="h-72" role="img">
+    <div aria-label="Grafik perbandingan AHP dan Fuzzy AHP" className="h-72" role="img">
       <ResponsiveContainer height="100%" width="100%">
         <BarChart data={data} margin={{ bottom: 8, left: 0, right: 12, top: 8 }}>
           <CartesianGrid vertical={false} stroke="#e2e8f0" />
@@ -68,7 +68,7 @@ export function AhpRankingComparisonChart({
             tickFormatter={(value) => `${value}%`}
             tickLine={false}
           />
-          <Tooltip />
+          <Tooltip formatter={(value) => [`${value}%`, "Bobot"]} />
           <Legend />
           <Bar dataKey="ahpWeight" fill="#2563eb" name="AHP" radius={[6, 6, 0, 0]} />
           <Bar

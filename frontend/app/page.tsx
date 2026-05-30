@@ -13,25 +13,25 @@ import {
 const methodologyItems = [
   {
     icon: Database,
-    title: "Spotify Review Data",
+    title: "Data Ulasan Spotify",
     description:
       "Ulasan pengguna menjadi sumber utama untuk melihat pola sentimen, keluhan, dan kebutuhan perbaikan produk.",
   },
   {
     icon: Layers3,
-    title: "Text Processing",
+    title: "Prapemrosesan Teks",
     description:
       "Teks ulasan dipersiapkan untuk analisis melalui pembersihan, normalisasi, dan struktur data yang siap dipakai model.",
   },
   {
     icon: BrainCircuit,
-    title: "Sentiment and Aspect Model",
+    title: "Model Sentimen dan Aspek",
     description:
       "IndoBERT digunakan untuk sentimen, sementara klasifikasi aspek membantu membaca tema keluhan secara lebih terarah.",
   },
   {
     icon: BarChart3,
-    title: "AHP / Fuzzy AHP Priority",
+    title: "Prioritas AHP / Fuzzy AHP",
     description:
       "Aspek negatif diprioritaskan sebagai insight penelitian agar rekomendasi tidak berhenti pada hitungan sentimen saja.",
   },
@@ -65,7 +65,7 @@ export default function HomePage(): ReactElement {
           className="inline-flex items-center justify-center gap-2 rounded-md bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-primary/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
           href="/dashboard"
         >
-          Open Dashboard
+          Buka Dashboard
           <ArrowRight aria-hidden="true" className="size-4" />
         </Link>
       </nav>
@@ -73,14 +73,14 @@ export default function HomePage(): ReactElement {
       <section className="mx-auto grid max-w-7xl gap-10 px-6 pb-20 pt-12 lg:grid-cols-[minmax(0,1.05fr)_minmax(360px,0.95fr)] lg:items-center lg:pb-24 lg:pt-20">
         <div className="max-w-3xl">
           <p className="text-sm font-semibold uppercase tracking-normal text-primary">
-            Research Analytics Dashboard
+            Dashboard Analitik Penelitian
           </p>
           <h1 className="mt-5 text-4xl font-semibold tracking-normal text-foreground sm:text-5xl lg:text-6xl">
             SentiRank
           </h1>
           <p className="mt-6 max-w-2xl text-base leading-7 text-muted-foreground sm:text-lg">
-            Sentiment analysis, aspect classification, and AHP/Fuzzy AHP
-            priority ranking for Spotify review analysis.
+            Analisis sentimen, klasifikasi aspek, dan ranking prioritas
+            AHP/Fuzzy AHP untuk analisis ulasan Spotify.
           </p>
 
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -88,7 +88,7 @@ export default function HomePage(): ReactElement {
               className="inline-flex items-center justify-center gap-2 rounded-md bg-primary px-5 py-3 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-primary/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
               href="/dashboard"
             >
-              Open Dashboard
+              Buka Dashboard
               <ArrowRight aria-hidden="true" className="size-4" />
             </Link>
             <a
@@ -103,7 +103,7 @@ export default function HomePage(): ReactElement {
         <div className="rounded-lg border border-border bg-card p-5 shadow-sm">
           <div className="rounded-md border border-blue-100 bg-blue-50 p-4">
             <p className="text-sm font-semibold text-blue-900">
-              Thesis Demo Flow
+              Alur Demo Skripsi
             </p>
             <p className="mt-2 text-sm leading-6 text-blue-900">
               Dashboard dirancang untuk menunjukkan alur analisis dari data
@@ -113,10 +113,10 @@ export default function HomePage(): ReactElement {
 
           <div className="mt-5 grid gap-3">
             {[
-              "Dataset review Spotify",
-              "Sentiment analysis",
-              "Aspect classification",
-              "Priority ranking",
+              "Dataset ulasan Spotify",
+              "Analisis sentimen",
+              "Klasifikasi aspek",
+              "Ranking prioritas",
             ].map((item, index) => (
               <div
                 className="flex items-center justify-between rounded-md border border-border bg-background px-4 py-3"
@@ -141,7 +141,7 @@ export default function HomePage(): ReactElement {
         <div className="mx-auto max-w-7xl">
           <div className="max-w-2xl">
             <p className="text-sm font-semibold uppercase tracking-normal text-primary">
-              Methodology
+              Metodologi
             </p>
             <h2 className="mt-3 text-3xl font-semibold tracking-normal text-foreground">
               Bagaimana SentiRank mengolah insight?
@@ -181,7 +181,7 @@ export default function HomePage(): ReactElement {
             className="mx-auto size-10 text-primary"
           />
           <h2 className="mt-4 text-2xl font-semibold tracking-normal text-foreground">
-            Data-driven decisions for better user experience
+            Keputusan berbasis data untuk pengalaman pengguna yang lebih baik
           </h2>
           <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">
             SentiRank menjaga tampilan tetap akademik, bersih, dan siap untuk
@@ -201,7 +201,7 @@ export default function HomePage(): ReactElement {
       </section>
 
       <footer className="border-t border-border px-6 py-8 text-center text-sm text-muted-foreground">
-        &copy; 2026 Ahmad Zaky Humami. Informatics final year project.
+        &copy; 2026 Ahmad Zaky Humami. Proyek tugas akhir Informatika.
       </footer>
     </main>
   );

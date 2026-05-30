@@ -65,12 +65,15 @@ export function AppSidebar({ items, className }: AppSidebarProps) {
             SentiRank
           </p>
           <p className="text-xs text-muted-foreground">
-            Research Analytics Light
+            Analitik Penelitian
           </p>
         </div>
       </div>
 
-      <nav className="flex-1 overflow-y-auto px-3 py-4" aria-label="Primary">
+      <nav
+        className="flex-1 overflow-y-auto px-3 py-4"
+        aria-label="Navigasi utama"
+      >
         <div className="space-y-1">
           {items.map((item) => {
             const active = isActiveRoute(pathname, item.href);
@@ -106,10 +109,10 @@ export function AppSidebar({ items, className }: AppSidebarProps) {
 
       <div className="border-t border-sidebar-border px-5 py-4">
         <p className="text-xs font-medium text-foreground">
-          Mock-first foundation
+          Fondasi mock-first
         </p>
         <p className="mt-1 text-xs leading-5 text-muted-foreground">
-          API-contract-ready layout for thesis demo pages.
+          Layout siap kontrak API untuk halaman demo skripsi.
         </p>
       </div>
     </aside>

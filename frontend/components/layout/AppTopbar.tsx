@@ -10,7 +10,7 @@ interface AppTopbarProps {
 
 export function AppTopbar({
   title = "SentiRank",
-  contextLabel = "Frontend foundation",
+  contextLabel = "Fondasi frontend",
   actions,
   className,
 }: AppTopbarProps) {

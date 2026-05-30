@@ -11,7 +11,7 @@ import type {
   SentimentSummary,
 } from "@/types";
 
-// Synthetic UI-only data. Do not treat these values as final method output.
+// Data sintetis untuk UI. Jangan gunakan nilai ini sebagai output metode final.
 export const mockReviews = [
   {
     id: "rev-001",
@@ -190,7 +190,7 @@ export const mockSentimentSummary = {
   },
   dominantLabel: "negative",
   averageConfidence: 0.885,
-  modelName: "IndoBERT Sentiment",
+  modelName: "IndoBERT Sentimen",
   modelVersion: "mock-ui-contract-1",
   generatedAt: "2026-05-30T09:00:00+07:00",
 } satisfies SentimentSummary;
@@ -224,7 +224,7 @@ export const mockAspectSummary = {
   topAspect: "playlist_library",
   topNegativeAspect: "app_performance",
   multiAspectReviewCount: 6,
-  modelName: "SVM Aspect Classifier",
+  modelName: "SVM Klasifikasi Aspek",
   modelVersion: "mock-ui-contract-1",
   generatedAt: "2026-05-30T09:05:00+07:00",
 } satisfies AspectSummary;
@@ -232,8 +232,8 @@ export const mockAspectSummary = {
 export const mockAhpCriteria = [
   {
     id: "crit-app-performance",
-    label: "App Performance Stability",
-    description: "Prioritize crash, lag, and playback interruption complaints.",
+    label: "Stabilitas Performa Aplikasi",
+    description: "Memprioritaskan keluhan crash, lag, dan gangguan playback.",
     source: "aspect_classification",
     sourceAspect: "app_performance",
     evidenceCount: 2,
@@ -242,8 +242,8 @@ export const mockAhpCriteria = [
   },
   {
     id: "crit-ads",
-    label: "Ad Interruption",
-    description: "Prioritize ad frequency and interruption issues in free listening.",
+    label: "Gangguan Iklan",
+    description: "Memprioritaskan frekuensi iklan dan gangguan pada mode gratis.",
     source: "aspect_classification",
     sourceAspect: "ads",
     evidenceCount: 1,
@@ -252,8 +252,8 @@ export const mockAhpCriteria = [
   },
   {
     id: "crit-offline-download",
-    label: "Offline Download Reliability",
-    description: "Prioritize downloaded playlist availability and offline playback.",
+    label: "Reliabilitas Unduhan Offline",
+    description: "Memprioritaskan ketersediaan playlist unduhan dan playback offline.",
     source: "aspect_classification",
     sourceAspect: "offline_download",
     evidenceCount: 2,
@@ -262,8 +262,8 @@ export const mockAhpCriteria = [
   },
   {
     id: "crit-subscription",
-    label: "Subscription and Account Billing",
-    description: "Prioritize Premium activation, renewal, and account billing issues.",
+    label: "Langganan dan Penagihan Akun",
+    description: "Memprioritaskan aktivasi Premium, perpanjangan, dan penagihan akun.",
     source: "aspect_classification",
     sourceAspect: "subscription",
     evidenceCount: 2,
@@ -272,8 +272,8 @@ export const mockAhpCriteria = [
   },
   {
     id: "crit-pricing",
-    label: "Pricing Sensitivity",
-    description: "Prioritize price increase and perceived value complaints.",
+    label: "Sensitivitas Harga",
+    description: "Memprioritaskan kenaikan harga dan keluhan persepsi nilai.",
     source: "aspect_classification",
     sourceAspect: "pricing",
     evidenceCount: 1,
@@ -292,7 +292,7 @@ export const mockAhpResult = {
       criterionBId: "crit-ads",
       value: 3,
       reciprocalValue: 0.333,
-      scaleLabel: "Moderately more important",
+      scaleLabel: "Cukup lebih penting",
     },
     {
       id: "pc-002",
@@ -300,7 +300,7 @@ export const mockAhpResult = {
       criterionBId: "crit-offline-download",
       value: 2,
       reciprocalValue: 0.5,
-      scaleLabel: "Slightly more important",
+      scaleLabel: "Sedikit lebih penting",
     },
     {
       id: "pc-003",
@@ -308,7 +308,7 @@ export const mockAhpResult = {
       criterionBId: "crit-subscription",
       value: 2,
       reciprocalValue: 0.5,
-      scaleLabel: "Slightly more important",
+      scaleLabel: "Sedikit lebih penting",
     },
     {
       id: "pc-004",
@@ -316,7 +316,7 @@ export const mockAhpResult = {
       criterionBId: "crit-pricing",
       value: 4,
       reciprocalValue: 0.25,
-      scaleLabel: "Between moderate and strong",
+      scaleLabel: "Di antara cukup dan kuat",
     },
     {
       id: "pc-005",
@@ -324,7 +324,7 @@ export const mockAhpResult = {
       criterionBId: "crit-offline-download",
       value: 0.5,
       reciprocalValue: 2,
-      scaleLabel: "Slightly less important",
+      scaleLabel: "Sedikit kurang penting",
     },
     {
       id: "pc-006",
@@ -332,7 +332,7 @@ export const mockAhpResult = {
       criterionBId: "crit-subscription",
       value: 1,
       reciprocalValue: 1,
-      scaleLabel: "Equal importance",
+      scaleLabel: "Sama penting",
     },
     {
       id: "pc-007",
@@ -340,7 +340,7 @@ export const mockAhpResult = {
       criterionBId: "crit-pricing",
       value: 2,
       reciprocalValue: 0.5,
-      scaleLabel: "Slightly more important",
+      scaleLabel: "Sedikit lebih penting",
     },
     {
       id: "pc-008",
@@ -348,7 +348,7 @@ export const mockAhpResult = {
       criterionBId: "crit-subscription",
       value: 1,
       reciprocalValue: 1,
-      scaleLabel: "Equal importance",
+      scaleLabel: "Sama penting",
     },
     {
       id: "pc-009",
@@ -356,7 +356,7 @@ export const mockAhpResult = {
       criterionBId: "crit-pricing",
       value: 2,
       reciprocalValue: 0.5,
-      scaleLabel: "Slightly more important",
+      scaleLabel: "Sedikit lebih penting",
     },
     {
       id: "pc-010",
@@ -364,48 +364,48 @@ export const mockAhpResult = {
       criterionBId: "crit-pricing",
       value: 2,
       reciprocalValue: 0.5,
-      scaleLabel: "Slightly more important",
+      scaleLabel: "Sedikit lebih penting",
     },
   ],
   ranking: [
     {
       criterionId: "crit-app-performance",
-      label: "App Performance Stability",
+      label: "Stabilitas Performa Aplikasi",
       weight: 0.34,
       rank: 1,
-      interpretation: "Most urgent because reliability issues block listening sessions.",
+      interpretation: "Paling mendesak karena masalah reliabilitas menghambat sesi mendengarkan.",
       evidenceCount: 2,
     },
     {
       criterionId: "crit-offline-download",
-      label: "Offline Download Reliability",
+      label: "Reliabilitas Unduhan Offline",
       weight: 0.22,
       rank: 2,
-      interpretation: "High impact for Premium users and travel scenarios.",
+      interpretation: "Berdampak tinggi untuk pengguna Premium dan skenario perjalanan.",
       evidenceCount: 2,
     },
     {
       criterionId: "crit-subscription",
-      label: "Subscription and Account Billing",
+      label: "Langganan dan Penagihan Akun",
       weight: 0.19,
       rank: 3,
-      interpretation: "Important because billing issues directly affect trust.",
+      interpretation: "Penting karena masalah penagihan langsung memengaruhi kepercayaan.",
       evidenceCount: 2,
     },
     {
       criterionId: "crit-ads",
-      label: "Ad Interruption",
+      label: "Gangguan Iklan",
       weight: 0.15,
       rank: 4,
-      interpretation: "Relevant for free users, but less severe than playback failures.",
+      interpretation: "Relevan untuk pengguna gratis, tetapi lebih rendah dari kegagalan playback.",
       evidenceCount: 1,
     },
     {
       criterionId: "crit-pricing",
-      label: "Pricing Sensitivity",
+      label: "Sensitivitas Harga",
       weight: 0.1,
       rank: 5,
-      interpretation: "Needs monitoring, but current evidence is narrower.",
+      interpretation: "Perlu dipantau, tetapi bukti saat ini masih lebih terbatas.",
       evidenceCount: 1,
     },
   ],
@@ -414,7 +414,7 @@ export const mockAhpResult = {
   generatedAt: "2026-05-30T09:10:00+07:00",
   methodVersion: "mock-ahp-contract-1",
   methodNote:
-    "Mock ranking for UI development only. Frontend does not calculate AHP weights.",
+    "Ranking mock hanya untuk pengembangan UI. Frontend tidak menghitung bobot AHP.",
 } satisfies AhpResult;
 
 export const mockFuzzyAhpResult = {
@@ -423,72 +423,72 @@ export const mockFuzzyAhpResult = {
   scaleOptions: [
     {
       id: "fuzzy-equal",
-      label: "Equal importance",
+      label: "Sama penting",
       value: { lower: 1, middle: 1, upper: 1 },
     },
     {
       id: "fuzzy-slight",
-      label: "Slightly more important",
+      label: "Sedikit lebih penting",
       value: { lower: 1, middle: 2, upper: 3 },
     },
     {
       id: "fuzzy-moderate",
-      label: "Moderately more important",
+      label: "Cukup lebih penting",
       value: { lower: 2, middle: 3, upper: 4 },
     },
     {
       id: "fuzzy-strong",
-      label: "Strongly more important",
+      label: "Jauh lebih penting",
       value: { lower: 4, middle: 5, upper: 6 },
     },
   ],
   ranking: [
     {
       criterionId: "crit-app-performance",
-      label: "App Performance Stability",
+      label: "Stabilitas Performa Aplikasi",
       fuzzyWeight: { lower: 0.29, middle: 0.35, upper: 0.41 },
       normalizedWeight: 0.35,
       rank: 1,
-      interpretation: "Prototype fuzzy ranking also places reliability as top priority.",
+      interpretation: "Ranking fuzzy prototype juga menempatkan reliabilitas sebagai prioritas utama.",
     },
     {
       criterionId: "crit-offline-download",
-      label: "Offline Download Reliability",
+      label: "Reliabilitas Unduhan Offline",
       fuzzyWeight: { lower: 0.18, middle: 0.22, upper: 0.27 },
       normalizedWeight: 0.22,
       rank: 2,
-      interpretation: "Offline reliability remains a high-priority Premium experience issue.",
+      interpretation: "Reliabilitas offline tetap menjadi isu prioritas tinggi untuk pengalaman Premium.",
     },
     {
       criterionId: "crit-subscription",
-      label: "Subscription and Account Billing",
+      label: "Langganan dan Penagihan Akun",
       fuzzyWeight: { lower: 0.15, middle: 0.19, upper: 0.24 },
       normalizedWeight: 0.19,
       rank: 3,
-      interpretation: "Billing and account trust remain important.",
+      interpretation: "Penagihan dan kepercayaan akun tetap penting.",
     },
     {
       criterionId: "crit-ads",
-      label: "Ad Interruption",
+      label: "Gangguan Iklan",
       fuzzyWeight: { lower: 0.11, middle: 0.14, upper: 0.18 },
       normalizedWeight: 0.14,
       rank: 4,
-      interpretation: "Ad interruption is visible but not the top prototype priority.",
+      interpretation: "Gangguan iklan terlihat, tetapi bukan prioritas tertinggi dalam prototype.",
     },
     {
       criterionId: "crit-pricing",
-      label: "Pricing Sensitivity",
+      label: "Sensitivitas Harga",
       fuzzyWeight: { lower: 0.07, middle: 0.1, upper: 0.14 },
       normalizedWeight: 0.1,
       rank: 5,
-      interpretation: "Pricing is tracked as a lower-evidence issue in this mock set.",
+      interpretation: "Harga dipantau sebagai isu dengan bukti lebih terbatas pada data mock ini.",
     },
   ],
   status: "prototype",
   generatedAt: "2026-05-30T09:12:00+07:00",
   methodVersion: "mock-fuzzy-ahp-contract-1",
   methodNote:
-    "Prototype mock output only. Final Fuzzy AHP formula and output shape remain backend/methodology concerns.",
+    "Output mock prototype saja. Formula dan bentuk output final Fuzzy AHP tetap menjadi ranah backend/metodologi.",
 } satisfies FuzzyAhpResult;
 
 export const mockModelEvaluation = {
@@ -496,17 +496,17 @@ export const mockModelEvaluation = {
   models: [
     {
       task: "sentiment",
-      modelName: "IndoBERT Sentiment",
+      modelName: "IndoBERT Sentimen",
       modelVersion: "mock-ui-contract-1",
       sampleCount: 600,
       metrics: [
         {
           id: "metric-sentiment-accuracy",
           task: "sentiment",
-          label: "Accuracy",
+          label: "Akurasi",
           value: 0.88,
           format: "percentage",
-          description: "Overall sentiment classification accuracy on validation data.",
+          description: "Akurasi keseluruhan klasifikasi sentimen pada data validasi.",
         },
         {
           id: "metric-sentiment-macro-f1",
@@ -514,15 +514,15 @@ export const mockModelEvaluation = {
           label: "Macro F1",
           value: 0.84,
           format: "percentage",
-          description: "Average F1 across positive, neutral, and negative labels.",
+          description: "Rata-rata F1 untuk label positif, netral, dan negatif.",
         },
         {
           id: "metric-sentiment-neutral-recall",
           task: "sentiment",
-          label: "Neutral Recall",
+          label: "Recall Netral",
           value: 0.78,
           format: "percentage",
-          description: "Recall for neutral reviews, tracked because this class is often weaker.",
+          description: "Recall untuk ulasan netral, dipantau karena kelas ini sering lebih lemah.",
         },
       ],
       confusionMatrix: {
@@ -548,23 +548,23 @@ export const mockModelEvaluation = {
         ],
       },
       notes: [
-        "Neutral recall is tracked as a watch item for thesis evaluation.",
-        "Mock values are synthetic and only support UI layout development.",
+        "Recall netral dipantau sebagai perhatian khusus untuk evaluasi skripsi.",
+        "Nilai mock bersifat sintetis dan hanya mendukung pengembangan layout UI.",
       ],
     },
     {
       task: "aspect",
-      modelName: "SVM Aspect Classifier",
+      modelName: "SVM Klasifikasi Aspek",
       modelVersion: "mock-ui-contract-1",
       sampleCount: 420,
       metrics: [
         {
           id: "metric-aspect-accuracy",
           task: "aspect",
-          label: "Accuracy",
+          label: "Akurasi",
           value: 0.82,
           format: "percentage",
-          description: "Overall aspect classification accuracy on validation data.",
+          description: "Akurasi keseluruhan klasifikasi aspek pada data validasi.",
         },
         {
           id: "metric-aspect-macro-f1",
@@ -572,7 +572,7 @@ export const mockModelEvaluation = {
           label: "Macro F1",
           value: 0.79,
           format: "percentage",
-          description: "Average F1 across Spotify review aspect labels.",
+          description: "Rata-rata F1 untuk label aspek ulasan Spotify.",
         },
       ],
       confusionMatrix: {
@@ -603,24 +603,24 @@ export const mockModelEvaluation = {
         ],
       },
       notes: [
-        "Aspect labels remain reusable for future API response mapping.",
-        "Confusion matrix labels can be expanded when the final dataset has more classes.",
+        "Label aspek tetap reusable untuk pemetaan response API berikutnya.",
+        "Label confusion matrix dapat diperluas saat dataset final memiliki lebih banyak kelas.",
       ],
     },
   ],
   overallNotes: [
-    "Evaluation values are synthetic placeholders for frontend UI development.",
-    "Final values must come from validated model artifacts before thesis reporting.",
+    "Nilai evaluasi adalah placeholder sintetis untuk pengembangan UI frontend.",
+    "Nilai final harus berasal dari artefak model tervalidasi sebelum pelaporan skripsi.",
   ],
 } satisfies EvaluationSummary;
 
 export const mockReportSummary = {
   id: "report-demo-001",
-  title: "SentiRank Spotify Review Insight Summary",
+  title: "Ringkasan Insight Ulasan Spotify SentiRank",
   generatedAt: "2026-05-30T09:20:00+07:00",
   dataset: {
     totalReviews: 10,
-    source: "Synthetic Spotify review sample for UI development",
+    source: "Sampel ulasan Spotify sintetis untuk pengembangan UI",
     dateRange: {
       start: "2026-04-12",
       end: "2026-04-23",
@@ -641,20 +641,20 @@ export const mockReportSummary = {
     ahpWeight: 0.34,
     fuzzyAhpWeight: 0.35,
     interpretation:
-      "App performance should be handled first because playback reliability directly affects the core listening experience.",
+      "Performa aplikasi perlu ditangani terlebih dahulu karena reliabilitas playback langsung memengaruhi pengalaman mendengarkan utama.",
   },
   evaluation: {
     sentimentMacroF1: 0.84,
     aspectMacroF1: 0.79,
   },
   highlights: [
-    "Negative reviews dominate this synthetic demo sample.",
-    "App performance appears as the top negative aspect and top priority.",
-    "AHP and Fuzzy AHP mock rankings produce the same first recommendation.",
+    "Ulasan negatif mendominasi sampel demo sintetis ini.",
+    "Performa aplikasi muncul sebagai aspek negatif tertinggi dan prioritas utama.",
+    "Ranking mock AHP dan Fuzzy AHP menghasilkan rekomendasi pertama yang sama.",
   ],
   recommendations: [
-    "Use model outputs to focus improvement discussion on reliability and playback stability.",
-    "Keep AHP/Fuzzy AHP results clearly labeled as method outputs when final backend data is connected.",
+    "Gunakan output model untuk memfokuskan diskusi perbaikan pada reliabilitas dan stabilitas playback.",
+    "Pastikan hasil AHP/Fuzzy AHP diberi label jelas sebagai output metode saat data backend final terhubung.",
   ],
 } satisfies ReportSummary;
 
