@@ -8,7 +8,7 @@
 | Module           | Frontend UI/UX                     |
 | Document         | Design Decision Log                |
 | Track            | Frontend Track                     |
-| Current Phase    | FE-05 — Component Map              |
+| Current Phase    | FE-06 — NextJS Setup               |
 | Default Theme    | Light Mode                         |
 | Visual Direction | SentiRank Research Analytics Light |
 | Status           | Draft                              |
@@ -703,13 +703,13 @@ FE-06 — NextJS Setup
 ## Date
 
 ```txt
-TBD
+2026-05-30
 ```
 
 ## Status
 
 ```txt
-Draft
+Approved
 ```
 
 ---
@@ -774,7 +774,7 @@ Keputusan ini akan memengaruhi:
 ## Next Action
 
 ```txt
-Setup project NextJS pada folder `frontend/`.
+Gunakan setup NextJS di `frontend/` sebagai foundation FE-07 saat fase mock data dan types dimulai.
 ```
 
 ---

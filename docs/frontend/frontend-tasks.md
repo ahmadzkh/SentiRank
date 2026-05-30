@@ -14,7 +14,7 @@
 - [x] FE-03 — DESIGN.md selesai
 - [x] FE-04 — Wireframe selesai
 - [x] FE-05 — Component map selesai
-- [ ] FE-06 — NextJS setup selesai
+- [x] FE-06 — NextJS setup selesai
 - [ ] FE-07 — Mock data dan types selesai
 - [ ] FE-08 — Layout utama selesai
 - [ ] FE-09 — Dashboard selesai
@@ -364,4 +364,67 @@ Special method constraint:
 
 ```txt
 AHP / Fuzzy AHP components remain flexible, data-driven, and prototype-ready.
+```
+
+---
+
+## FE-06 — NextJS Setup
+
+### Objective
+
+Menyiapkan foundation frontend SentiRank menggunakan NextJS App Router, TypeScript, Tailwind CSS, ESLint, shadcn/ui, dan dependency UI/chart yang dibutuhkan untuk fase implementasi berikutnya.
+
+### Task Checklist
+
+- [x] Setup NextJS App Router pada folder `frontend/`.
+- [x] Setup TypeScript.
+- [x] Setup Tailwind CSS.
+- [x] Setup ESLint.
+- [x] Initialize shadcn/ui.
+- [x] Install `lucide-react`.
+- [x] Install `recharts`.
+- [x] Install `clsx`.
+- [x] Install `tailwind-merge`.
+- [x] Install `class-variance-authority`.
+- [x] Buat struktur folder kosong untuk layout, cards, tables, charts, badges, forms, states, ui, constants, hooks, lib, dan types.
+- [x] Buat `frontend/README.md` dengan setup instructions.
+- [x] Pastikan `frontend/DESIGN.md` tetap utuh.
+- [x] Jalankan `npm run lint`.
+- [x] Jalankan `npm run build`.
+- [x] Tidak mengimplementasikan dashboard pages.
+- [x] Tidak membuat mock data.
+- [x] Tidak mengimplementasikan full layout.
+- [x] Tidak memulai FE-07 atau fase setelahnya.
+
+### Acceptance Criteria
+
+- [x] `frontend/app/` tersedia dan menggunakan NextJS App Router.
+- [x] TypeScript tersedia melalui `tsconfig.json` dan konfigurasi project NextJS.
+- [x] Tailwind CSS tersedia melalui `app/globals.css`, `postcss.config.mjs`, dan `tailwind.config.ts`.
+- [x] ESLint tersedia melalui `eslint.config.mjs` dan script `npm run lint`.
+- [x] shadcn/ui terinisialisasi melalui `components.json`.
+- [x] Dependency `lucide-react`, `recharts`, `clsx`, `tailwind-merge`, dan `class-variance-authority` sudah terpasang.
+- [x] Struktur folder frontend sesuai kebutuhan fase berikutnya.
+- [x] `frontend/README.md` menjelaskan setup dan checks.
+- [x] `frontend/DESIGN.md` tidak dihapus atau ditimpa.
+- [x] Tidak ada dashboard implementation, mock data, atau full layout implementation.
+- [x] `npm run lint` berhasil.
+- [x] `npm run build` berhasil.
+
+### Completion Note
+
+Completed on 2026-05-30. FE-06 NextJS foundation is set up in `frontend/` with App Router, TypeScript, Tailwind CSS, ESLint, shadcn/ui configuration, required UI/chart dependencies, empty future-phase folders, and README instructions. `frontend/DESIGN.md` remains intact, and both `npm run lint` and `npm run build` pass.
+
+### Final Decision
+
+Frontend foundation selected:
+
+```txt
+NextJS App Router + TypeScript + Tailwind CSS + ESLint + shadcn/ui
+```
+
+Implementation scope:
+
+```txt
+Foundation only. Dashboard pages, mock data, full layout, and API integration are deferred to later phases.
 ```
