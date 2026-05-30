@@ -10,7 +10,7 @@
 ## Main Frontend Roadmap
 
 - [x] FE-01 — Design references selesai
-- [ ] FE-02 — Information architecture selesai
+- [x] FE-02 — Information architecture selesai
 - [ ] FE-03 — DESIGN.md selesai
 - [ ] FE-04 — Wireframe selesai
 - [ ] FE-05 — Component map selesai
@@ -69,4 +69,65 @@ Design keywords:
 
 ```txt
 clean, academic, analytical, professional, light-mode, SaaS dashboard, readable, elegant
+```
+
+---
+
+## FE-02 — Information Architecture
+
+### Objective
+
+Menyusun information architecture frontend SentiRank sebagai dashboard analitik berbasis Light Mode, mock-first, dan siap diarahkan ke NextJS App Router pada fase implementasi berikutnya.
+
+### Tasks
+
+- [x] Definisikan application purpose.
+- [x] Definisikan target users.
+- [x] Definisikan main navigation structure.
+- [x] Definisikan page hierarchy.
+- [x] Definisikan route plan untuk NextJS App Router.
+- [x] Definisikan purpose setiap halaman.
+- [x] Definisikan data yang ditampilkan pada setiap halaman.
+- [x] Definisikan user actions pada setiap halaman.
+- [x] Definisikan relationship antar halaman.
+- [x] Definisikan recommended user flow untuk demo skripsi.
+- [x] Definisikan acceptance criteria FE-02.
+- [x] Buat `docs/frontend/information-architecture.md`.
+
+### Acceptance Criteria
+
+FE-02 dianggap selesai jika:
+
+- [x] `docs/frontend/information-architecture.md` sudah dibuat.
+- [x] Application purpose sudah dijelaskan.
+- [x] Target users sudah dijelaskan.
+- [x] Main navigation structure sudah dijelaskan.
+- [x] Page hierarchy sudah dijelaskan.
+- [x] NextJS App Router route plan sudah dijelaskan.
+- [x] Page-by-page purpose sudah dijelaskan.
+- [x] Data shown on each page sudah dijelaskan.
+- [x] User actions on each page sudah dijelaskan.
+- [x] Relationship between pages sudah dijelaskan.
+- [x] Recommended user flow untuk demo skripsi sudah dijelaskan.
+- [x] Dokumen tetap sesuai dengan SentiRank Research Analytics Light.
+- [x] Light Mode tetap menjadi default.
+- [x] Pendekatan mock-first dan API-contract-ready tetap digunakan.
+- [x] FE-03 sampai FE-12 belum dimulai.
+
+### Completion Note
+
+Completed on 2026-05-30. FE-02 information architecture is documented in `docs/frontend/information-architecture.md`, including purpose, target users, navigation, page hierarchy, NextJS App Router route plan, page data, user actions, page relationships, and recommended demo flow.
+
+### Final Decision
+
+Information architecture selected:
+
+```txt
+Dashboard-based analytics application with sidebar navigation
+```
+
+Primary demo flow:
+
+```txt
+Dashboard -> Dataset -> Preprocessing -> Sentiment Analysis -> Aspect Classification -> AHP / Fuzzy AHP -> Model Evaluation -> Reports
 ```

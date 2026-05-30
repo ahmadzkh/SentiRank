@@ -8,7 +8,7 @@
 | Module           | Frontend UI/UX                     |
 | Document         | Design Decision Log                |
 | Track            | Frontend Track                     |
-| Current Phase    | FE-01 — Design References          |
+| Current Phase    | FE-02 — Information Architecture   |
 | Default Theme    | Light Mode                         |
 | Visual Direction | SentiRank Research Analytics Light |
 | Status           | Draft                              |
@@ -285,13 +285,13 @@ FE-02 — Information Architecture
 ## Date
 
 ```txt
-TBD
+2026-05-30
 ```
 
 ## Status
 
 ```txt
-Draft
+Approved
 ```
 
 ---
@@ -299,6 +299,8 @@ Draft
 ## Decision
 
 Struktur navigasi frontend SentiRank akan menggunakan dashboard-based navigation dengan sidebar sebagai navigasi utama.
+
+Dokumen information architecture disimpan di `docs/frontend/information-architecture.md`.
 
 Rencana struktur menu awal:
 
@@ -377,7 +379,7 @@ Keputusan ini akan memengaruhi:
 ## Next Action
 
 ```txt
-Buat file `docs/frontend/information-architecture.md` dan detailkan setiap halaman, fungsi, data yang ditampilkan, serta relasi antar halaman.
+Gunakan `docs/frontend/information-architecture.md` sebagai input FE-03 saat fase FE-03 dimulai.
 ```
 
 ---
