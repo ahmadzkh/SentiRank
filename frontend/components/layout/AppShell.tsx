@@ -10,7 +10,6 @@ interface AppShellProps {
   sidebarItems?: readonly NavigationItem[];
   topbarTitle?: string;
   topbarContextLabel?: string;
-  topbarStatusLabel?: string;
   topbarActions?: ReactNode;
 }
 
@@ -19,7 +18,6 @@ export function AppShell({
   sidebarItems = NAVIGATION_ITEMS,
   topbarTitle = "SentiRank",
   topbarContextLabel = "Research analytics dashboard",
-  topbarStatusLabel = "Light Mode",
   topbarActions,
 }: AppShellProps) {
   return (
@@ -30,7 +28,6 @@ export function AppShell({
           <AppTopbar
             actions={topbarActions}
             contextLabel={topbarContextLabel}
-            statusLabel={topbarStatusLabel}
             title={topbarTitle}
           />
           <MobileSidebar items={sidebarItems} />

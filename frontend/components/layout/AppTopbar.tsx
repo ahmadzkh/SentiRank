@@ -4,7 +4,6 @@ import { cn } from "@/lib/utils";
 interface AppTopbarProps {
   title?: string;
   contextLabel?: string;
-  statusLabel?: string;
   actions?: ReactNode;
   className?: string;
 }
@@ -12,7 +11,6 @@ interface AppTopbarProps {
 export function AppTopbar({
   title = "SentiRank",
   contextLabel = "Frontend foundation",
-  statusLabel = "Light Mode",
   actions,
   className,
 }: AppTopbarProps) {
@@ -32,12 +30,9 @@ export function AppTopbar({
         </h1>
       </div>
 
-      <div className="flex shrink-0 items-center gap-2">
-        <span className="rounded-md border border-blue-200 bg-blue-50 px-2.5 py-1 text-xs font-medium text-blue-700">
-          {statusLabel}
-        </span>
-        {actions}
-      </div>
+      {actions ? (
+        <div className="flex shrink-0 items-center gap-2">{actions}</div>
+      ) : null}
     </header>
   );
 }

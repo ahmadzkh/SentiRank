@@ -1,239 +1,208 @@
-import { AspectRankingChart } from "@/components/charts/AspectRankingChart";
-import type { AspectRankingDatum } from "@/components/charts/AspectRankingChart";
-import { AhpRankingComparisonChart } from "@/components/charts/AhpRankingComparisonChart";
-import type { AhpRankingComparisonDatum } from "@/components/charts/AhpRankingComparisonChart";
-import { SentimentDistributionChart } from "@/components/charts/SentimentDistributionChart";
-import type { SentimentDistributionDatum } from "@/components/charts/SentimentDistributionChart";
-import { ChartCard } from "@/components/cards/ChartCard";
-import { ModelMetricCard } from "@/components/cards/ModelMetricCard";
-import { RankingCard } from "@/components/cards/RankingCard";
-import type { RankingCardItem } from "@/components/cards/RankingCard";
-import { StatCard } from "@/components/cards/StatCard";
-import { PageHeader } from "@/components/layout";
-import { ReviewTable } from "@/components/tables/ReviewTable";
-import { ASPECT_META } from "@/constants/aspect";
-import { SENTIMENT_LABELS, SENTIMENT_META } from "@/constants/sentiment";
+import Link from "next/link";
+import type { ReactElement } from "react";
 import {
-  mockAhpResult,
-  mockAspectSummary,
-  mockFuzzyAhpResult,
-  mockModelEvaluation,
-  mockReportSummary,
-  mockReviews,
-  mockSentimentSummary,
-} from "@/lib/mock-data";
-import type { AspectLabel } from "@/types/aspect";
-import type { ModelMetric } from "@/types/evaluation";
+  ArrowRight,
+  BarChart3,
+  BrainCircuit,
+  Cpu,
+  Database,
+  Layers3,
+  ShieldCheck,
+} from "lucide-react";
 
-function formatWeight(value: number) {
-  return `${Math.round(value * 100)}%`;
-}
+const methodologyItems = [
+  {
+    icon: Database,
+    title: "Spotify Review Data",
+    description:
+      "Ulasan pengguna menjadi sumber utama untuk melihat pola sentimen, keluhan, dan kebutuhan perbaikan produk.",
+  },
+  {
+    icon: Layers3,
+    title: "Text Processing",
+    description:
+      "Teks ulasan dipersiapkan untuk analisis melalui pembersihan, normalisasi, dan struktur data yang siap dipakai model.",
+  },
+  {
+    icon: BrainCircuit,
+    title: "Sentiment and Aspect Model",
+    description:
+      "IndoBERT digunakan untuk sentimen, sementara klasifikasi aspek membantu membaca tema keluhan secara lebih terarah.",
+  },
+  {
+    icon: BarChart3,
+    title: "AHP / Fuzzy AHP Priority",
+    description:
+      "Aspek negatif diprioritaskan sebagai insight penelitian agar rekomendasi tidak berhenti pada hitungan sentimen saja.",
+  },
+];
 
-function formatMetricValue(metric: ModelMetric) {
-  if (metric.format === "percentage") {
-    return formatWeight(metric.value);
-  }
+const stackItems = ["NextJS", "TypeScript", "Tailwind CSS", "IndoBERT", "SVM"];
 
-  return metric.value.toLocaleString("en");
-}
-
-function getShortLabel(label: string) {
-  return label.split(" ").slice(0, 2).join(" ");
-}
-
-const sentimentDistributionData = SENTIMENT_LABELS.map((label) => ({
-  label,
-  name: SENTIMENT_META[label].label,
-  count: mockSentimentSummary.counts[label],
-  percentage: mockSentimentSummary.percentages[label],
-  color: SENTIMENT_META[label].chartColor,
-})) satisfies SentimentDistributionDatum[];
-
-const negativeAspectRankingData = (
-  Object.entries(mockAspectSummary.negativeCounts) as [AspectLabel, number][]
-)
-  .filter(([, count]) => count > 0)
-  .map(([aspect, count]) => ({
-    aspect,
-    label: ASPECT_META[aspect].label,
-    count,
-  }))
-  .sort((first, second) => second.count - first.count) satisfies AspectRankingDatum[];
-
-const priorityComparisonData = mockAhpResult.ranking.map((ahpItem) => {
-  const fuzzyItem = mockFuzzyAhpResult.ranking.find(
-    (item) => item.criterionId === ahpItem.criterionId,
-  );
-
-  return {
-    criterionId: ahpItem.criterionId,
-    label: ahpItem.label,
-    shortLabel: getShortLabel(ahpItem.label),
-    ahpWeight: Math.round(ahpItem.weight * 100),
-    fuzzyAhpWeight: Math.round((fuzzyItem?.normalizedWeight ?? 0) * 100),
-  };
-}) satisfies AhpRankingComparisonDatum[];
-
-const priorityRankingItems = mockAhpResult.ranking
-  .slice(0, 3)
-  .map((item) => ({
-    id: item.criterionId,
-    rank: item.rank,
-    label: item.label,
-    score: formatWeight(item.weight),
-    description: item.interpretation,
-  })) satisfies RankingCardItem[];
-
-const latestNegativeReviews = mockReviews
-  .filter((review) => review.sentimentLabel === "negative")
-  .sort(
-    (first, second) =>
-      new Date(second.reviewDate).getTime() - new Date(first.reviewDate).getTime(),
-  )
-  .slice(0, 5);
-
-const modelMetricCards = mockModelEvaluation.models.flatMap((model) =>
-  model.metrics.map((metric) => ({
-    metric,
-    modelName: model.modelName,
-  })),
-);
-
-const topNegativeAspectLabel =
-  ASPECT_META[mockAspectSummary.topNegativeAspect].label;
-
-export default function Home() {
+export default function HomePage(): ReactElement {
   return (
-    <>
-      <PageHeader
-        description="A thesis demo overview of Spotify review sentiment, negative aspects, AHP/Fuzzy AHP priority preview, model performance, and latest negative feedback."
-        eyebrow="SentiRank Research Analytics Light"
-        title="Dashboard"
-      />
+    <main className="min-h-screen bg-background text-foreground">
+      <nav className="mx-auto flex max-w-7xl items-center justify-between px-6 py-6">
+        <Link className="flex items-center gap-3" href="/">
+          <span className="flex size-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+            <Cpu aria-hidden="true" className="size-5" />
+          </span>
+          <span className="text-lg font-semibold tracking-normal">
+            SentiRank
+          </span>
+        </Link>
 
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
-        <StatCard
-          description="Synthetic Spotify reviews available for UI development."
-          label="Total Reviews"
-          value={mockSentimentSummary.totalReviews.toLocaleString("en")}
-        />
-        <StatCard
-          description={`${mockSentimentSummary.percentages.positive}% of analyzed reviews.`}
-          label="Positive Reviews"
-          tone="positive"
-          value={mockSentimentSummary.counts.positive}
-        />
-        <StatCard
-          description={`${mockSentimentSummary.percentages.neutral}% of analyzed reviews.`}
-          label="Neutral Reviews"
-          tone="neutral"
-          value={mockSentimentSummary.counts.neutral}
-        />
-        <StatCard
-          description={`${mockSentimentSummary.percentages.negative}% of analyzed reviews.`}
-          label="Negative Reviews"
-          tone="negative"
-          value={mockSentimentSummary.counts.negative}
-        />
-        <StatCard
-          description={`${mockAspectSummary.negativeCounts[mockAspectSummary.topNegativeAspect]} negative review signals.`}
-          label="Top Negative Aspect"
-          tone="primary"
-          value={topNegativeAspectLabel}
-        />
-        <StatCard
-          description="AHP weight from mock priority preview."
-          label="Priority Score"
-          tone="primary"
-          value={formatWeight(mockReportSummary.prioritization.ahpWeight)}
-        />
-      </section>
+        <div className="hidden items-center gap-8 text-sm font-medium text-muted-foreground md:flex">
+          <a className="transition-colors hover:text-primary" href="#methodology">
+            Cara Kerja
+          </a>
+          <a className="transition-colors hover:text-primary" href="#about">
+            Tentang Data
+          </a>
+        </div>
 
-      <section className="grid gap-6 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
-        <ChartCard
-          description="Positive, neutral, and negative review distribution from FE-07 mock summary."
-          insight={`${mockSentimentSummary.counts.negative} of ${mockSentimentSummary.totalReviews} reviews are negative in the synthetic dashboard sample.`}
-          title="Sentiment Distribution"
+        <Link
+          className="inline-flex items-center justify-center gap-2 rounded-md bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-primary/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+          href="/dashboard"
         >
-          <SentimentDistributionChart data={sentimentDistributionData} />
-        </ChartCard>
+          Open Dashboard
+          <ArrowRight aria-hidden="true" className="size-4" />
+        </Link>
+      </nav>
 
-        <ChartCard
-          description="Negative aspect counts from the mock SVM aspect classification summary."
-          insight={`${topNegativeAspectLabel} is the current top negative aspect in this mock dataset.`}
-          title="Negative Aspect Ranking"
-        >
-          <AspectRankingChart data={negativeAspectRankingData} />
-        </ChartCard>
-      </section>
-
-      <section className="grid gap-6 xl:grid-cols-[minmax(0,1.2fr)_minmax(320px,0.8fr)]">
-        <ChartCard
-          description="Prototype comparison of AHP and Fuzzy AHP weights from FE-07 mock outputs."
-          insight="These values are mock method outputs only; the frontend does not calculate AHP or Fuzzy AHP."
-          title="AHP / Fuzzy AHP Priority Preview"
-        >
-          <AhpRankingComparisonChart data={priorityComparisonData} />
-        </ChartCard>
-
-        <RankingCard
-          description="Top priority candidates based on mock AHP ranking output."
-          items={priorityRankingItems}
-          title="Priority Ranking"
-        />
-      </section>
-
-      <section>
-        <div className="mb-4">
-          <h3 className="text-base font-semibold text-foreground">
-            Model Performance Summary
-          </h3>
-          <p className="mt-1 text-sm leading-5 text-muted-foreground">
-            Mock evaluation metrics are shown to support a thesis demo view. Final
-            values must come from validated model artifacts.
+      <section className="mx-auto grid max-w-7xl gap-10 px-6 pb-20 pt-12 lg:grid-cols-[minmax(0,1.05fr)_minmax(360px,0.95fr)] lg:items-center lg:pb-24 lg:pt-20">
+        <div className="max-w-3xl">
+          <p className="text-sm font-semibold uppercase tracking-normal text-primary">
+            Research Analytics Dashboard
           </p>
-        </div>
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
-          {modelMetricCards.map(({ metric, modelName }) => (
-            <ModelMetricCard
-              description={metric.description}
-              key={metric.id}
-              label={metric.label}
-              modelName={modelName}
-              value={formatMetricValue(metric)}
-            />
-          ))}
-        </div>
-      </section>
+          <h1 className="mt-5 text-4xl font-semibold tracking-normal text-foreground sm:text-5xl lg:text-6xl">
+            SentiRank
+          </h1>
+          <p className="mt-6 max-w-2xl text-base leading-7 text-muted-foreground sm:text-lg">
+            Sentiment analysis, aspect classification, and AHP/Fuzzy AHP
+            priority ranking for Spotify review analysis.
+          </p>
 
-      <ChartCard
-        description="Recent negative Spotify review examples with sentiment and aspect labels."
-        title="Latest Negative Reviews"
-      >
-        <ReviewTable
-          emptyMessage="No negative reviews available in the current mock data."
-          reviews={latestNegativeReviews}
-        />
-      </ChartCard>
-
-      <section className="rounded-lg border border-blue-100 bg-blue-50 p-5 shadow-sm">
-        <p className="text-sm font-semibold text-blue-900">
-          Recommendation Summary
-        </p>
-        <p className="mt-2 max-w-4xl text-sm leading-6 text-blue-900">
-          {mockReportSummary.prioritization.interpretation}
-        </p>
-        <div className="mt-4 grid gap-3 md:grid-cols-3">
-          {mockReportSummary.highlights.map((highlight) => (
-            <div
-              className="rounded-md border border-blue-100 bg-white px-4 py-3 text-sm leading-6 text-slate-700"
-              key={highlight}
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+            <Link
+              className="inline-flex items-center justify-center gap-2 rounded-md bg-primary px-5 py-3 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-primary/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+              href="/dashboard"
             >
-              {highlight}
-            </div>
-          ))}
+              Open Dashboard
+              <ArrowRight aria-hidden="true" className="size-4" />
+            </Link>
+            <a
+              className="inline-flex items-center justify-center rounded-md border border-border bg-card px-5 py-3 text-sm font-medium text-foreground shadow-sm transition-colors hover:bg-secondary"
+              href="#methodology"
+            >
+              Pelajari Metodologi
+            </a>
+          </div>
+        </div>
+
+        <div className="rounded-lg border border-border bg-card p-5 shadow-sm">
+          <div className="rounded-md border border-blue-100 bg-blue-50 p-4">
+            <p className="text-sm font-semibold text-blue-900">
+              Thesis Demo Flow
+            </p>
+            <p className="mt-2 text-sm leading-6 text-blue-900">
+              Dashboard dirancang untuk menunjukkan alur analisis dari data
+              ulasan Spotify sampai prioritas insight berbasis AHP/Fuzzy AHP.
+            </p>
+          </div>
+
+          <div className="mt-5 grid gap-3">
+            {[
+              "Dataset review Spotify",
+              "Sentiment analysis",
+              "Aspect classification",
+              "Priority ranking",
+            ].map((item, index) => (
+              <div
+                className="flex items-center justify-between rounded-md border border-border bg-background px-4 py-3"
+                key={item}
+              >
+                <span className="text-sm font-medium text-foreground">
+                  {item}
+                </span>
+                <span className="rounded-md bg-blue-50 px-2 py-1 text-xs font-semibold text-blue-700">
+                  {String(index + 1).padStart(2, "0")}
+                </span>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
-    </>
+
+      <section
+        className="border-y border-border bg-secondary/60 px-6 py-20"
+        id="methodology"
+      >
+        <div className="mx-auto max-w-7xl">
+          <div className="max-w-2xl">
+            <p className="text-sm font-semibold uppercase tracking-normal text-primary">
+              Methodology
+            </p>
+            <h2 className="mt-3 text-3xl font-semibold tracking-normal text-foreground">
+              Bagaimana SentiRank mengolah insight?
+            </h2>
+            <p className="mt-3 text-sm leading-6 text-muted-foreground">
+              Landing page ini menjelaskan konteks sistem. Analisis lengkap
+              tetap berada di dashboard agar presentasi skripsi fokus pada
+              data, model, dan interpretasi hasil.
+            </p>
+          </div>
+
+          <div className="mt-10 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            {methodologyItems.map((item) => (
+              <article
+                className="rounded-lg border border-border bg-card p-5 shadow-sm"
+                key={item.title}
+              >
+                <div className="flex size-11 items-center justify-center rounded-md bg-blue-50 text-primary">
+                  <item.icon aria-hidden="true" className="size-5" />
+                </div>
+                <h3 className="mt-5 text-base font-semibold text-foreground">
+                  {item.title}
+                </h3>
+                <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                  {item.description}
+                </p>
+              </article>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-7xl px-6 py-16" id="about">
+        <div className="rounded-lg border border-border bg-card p-6 text-center shadow-sm">
+          <ShieldCheck
+            aria-hidden="true"
+            className="mx-auto size-10 text-primary"
+          />
+          <h2 className="mt-4 text-2xl font-semibold tracking-normal text-foreground">
+            Data-driven decisions for better user experience
+          </h2>
+          <p className="mx-auto mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">
+            SentiRank menjaga tampilan tetap akademik, bersih, dan siap untuk
+            demo skripsi dengan fokus pada keterbacaan hasil analitik.
+          </p>
+          <div className="mt-8 flex flex-wrap justify-center gap-3">
+            {stackItems.map((item) => (
+              <span
+                className="rounded-md border border-border bg-background px-3 py-2 text-xs font-semibold uppercase tracking-normal text-muted-foreground"
+                key={item}
+              >
+                {item}
+              </span>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <footer className="border-t border-border px-6 py-8 text-center text-sm text-muted-foreground">
+        &copy; 2026 Ahmad Zaky Humami. Informatics final year project.
+      </footer>
+    </main>
   );
 }
