@@ -8,7 +8,7 @@
 | Module           | Frontend UI/UX                     |
 | Document         | Design Decision Log                |
 | Track            | Frontend Track                     |
-| Current Phase    | FE-06 — NextJS Setup               |
+| Current Phase    | FE-07 — Mock Data and Types        |
 | Default Theme    | Light Mode                         |
 | Visual Direction | SentiRank Research Analytics Light |
 | Status           | Draft                              |
@@ -796,13 +796,13 @@ FE-07 — Mock Data and Types
 ## Date
 
 ```txt
-TBD
+2026-05-30
 ```
 
 ## Status
 
 ```txt
-Draft
+Approved
 ```
 
 ---
@@ -858,7 +858,7 @@ Keputusan ini akan memengaruhi:
 ## Next Action
 
 ```txt
-Buat TypeScript types untuk Review, SentimentResult, AspectResult, AhpResult, FuzzyAhpResult, ModelMetric, dan ApiResponse.
+Gunakan TypeScript types dan mock data FE-07 sebagai input FE-08 saat fase main layout dimulai.
 ```
 
 ---

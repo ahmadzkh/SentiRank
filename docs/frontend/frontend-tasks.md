@@ -15,7 +15,7 @@
 - [x] FE-04 — Wireframe selesai
 - [x] FE-05 — Component map selesai
 - [x] FE-06 — NextJS setup selesai
-- [ ] FE-07 — Mock data dan types selesai
+- [x] FE-07 — Mock data dan types selesai
 - [ ] FE-08 — Layout utama selesai
 - [ ] FE-09 — Dashboard selesai
 - [ ] FE-10 — Core pages selesai
@@ -427,4 +427,75 @@ Implementation scope:
 
 ```txt
 Foundation only. Dashboard pages, mock data, full layout, and API integration are deferred to later phases.
+```
+
+---
+
+## FE-07 — Mock Data and Types
+
+### Objective
+
+Menyediakan TypeScript types, constants, dan mock data sintetis untuk frontend SentiRank agar fase berikutnya dapat dibangun secara mock-first dan tetap siap terhadap integrasi API.
+
+### Task Checklist
+
+- [x] Buat `frontend/types/review.ts`.
+- [x] Buat `frontend/types/sentiment.ts`.
+- [x] Buat `frontend/types/aspect.ts`.
+- [x] Buat `frontend/types/ahp.ts`.
+- [x] Buat `frontend/types/fuzzy-ahp.ts`.
+- [x] Buat `frontend/types/evaluation.ts`.
+- [x] Buat `frontend/types/report.ts`.
+- [x] Buat `frontend/types/api.ts`.
+- [x] Buat `frontend/types/navigation.ts`.
+- [x] Buat `frontend/types/index.ts`.
+- [x] Buat constants untuk navigation, sentiment, aspect, routes, dan barrel export.
+- [x] Buat `frontend/lib/mock-data.ts`.
+- [x] Tambahkan mock reviews dengan konteks Spotify dan label positive, neutral, negative.
+- [x] Tambahkan mock sentiment summary.
+- [x] Tambahkan mock aspect summary.
+- [x] Tambahkan mock AHP criteria dan AHP result.
+- [x] Tambahkan mock Fuzzy AHP result.
+- [x] Tambahkan mock model evaluation.
+- [x] Tambahkan mock report summary.
+- [x] Tambahkan mock navigation items.
+- [x] Jalankan `npm run lint`.
+- [x] Jalankan `npm run build`.
+- [x] Tidak mengimplementasikan main layout.
+- [x] Tidak mengimplementasikan dashboard UI.
+- [x] Tidak membuat core pages.
+- [x] Tidak memulai FE-08 atau fase setelahnya.
+
+### Acceptance Criteria
+
+- [x] Semua required type definitions tersedia dan reusable untuk integrasi API berikutnya.
+- [x] `ApiResponse<T>` dan `PaginatedResponse<T>` tersedia untuk kontrak response backend.
+- [x] Mock data realistis tetapi sintetis.
+- [x] Mock data menggunakan konteks Spotify reviews.
+- [x] Mock data memiliki contoh sentiment positive, neutral, dan negative.
+- [x] Aspect labels relevan dengan review Spotify.
+- [x] AHP/Fuzzy AHP mock data fleksibel dan data-driven.
+- [x] Tidak ada asumsi bahwa jumlah final AHP criteria tidak akan berubah.
+- [x] Tidak ada kalkulasi AHP/Fuzzy AHP aktual di frontend.
+- [x] Mock data diberi batasan sebagai data UI development.
+- [x] Constants route dan navigation selaras dengan information architecture.
+- [x] `npm run lint` berhasil.
+- [x] `npm run build` berhasil.
+
+### Completion Note
+
+Completed on 2026-05-30. FE-07 adds reusable frontend TypeScript contracts, route/label/navigation constants, and synthetic Spotify review mock data for UI development. AHP and Fuzzy AHP data remain prototype-ready and data-driven, with no frontend calculation implementation.
+
+### Final Decision
+
+Mock-first frontend data foundation selected:
+
+```txt
+TypeScript contracts + constants + synthetic UI mock data
+```
+
+Implementation scope:
+
+```txt
+No layout, dashboard UI, core pages, or FE-08 implementation was started.
 ```
