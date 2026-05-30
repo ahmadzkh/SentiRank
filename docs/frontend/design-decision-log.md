@@ -8,7 +8,7 @@
 | Module           | Frontend UI/UX                     |
 | Document         | Design Decision Log                |
 | Track            | Frontend Track                     |
-| Current Phase    | FE-02 — Information Architecture   |
+| Current Phase    | FE-03 — DESIGN.md                  |
 | Default Theme    | Light Mode                         |
 | Visual Direction | SentiRank Research Analytics Light |
 | Status           | Draft                              |
@@ -401,13 +401,13 @@ FE-03 — DESIGN.md
 ## Date
 
 ```txt
-TBD
+2026-05-30
 ```
 
 ## Status
 
 ```txt
-Draft
+Approved
 ```
 
 ---
@@ -415,6 +415,8 @@ Draft
 ## Decision
 
 Frontend SentiRank akan menggunakan file `frontend/DESIGN.md` sebagai design specification utama untuk menjaga konsistensi UI dan membantu AI coding agent memahami arah desain project.
+
+Dokumen canonical design specification disimpan di `frontend/DESIGN.md` dengan arah `SentiRank Research Analytics Light`.
 
 ---
 
@@ -477,7 +479,7 @@ Keputusan ini akan memengaruhi:
 ## Next Action
 
 ```txt
-Buat file `frontend/DESIGN.md` berdasarkan visual direction “SentiRank Research Analytics Light”.
+Gunakan `frontend/DESIGN.md` sebagai input FE-04 saat fase FE-04 dimulai.
 ```
 
 ---

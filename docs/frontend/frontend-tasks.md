@@ -11,7 +11,7 @@
 
 - [x] FE-01 — Design references selesai
 - [x] FE-02 — Information architecture selesai
-- [ ] FE-03 — DESIGN.md selesai
+- [x] FE-03 — DESIGN.md selesai
 - [ ] FE-04 — Wireframe selesai
 - [ ] FE-05 — Component map selesai
 - [ ] FE-06 — NextJS setup selesai
@@ -130,4 +130,91 @@ Primary demo flow:
 
 ```txt
 Dashboard -> Dataset -> Preprocessing -> Sentiment Analysis -> Aspect Classification -> AHP / Fuzzy AHP -> Model Evaluation -> Reports
+```
+
+---
+
+## FE-03 — DESIGN.md
+
+### Objective
+
+Menyusun `frontend/DESIGN.md` sebagai spesifikasi desain canonical untuk frontend SentiRank dengan arah `SentiRank Research Analytics Light`.
+
+### Tasks
+
+- [x] Buat folder `frontend/` jika belum tersedia.
+- [x] Buat `frontend/DESIGN.md`.
+- [x] Definisikan product identity.
+- [x] Definisikan design goals.
+- [x] Definisikan visual principles.
+- [x] Tetapkan Light Mode sebagai default theme.
+- [x] Definisikan color tokens.
+- [x] Definisikan typography tokens.
+- [x] Definisikan spacing tokens.
+- [x] Definisikan border radius tokens.
+- [x] Definisikan shadow/elevation tokens.
+- [x] Definisikan layout rules.
+- [x] Definisikan sidebar rules.
+- [x] Definisikan topbar rules.
+- [x] Definisikan card rules.
+- [x] Definisikan table rules.
+- [x] Definisikan chart rules.
+- [x] Definisikan badge rules.
+- [x] Definisikan button rules.
+- [x] Definisikan form/input rules.
+- [x] Definisikan page-specific design rules.
+- [x] Definisikan AHP/Fuzzy AHP interface rules.
+- [x] Definisikan accessibility rules.
+- [x] Definisikan Do and Don't.
+- [x] Definisikan implementation notes untuk NextJS, Tailwind CSS, dan shadcn/ui.
+- [x] Update `docs/frontend/design-decision-log.md`.
+
+### Acceptance Criteria
+
+FE-03 dianggap selesai jika:
+
+- [x] `frontend/DESIGN.md` sudah dibuat.
+- [x] Product identity sudah dijelaskan.
+- [x] Design goals sudah dijelaskan.
+- [x] Visual principles sudah dijelaskan.
+- [x] Light Mode ditetapkan sebagai default theme.
+- [x] Color tokens sudah dijelaskan.
+- [x] Typography tokens sudah dijelaskan.
+- [x] Spacing tokens sudah dijelaskan.
+- [x] Border radius tokens sudah dijelaskan.
+- [x] Shadow/elevation tokens sudah dijelaskan.
+- [x] Layout rules sudah dijelaskan.
+- [x] Sidebar rules sudah dijelaskan.
+- [x] Topbar rules sudah dijelaskan.
+- [x] Card rules sudah dijelaskan.
+- [x] Table rules sudah dijelaskan.
+- [x] Chart rules sudah dijelaskan.
+- [x] Badge rules sudah dijelaskan.
+- [x] Button rules sudah dijelaskan.
+- [x] Form/input rules sudah dijelaskan.
+- [x] Page-specific design rules sudah dijelaskan.
+- [x] AHP/Fuzzy AHP interface rules sudah dijelaskan.
+- [x] Accessibility rules sudah dijelaskan.
+- [x] Do and Don't sudah dijelaskan.
+- [x] Implementation notes untuk NextJS, Tailwind CSS, dan shadcn/ui sudah dijelaskan.
+- [x] Dokumen selaras dengan Light Mode, dashboard analytics, blue accent, white cards, dan slate/off-white background.
+- [x] FE-04 sampai FE-12 belum dimulai.
+- [x] Tidak ada setup NextJS, package install, atau implementation code yang dibuat.
+
+### Completion Note
+
+Completed on 2026-05-30. `frontend/DESIGN.md` now defines the canonical frontend design specification for SentiRank Research Analytics Light, including design tokens, layout rules, component rules, AHP/Fuzzy AHP interface rules, accessibility rules, and implementation notes for future NextJS, Tailwind CSS, and shadcn/ui work.
+
+### Final Decision
+
+Canonical frontend design specification selected:
+
+```txt
+SentiRank Research Analytics Light
+```
+
+Default implementation direction:
+
+```txt
+Light Mode dashboard analytics with blue accent, white cards, slate/off-white background, readable tables, and minimal charts
 ```
