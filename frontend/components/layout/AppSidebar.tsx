@@ -55,23 +55,26 @@ export function AppSidebar({ items, className }: AppSidebarProps) {
   return (
     <aside
       className={cn(
-        "hidden min-h-screen w-72 shrink-0 border-r border-sidebar-border bg-sidebar text-sidebar-foreground lg:flex lg:flex-col",
+        "hidden h-dvh w-72 shrink-0 border-r border-sidebar-border bg-sidebar text-sidebar-foreground lg:sticky lg:left-0 lg:top-0 lg:flex lg:flex-col",
         className,
       )}
     >
-      <div className="flex h-16 items-center border-b border-sidebar-border px-5">
-        <div>
+      <div className="flex h-16 shrink-0 items-center border-b border-sidebar-border px-5">
+        <Link
+          className="rounded-md outline-none transition-colors focus-visible:ring-2 focus-visible:ring-sidebar-ring focus-visible:ring-offset-2 focus-visible:ring-offset-sidebar"
+          href="/"
+        >
           <p className="text-sm font-semibold text-sidebar-foreground">
             SentiRank
           </p>
           <p className="text-xs text-muted-foreground">
             Analitik Penelitian
           </p>
-        </div>
+        </Link>
       </div>
 
       <nav
-        className="flex-1 overflow-y-auto px-3 py-4"
+        className="min-h-0 flex-1 overflow-y-auto px-3 py-4"
         aria-label="Navigasi utama"
       >
         <div className="space-y-1">
@@ -107,7 +110,7 @@ export function AppSidebar({ items, className }: AppSidebarProps) {
         </div>
       </nav>
 
-      <div className="border-t border-sidebar-border px-5 py-4">
+      <div className="shrink-0 border-t border-sidebar-border px-5 py-4">
         <p className="text-xs font-medium text-foreground">
           Fondasi mock-first
         </p>

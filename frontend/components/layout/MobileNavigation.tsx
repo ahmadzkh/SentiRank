@@ -10,7 +10,6 @@ import {
   Gauge,
   LayoutDashboard,
   ListOrdered,
-  Menu,
   MessageSquareText,
   Settings,
   Sparkles,
@@ -33,7 +32,7 @@ const iconMap = {
   Tags,
 } satisfies Record<string, LucideIcon>;
 
-interface MobileSidebarProps {
+interface MobileNavigationProps {
   items: readonly NavigationItem[];
 }
 
@@ -49,18 +48,14 @@ function getNavigationIcon(iconName: string) {
   return iconMap[iconName as keyof typeof iconMap] ?? Circle;
 }
 
-export function MobileSidebar({ items }: MobileSidebarProps) {
+export function MobileNavigation({ items }: MobileNavigationProps) {
   const pathname = usePathname();
 
   return (
-    <details className="border-b border-border bg-card lg:hidden">
-      <summary className="flex min-h-12 cursor-pointer list-none items-center gap-2 px-4 text-sm font-medium text-foreground">
-        <Menu aria-hidden="true" className="size-4 text-primary" />
-        Navigasi
-      </summary>
+    <div className="shrink-0 border-b border-border bg-card/95 px-4 py-3 backdrop-blur lg:hidden">
       <nav
-        className="grid gap-1 px-3 pb-4"
         aria-label="Navigasi utama mobile"
+        className="flex gap-2 overflow-x-auto whitespace-nowrap scroll-smooth pb-1"
       >
         {items.map((item) => {
           const active = isActiveRoute(pathname, item.href);
@@ -70,20 +65,20 @@ export function MobileSidebar({ items }: MobileSidebarProps) {
             <Link
               aria-current={active ? "page" : undefined}
               className={cn(
-                "flex min-h-10 items-center gap-3 rounded-md px-3 py-2 text-sm font-medium",
+                "inline-flex h-9 flex-none items-center gap-2 rounded-full border px-3 text-xs font-medium transition-colors",
                 active
-                  ? "bg-accent text-primary"
-                  : "text-muted-foreground hover:bg-secondary hover:text-foreground",
+                  ? "border-blue-200 bg-blue-50 text-primary"
+                  : "border-border bg-white text-muted-foreground hover:border-blue-100 hover:bg-secondary hover:text-foreground",
               )}
               href={item.href}
               key={item.id}
             >
-              <Icon aria-hidden="true" className="size-4 shrink-0" />
-              <span className="truncate">{item.label}</span>
+              <Icon aria-hidden="true" className="size-3.5 shrink-0" />
+              <span>{item.label}</span>
             </Link>
           );
         })}
       </nav>
-    </details>
+    </div>
   );
 }
