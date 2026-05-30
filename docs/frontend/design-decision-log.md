@@ -8,7 +8,7 @@
 | Module           | Frontend UI/UX                     |
 | Document         | Design Decision Log                |
 | Track            | Frontend Track                     |
-| Current Phase    | FE-03 — DESIGN.md                  |
+| Current Phase    | FE-04 — Wireframe                  |
 | Default Theme    | Light Mode                         |
 | Visual Direction | SentiRank Research Analytics Light |
 | Status           | Draft                              |
@@ -501,13 +501,13 @@ FE-04 — Wireframe
 ## Date
 
 ```txt
-TBD
+2026-05-30
 ```
 
 ## Status
 
 ```txt
-Draft
+Approved
 ```
 
 ---
@@ -515,6 +515,8 @@ Draft
 ## Decision
 
 Wireframe SentiRank akan menggunakan struktur dashboard shell dengan sidebar kiri, topbar, page header, summary section, dan content cards.
+
+Dokumen textual wireframe disimpan di `docs/frontend/wireframes.md`.
 
 ---
 
@@ -571,7 +573,7 @@ Keputusan ini akan memengaruhi:
 ## Next Action
 
 ```txt
-Buat file `docs/frontend/wireframes.md` berisi wireframe tekstual untuk setiap halaman utama.
+Gunakan `docs/frontend/wireframes.md` sebagai input FE-05 saat fase FE-05 dimulai.
 ```
 
 ---

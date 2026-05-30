@@ -12,7 +12,7 @@
 - [x] FE-01 — Design references selesai
 - [x] FE-02 — Information architecture selesai
 - [x] FE-03 — DESIGN.md selesai
-- [ ] FE-04 — Wireframe selesai
+- [x] FE-04 — Wireframe selesai
 - [ ] FE-05 — Component map selesai
 - [ ] FE-06 — NextJS setup selesai
 - [ ] FE-07 — Mock data dan types selesai
@@ -217,4 +217,73 @@ Default implementation direction:
 
 ```txt
 Light Mode dashboard analytics with blue accent, white cards, slate/off-white background, readable tables, and minimal charts
+```
+
+---
+
+## FE-04 — Wireframe
+
+### Objective
+
+Menyusun `docs/frontend/wireframes.md` sebagai wireframe tekstual untuk seluruh halaman utama SentiRank berdasarkan FE-02 information architecture dan `frontend/DESIGN.md`.
+
+### Tasks
+
+- [x] Buat `docs/frontend/wireframes.md`.
+- [x] Definisikan global app shell wireframe.
+- [x] Definisikan Dashboard wireframe.
+- [x] Definisikan Dataset wireframe.
+- [x] Definisikan Scraping wireframe.
+- [x] Definisikan Preprocessing wireframe.
+- [x] Definisikan Sentiment Analysis wireframe.
+- [x] Definisikan Aspect Classification wireframe.
+- [x] Definisikan AHP / Fuzzy AHP wireframe.
+- [x] Definisikan Model Evaluation wireframe.
+- [x] Definisikan Reports wireframe.
+- [x] Definisikan Settings wireframe.
+- [x] Tambahkan purpose, layout, header, summary cards, main content, table/chart/form, state notes, user actions, data requirements, dan responsive notes untuk setiap halaman.
+- [x] Pastikan Dashboard mendukung demo flow skripsi.
+- [x] Pastikan AHP/Fuzzy AHP tetap fleksibel, data-driven, dan prototype-ready.
+- [x] Update `docs/frontend/design-decision-log.md`.
+
+### Acceptance Criteria
+
+FE-04 dianggap selesai jika:
+
+- [x] `docs/frontend/wireframes.md` sudah dibuat.
+- [x] Dashboard wireframe sudah dijelaskan.
+- [x] Dataset wireframe sudah dijelaskan.
+- [x] Scraping wireframe sudah dijelaskan.
+- [x] Preprocessing wireframe sudah dijelaskan.
+- [x] Sentiment Analysis wireframe sudah dijelaskan.
+- [x] Aspect Classification wireframe sudah dijelaskan.
+- [x] AHP / Fuzzy AHP wireframe sudah dijelaskan.
+- [x] Model Evaluation wireframe sudah dijelaskan.
+- [x] Reports wireframe sudah dijelaskan.
+- [x] Settings wireframe sudah dijelaskan.
+- [x] Setiap page wireframe mencakup purpose, layout, header, summary cards, main content, table/chart/form sections, empty/loading/error states, user actions, data requirements, dan responsive notes.
+- [x] Dashboard mendukung demo flow skripsi.
+- [x] AHP/Fuzzy AHP tidak hardcode final criteria count.
+- [x] AHP/Fuzzy AHP tidak mengunci final Fuzzy AHP formula UI.
+- [x] AHP/Fuzzy AHP diperlakukan sebagai prototype-ready.
+- [x] Wireframe tetap sesuai SentiRank Research Analytics Light, Light Mode, sidebar/topbar/main layout, white cards, slate/off-white background, blue accent, readable tables, dan minimal charts.
+- [x] FE-05 sampai FE-12 belum dimulai.
+- [x] Tidak ada setup NextJS, package install, atau implementation code yang dibuat.
+
+### Completion Note
+
+Completed on 2026-05-30. `docs/frontend/wireframes.md` now defines textual wireframes for Dashboard, Dataset, Scraping, Preprocessing, Sentiment Analysis, Aspect Classification, AHP / Fuzzy AHP, Model Evaluation, Reports, and Settings, aligned with SentiRank Research Analytics Light.
+
+### Final Decision
+
+Wireframe direction selected:
+
+```txt
+Sidebar + topbar + main content dashboard wireframes
+```
+
+Special method constraint:
+
+```txt
+AHP / Fuzzy AHP remains flexible, data-driven, and prototype-ready.
 ```
