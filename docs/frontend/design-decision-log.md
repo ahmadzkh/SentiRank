@@ -8,7 +8,7 @@
 | Module           | Frontend UI/UX                     |
 | Document         | Design Decision Log                |
 | Track            | Frontend Track                     |
-| Current Phase    | FE-04 — Wireframe                  |
+| Current Phase    | FE-05 — Component Map              |
 | Default Theme    | Light Mode                         |
 | Visual Direction | SentiRank Research Analytics Light |
 | Status           | Draft                              |
@@ -595,13 +595,13 @@ FE-05 — Component Map
 ## Date
 
 ```txt
-TBD
+2026-05-30
 ```
 
 ## Status
 
 ```txt
-Draft
+Approved
 ```
 
 ---
@@ -609,6 +609,8 @@ Draft
 ## Decision
 
 Frontend SentiRank akan menggunakan komponen reusable untuk menjaga konsistensi dan mengurangi duplikasi kode.
+
+Dokumen component map disimpan di `docs/frontend/component-map.md`.
 
 Komponen awal yang direncanakan:
 
@@ -679,7 +681,7 @@ Keputusan ini akan memengaruhi:
 ## Next Action
 
 ```txt
-Buat `docs/frontend/component-map.md` dan definisikan tanggung jawab setiap komponen.
+Gunakan `docs/frontend/component-map.md` sebagai input FE-06 saat fase FE-06 dimulai.
 ```
 
 ---

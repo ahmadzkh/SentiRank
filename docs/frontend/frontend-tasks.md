@@ -13,7 +13,7 @@
 - [x] FE-02 — Information architecture selesai
 - [x] FE-03 — DESIGN.md selesai
 - [x] FE-04 — Wireframe selesai
-- [ ] FE-05 — Component map selesai
+- [x] FE-05 — Component map selesai
 - [ ] FE-06 — NextJS setup selesai
 - [ ] FE-07 — Mock data dan types selesai
 - [ ] FE-08 — Layout utama selesai
@@ -286,4 +286,82 @@ Special method constraint:
 
 ```txt
 AHP / Fuzzy AHP remains flexible, data-driven, and prototype-ready.
+```
+
+---
+
+## FE-05 — Component Map
+
+### Objective
+
+Menyusun `docs/frontend/component-map.md` sebagai peta komponen reusable frontend SentiRank berdasarkan information architecture, wireframes, dan `frontend/DESIGN.md`.
+
+### Tasks
+
+- [x] Buat `docs/frontend/component-map.md`.
+- [x] Definisikan Layout Components.
+- [x] Definisikan Card Components.
+- [x] Definisikan Table Components.
+- [x] Definisikan Chart Components.
+- [x] Definisikan Badge and Status Components.
+- [x] Definisikan Form and Input Components.
+- [x] Definisikan State Components.
+- [x] Definisikan Page-specific Composition.
+- [x] Untuk setiap komponen, definisikan purpose.
+- [x] Untuk setiap komponen, definisikan halaman pemakaian.
+- [x] Untuk setiap komponen, definisikan props/data requirements.
+- [x] Untuk setiap komponen, definisikan visual rules.
+- [x] Untuk setiap komponen, definisikan interaction behavior.
+- [x] Untuk setiap komponen, definisikan empty/loading/error state jika relevan.
+- [x] Untuk setiap komponen, definisikan implementation notes untuk NextJS, TypeScript, Tailwind CSS, dan shadcn/ui.
+- [x] Pastikan komponen AHP/Fuzzy AHP fleksibel, data-driven, dan tidak mengunci final criteria count atau final Fuzzy AHP output.
+- [x] Update `docs/frontend/design-decision-log.md`.
+
+### Acceptance Criteria
+
+FE-05 dianggap selesai jika:
+
+- [x] `docs/frontend/component-map.md` sudah dibuat.
+- [x] Layout Components sudah dijelaskan.
+- [x] Card Components sudah dijelaskan.
+- [x] Table Components sudah dijelaskan.
+- [x] Chart Components sudah dijelaskan.
+- [x] Badge and Status Components sudah dijelaskan.
+- [x] Form and Input Components sudah dijelaskan.
+- [x] State Components sudah dijelaskan.
+- [x] Page-specific Composition sudah dijelaskan.
+- [x] Setiap komponen memiliki purpose.
+- [x] Setiap komponen memiliki informasi halaman pemakaian.
+- [x] Setiap komponen memiliki props/data requirements.
+- [x] Setiap komponen memiliki visual rules.
+- [x] Setiap komponen memiliki interaction behavior.
+- [x] Setiap komponen memiliki empty/loading/error state guidance jika relevan.
+- [x] Setiap komponen memiliki implementation notes untuk NextJS, TypeScript, Tailwind CSS, dan shadcn/ui.
+- [x] Komponen selaras dengan SentiRank Research Analytics Light.
+- [x] Komponen mendukung Light Mode default.
+- [x] Komponen mock-data friendly dan API-contract-ready.
+- [x] Komponen AHP/Fuzzy AHP fleksibel dan data-driven.
+- [x] Tidak ada hardcode final AHP criteria count.
+- [x] Final Fuzzy AHP method output tidak dikunci.
+- [x] Tables memprioritaskan readability.
+- [x] Charts tetap minimal dan interpretable.
+- [x] FE-06 sampai FE-12 belum dimulai.
+- [x] Tidak ada setup NextJS, package install, atau implementation code yang dibuat.
+
+### Completion Note
+
+Completed on 2026-05-30. `docs/frontend/component-map.md` now defines reusable component contracts for SentiRank layout, cards, tables, charts, badges, forms, states, and page compositions, aligned with Light Mode and SentiRank Research Analytics Light.
+
+### Final Decision
+
+Component architecture selected:
+
+```txt
+Reusable component-based frontend architecture
+```
+
+Special method constraint:
+
+```txt
+AHP / Fuzzy AHP components remain flexible, data-driven, and prototype-ready.
 ```
