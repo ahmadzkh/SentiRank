@@ -8,7 +8,7 @@
 | Module           | Frontend UI/UX                     |
 | Document         | Design Decision Log                |
 | Track            | Frontend Track                     |
-| Current Phase    | FE-10 — Core Pages                 |
+| Current Phase    | FE-11 — AHP/Fuzzy AHP Prototype    |
 | Default Theme    | Light Mode                         |
 | Visual Direction | SentiRank Research Analytics Light |
 | Status           | Draft                              |
@@ -1128,26 +1128,26 @@ FE-11 — AHP/Fuzzy AHP Prototype
 ## Date
 
 ```txt
-TBD
+2026-06-02
 ```
 
 ## Status
 
 ```txt
-Draft
+Approved
 ```
 
 ---
 
 ## Decision
 
-Halaman AHP/Fuzzy AHP akan dibuat sebagai prototype fleksibel dan data-driven terlebih dahulu.
+Halaman AHP/Fuzzy AHP dibuat sebagai frontend prototype fleksibel dan data-driven menggunakan mock data, tanpa real API call dan tanpa kalkulasi AHP/Fuzzy AHP aktual di frontend.
 
 ---
 
 ## Reason
 
-Phase 10A AHP/Fuzzy AHP masih berjalan paralel. Karena itu, frontend tidak boleh mengunci struktur final criteria, pairwise comparison, TFN, consistency ratio, dan final ranking sebelum metode selesai.
+Phase metodologi AHP/Fuzzy AHP masih berjalan paralel. Karena itu, frontend tidak boleh mengunci struktur final criteria, pairwise comparison, TFN, Consistency Ratio, dan final ranking sebelum backend calculation service dan metodologi final siap.
 
 ---
 
@@ -1155,6 +1155,22 @@ Phase 10A AHP/Fuzzy AHP masih berjalan paralel. Karena itu, frontend tidak boleh
 
 ```txt
 Flexible mock-based AHP/Fuzzy AHP prototype
+```
+
+## Selected Prototype Sections
+
+```txt
+Page Header
+Method Overview
+Criteria Setup Preview
+Expert Judgement / Pairwise Comparison Preview
+AHP Pairwise Comparison Matrix
+Consistency Ratio Card
+AHP Weight Result
+Fuzzy AHP Weight Result
+AHP vs Fuzzy AHP Ranking Comparison
+Final Recommendation Summary
+Method Limitation / Prototype Note
 ```
 
 ---
@@ -1184,6 +1200,10 @@ Keputusan ini akan memengaruhi:
 - `types/fuzzy-ahp.ts`
 - `MatrixTable`
 - `RankingCard`
+- `RecommendationCard`
+- `ConsistencyBadge`
+- `PairwiseComparisonInput`
+- `CriteriaEditor`
 - AHP/Fuzzy AHP page
 - API contract untuk calculation service
 
@@ -1192,7 +1212,7 @@ Keputusan ini akan memengaruhi:
 ## Next Action
 
 ```txt
-Buat prototype halaman AHP/Fuzzy AHP menggunakan mock criteria, mock pairwise matrix, mock consistency ratio, dan mock ranking comparison.
+Lanjut ke FE-12 untuk menyiapkan API contract dan integration preparation tanpa mengubah frontend prototype menjadi calculation service.
 ```
 
 ---

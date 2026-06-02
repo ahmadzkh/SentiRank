@@ -19,7 +19,7 @@
 - [x] FE-08 — Layout utama selesai
 - [x] FE-09 — Dashboard selesai
 - [x] FE-10 — Core pages selesai
-- [ ] FE-11 — AHP/Fuzzy AHP prototype selesai
+- [x] FE-11 — AHP/Fuzzy AHP prototype selesai
 - [ ] FE-12 — API integration preparation selesai
 
 ---
@@ -716,4 +716,82 @@ Implementation scope:
 
 ```txt
 Core page routes only. Full AHP/Fuzzy AHP prototype remains deferred to FE-11, and API integration remains deferred to FE-12.
+```
+
+---
+
+## FE-11 — AHP/Fuzzy AHP Prototype
+
+### Objective
+
+Mengimplementasikan halaman prototype AHP/Fuzzy AHP yang fleksibel, data-driven, mock-first, dan siap diarahkan ke backend calculation service tanpa melakukan kalkulasi metode final di frontend.
+
+### Task Checklist
+
+- [x] Update `frontend/app/ahp-fuzzy-ahp/page.tsx` dari placeholder FE-10 menjadi prototype penuh.
+- [x] Tampilkan page header.
+- [x] Tampilkan method overview card.
+- [x] Tampilkan criteria setup preview.
+- [x] Tampilkan expert judgement / pairwise comparison preview.
+- [x] Tampilkan AHP pairwise comparison matrix.
+- [x] Tampilkan Consistency Ratio card.
+- [x] Tampilkan AHP weight result.
+- [x] Tampilkan Fuzzy AHP weight result.
+- [x] Tampilkan AHP vs Fuzzy AHP ranking comparison chart.
+- [x] Tampilkan final recommendation summary.
+- [x] Tampilkan method limitation / prototype note.
+- [x] Buat `frontend/components/tables/MatrixTable.tsx`.
+- [x] Buat `frontend/components/cards/RecommendationCard.tsx`.
+- [x] Buat `frontend/components/badges/ConsistencyBadge.tsx`.
+- [x] Buat `frontend/components/forms/PairwiseComparisonInput.tsx`.
+- [x] Buat `frontend/components/forms/CriteriaEditor.tsx`.
+- [x] Gunakan existing `RankingCard` dan `AhpRankingComparisonChart`.
+- [x] Gunakan mock data FE-07 dari `frontend/lib/mock-data.ts`.
+- [x] Pastikan UI copy menggunakan Bahasa Indonesia dan nama metode tetap AHP, Fuzzy AHP, TFN, dan Consistency Ratio.
+- [x] Pastikan page tetap fleksibel dan tidak hardcode final criteria count.
+- [x] Pastikan tidak mengunci final expert judgement scale atau mapping TFN.
+- [x] Pastikan tidak ada real API call.
+- [x] Pastikan tidak ada real AHP/Fuzzy AHP calculation di frontend.
+- [x] Jalankan `npm run lint`.
+- [x] Jalankan `npm run build`.
+- [x] Tidak memulai FE-12.
+
+### Acceptance Criteria
+
+- [x] `frontend/app/ahp-fuzzy-ahp/page.tsx` menampilkan prototype AHP/Fuzzy AHP lengkap.
+- [x] Semua required page sections tersedia.
+- [x] Criteria preview menggunakan data `AhpCriterion` secara dinamis.
+- [x] Pairwise preview menggunakan data `PairwiseComparison` secara dinamis.
+- [x] Matrix table readable, responsif, dan tidak mengunci jumlah kriteria final.
+- [x] Consistency Ratio ditampilkan sebagai status mock/prototype.
+- [x] AHP weight result dan Fuzzy AHP weight result ditampilkan jelas.
+- [x] Ranking comparison chart membandingkan AHP dan Fuzzy AHP.
+- [x] Recommendation summary mudah dipahami untuk demo skripsi.
+- [x] Method limitation note menyatakan nilai masih mock/prototype sampai backend calculation service terintegrasi.
+- [x] Komponen baru memakai TypeScript props dan empty state jika relevan.
+- [x] Page mengikuti `SentiRank Research Analytics Light`.
+- [x] Page menggunakan Light Mode default, white cards, slate/off-white background, blue accent, readable tables, dan charts minimal.
+- [x] Page menggunakan Bahasa Indonesia untuk UI copy.
+- [x] Tidak ada real API call.
+- [x] Tidak ada kalkulasi AHP/Fuzzy AHP aktual di frontend.
+- [x] Tidak ada dependency baru.
+- [x] `npm run lint` berhasil.
+- [x] `npm run build` berhasil.
+
+### Completion Note
+
+Completed on 2026-06-02. FE-11 implements the AHP/Fuzzy AHP prototype page with dynamic criteria preview, pairwise judgement preview, readable matrix table, Consistency Ratio status, AHP and Fuzzy AHP ranking outputs, comparison chart, final recommendation summary, and explicit prototype limitation notes. The page uses existing mock data only, adds no real API calls, and performs no frontend AHP/Fuzzy AHP calculation.
+
+### Final Decision
+
+AHP/Fuzzy AHP prototype implementation selected:
+
+```txt
+Mock-data-driven frontend prototype with dynamic criteria, matrix, ranking, comparison, and recommendation UI
+```
+
+Implementation scope:
+
+```txt
+Prototype visualization only. Backend calculation service and API integration remain deferred to FE-12.
 ```
