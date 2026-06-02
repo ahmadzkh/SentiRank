@@ -1,5 +1,5 @@
 export type { AhpCriterion, AhpCriterionSource, AhpConsistencyStatus, AhpRankedCriterion, AhpResult, PairwiseComparison } from "./ahp";
-export type { ApiError, ApiResponse, PaginatedResponse, PaginationMeta } from "./api";
+export type { AhpCalculationRequest, ApiError, ApiQueryParams, ApiQueryValue, ApiRequestOptions, ApiResponse, DatasetSummary, FuzzyAhpCalculationRequest, PaginatedResponse, PaginationMeta, PreprocessingSummary, ReviewListQuery, ScrapingSummary, TextAnalysisRequest } from "./api";
 export type { AspectLabel, AspectResult, AspectSummary } from "./aspect";
 export type { EvaluationModelSummary, EvaluationSummary, ConfusionMatrix, ConfusionMatrixRow, MetricFormat, ModelMetric, ModelTask } from "./evaluation";
 export type { FuzzyAhpRankedCriterion, FuzzyAhpResult, FuzzyAhpStatus, FuzzyScaleOption, FuzzyTriangularNumber } from "./fuzzy-ahp";

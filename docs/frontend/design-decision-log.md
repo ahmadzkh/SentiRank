@@ -8,7 +8,7 @@
 | Module           | Frontend UI/UX                     |
 | Document         | Design Decision Log                |
 | Track            | Frontend Track                     |
-| Current Phase    | FE-11 — AHP/Fuzzy AHP Prototype    |
+| Current Phase    | FE-12 — API Integration Preparation |
 | Default Theme    | Light Mode                         |
 | Visual Direction | SentiRank Research Analytics Light |
 | Status           | Draft                              |
@@ -1234,26 +1234,28 @@ FE-12 — API Integration Preparation
 ## Date
 
 ```txt
-TBD
+2026-06-02
 ```
 
 ## Status
 
 ```txt
-Draft
+Approved
 ```
 
 ---
 
 ## Decision
 
-Frontend akan menyiapkan API client dan API contract sebelum integrasi penuh dengan FastAPI.
+Frontend menyiapkan API client, endpoint constants, environment variable, dan service layer typed sebelum integrasi penuh dengan FastAPI.
+
+Keputusan ini tidak mengubah halaman yang masih mock-first. Service functions disiapkan sebagai kontrak awal dan belum dipanggil oleh Dashboard, core pages, atau AHP/Fuzzy AHP prototype.
 
 ---
 
 ## Reason
 
-Frontend dan backend berjalan paralel. API contract dibutuhkan agar integrasi tidak dilakukan secara improvisasi.
+Frontend dan backend berjalan paralel. API contract dibutuhkan agar integrasi tidak dilakukan secara improvisasi dan agar migrasi dari mock data ke real API dapat dilakukan bertahap per halaman.
 
 ---
 
@@ -1270,6 +1272,8 @@ API contract-first integration preparation
 ```txt
 Review API
 Dataset API
+Scraping API
+Preprocessing API
 Sentiment API
 Aspect API
 Model Evaluation API
@@ -1302,6 +1306,8 @@ Keputusan ini akan memengaruhi:
 
 - `lib/api.ts`
 - `lib/http-client.ts`
+- `lib/api-endpoints.ts`
+- `services/`
 - `types/api.ts`
 - environment variable frontend
 - backend endpoint documentation
@@ -1312,7 +1318,7 @@ Keputusan ini akan memengaruhi:
 ## Next Action
 
 ```txt
-Buat API contract draft dan HTTP client wrapper setelah mock data/types stabil.
+Gunakan service layer FE-12 sebagai dasar migrasi mock-to-real pada fase integrasi berikutnya. Jangan memanggil API dari pages sebelum kontrak backend disetujui.
 ```
 
 ---

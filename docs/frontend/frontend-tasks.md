@@ -20,7 +20,7 @@
 - [x] FE-09 — Dashboard selesai
 - [x] FE-10 — Core pages selesai
 - [x] FE-11 — AHP/Fuzzy AHP prototype selesai
-- [ ] FE-12 — API integration preparation selesai
+- [x] FE-12 — API integration preparation selesai
 
 ---
 
@@ -794,4 +794,80 @@ Implementation scope:
 
 ```txt
 Prototype visualization only. Backend calculation service and API integration remain deferred to FE-12.
+```
+
+---
+
+## FE-12 — API Integration Preparation
+
+### Objective
+
+Menyiapkan frontend SentiRank agar siap diintegrasikan dengan backend/FastAPI melalui HTTP client, endpoint constants, service layer, environment variable, dan dokumentasi integrasi tanpa mengubah halaman yang masih mock-first.
+
+### Task Checklist
+
+- [x] Buat `frontend/lib/http-client.ts`.
+- [x] Buat `frontend/lib/api.ts`.
+- [x] Buat `frontend/lib/api-endpoints.ts`.
+- [x] Buat `frontend/.env.example` dengan `NEXT_PUBLIC_API_BASE_URL`.
+- [x] Update `frontend/types/api.ts` dengan request/query/helper types dan DTO summary ringan.
+- [x] Update `frontend/types/index.ts` agar tipe API baru diekspor.
+- [x] Buat `frontend/services/review-service.ts`.
+- [x] Buat `frontend/services/dataset-service.ts`.
+- [x] Buat `frontend/services/scraping-service.ts`.
+- [x] Buat `frontend/services/preprocessing-service.ts`.
+- [x] Buat `frontend/services/sentiment-service.ts`.
+- [x] Buat `frontend/services/aspect-service.ts`.
+- [x] Buat `frontend/services/ahp-service.ts`.
+- [x] Buat `frontend/services/fuzzy-ahp-service.ts`.
+- [x] Buat `frontend/services/evaluation-service.ts`.
+- [x] Buat `frontend/services/report-service.ts`.
+- [x] Tambahkan TODO comments pada service layer untuk koneksi endpoint backend final.
+- [x] Buat `docs/frontend/api-integration-plan.md`.
+- [x] Pastikan halaman tetap menggunakan mock data dan belum memanggil service API.
+- [x] Pastikan tidak ada real API call di pages.
+- [x] Pastikan tidak ada kalkulasi AHP/Fuzzy AHP di frontend.
+- [x] Jalankan `npm run lint`.
+- [x] Jalankan `npm run build`.
+
+### Acceptance Criteria
+
+- [x] API base URL disiapkan melalui `NEXT_PUBLIC_API_BASE_URL`.
+- [x] Reusable HTTP client wrapper tersedia.
+- [x] Endpoint constants tersedia untuk Review, Dataset, Scraping, Preprocessing, Sentiment, Aspect, AHP, Fuzzy AHP, Model Evaluation, dan Report API.
+- [x] Service functions tersedia dan mengembalikan typed promises.
+- [x] `getReviews(query?)` tersedia.
+- [x] `getDatasetSummary()` tersedia.
+- [x] `getScrapingSummary()` tersedia.
+- [x] `getPreprocessingSummary()` tersedia.
+- [x] `predictSentiment(input)` dan `getSentimentSummary()` tersedia.
+- [x] `classifyAspect(input)` dan `getAspectSummary()` tersedia.
+- [x] `calculateAhp(input)` tersedia.
+- [x] `calculateFuzzyAhp(input)` tersedia.
+- [x] `getEvaluationSummary()` tersedia.
+- [x] `getReportSummary()` tersedia.
+- [x] Current mock-first UI behavior tetap utuh.
+- [x] Existing dashboard, core pages, dan AHP/Fuzzy AHP prototype tidak diganti ke real API.
+- [x] Tidak ada backend atau ml-service file yang dimodifikasi.
+- [x] Tidak ada root-level legacy NextJS file di luar `frontend/` yang dimodifikasi.
+- [x] `docs/frontend/api-integration-plan.md` mencakup purpose, strategy, env usage, endpoint groups, service layer, data flow, migration plan, error/loading handling, security notes, dan FE-12 acceptance criteria.
+- [x] `npm run lint` berhasil.
+- [x] `npm run build` berhasil.
+
+### Completion Note
+
+Completed on 2026-06-02. FE-12 prepares frontend API integration with typed endpoint constants, reusable HTTP client, service modules for all planned API groups, `.env.example`, and `docs/frontend/api-integration-plan.md`. Existing pages remain mock-first, services are not wired into UI yet, and no frontend AHP/Fuzzy AHP calculation or backend integration was added.
+
+### Final Decision
+
+API integration preparation selected:
+
+```txt
+Typed service-layer API preparation without replacing mock-first pages
+```
+
+Implementation scope:
+
+```txt
+Contracts and service functions only. Real backend integration and page migration remain future work.
 ```
