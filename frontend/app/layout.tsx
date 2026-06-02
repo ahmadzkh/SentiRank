@@ -4,7 +4,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "SentiRank",
   description:
-    "Research analytics dashboard for Spotify review sentiment analysis and insight prioritization.",
+    "Dashboard analitik penelitian untuk analisis sentimen ulasan Spotify dan prioritas insight.",
 };
 
 export default function RootLayout({
@@ -13,7 +13,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="id">
       <body>{children}</body>
     </html>
   );

@@ -18,7 +18,7 @@
 - [x] FE-07 — Mock data dan types selesai
 - [x] FE-08 — Layout utama selesai
 - [x] FE-09 — Dashboard selesai
-- [ ] FE-10 — Core pages selesai
+- [x] FE-10 — Core pages selesai
 - [ ] FE-11 — AHP/Fuzzy AHP prototype selesai
 - [ ] FE-12 — API integration preparation selesai
 
@@ -642,4 +642,78 @@ Implementation scope:
 
 ```txt
 Dashboard route only. Core pages and later phase implementations remain not started.
+```
+
+---
+
+## FE-10 — Core Pages
+
+### Objective
+
+Mengimplementasikan halaman core SentiRank setelah dashboard menggunakan layout reusable FE-08, komponen FE-09, mock data FE-07, dan copy UI Bahasa Indonesia tanpa memulai implementasi penuh AHP/Fuzzy AHP.
+
+### Task Checklist
+
+- [x] Buat `frontend/app/dataset/page.tsx`.
+- [x] Buat `frontend/app/scraping/page.tsx`.
+- [x] Buat `frontend/app/preprocessing/page.tsx`.
+- [x] Buat `frontend/app/sentiment-analysis/page.tsx`.
+- [x] Buat `frontend/app/aspect-classification/page.tsx`.
+- [x] Buat `frontend/app/model-evaluation/page.tsx`.
+- [x] Buat `frontend/app/reports/page.tsx`.
+- [x] Buat `frontend/app/settings/page.tsx`.
+- [x] Buat placeholder sederhana `frontend/app/ahp-fuzzy-ahp/page.tsx` untuk route navigasi tanpa implementasi penuh FE-11.
+- [x] Gunakan `AppShell`, `AppSidebar`, `AppTopbar`, `PageHeader`, dan mobile navigation yang sudah tersedia.
+- [x] Gunakan reusable `StatCard`, `ChartCard`, `RankingCard`, `ModelMetricCard`, `ReviewTable`, badge, dan chart yang sudah tersedia.
+- [x] Tambahkan reusable `SummaryCard` dan `SimpleTable` untuk menghindari duplikasi markup kartu/tabel.
+- [x] Tambahkan mock metadata kecil untuk dataset, scraping, preprocessing, sentiment result, aspect result, model evaluation overview, dan settings di `frontend/lib/mock-data.ts`.
+- [x] Pastikan UI copy menggunakan Bahasa Indonesia formal dan nama metode tetap IndoBERT, SVM, AHP, Fuzzy AHP, dan API.
+- [x] Pastikan semua halaman tetap mock-first dan API-contract-ready.
+- [x] Pastikan tidak ada real API call.
+- [x] Pastikan tidak ada kalkulasi AHP/Fuzzy AHP aktual di frontend.
+- [x] Jalankan `npm run lint`.
+- [x] Jalankan `npm run build`.
+- [x] Tidak memulai FE-11.
+- [x] Tidak memulai FE-12.
+
+### Acceptance Criteria
+
+- [x] Route `/dataset` menampilkan ringkasan dataset, kualitas data, distribusi rating/label, dan tabel ulasan.
+- [x] Route `/scraping` menampilkan status scraping mock, ringkasan batch, parameter mock, dan preview ulasan mentah tanpa real scraping call.
+- [x] Route `/preprocessing` menampilkan ringkasan pipeline, before/after text sample, dan data diproses untuk demo skripsi.
+- [x] Route `/sentiment-analysis` menampilkan input ulasan tunggal mock, hasil prediksi mock, distribusi sentimen, dan tabel hasil sentimen tanpa real inference.
+- [x] Route `/aspect-classification` menampilkan summary aspek, ranking/frekuensi aspek, grouping ulasan negatif, dan tabel hasil aspek tanpa real inference.
+- [x] Route `/model-evaluation` menampilkan kartu accuracy/precision/recall/F1, confusion matrix, tabel evaluasi, dan catatan perbandingan model.
+- [x] Route `/reports` menampilkan research summary, sentiment summary, aspect summary, recommendation summary placeholder, dan tombol export disabled/mock.
+- [x] Route `/settings` menampilkan metadata aplikasi, placeholder endpoint API, metadata model, informasi tema, dan status sistem mock.
+- [x] Route `/ahp-fuzzy-ahp` hanya berisi placeholder FE-11 dan tidak mengimplementasikan prototype penuh.
+- [x] Dashboard tetap berada di `/dashboard`.
+- [x] Landing page tetap berada di `/`.
+- [x] Sidebar dan mobile navigation tetap memakai route constants dan link ke halaman core dengan benar.
+- [x] Semua halaman memakai Light Mode default dan arah `SentiRank Research Analytics Light`.
+- [x] Semua halaman memakai white cards, slate/off-white background, blue accent, readable tables, dan charts minimal.
+- [x] Semua halaman menggunakan mock data FE-07 atau mock metadata kecil di `frontend/lib/mock-data.ts`.
+- [x] Tidak ada hardcode dataset besar langsung di page components.
+- [x] Tidak ada dependency baru.
+- [x] Tidak ada real API call.
+- [x] Tidak ada kalkulasi AHP/Fuzzy AHP aktual di frontend.
+- [x] `npm run lint` berhasil.
+- [x] `npm run build` berhasil.
+
+### Completion Note
+
+Completed on 2026-06-02. FE-10 implements the SentiRank core pages for Dataset, Scraping, Preprocessing, Sentiment Analysis, Aspect Classification, Model Evaluation, Reports, and Settings using existing layout/components and mock data. `/ahp-fuzzy-ahp` is intentionally limited to a FE-11 placeholder. No real API calls, new dependencies, or frontend AHP/Fuzzy AHP calculations were added.
+
+### Final Decision
+
+Core pages implementation selected:
+
+```txt
+Mock-first Bahasa Indonesia core pages using reusable dashboard components
+```
+
+Implementation scope:
+
+```txt
+Core page routes only. Full AHP/Fuzzy AHP prototype remains deferred to FE-11, and API integration remains deferred to FE-12.
 ```

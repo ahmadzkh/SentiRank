@@ -8,11 +8,11 @@
 | Module           | Frontend UI/UX                     |
 | Document         | Design Decision Log                |
 | Track            | Frontend Track                     |
-| Current Phase    | FE-09 — Dashboard                  |
+| Current Phase    | FE-10 — Core Pages                 |
 | Default Theme    | Light Mode                         |
 | Visual Direction | SentiRank Research Analytics Light |
 | Status           | Draft                              |
-| Last Updated     | 2026-05-30                         |
+| Last Updated     | 2026-06-02                         |
 
 ---
 
@@ -1048,26 +1048,28 @@ FE-10 — Core Pages
 ## Date
 
 ```txt
-TBD
+2026-06-02
 ```
 
 ## Status
 
 ```txt
-Draft
+Approved
 ```
 
 ---
 
 ## Decision
 
-Core pages yang akan dibuat setelah dashboard adalah Dataset, Sentiment Analysis, Aspect Classification, Model Evaluation, dan Reports.
+Core pages SentiRank dibuat setelah dashboard sebagai halaman mock-first untuk Dataset, Scraping, Preprocessing, Sentiment Analysis, Aspect Classification, Model Evaluation, Reports, dan Settings.
+
+Route AHP / Fuzzy AHP tetap tersedia hanya sebagai placeholder FE-11 agar navigasi lengkap tanpa memulai prototype penuh.
 
 ---
 
 ## Reason
 
-Halaman tersebut merupakan inti sistem dan relatif lebih stabil dibandingkan AHP/Fuzzy AHP yang masih dalam pengembangan metodologis.
+Halaman tersebut merupakan inti alur demo skripsi dan relatif stabil untuk dibangun dengan mock data sebelum integrasi API. AHP/Fuzzy AHP masih dipisahkan karena detail prototype, matrix, pairwise input, dan kalkulasi metode penuh didefer ke FE-11.
 
 ---
 
@@ -1075,10 +1077,13 @@ Halaman tersebut merupakan inti sistem dan relatif lebih stabil dibandingkan AHP
 
 ```txt
 Dataset
+Scraping
+Preprocessing
 Sentiment Analysis
 Aspect Classification
 Model Evaluation
 Reports
+Settings
 ```
 
 ---
@@ -1087,7 +1092,6 @@ Reports
 
 ```txt
 AHP / Fuzzy AHP final implementation
-Settings advanced
 API integration final
 ```
 
@@ -1095,14 +1099,14 @@ API integration final
 
 ## Impact
 
-Keputusan ini menjaga pengembangan frontend tetap paralel tanpa tergantung penuh pada finalisasi metode AHP/Fuzzy AHP.
+Keputusan ini menjaga pengembangan frontend tetap paralel tanpa tergantung penuh pada finalisasi metode AHP/Fuzzy AHP, sekaligus menyediakan route inti yang siap digunakan untuk demo skripsi.
 
 ---
 
 ## Next Action
 
 ```txt
-Buat halaman core menggunakan mock data dan komponen reusable.
+Lanjut ke FE-11 untuk membuat prototype AHP/Fuzzy AHP yang fleksibel, data-driven, dan tetap tidak melakukan real API call sampai FE-12.
 ```
 
 ---

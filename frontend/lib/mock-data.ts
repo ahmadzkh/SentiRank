@@ -2,12 +2,16 @@ import { NAVIGATION_ITEMS } from "@/constants/navigation";
 import type {
   AhpCriterion,
   AhpResult,
+  AspectLabel,
+  AspectResult,
   AspectSummary,
   EvaluationSummary,
   FuzzyAhpResult,
   NavigationItem,
   ReportSummary,
   Review,
+  ReviewSentimentLabel,
+  SentimentResult,
   SentimentSummary,
 } from "@/types";
 
@@ -175,6 +179,233 @@ export const mockReviews = [
     isProcessed: true,
   },
 ] satisfies Review[];
+
+function buildMockProbabilities(
+  label: ReviewSentimentLabel,
+  confidence: number,
+): Record<ReviewSentimentLabel, number> {
+  const secondary = Number(((1 - confidence) / 2).toFixed(3));
+
+  return {
+    positive: label === "positive" ? confidence : secondary,
+    neutral: label === "neutral" ? confidence : secondary,
+    negative: label === "negative" ? confidence : secondary,
+  };
+}
+
+const evidenceTermsByAspect = {
+  audio_quality: ["audio", "quality", "stable"],
+  recommendation: ["recommendation", "daily mix", "relevant"],
+  ads: ["ads", "between songs", "free mode"],
+  subscription: ["premium", "charged", "plan"],
+  app_performance: ["stop randomly", "slow", "freezes"],
+  playlist_library: ["playlist", "library", "saved songs"],
+  lyrics: ["lyrics", "local songs", "not available"],
+  offline_download: ["offline", "download", "storage"],
+  account_login: ["account", "support", "login"],
+  pricing: ["price", "family plan", "value"],
+} satisfies Record<AspectLabel, string[]>;
+
+export const mockDatasetProfile = {
+  sourceName: "Spotify Play Store",
+  sourceDescription: "Sampel sintetis ulasan Spotify untuk pengembangan UI SentiRank.",
+  importStatus: "Dataset mock siap digunakan",
+  totalRows: mockReviews.length,
+  uniqueReviews: mockReviews.length,
+  duplicateRows: 0,
+  missingValues: 0,
+  processedRows: mockReviews.filter((review) => review.isProcessed).length,
+  labelCoverage: 100,
+  averageRating: Number(
+    (
+      mockReviews.reduce((total, review) => total + review.rating, 0) /
+      mockReviews.length
+    ).toFixed(1),
+  ),
+  dateRange: {
+    start: "2026-04-12",
+    end: "2026-04-23",
+  },
+  ratingDistribution: [1, 2, 3, 4, 5].map((rating) => ({
+    rating,
+    count: mockReviews.filter((review) => review.rating === rating).length,
+  })),
+  qualityChecks: [
+    {
+      id: "quality-duplicates",
+      label: "Duplikasi",
+      value: "0 baris",
+      status: "Aman",
+      note: "Tidak ada duplikasi pada sampel mock.",
+    },
+    {
+      id: "quality-missing",
+      label: "Nilai kosong",
+      value: "0 field penting",
+      status: "Aman",
+      note: "Kolom teks, rating, tanggal, dan label tersedia.",
+    },
+    {
+      id: "quality-coverage",
+      label: "Cakupan label",
+      value: "100%",
+      status: "Siap",
+      note: "Semua baris memiliki label sentimen mock untuk pengembangan UI.",
+    },
+  ],
+} as const;
+
+export const mockScrapingSummary = {
+  batchId: "scrape-demo-2026-04",
+  sourcePackage: "com.spotify.music",
+  sourceName: "Spotify Play Store",
+  status: "Mock selesai",
+  requestedReviews: 250,
+  collectedReviews: mockReviews.length,
+  failedItems: 0,
+  latestBatchDate: "2026-04-23T10:30:00+07:00",
+  region: "ID",
+  language: "mixed",
+  parameters: [
+    {
+      id: "param-source",
+      label: "Sumber",
+      value: "Spotify Play Store",
+      note: "Sumber ditampilkan sebagai metadata mock.",
+    },
+    {
+      id: "param-limit",
+      label: "Batas ulasan",
+      value: "250 ulasan",
+      note: "Tidak menjalankan scraping nyata dari frontend.",
+    },
+    {
+      id: "param-region",
+      label: "Region",
+      value: "ID",
+      note: "Placeholder untuk konfigurasi backend.",
+    },
+  ],
+  batches: [
+    {
+      id: "batch-001",
+      date: "2026-04-12",
+      requested: 80,
+      collected: 4,
+      failed: 0,
+      status: "Selesai",
+    },
+    {
+      id: "batch-002",
+      date: "2026-04-18",
+      requested: 90,
+      collected: 3,
+      failed: 0,
+      status: "Selesai",
+    },
+    {
+      id: "batch-003",
+      date: "2026-04-23",
+      requested: 80,
+      collected: 3,
+      failed: 0,
+      status: "Selesai",
+    },
+  ],
+} as const;
+
+export const mockPreprocessingSummary = {
+  rawReviews: mockReviews.length,
+  processedReviews: mockReviews.filter((review) => review.isProcessed).length,
+  removedDuplicates: 0,
+  emptyAfterCleaning: 0,
+  cleanedTokenCount: mockReviews.reduce(
+    (total, review) => total + (review.cleanedText?.split(" ").length ?? 0),
+    0,
+  ),
+  status: "Pipeline mock selesai",
+  pipelineSteps: [
+    {
+      id: "step-case-folding",
+      name: "Case folding",
+      description: "Mengubah teks menjadi huruf kecil agar representasi kata konsisten.",
+      status: "Selesai",
+      rowsAffected: mockReviews.length,
+    },
+    {
+      id: "step-noise-cleaning",
+      name: "Pembersihan noise",
+      description: "Menghapus karakter tidak relevan, spasi berlebih, dan simbol nonanalitis.",
+      status: "Selesai",
+      rowsAffected: mockReviews.length,
+    },
+    {
+      id: "step-token-review",
+      name: "Token review",
+      description: "Menyiapkan teks bersih untuk input IndoBERT dan fitur aspek SVM.",
+      status: "Selesai",
+      rowsAffected: mockReviews.length,
+    },
+  ],
+  textSamples: mockReviews.slice(0, 4).map((review) => ({
+    id: review.id,
+    rawText: review.text,
+    cleanedText: review.cleanedText ?? "",
+    status: review.isProcessed ? "Diproses" : "Belum diproses",
+  })),
+  noiseSummary: [
+    "Normalisasi kapitalisasi teks ulasan.",
+    "Pembersihan simbol yang tidak membantu analisis.",
+    "Penyimpanan teks asli tetap dipertahankan untuk audit.",
+  ],
+} as const;
+
+export const mockSentimentResults = mockReviews.map((review) => {
+  const label = review.sentimentLabel ?? "neutral";
+  const confidence = review.sentimentConfidence ?? 0.7;
+
+  return {
+    id: `sentiment-${review.id}`,
+    reviewId: review.id,
+    reviewText: review.text,
+    label,
+    confidence,
+    probabilities: buildMockProbabilities(label, confidence),
+    modelName: "IndoBERT Sentimen",
+    modelVersion: "mock-ui-contract-1",
+    analyzedAt: "2026-05-30T09:00:00+07:00",
+  };
+}) satisfies SentimentResult[];
+
+export const mockSentimentPrediction = {
+  inputText:
+    "Songs stop randomly after the update and the app becomes slow when I open my library.",
+  label: "negative",
+  confidence: 0.92,
+  modelName: "IndoBERT Sentimen",
+  modelVersion: "mock-ui-contract-1",
+  explanation:
+    "Prediksi mock menandai ulasan sebagai negatif karena terdapat keluhan reliabilitas aplikasi dan gangguan playback.",
+} as const;
+
+export const mockAspectResults = mockReviews.flatMap((review) =>
+  (review.aspectLabels ?? []).map((aspect, index) => ({
+    id: `aspect-${review.id}-${aspect}`,
+    reviewId: review.id,
+    reviewText: review.text,
+    label: aspect,
+    confidence: Number(
+      Math.max(0.72, (review.sentimentConfidence ?? 0.8) - index * 0.04).toFixed(
+        2,
+      ),
+    ),
+    evidenceTerms: evidenceTermsByAspect[aspect],
+    sentimentLabel: review.sentimentLabel,
+    modelName: "SVM Klasifikasi Aspek",
+    modelVersion: "mock-ui-contract-1",
+    classifiedAt: "2026-05-30T09:05:00+07:00",
+  })),
+) satisfies AspectResult[];
 
 export const mockSentimentSummary = {
   totalReviews: 10,
@@ -613,6 +844,97 @@ export const mockModelEvaluation = {
     "Nilai final harus berasal dari artefak model tervalidasi sebelum pelaporan skripsi.",
   ],
 } satisfies EvaluationSummary;
+
+export const mockModelEvaluationOverview = [
+  {
+    id: "overview-accuracy",
+    label: "Akurasi",
+    value: 0.88,
+    description: "Akurasi utama model IndoBERT pada data validasi mock.",
+  },
+  {
+    id: "overview-precision",
+    label: "Precision",
+    value: 0.85,
+    description: "Rata-rata precision makro untuk ringkasan evaluasi skripsi.",
+  },
+  {
+    id: "overview-recall",
+    label: "Recall",
+    value: 0.83,
+    description: "Rata-rata recall makro untuk membaca cakupan prediksi model.",
+  },
+  {
+    id: "overview-f1",
+    label: "F1 Score",
+    value: 0.84,
+    description: "Ringkasan F1 makro sebagai indikator keseimbangan precision dan recall.",
+  },
+] as const;
+
+export const mockSystemSettings = {
+  app: {
+    name: "SentiRank",
+    version: "0.1.0",
+    environment: "Mock frontend",
+    owner: "Skripsi Ahmad Zaky Humami",
+  },
+  theme: {
+    defaultTheme: "Light Mode",
+    visualDirection: "SentiRank Research Analytics Light",
+    darkModeStatus: "Belum diimplementasikan",
+  },
+  apiEndpoints: [
+    {
+      id: "api-reviews",
+      service: "Review API",
+      method: "GET",
+      path: "/api/reviews",
+      status: "Placeholder",
+    },
+    {
+      id: "api-sentiment",
+      service: "Sentiment API",
+      method: "POST",
+      path: "/api/sentiment/predict",
+      status: "Placeholder",
+    },
+    {
+      id: "api-aspect",
+      service: "Aspect API",
+      method: "POST",
+      path: "/api/aspects/classify",
+      status: "Placeholder",
+    },
+    {
+      id: "api-report",
+      service: "Report API",
+      method: "GET",
+      path: "/api/reports/latest",
+      status: "Placeholder",
+    },
+  ],
+  systemStatus: [
+    {
+      id: "status-dataset",
+      label: "Dataset mock",
+      value: "Siap",
+      note: "Menggunakan data sintetis FE-07.",
+    },
+    {
+      id: "status-api",
+      label: "API",
+      value: "Belum terhubung",
+      note: "Integrasi disiapkan pada FE-12.",
+    },
+    {
+      id: "status-theme",
+      label: "Tema",
+      value: "Light Mode",
+      note: "Tidak ada theme switcher karena Dark Mode belum dibuat.",
+    },
+  ],
+} as const;
 
 export const mockReportSummary = {
   id: "report-demo-001",
