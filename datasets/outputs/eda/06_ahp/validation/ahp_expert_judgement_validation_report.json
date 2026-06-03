@@ -1,0 +1,17 @@
+{
+  "run_label": "sample_development_only",
+  "is_sample": true,
+  "not_final_expert_judgement": true,
+  "total_rows": 10,
+  "total_respondents": 1,
+  "valid_respondents": [
+    "SAMPLE_DEV"
+  ],
+  "valid_respondent_count": 1,
+  "invalid_respondents": [],
+  "invalid_respondent_count": 0,
+  "issues": [],
+  "issue_count": 0,
+  "can_calculate": true,
+  "generated_at": "2026-06-03T08:04:07.698345+00:00"
+}

@@ -1,0 +1,2 @@
+run_label,is_sample,can_calculate,total_rows,total_respondents,valid_respondent_count,invalid_respondent_count,respondent_id,comparison_id,issue_type,message
+sample_development_only,True,True,10,1,1,0,,,none,No validation issues found.

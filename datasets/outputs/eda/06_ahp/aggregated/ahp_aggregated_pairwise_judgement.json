@@ -1,0 +1,93 @@
+{
+  "run_label": "sample_development_only",
+  "is_sample": true,
+  "not_final_expert_judgement": true,
+  "total_respondents": 1,
+  "aggregation_method": "geometric_mean",
+  "criteria_count": 5,
+  "pairwise_comparison_count": 10,
+  "aggregated_comparisons": [
+    {
+      "comparison_id": "P01",
+      "criterion_a": "Features, Content & Audio Experience",
+      "criterion_b": "App Reliability & Usability",
+      "ahp_value_a_over_b": 0.3333333333333333,
+      "respondent_count": 1,
+      "aggregation_method": "geometric_mean"
+    },
+    {
+      "comparison_id": "P02",
+      "criterion_a": "Features, Content & Audio Experience",
+      "criterion_b": "Ads Experience",
+      "ahp_value_a_over_b": 3.0000000000000004,
+      "respondent_count": 1,
+      "aggregation_method": "geometric_mean"
+    },
+    {
+      "comparison_id": "P03",
+      "criterion_a": "Features, Content & Audio Experience",
+      "criterion_b": "Subscription & Pricing",
+      "ahp_value_a_over_b": 1.0,
+      "respondent_count": 1,
+      "aggregation_method": "geometric_mean"
+    },
+    {
+      "comparison_id": "P04",
+      "criterion_a": "Features, Content & Audio Experience",
+      "criterion_b": "Account/Login",
+      "ahp_value_a_over_b": 3.0000000000000004,
+      "respondent_count": 1,
+      "aggregation_method": "geometric_mean"
+    },
+    {
+      "comparison_id": "P05",
+      "criterion_a": "App Reliability & Usability",
+      "criterion_b": "Ads Experience",
+      "ahp_value_a_over_b": 9.000000000000002,
+      "respondent_count": 1,
+      "aggregation_method": "geometric_mean"
+    },
+    {
+      "comparison_id": "P06",
+      "criterion_a": "App Reliability & Usability",
+      "criterion_b": "Subscription & Pricing",
+      "ahp_value_a_over_b": 3.0000000000000004,
+      "respondent_count": 1,
+      "aggregation_method": "geometric_mean"
+    },
+    {
+      "comparison_id": "P07",
+      "criterion_a": "App Reliability & Usability",
+      "criterion_b": "Account/Login",
+      "ahp_value_a_over_b": 9.000000000000002,
+      "respondent_count": 1,
+      "aggregation_method": "geometric_mean"
+    },
+    {
+      "comparison_id": "P08",
+      "criterion_a": "Ads Experience",
+      "criterion_b": "Subscription & Pricing",
+      "ahp_value_a_over_b": 0.3333333333333333,
+      "respondent_count": 1,
+      "aggregation_method": "geometric_mean"
+    },
+    {
+      "comparison_id": "P09",
+      "criterion_a": "Ads Experience",
+      "criterion_b": "Account/Login",
+      "ahp_value_a_over_b": 1.0,
+      "respondent_count": 1,
+      "aggregation_method": "geometric_mean"
+    },
+    {
+      "comparison_id": "P10",
+      "criterion_a": "Subscription & Pricing",
+      "criterion_b": "Account/Login",
+      "ahp_value_a_over_b": 3.0000000000000004,
+      "respondent_count": 1,
+      "aggregation_method": "geometric_mean"
+    }
+  ],
+  "methodology_note": "Aggregated pairwise judgement only. This script does not calculate AHP weights or final rankings.",
+  "generated_at": "2026-06-03T08:04:09.516111+00:00"
+}
