@@ -1,0 +1,9 @@
+{
+  "run_label": "sample_development_only",
+  "is_sample": true,
+  "not_final_expert_judgement": true,
+  "consistency_ratio_modal": 0.0,
+  "consistency_threshold": 0.1,
+  "is_consistent_modal": true,
+  "warnings": []
+}

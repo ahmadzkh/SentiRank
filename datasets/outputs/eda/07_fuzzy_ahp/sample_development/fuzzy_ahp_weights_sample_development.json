@@ -1,0 +1,86 @@
+{
+  "run_label": "sample_development_only",
+  "is_sample": true,
+  "not_final_expert_judgement": true,
+  "method": "Fuzzy AHP",
+  "criteria_count": 5,
+  "defuzzification_method": "centroid",
+  "weights": [
+    {
+      "criterion_id": "C1",
+      "criterion_name": "Features, Content & Audio Experience",
+      "fuzzy_weight": {
+        "l": 0.12158947827503719,
+        "m": 0.1764705882352941,
+        "u": 0.2626141967764311
+      },
+      "defuzzified_weight": 0.18689142109558746,
+      "normalized_weight": 0.1793161138518189,
+      "rank": 2,
+      "run_label": "sample_development_only",
+      "is_sample": true,
+      "not_final_expert_judgement": true
+    },
+    {
+      "criterion_id": "C2",
+      "criterion_name": "App Reliability & Usability",
+      "fuzzy_weight": {
+        "l": 0.3685903730696601,
+        "m": 0.5294117647058824,
+        "u": 0.7264758855448992
+      },
+      "defuzzified_weight": 0.5414926744401473,
+      "normalized_weight": 0.5195442438750221,
+      "rank": 1,
+      "run_label": "sample_development_only",
+      "is_sample": true,
+      "not_final_expert_judgement": true
+    },
+    {
+      "criterion_id": "C3",
+      "criterion_name": "Ads Experience",
+      "fuzzy_weight": {
+        "l": 0.04500113800856217,
+        "m": 0.0588235294117647,
+        "u": 0.08663037753194258
+      },
+      "defuzzified_weight": 0.06348501498408982,
+      "normalized_weight": 0.06091176421067009,
+      "rank": 4,
+      "run_label": "sample_development_only",
+      "is_sample": true,
+      "not_final_expert_judgement": true
+    },
+    {
+      "criterion_id": "C4",
+      "criterion_name": "Subscription & Pricing",
+      "fuzzy_weight": {
+        "l": 0.12158947827503719,
+        "m": 0.1764705882352941,
+        "u": 0.2626141967764311
+      },
+      "defuzzified_weight": 0.18689142109558746,
+      "normalized_weight": 0.1793161138518189,
+      "rank": 3,
+      "run_label": "sample_development_only",
+      "is_sample": true,
+      "not_final_expert_judgement": true
+    },
+    {
+      "criterion_id": "C5",
+      "criterion_name": "Account/Login",
+      "fuzzy_weight": {
+        "l": 0.04500113800856217,
+        "m": 0.0588235294117647,
+        "u": 0.08663037753194258
+      },
+      "defuzzified_weight": 0.06348501498408982,
+      "normalized_weight": 0.06091176421067009,
+      "rank": 5,
+      "run_label": "sample_development_only",
+      "is_sample": true,
+      "not_final_expert_judgement": true
+    }
+  ],
+  "warnings": []
+}

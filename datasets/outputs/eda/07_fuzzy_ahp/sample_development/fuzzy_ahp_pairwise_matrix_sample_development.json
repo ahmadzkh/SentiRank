@@ -1,0 +1,206 @@
+{
+  "run_label": "sample_development_only",
+  "is_sample": true,
+  "not_final_expert_judgement": true,
+  "criteria": [
+    {
+      "id": "C1",
+      "name": "Features, Content & Audio Experience",
+      "description": "Issues or improvement priorities related to music/content availability, playlist, lyrics, shuffle, download, podcast, recommendations, and audio listening experience."
+    },
+    {
+      "id": "C2",
+      "name": "App Reliability & Usability",
+      "description": "Issues or improvement priorities related to app performance, stability, loading, bugs, crashes, responsiveness, navigation, layout, and ease of use."
+    },
+    {
+      "id": "C3",
+      "name": "Ads Experience",
+      "description": "Issues or improvement priorities related to advertisement frequency, intrusiveness, interruption, and overall advertising experience."
+    },
+    {
+      "id": "C4",
+      "name": "Subscription & Pricing",
+      "description": "Issues or improvement priorities related to premium subscription, pricing, payment, package value, and perceived affordability."
+    },
+    {
+      "id": "C5",
+      "name": "Account/Login",
+      "description": "Issues or improvement priorities related to account access, login, registration, password, email verification, and account-related problems."
+    }
+  ],
+  "fuzzy_pairwise_matrix": [
+    [
+      {
+        "l": 1.0,
+        "m": 1.0,
+        "u": 1.0
+      },
+      {
+        "l": 0.25,
+        "m": 0.3333333333333333,
+        "u": 0.5
+      },
+      {
+        "l": 2.0,
+        "m": 3.0,
+        "u": 4.0
+      },
+      {
+        "l": 1.0,
+        "m": 1.0,
+        "u": 1.0
+      },
+      {
+        "l": 2.0,
+        "m": 3.0,
+        "u": 4.0
+      }
+    ],
+    [
+      {
+        "l": 2.0,
+        "m": 3.0,
+        "u": 4.0
+      },
+      {
+        "l": 1.0,
+        "m": 1.0,
+        "u": 1.0
+      },
+      {
+        "l": 8.0,
+        "m": 9.0,
+        "u": 9.0
+      },
+      {
+        "l": 2.0,
+        "m": 3.0,
+        "u": 4.0
+      },
+      {
+        "l": 8.0,
+        "m": 9.0,
+        "u": 9.0
+      }
+    ],
+    [
+      {
+        "l": 0.25,
+        "m": 0.3333333333333333,
+        "u": 0.5
+      },
+      {
+        "l": 0.1111111111111111,
+        "m": 0.1111111111111111,
+        "u": 0.125
+      },
+      {
+        "l": 1.0,
+        "m": 1.0,
+        "u": 1.0
+      },
+      {
+        "l": 0.25,
+        "m": 0.3333333333333333,
+        "u": 0.5
+      },
+      {
+        "l": 1.0,
+        "m": 1.0,
+        "u": 1.0
+      }
+    ],
+    [
+      {
+        "l": 1.0,
+        "m": 1.0,
+        "u": 1.0
+      },
+      {
+        "l": 0.25,
+        "m": 0.3333333333333333,
+        "u": 0.5
+      },
+      {
+        "l": 2.0,
+        "m": 3.0,
+        "u": 4.0
+      },
+      {
+        "l": 1.0,
+        "m": 1.0,
+        "u": 1.0
+      },
+      {
+        "l": 2.0,
+        "m": 3.0,
+        "u": 4.0
+      }
+    ],
+    [
+      {
+        "l": 0.25,
+        "m": 0.3333333333333333,
+        "u": 0.5
+      },
+      {
+        "l": 0.1111111111111111,
+        "m": 0.1111111111111111,
+        "u": 0.125
+      },
+      {
+        "l": 1.0,
+        "m": 1.0,
+        "u": 1.0
+      },
+      {
+        "l": 0.25,
+        "m": 0.3333333333333333,
+        "u": 0.5
+      },
+      {
+        "l": 1.0,
+        "m": 1.0,
+        "u": 1.0
+      }
+    ]
+  ],
+  "modal_crisp_matrix": [
+    [
+      1.0,
+      0.3333333333333333,
+      3.0,
+      1.0,
+      3.0
+    ],
+    [
+      3.0,
+      1.0,
+      9.0,
+      3.0,
+      9.0
+    ],
+    [
+      0.3333333333333333,
+      0.1111111111111111,
+      1.0,
+      0.3333333333333333,
+      1.0
+    ],
+    [
+      1.0,
+      0.3333333333333333,
+      3.0,
+      1.0,
+      3.0
+    ],
+    [
+      0.3333333333333333,
+      0.1111111111111111,
+      1.0,
+      0.3333333333333333,
+      1.0
+    ]
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "run_label": "sample_development_only",
+  "is_sample": true,
+  "not_final_expert_judgement": true,
+  "lambda_max": 5.0,
+  "consistency_index": 0.0,
+  "consistency_ratio": 0.0,
+  "consistency_threshold": 0.1,
+  "is_consistent": true,
+  "warnings": []
+}

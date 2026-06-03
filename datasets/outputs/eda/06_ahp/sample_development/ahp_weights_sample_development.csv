@@ -1,0 +1,6 @@
+criterion_id,criterion_name,weight,rank,run_label,is_sample,not_final_expert_judgement
+C1,"Features, Content & Audio Experience",0.1764705882352941,2,sample_development_only,True,True
+C2,App Reliability & Usability,0.5294117647058824,1,sample_development_only,True,True
+C3,Ads Experience,0.0588235294117647,4,sample_development_only,True,True
+C4,Subscription & Pricing,0.1764705882352941,3,sample_development_only,True,True
+C5,Account/Login,0.0588235294117647,5,sample_development_only,True,True

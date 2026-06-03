@@ -1,0 +1,15 @@
+{
+  "run_label": "sample_development_only",
+  "is_sample": true,
+  "not_final_expert_judgement": true,
+  "methodology_note": "Sample development output for pipeline validation only. This is not final expert judgement and must not be used as a thesis ranking.",
+  "criteria_json": "C:\\Data Central\\Documents\\Skripsi Ahmad Zaky Humami\\Project Skripsi\\SentiRank\\docs\\templates\\ahp\\final_criteria_for_ahp.json",
+  "input": "C:\\Data Central\\Documents\\Skripsi Ahmad Zaky Humami\\Project Skripsi\\SentiRank\\docs\\templates\\ahp\\sample_development\\ahp_pairwise_sample_development.csv",
+  "output_dir": "C:\\Data Central\\Documents\\Skripsi Ahmad Zaky Humami\\Project Skripsi\\SentiRank\\datasets\\outputs\\eda\\06_ahp\\sample_development",
+  "figure": "C:\\Data Central\\Documents\\Skripsi Ahmad Zaky Humami\\Project Skripsi\\SentiRank\\docs\\figures\\06_ahp\\sample_development\\ahp_weights_sample_development.png",
+  "criteria_count": 5,
+  "pairwise_comparison_count": 10,
+  "consistency_ratio": 0.0,
+  "is_consistent": true,
+  "generated_at": "2026-06-03T04:14:17.273227+00:00"
+}

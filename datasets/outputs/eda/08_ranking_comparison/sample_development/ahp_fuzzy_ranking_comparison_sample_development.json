@@ -1,0 +1,79 @@
+{
+  "run_label": "sample_development_only",
+  "is_sample": true,
+  "not_final_expert_judgement": true,
+  "items": [
+    {
+      "criterion_id": "C2",
+      "criterion_name": "App Reliability & Usability",
+      "ahp_weight": 0.5294117647058824,
+      "fuzzy_ahp_weight": 0.5195442438750221,
+      "ahp_rank": 1,
+      "fuzzy_ahp_rank": 1,
+      "weight_delta": -0.009867520830860288,
+      "rank_delta": 0,
+      "run_label": "sample_development_only",
+      "is_sample": true,
+      "not_final_expert_judgement": true
+    },
+    {
+      "criterion_id": "C1",
+      "criterion_name": "Features, Content & Audio Experience",
+      "ahp_weight": 0.1764705882352941,
+      "fuzzy_ahp_weight": 0.1793161138518189,
+      "ahp_rank": 2,
+      "fuzzy_ahp_rank": 2,
+      "weight_delta": 0.002845525616524791,
+      "rank_delta": 0,
+      "run_label": "sample_development_only",
+      "is_sample": true,
+      "not_final_expert_judgement": true
+    },
+    {
+      "criterion_id": "C4",
+      "criterion_name": "Subscription & Pricing",
+      "ahp_weight": 0.1764705882352941,
+      "fuzzy_ahp_weight": 0.1793161138518189,
+      "ahp_rank": 3,
+      "fuzzy_ahp_rank": 3,
+      "weight_delta": 0.002845525616524791,
+      "rank_delta": 0,
+      "run_label": "sample_development_only",
+      "is_sample": true,
+      "not_final_expert_judgement": true
+    },
+    {
+      "criterion_id": "C3",
+      "criterion_name": "Ads Experience",
+      "ahp_weight": 0.0588235294117647,
+      "fuzzy_ahp_weight": 0.06091176421067009,
+      "ahp_rank": 4,
+      "fuzzy_ahp_rank": 4,
+      "weight_delta": 0.0020882347989053945,
+      "rank_delta": 0,
+      "run_label": "sample_development_only",
+      "is_sample": true,
+      "not_final_expert_judgement": true
+    },
+    {
+      "criterion_id": "C5",
+      "criterion_name": "Account/Login",
+      "ahp_weight": 0.0588235294117647,
+      "fuzzy_ahp_weight": 0.06091176421067009,
+      "ahp_rank": 5,
+      "fuzzy_ahp_rank": 5,
+      "weight_delta": 0.0020882347989053945,
+      "rank_delta": 0,
+      "run_label": "sample_development_only",
+      "is_sample": true,
+      "not_final_expert_judgement": true
+    }
+  ],
+  "summary": {
+    "total_criteria": 5,
+    "max_absolute_weight_delta": 0.009867520830860288,
+    "changed_rank_count": 0,
+    "identical_top_rank": true
+  },
+  "warnings": []
+}

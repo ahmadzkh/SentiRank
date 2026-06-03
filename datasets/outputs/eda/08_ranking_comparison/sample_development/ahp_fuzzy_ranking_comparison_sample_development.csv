@@ -1,0 +1,6 @@
+criterion_id,criterion_name,ahp_weight,fuzzy_ahp_weight,ahp_rank,fuzzy_ahp_rank,weight_delta,rank_delta,run_label,is_sample,not_final_expert_judgement
+C2,App Reliability & Usability,0.5294117647058824,0.5195442438750221,1,1,-0.009867520830860288,0,sample_development_only,True,True
+C1,"Features, Content & Audio Experience",0.1764705882352941,0.1793161138518189,2,2,0.002845525616524791,0,sample_development_only,True,True
+C4,Subscription & Pricing,0.1764705882352941,0.1793161138518189,3,3,0.002845525616524791,0,sample_development_only,True,True
+C3,Ads Experience,0.0588235294117647,0.06091176421067009,4,4,0.0020882347989053945,0,sample_development_only,True,True
+C5,Account/Login,0.0588235294117647,0.06091176421067009,5,5,0.0020882347989053945,0,sample_development_only,True,True

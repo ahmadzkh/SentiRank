@@ -1,0 +1,17 @@
+{
+  "run_label": "sample_development_only",
+  "is_sample": true,
+  "not_final_expert_judgement": true,
+  "methodology_note": "Sample development comparison for pipeline validation only. This is not final expert judgement and must not be used as a thesis ranking.",
+  "ahp_weights": "C:\\Data Central\\Documents\\Skripsi Ahmad Zaky Humami\\Project Skripsi\\SentiRank\\datasets\\outputs\\eda\\06_ahp\\sample_development\\ahp_weights_sample_development.json",
+  "fuzzy_ahp_weights": "C:\\Data Central\\Documents\\Skripsi Ahmad Zaky Humami\\Project Skripsi\\SentiRank\\datasets\\outputs\\eda\\07_fuzzy_ahp\\sample_development\\fuzzy_ahp_weights_sample_development.json",
+  "output_dir": "C:\\Data Central\\Documents\\Skripsi Ahmad Zaky Humami\\Project Skripsi\\SentiRank\\datasets\\outputs\\eda\\08_ranking_comparison\\sample_development",
+  "figure": "C:\\Data Central\\Documents\\Skripsi Ahmad Zaky Humami\\Project Skripsi\\SentiRank\\docs\\figures\\08_ranking_comparison\\sample_development\\ahp_fuzzy_weight_comparison_sample_development.png",
+  "summary": {
+    "total_criteria": 5,
+    "max_absolute_weight_delta": 0.009867520830860288,
+    "changed_rank_count": 0,
+    "identical_top_rank": true
+  },
+  "generated_at": "2026-06-03T04:14:25.179118+00:00"
+}
