@@ -1,0 +1,983 @@
+import { NAVIGATION_ITEMS } from "@/constants/navigation";
+import type {
+  AhpCriterion,
+  AhpResult,
+  AspectLabel,
+  AspectResult,
+  AspectSummary,
+  EvaluationSummary,
+  FuzzyAhpResult,
+  NavigationItem,
+  ReportSummary,
+  Review,
+  ReviewSentimentLabel,
+  SentimentResult,
+  SentimentSummary,
+} from "@/types";
+
+// Data sintetis untuk UI. Jangan gunakan nilai ini sebagai output metode final.
+export const mockReviews = [
+  {
+    id: "rev-001",
+    source: "spotify_play_store",
+    userName: "Alya",
+    rating: 5,
+    text: "Spotify keeps my commute easy. The recommendations are usually accurate and the playlists update at the right time.",
+    cleanedText:
+      "spotify keeps commute easy recommendations usually accurate playlists update right time",
+    language: "en",
+    reviewDate: "2026-04-12",
+    appVersion: "9.0.24",
+    thumbsUpCount: 18,
+    sentimentLabel: "positive",
+    sentimentConfidence: 0.94,
+    aspectLabels: ["recommendation", "playlist_library"],
+    isProcessed: true,
+  },
+  {
+    id: "rev-002",
+    source: "spotify_play_store",
+    userName: "Bima",
+    rating: 2,
+    text: "Too many ads play between songs. Sometimes I hear two ads before one short track.",
+    cleanedText: "too many ads play between songs sometimes hear two ads before one short track",
+    language: "en",
+    reviewDate: "2026-04-13",
+    appVersion: "9.0.24",
+    thumbsUpCount: 41,
+    sentimentLabel: "negative",
+    sentimentConfidence: 0.91,
+    aspectLabels: ["ads"],
+    isProcessed: true,
+  },
+  {
+    id: "rev-003",
+    source: "spotify_play_store",
+    userName: "Citra",
+    rating: 3,
+    text: "The app works fine for daily listening, but the lyrics are not available for several local songs.",
+    cleanedText: "app works fine daily listening lyrics not available several local songs",
+    language: "en",
+    reviewDate: "2026-04-14",
+    appVersion: "9.0.25",
+    thumbsUpCount: 9,
+    sentimentLabel: "neutral",
+    sentimentConfidence: 0.78,
+    aspectLabels: ["lyrics"],
+    isProcessed: true,
+  },
+  {
+    id: "rev-004",
+    source: "spotify_play_store",
+    userName: "Dimas",
+    rating: 1,
+    text: "Songs stop randomly after the recent update and the app becomes slow when I open my library.",
+    cleanedText: "songs stop randomly recent update app becomes slow open library",
+    language: "en",
+    reviewDate: "2026-04-15",
+    appVersion: "9.0.25",
+    thumbsUpCount: 57,
+    sentimentLabel: "negative",
+    sentimentConfidence: 0.96,
+    aspectLabels: ["app_performance", "playlist_library"],
+    isProcessed: true,
+  },
+  {
+    id: "rev-005",
+    source: "spotify_play_store",
+    userName: "Eka",
+    rating: 4,
+    text: "Premium is worth it for offline listening. Downloaded playlists work well during travel.",
+    cleanedText: "premium worth offline listening downloaded playlists work well travel",
+    language: "en",
+    reviewDate: "2026-04-16",
+    appVersion: "9.0.25",
+    thumbsUpCount: 23,
+    sentimentLabel: "positive",
+    sentimentConfidence: 0.9,
+    aspectLabels: ["subscription", "offline_download"],
+    isProcessed: true,
+  },
+  {
+    id: "rev-006",
+    source: "spotify_play_store",
+    userName: "Fajar",
+    rating: 2,
+    text: "Offline songs disappear even though I still have storage. I need to download the same playlist again.",
+    cleanedText: "offline songs disappear still have storage need download same playlist again",
+    language: "en",
+    reviewDate: "2026-04-18",
+    appVersion: "9.0.26",
+    thumbsUpCount: 35,
+    sentimentLabel: "negative",
+    sentimentConfidence: 0.89,
+    aspectLabels: ["offline_download", "playlist_library"],
+    isProcessed: true,
+  },
+  {
+    id: "rev-007",
+    source: "spotify_play_store",
+    userName: "Gita",
+    rating: 3,
+    text: "Search results are acceptable, but podcast recommendations are not relevant for me.",
+    cleanedText: "search results acceptable podcast recommendations not relevant",
+    language: "en",
+    reviewDate: "2026-04-19",
+    appVersion: "9.0.26",
+    thumbsUpCount: 7,
+    sentimentLabel: "neutral",
+    sentimentConfidence: 0.74,
+    aspectLabels: ["recommendation"],
+    isProcessed: true,
+  },
+  {
+    id: "rev-008",
+    source: "spotify_play_store",
+    userName: "Hadi",
+    rating: 1,
+    text: "I was charged for Premium but my account still shows free. Support takes too long to respond.",
+    cleanedText: "charged premium account still shows free support takes too long respond",
+    language: "en",
+    reviewDate: "2026-04-20",
+    appVersion: "9.0.26",
+    thumbsUpCount: 64,
+    sentimentLabel: "negative",
+    sentimentConfidence: 0.93,
+    aspectLabels: ["subscription", "account_login"],
+    isProcessed: true,
+  },
+  {
+    id: "rev-009",
+    source: "spotify_play_store",
+    userName: "Intan",
+    rating: 5,
+    text: "The audio quality is stable and the daily mix helps me discover new artists quickly.",
+    cleanedText: "audio quality stable daily mix helps discover new artists quickly",
+    language: "en",
+    reviewDate: "2026-04-22",
+    appVersion: "9.0.27",
+    thumbsUpCount: 16,
+    sentimentLabel: "positive",
+    sentimentConfidence: 0.92,
+    aspectLabels: ["audio_quality", "recommendation"],
+    isProcessed: true,
+  },
+  {
+    id: "rev-010",
+    source: "spotify_play_store",
+    userName: "Joko",
+    rating: 2,
+    text: "The family plan price increased and the app still freezes when switching playlists.",
+    cleanedText: "family plan price increased app still freezes switching playlists",
+    language: "en",
+    reviewDate: "2026-04-23",
+    appVersion: "9.0.27",
+    thumbsUpCount: 29,
+    sentimentLabel: "negative",
+    sentimentConfidence: 0.88,
+    aspectLabels: ["pricing", "app_performance"],
+    isProcessed: true,
+  },
+] satisfies Review[];
+
+function buildMockProbabilities(
+  label: ReviewSentimentLabel,
+  confidence: number,
+): Record<ReviewSentimentLabel, number> {
+  const secondary = Number(((1 - confidence) / 2).toFixed(3));
+
+  return {
+    positive: label === "positive" ? confidence : secondary,
+    neutral: label === "neutral" ? confidence : secondary,
+    negative: label === "negative" ? confidence : secondary,
+  };
+}
+
+const evidenceTermsByAspect = {
+  audio_quality: ["audio", "quality", "stable"],
+  recommendation: ["recommendation", "daily mix", "relevant"],
+  ads: ["ads", "between songs", "free mode"],
+  subscription: ["premium", "charged", "plan"],
+  app_performance: ["stop randomly", "slow", "freezes"],
+  playlist_library: ["playlist", "library", "saved songs"],
+  lyrics: ["lyrics", "local songs", "not available"],
+  offline_download: ["offline", "download", "storage"],
+  account_login: ["account", "support", "login"],
+  pricing: ["price", "family plan", "value"],
+} satisfies Record<AspectLabel, string[]>;
+
+export const mockDatasetProfile = {
+  sourceName: "Spotify Play Store",
+  sourceDescription: "Sampel sintetis ulasan Spotify untuk pengembangan UI SentiRank.",
+  importStatus: "Dataset mock siap digunakan",
+  totalRows: mockReviews.length,
+  uniqueReviews: mockReviews.length,
+  duplicateRows: 0,
+  missingValues: 0,
+  processedRows: mockReviews.filter((review) => review.isProcessed).length,
+  labelCoverage: 100,
+  averageRating: Number(
+    (
+      mockReviews.reduce((total, review) => total + review.rating, 0) /
+      mockReviews.length
+    ).toFixed(1),
+  ),
+  dateRange: {
+    start: "2026-04-12",
+    end: "2026-04-23",
+  },
+  ratingDistribution: [1, 2, 3, 4, 5].map((rating) => ({
+    rating,
+    count: mockReviews.filter((review) => review.rating === rating).length,
+  })),
+  qualityChecks: [
+    {
+      id: "quality-duplicates",
+      label: "Duplikasi",
+      value: "0 baris",
+      status: "Aman",
+      note: "Tidak ada duplikasi pada sampel mock.",
+    },
+    {
+      id: "quality-missing",
+      label: "Nilai kosong",
+      value: "0 field penting",
+      status: "Aman",
+      note: "Kolom teks, rating, tanggal, dan label tersedia.",
+    },
+    {
+      id: "quality-coverage",
+      label: "Cakupan label",
+      value: "100%",
+      status: "Siap",
+      note: "Semua baris memiliki label sentimen mock untuk pengembangan UI.",
+    },
+  ],
+} as const;
+
+export const mockScrapingSummary = {
+  batchId: "scrape-demo-2026-04",
+  sourcePackage: "com.spotify.music",
+  sourceName: "Spotify Play Store",
+  status: "Mock selesai",
+  requestedReviews: 250,
+  collectedReviews: mockReviews.length,
+  failedItems: 0,
+  latestBatchDate: "2026-04-23T10:30:00+07:00",
+  region: "ID",
+  language: "mixed",
+  parameters: [
+    {
+      id: "param-source",
+      label: "Sumber",
+      value: "Spotify Play Store",
+      note: "Sumber ditampilkan sebagai metadata mock.",
+    },
+    {
+      id: "param-limit",
+      label: "Batas ulasan",
+      value: "250 ulasan",
+      note: "Tidak menjalankan scraping nyata dari frontend.",
+    },
+    {
+      id: "param-region",
+      label: "Region",
+      value: "ID",
+      note: "Placeholder untuk konfigurasi backend.",
+    },
+  ],
+  batches: [
+    {
+      id: "batch-001",
+      date: "2026-04-12",
+      requested: 80,
+      collected: 4,
+      failed: 0,
+      status: "Selesai",
+    },
+    {
+      id: "batch-002",
+      date: "2026-04-18",
+      requested: 90,
+      collected: 3,
+      failed: 0,
+      status: "Selesai",
+    },
+    {
+      id: "batch-003",
+      date: "2026-04-23",
+      requested: 80,
+      collected: 3,
+      failed: 0,
+      status: "Selesai",
+    },
+  ],
+} as const;
+
+export const mockPreprocessingSummary = {
+  rawReviews: mockReviews.length,
+  processedReviews: mockReviews.filter((review) => review.isProcessed).length,
+  removedDuplicates: 0,
+  emptyAfterCleaning: 0,
+  cleanedTokenCount: mockReviews.reduce(
+    (total, review) => total + (review.cleanedText?.split(" ").length ?? 0),
+    0,
+  ),
+  status: "Pipeline mock selesai",
+  pipelineSteps: [
+    {
+      id: "step-case-folding",
+      name: "Case folding",
+      description: "Mengubah teks menjadi huruf kecil agar representasi kata konsisten.",
+      status: "Selesai",
+      rowsAffected: mockReviews.length,
+    },
+    {
+      id: "step-noise-cleaning",
+      name: "Pembersihan noise",
+      description: "Menghapus karakter tidak relevan, spasi berlebih, dan simbol nonanalitis.",
+      status: "Selesai",
+      rowsAffected: mockReviews.length,
+    },
+    {
+      id: "step-token-review",
+      name: "Token review",
+      description: "Menyiapkan teks bersih untuk input IndoBERT dan fitur aspek SVM.",
+      status: "Selesai",
+      rowsAffected: mockReviews.length,
+    },
+  ],
+  textSamples: mockReviews.slice(0, 4).map((review) => ({
+    id: review.id,
+    rawText: review.text,
+    cleanedText: review.cleanedText ?? "",
+    status: review.isProcessed ? "Diproses" : "Belum diproses",
+  })),
+  noiseSummary: [
+    "Normalisasi kapitalisasi teks ulasan.",
+    "Pembersihan simbol yang tidak membantu analisis.",
+    "Penyimpanan teks asli tetap dipertahankan untuk audit.",
+  ],
+} as const;
+
+export const mockSentimentResults = mockReviews.map((review) => {
+  const label = review.sentimentLabel ?? "neutral";
+  const confidence = review.sentimentConfidence ?? 0.7;
+
+  return {
+    id: `sentiment-${review.id}`,
+    reviewId: review.id,
+    reviewText: review.text,
+    label,
+    confidence,
+    probabilities: buildMockProbabilities(label, confidence),
+    modelName: "IndoBERT Sentimen",
+    modelVersion: "mock-ui-contract-1",
+    analyzedAt: "2026-05-30T09:00:00+07:00",
+  };
+}) satisfies SentimentResult[];
+
+export const mockSentimentPrediction = {
+  inputText:
+    "Songs stop randomly after the update and the app becomes slow when I open my library.",
+  label: "negative",
+  confidence: 0.92,
+  modelName: "IndoBERT Sentimen",
+  modelVersion: "mock-ui-contract-1",
+  explanation:
+    "Prediksi mock menandai ulasan sebagai negatif karena terdapat keluhan reliabilitas aplikasi dan gangguan playback.",
+} as const;
+
+export const mockAspectResults = mockReviews.flatMap((review) =>
+  (review.aspectLabels ?? []).map((aspect, index) => ({
+    id: `aspect-${review.id}-${aspect}`,
+    reviewId: review.id,
+    reviewText: review.text,
+    label: aspect,
+    confidence: Number(
+      Math.max(0.72, (review.sentimentConfidence ?? 0.8) - index * 0.04).toFixed(
+        2,
+      ),
+    ),
+    evidenceTerms: evidenceTermsByAspect[aspect],
+    sentimentLabel: review.sentimentLabel,
+    modelName: "SVM Klasifikasi Aspek",
+    modelVersion: "mock-ui-contract-1",
+    classifiedAt: "2026-05-30T09:05:00+07:00",
+  })),
+) satisfies AspectResult[];
+
+export const mockSentimentSummary = {
+  totalReviews: 10,
+  counts: {
+    positive: 3,
+    neutral: 2,
+    negative: 5,
+  },
+  percentages: {
+    positive: 30,
+    neutral: 20,
+    negative: 50,
+  },
+  dominantLabel: "negative",
+  averageConfidence: 0.885,
+  modelName: "IndoBERT Sentimen",
+  modelVersion: "mock-ui-contract-1",
+  generatedAt: "2026-05-30T09:00:00+07:00",
+} satisfies SentimentSummary;
+
+export const mockAspectSummary = {
+  totalClassified: 10,
+  counts: {
+    audio_quality: 1,
+    recommendation: 3,
+    ads: 1,
+    subscription: 2,
+    app_performance: 2,
+    playlist_library: 3,
+    lyrics: 1,
+    offline_download: 2,
+    account_login: 1,
+    pricing: 1,
+  },
+  negativeCounts: {
+    audio_quality: 0,
+    recommendation: 0,
+    ads: 1,
+    subscription: 1,
+    app_performance: 2,
+    playlist_library: 2,
+    lyrics: 0,
+    offline_download: 1,
+    account_login: 1,
+    pricing: 1,
+  },
+  topAspect: "playlist_library",
+  topNegativeAspect: "app_performance",
+  multiAspectReviewCount: 6,
+  modelName: "SVM Klasifikasi Aspek",
+  modelVersion: "mock-ui-contract-1",
+  generatedAt: "2026-05-30T09:05:00+07:00",
+} satisfies AspectSummary;
+
+export const mockAhpCriteria = [
+  {
+    id: "crit-app-performance",
+    label: "Stabilitas Performa Aplikasi",
+    description: "Memprioritaskan keluhan crash, lag, dan gangguan playback.",
+    source: "aspect_classification",
+    sourceAspect: "app_performance",
+    evidenceCount: 2,
+    negativeReviewCount: 2,
+    isActive: true,
+  },
+  {
+    id: "crit-ads",
+    label: "Gangguan Iklan",
+    description: "Memprioritaskan frekuensi iklan dan gangguan pada mode gratis.",
+    source: "aspect_classification",
+    sourceAspect: "ads",
+    evidenceCount: 1,
+    negativeReviewCount: 1,
+    isActive: true,
+  },
+  {
+    id: "crit-offline-download",
+    label: "Reliabilitas Unduhan Offline",
+    description: "Memprioritaskan ketersediaan playlist unduhan dan playback offline.",
+    source: "aspect_classification",
+    sourceAspect: "offline_download",
+    evidenceCount: 2,
+    negativeReviewCount: 1,
+    isActive: true,
+  },
+  {
+    id: "crit-subscription",
+    label: "Langganan dan Penagihan Akun",
+    description: "Memprioritaskan aktivasi Premium, perpanjangan, dan penagihan akun.",
+    source: "aspect_classification",
+    sourceAspect: "subscription",
+    evidenceCount: 2,
+    negativeReviewCount: 1,
+    isActive: true,
+  },
+  {
+    id: "crit-pricing",
+    label: "Sensitivitas Harga",
+    description: "Memprioritaskan kenaikan harga dan keluhan persepsi nilai.",
+    source: "aspect_classification",
+    sourceAspect: "pricing",
+    evidenceCount: 1,
+    negativeReviewCount: 1,
+    isActive: true,
+  },
+] satisfies AhpCriterion[];
+
+export const mockAhpResult = {
+  id: "ahp-result-demo-001",
+  criteria: mockAhpCriteria,
+  pairwiseComparisons: [
+    {
+      id: "pc-001",
+      criterionAId: "crit-app-performance",
+      criterionBId: "crit-ads",
+      value: 3,
+      reciprocalValue: 0.333,
+      scaleLabel: "Cukup lebih penting",
+    },
+    {
+      id: "pc-002",
+      criterionAId: "crit-app-performance",
+      criterionBId: "crit-offline-download",
+      value: 2,
+      reciprocalValue: 0.5,
+      scaleLabel: "Sedikit lebih penting",
+    },
+    {
+      id: "pc-003",
+      criterionAId: "crit-app-performance",
+      criterionBId: "crit-subscription",
+      value: 2,
+      reciprocalValue: 0.5,
+      scaleLabel: "Sedikit lebih penting",
+    },
+    {
+      id: "pc-004",
+      criterionAId: "crit-app-performance",
+      criterionBId: "crit-pricing",
+      value: 4,
+      reciprocalValue: 0.25,
+      scaleLabel: "Di antara cukup dan kuat",
+    },
+    {
+      id: "pc-005",
+      criterionAId: "crit-ads",
+      criterionBId: "crit-offline-download",
+      value: 0.5,
+      reciprocalValue: 2,
+      scaleLabel: "Sedikit kurang penting",
+    },
+    {
+      id: "pc-006",
+      criterionAId: "crit-ads",
+      criterionBId: "crit-subscription",
+      value: 1,
+      reciprocalValue: 1,
+      scaleLabel: "Sama penting",
+    },
+    {
+      id: "pc-007",
+      criterionAId: "crit-ads",
+      criterionBId: "crit-pricing",
+      value: 2,
+      reciprocalValue: 0.5,
+      scaleLabel: "Sedikit lebih penting",
+    },
+    {
+      id: "pc-008",
+      criterionAId: "crit-offline-download",
+      criterionBId: "crit-subscription",
+      value: 1,
+      reciprocalValue: 1,
+      scaleLabel: "Sama penting",
+    },
+    {
+      id: "pc-009",
+      criterionAId: "crit-offline-download",
+      criterionBId: "crit-pricing",
+      value: 2,
+      reciprocalValue: 0.5,
+      scaleLabel: "Sedikit lebih penting",
+    },
+    {
+      id: "pc-010",
+      criterionAId: "crit-subscription",
+      criterionBId: "crit-pricing",
+      value: 2,
+      reciprocalValue: 0.5,
+      scaleLabel: "Sedikit lebih penting",
+    },
+  ],
+  ranking: [
+    {
+      criterionId: "crit-app-performance",
+      label: "Stabilitas Performa Aplikasi",
+      weight: 0.34,
+      rank: 1,
+      interpretation: "Paling mendesak karena masalah reliabilitas menghambat sesi mendengarkan.",
+      evidenceCount: 2,
+    },
+    {
+      criterionId: "crit-offline-download",
+      label: "Reliabilitas Unduhan Offline",
+      weight: 0.22,
+      rank: 2,
+      interpretation: "Berdampak tinggi untuk pengguna Premium dan skenario perjalanan.",
+      evidenceCount: 2,
+    },
+    {
+      criterionId: "crit-subscription",
+      label: "Langganan dan Penagihan Akun",
+      weight: 0.19,
+      rank: 3,
+      interpretation: "Penting karena masalah penagihan langsung memengaruhi kepercayaan.",
+      evidenceCount: 2,
+    },
+    {
+      criterionId: "crit-ads",
+      label: "Gangguan Iklan",
+      weight: 0.15,
+      rank: 4,
+      interpretation: "Relevan untuk pengguna gratis, tetapi lebih rendah dari kegagalan playback.",
+      evidenceCount: 1,
+    },
+    {
+      criterionId: "crit-pricing",
+      label: "Sensitivitas Harga",
+      weight: 0.1,
+      rank: 5,
+      interpretation: "Perlu dipantau, tetapi bukti saat ini masih lebih terbatas.",
+      evidenceCount: 1,
+    },
+  ],
+  consistencyRatio: 0.07,
+  consistencyStatus: "consistent",
+  generatedAt: "2026-05-30T09:10:00+07:00",
+  methodVersion: "mock-ahp-contract-1",
+  methodNote:
+    "Ranking mock hanya untuk pengembangan UI. Frontend tidak menghitung bobot AHP.",
+} satisfies AhpResult;
+
+export const mockFuzzyAhpResult = {
+  id: "fuzzy-ahp-result-demo-001",
+  criteria: mockAhpCriteria,
+  scaleOptions: [
+    {
+      id: "fuzzy-equal",
+      label: "Sama penting",
+      value: { lower: 1, middle: 1, upper: 1 },
+    },
+    {
+      id: "fuzzy-slight",
+      label: "Sedikit lebih penting",
+      value: { lower: 1, middle: 2, upper: 3 },
+    },
+    {
+      id: "fuzzy-moderate",
+      label: "Cukup lebih penting",
+      value: { lower: 2, middle: 3, upper: 4 },
+    },
+    {
+      id: "fuzzy-strong",
+      label: "Jauh lebih penting",
+      value: { lower: 4, middle: 5, upper: 6 },
+    },
+  ],
+  ranking: [
+    {
+      criterionId: "crit-app-performance",
+      label: "Stabilitas Performa Aplikasi",
+      fuzzyWeight: { lower: 0.29, middle: 0.35, upper: 0.41 },
+      normalizedWeight: 0.35,
+      rank: 1,
+      interpretation: "Ranking fuzzy prototype juga menempatkan reliabilitas sebagai prioritas utama.",
+    },
+    {
+      criterionId: "crit-offline-download",
+      label: "Reliabilitas Unduhan Offline",
+      fuzzyWeight: { lower: 0.18, middle: 0.22, upper: 0.27 },
+      normalizedWeight: 0.22,
+      rank: 2,
+      interpretation: "Reliabilitas offline tetap menjadi isu prioritas tinggi untuk pengalaman Premium.",
+    },
+    {
+      criterionId: "crit-subscription",
+      label: "Langganan dan Penagihan Akun",
+      fuzzyWeight: { lower: 0.15, middle: 0.19, upper: 0.24 },
+      normalizedWeight: 0.19,
+      rank: 3,
+      interpretation: "Penagihan dan kepercayaan akun tetap penting.",
+    },
+    {
+      criterionId: "crit-ads",
+      label: "Gangguan Iklan",
+      fuzzyWeight: { lower: 0.11, middle: 0.14, upper: 0.18 },
+      normalizedWeight: 0.14,
+      rank: 4,
+      interpretation: "Gangguan iklan terlihat, tetapi bukan prioritas tertinggi dalam prototype.",
+    },
+    {
+      criterionId: "crit-pricing",
+      label: "Sensitivitas Harga",
+      fuzzyWeight: { lower: 0.07, middle: 0.1, upper: 0.14 },
+      normalizedWeight: 0.1,
+      rank: 5,
+      interpretation: "Harga dipantau sebagai isu dengan bukti lebih terbatas pada data mock ini.",
+    },
+  ],
+  status: "prototype",
+  generatedAt: "2026-05-30T09:12:00+07:00",
+  methodVersion: "mock-fuzzy-ahp-contract-1",
+  methodNote:
+    "Output mock prototype saja. Formula dan bentuk output final Fuzzy AHP tetap menjadi ranah backend/metodologi.",
+} satisfies FuzzyAhpResult;
+
+export const mockModelEvaluation = {
+  generatedAt: "2026-05-30T09:15:00+07:00",
+  models: [
+    {
+      task: "sentiment",
+      modelName: "IndoBERT Sentimen",
+      modelVersion: "mock-ui-contract-1",
+      sampleCount: 600,
+      metrics: [
+        {
+          id: "metric-sentiment-accuracy",
+          task: "sentiment",
+          label: "Akurasi",
+          value: 0.88,
+          format: "percentage",
+          description: "Akurasi keseluruhan klasifikasi sentimen pada data validasi.",
+        },
+        {
+          id: "metric-sentiment-macro-f1",
+          task: "sentiment",
+          label: "Macro F1",
+          value: 0.84,
+          format: "percentage",
+          description: "Rata-rata F1 untuk label positif, netral, dan negatif.",
+        },
+        {
+          id: "metric-sentiment-neutral-recall",
+          task: "sentiment",
+          label: "Recall Netral",
+          value: 0.78,
+          format: "percentage",
+          description: "Recall untuk ulasan netral, dipantau karena kelas ini sering lebih lemah.",
+        },
+      ],
+      confusionMatrix: {
+        id: "cm-sentiment",
+        task: "sentiment",
+        labels: ["positive", "neutral", "negative"],
+        rows: [
+          {
+            actualLabel: "positive",
+            predictedCounts: { positive: 174, neutral: 17, negative: 9 },
+            support: 200,
+          },
+          {
+            actualLabel: "neutral",
+            predictedCounts: { positive: 22, neutral: 156, negative: 22 },
+            support: 200,
+          },
+          {
+            actualLabel: "negative",
+            predictedCounts: { positive: 8, neutral: 14, negative: 178 },
+            support: 200,
+          },
+        ],
+      },
+      notes: [
+        "Recall netral dipantau sebagai perhatian khusus untuk evaluasi skripsi.",
+        "Nilai mock bersifat sintetis dan hanya mendukung pengembangan layout UI.",
+      ],
+    },
+    {
+      task: "aspect",
+      modelName: "SVM Klasifikasi Aspek",
+      modelVersion: "mock-ui-contract-1",
+      sampleCount: 420,
+      metrics: [
+        {
+          id: "metric-aspect-accuracy",
+          task: "aspect",
+          label: "Akurasi",
+          value: 0.82,
+          format: "percentage",
+          description: "Akurasi keseluruhan klasifikasi aspek pada data validasi.",
+        },
+        {
+          id: "metric-aspect-macro-f1",
+          task: "aspect",
+          label: "Macro F1",
+          value: 0.79,
+          format: "percentage",
+          description: "Rata-rata F1 untuk label aspek ulasan Spotify.",
+        },
+      ],
+      confusionMatrix: {
+        id: "cm-aspect",
+        task: "aspect",
+        labels: ["ads", "app_performance", "offline_download", "subscription"],
+        rows: [
+          {
+            actualLabel: "ads",
+            predictedCounts: { ads: 80, app_performance: 6, offline_download: 4, subscription: 5 },
+            support: 95,
+          },
+          {
+            actualLabel: "app_performance",
+            predictedCounts: { ads: 9, app_performance: 92, offline_download: 8, subscription: 6 },
+            support: 115,
+          },
+          {
+            actualLabel: "offline_download",
+            predictedCounts: { ads: 5, app_performance: 10, offline_download: 74, subscription: 6 },
+            support: 95,
+          },
+          {
+            actualLabel: "subscription",
+            predictedCounts: { ads: 6, app_performance: 9, offline_download: 8, subscription: 92 },
+            support: 115,
+          },
+        ],
+      },
+      notes: [
+        "Label aspek tetap reusable untuk pemetaan response API berikutnya.",
+        "Label confusion matrix dapat diperluas saat dataset final memiliki lebih banyak kelas.",
+      ],
+    },
+  ],
+  overallNotes: [
+    "Nilai evaluasi adalah placeholder sintetis untuk pengembangan UI frontend.",
+    "Nilai final harus berasal dari artefak model tervalidasi sebelum pelaporan skripsi.",
+  ],
+} satisfies EvaluationSummary;
+
+export const mockModelEvaluationOverview = [
+  {
+    id: "overview-accuracy",
+    label: "Akurasi",
+    value: 0.88,
+    description: "Akurasi utama model IndoBERT pada data validasi mock.",
+  },
+  {
+    id: "overview-precision",
+    label: "Precision",
+    value: 0.85,
+    description: "Rata-rata precision makro untuk ringkasan evaluasi skripsi.",
+  },
+  {
+    id: "overview-recall",
+    label: "Recall",
+    value: 0.83,
+    description: "Rata-rata recall makro untuk membaca cakupan prediksi model.",
+  },
+  {
+    id: "overview-f1",
+    label: "F1 Score",
+    value: 0.84,
+    description: "Ringkasan F1 makro sebagai indikator keseimbangan precision dan recall.",
+  },
+] as const;
+
+export const mockSystemSettings = {
+  app: {
+    name: "SentiRank",
+    version: "0.1.0",
+    environment: "Mock frontend",
+    owner: "Skripsi Ahmad Zaky Humami",
+  },
+  theme: {
+    defaultTheme: "Light Mode",
+    visualDirection: "SentiRank Research Analytics Light",
+    darkModeStatus: "Belum diimplementasikan",
+  },
+  apiEndpoints: [
+    {
+      id: "api-reviews",
+      service: "Review API",
+      method: "GET",
+      path: "/api/reviews",
+      status: "Placeholder",
+    },
+    {
+      id: "api-sentiment",
+      service: "Sentiment API",
+      method: "POST",
+      path: "/api/sentiment/predict",
+      status: "Placeholder",
+    },
+    {
+      id: "api-aspect",
+      service: "Aspect API",
+      method: "POST",
+      path: "/api/aspects/classify",
+      status: "Placeholder",
+    },
+    {
+      id: "api-report",
+      service: "Report API",
+      method: "GET",
+      path: "/api/reports/latest",
+      status: "Placeholder",
+    },
+  ],
+  systemStatus: [
+    {
+      id: "status-dataset",
+      label: "Dataset mock",
+      value: "Siap",
+      note: "Menggunakan data sintetis FE-07.",
+    },
+    {
+      id: "status-api",
+      label: "API",
+      value: "Belum terhubung",
+      note: "Integrasi disiapkan pada FE-12.",
+    },
+    {
+      id: "status-theme",
+      label: "Tema",
+      value: "Light Mode",
+      note: "Tidak ada theme switcher karena Dark Mode belum dibuat.",
+    },
+  ],
+} as const;
+
+export const mockReportSummary = {
+  id: "report-demo-001",
+  title: "Ringkasan Insight Ulasan Spotify SentiRank",
+  generatedAt: "2026-05-30T09:20:00+07:00",
+  dataset: {
+    totalReviews: 10,
+    source: "Sampel ulasan Spotify sintetis untuk pengembangan UI",
+    dateRange: {
+      start: "2026-04-12",
+      end: "2026-04-23",
+    },
+  },
+  sentiment: {
+    dominantLabel: "negative",
+    negativeRate: 50,
+    positiveRate: 30,
+    neutralRate: 20,
+  },
+  aspect: {
+    topNegativeAspect: "app_performance",
+    topNegativeAspectCount: 2,
+  },
+  prioritization: {
+    recommendedAspect: "app_performance",
+    ahpWeight: 0.34,
+    fuzzyAhpWeight: 0.35,
+    interpretation:
+      "Performa aplikasi perlu ditangani terlebih dahulu karena reliabilitas playback langsung memengaruhi pengalaman mendengarkan utama.",
+  },
+  evaluation: {
+    sentimentMacroF1: 0.84,
+    aspectMacroF1: 0.79,
+  },
+  highlights: [
+    "Ulasan negatif mendominasi sampel demo sintetis ini.",
+    "Performa aplikasi muncul sebagai aspek negatif tertinggi dan prioritas utama.",
+    "Ranking mock AHP dan Fuzzy AHP menghasilkan rekomendasi pertama yang sama.",
+  ],
+  recommendations: [
+    "Gunakan output model untuk memfokuskan diskusi perbaikan pada reliabilitas dan stabilitas playback.",
+    "Pastikan hasil AHP/Fuzzy AHP diberi label jelas sebagai output metode saat data backend final terhubung.",
+  ],
+} satisfies ReportSummary;
+
+export const mockNavigationItems = NAVIGATION_ITEMS satisfies readonly NavigationItem[];

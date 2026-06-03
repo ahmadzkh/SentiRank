@@ -8,11 +8,11 @@
 | Module           | Frontend UI/UX                     |
 | Document         | Design Decision Log                |
 | Track            | Frontend Track                     |
-| Current Phase    | FE-01 — Design References          |
+| Current Phase    | FE-12 — API Integration Preparation |
 | Default Theme    | Light Mode                         |
 | Visual Direction | SentiRank Research Analytics Light |
 | Status           | Draft                              |
-| Last Updated     | 2026-05-30                         |
+| Last Updated     | 2026-06-02                         |
 
 ---
 
@@ -285,13 +285,13 @@ FE-02 — Information Architecture
 ## Date
 
 ```txt
-TBD
+2026-05-30
 ```
 
 ## Status
 
 ```txt
-Draft
+Approved
 ```
 
 ---
@@ -299,6 +299,8 @@ Draft
 ## Decision
 
 Struktur navigasi frontend SentiRank akan menggunakan dashboard-based navigation dengan sidebar sebagai navigasi utama.
+
+Dokumen information architecture disimpan di `docs/frontend/information-architecture.md`.
 
 Rencana struktur menu awal:
 
@@ -377,7 +379,7 @@ Keputusan ini akan memengaruhi:
 ## Next Action
 
 ```txt
-Buat file `docs/frontend/information-architecture.md` dan detailkan setiap halaman, fungsi, data yang ditampilkan, serta relasi antar halaman.
+Gunakan `docs/frontend/information-architecture.md` sebagai input FE-03 saat fase FE-03 dimulai.
 ```
 
 ---
@@ -399,13 +401,13 @@ FE-03 — DESIGN.md
 ## Date
 
 ```txt
-TBD
+2026-05-30
 ```
 
 ## Status
 
 ```txt
-Draft
+Approved
 ```
 
 ---
@@ -413,6 +415,8 @@ Draft
 ## Decision
 
 Frontend SentiRank akan menggunakan file `frontend/DESIGN.md` sebagai design specification utama untuk menjaga konsistensi UI dan membantu AI coding agent memahami arah desain project.
+
+Dokumen canonical design specification disimpan di `frontend/DESIGN.md` dengan arah `SentiRank Research Analytics Light`.
 
 ---
 
@@ -475,7 +479,7 @@ Keputusan ini akan memengaruhi:
 ## Next Action
 
 ```txt
-Buat file `frontend/DESIGN.md` berdasarkan visual direction “SentiRank Research Analytics Light”.
+Gunakan `frontend/DESIGN.md` sebagai input FE-04 saat fase FE-04 dimulai.
 ```
 
 ---
@@ -497,13 +501,13 @@ FE-04 — Wireframe
 ## Date
 
 ```txt
-TBD
+2026-05-30
 ```
 
 ## Status
 
 ```txt
-Draft
+Approved
 ```
 
 ---
@@ -511,6 +515,8 @@ Draft
 ## Decision
 
 Wireframe SentiRank akan menggunakan struktur dashboard shell dengan sidebar kiri, topbar, page header, summary section, dan content cards.
+
+Dokumen textual wireframe disimpan di `docs/frontend/wireframes.md`.
 
 ---
 
@@ -567,7 +573,7 @@ Keputusan ini akan memengaruhi:
 ## Next Action
 
 ```txt
-Buat file `docs/frontend/wireframes.md` berisi wireframe tekstual untuk setiap halaman utama.
+Gunakan `docs/frontend/wireframes.md` sebagai input FE-05 saat fase FE-05 dimulai.
 ```
 
 ---
@@ -589,13 +595,13 @@ FE-05 — Component Map
 ## Date
 
 ```txt
-TBD
+2026-05-30
 ```
 
 ## Status
 
 ```txt
-Draft
+Approved
 ```
 
 ---
@@ -603,6 +609,8 @@ Draft
 ## Decision
 
 Frontend SentiRank akan menggunakan komponen reusable untuk menjaga konsistensi dan mengurangi duplikasi kode.
+
+Dokumen component map disimpan di `docs/frontend/component-map.md`.
 
 Komponen awal yang direncanakan:
 
@@ -673,7 +681,7 @@ Keputusan ini akan memengaruhi:
 ## Next Action
 
 ```txt
-Buat `docs/frontend/component-map.md` dan definisikan tanggung jawab setiap komponen.
+Gunakan `docs/frontend/component-map.md` sebagai input FE-06 saat fase FE-06 dimulai.
 ```
 
 ---
@@ -695,13 +703,13 @@ FE-06 — NextJS Setup
 ## Date
 
 ```txt
-TBD
+2026-05-30
 ```
 
 ## Status
 
 ```txt
-Draft
+Approved
 ```
 
 ---
@@ -766,7 +774,7 @@ Keputusan ini akan memengaruhi:
 ## Next Action
 
 ```txt
-Setup project NextJS pada folder `frontend/`.
+Gunakan setup NextJS di `frontend/` sebagai foundation FE-07 saat fase mock data dan types dimulai.
 ```
 
 ---
@@ -788,13 +796,13 @@ FE-07 — Mock Data and Types
 ## Date
 
 ```txt
-TBD
+2026-05-30
 ```
 
 ## Status
 
 ```txt
-Draft
+Approved
 ```
 
 ---
@@ -850,7 +858,7 @@ Keputusan ini akan memengaruhi:
 ## Next Action
 
 ```txt
-Buat TypeScript types untuk Review, SentimentResult, AspectResult, AhpResult, FuzzyAhpResult, ModelMetric, dan ApiResponse.
+Gunakan TypeScript types dan mock data FE-07 sebagai input FE-08 saat fase main layout dimulai.
 ```
 
 ---
@@ -872,13 +880,13 @@ FE-08 — Layout Utama
 ## Date
 
 ```txt
-TBD
+2026-05-30
 ```
 
 ## Status
 
 ```txt
-Draft
+Approved
 ```
 
 ---
@@ -928,7 +936,7 @@ Keputusan ini akan memengaruhi:
 ## Next Action
 
 ```txt
-Implementasikan layout utama setelah NextJS setup selesai.
+Gunakan layout utama FE-08 sebagai foundation FE-09 saat fase dashboard dimulai.
 ```
 
 ---
@@ -950,13 +958,13 @@ FE-09 — Dashboard
 ## Date
 
 ```txt
-TBD
+2026-05-30
 ```
 
 ## Status
 
 ```txt
-Draft
+Approved
 ```
 
 ---
@@ -987,6 +995,7 @@ Negative Aspect Ranking Chart
 Model Performance Summary
 AHP/Fuzzy AHP Priority Preview
 Latest Negative Reviews Table
+Short Recommendation Summary
 ```
 
 ---
@@ -1017,7 +1026,7 @@ Keputusan ini akan memengaruhi:
 ## Next Action
 
 ```txt
-Implementasikan dashboard setelah layout utama selesai.
+Gunakan dashboard FE-09 sebagai input FE-10 saat fase core pages dimulai.
 ```
 
 ---
@@ -1039,26 +1048,28 @@ FE-10 — Core Pages
 ## Date
 
 ```txt
-TBD
+2026-06-02
 ```
 
 ## Status
 
 ```txt
-Draft
+Approved
 ```
 
 ---
 
 ## Decision
 
-Core pages yang akan dibuat setelah dashboard adalah Dataset, Sentiment Analysis, Aspect Classification, Model Evaluation, dan Reports.
+Core pages SentiRank dibuat setelah dashboard sebagai halaman mock-first untuk Dataset, Scraping, Preprocessing, Sentiment Analysis, Aspect Classification, Model Evaluation, Reports, dan Settings.
+
+Route AHP / Fuzzy AHP tetap tersedia hanya sebagai placeholder FE-11 agar navigasi lengkap tanpa memulai prototype penuh.
 
 ---
 
 ## Reason
 
-Halaman tersebut merupakan inti sistem dan relatif lebih stabil dibandingkan AHP/Fuzzy AHP yang masih dalam pengembangan metodologis.
+Halaman tersebut merupakan inti alur demo skripsi dan relatif stabil untuk dibangun dengan mock data sebelum integrasi API. AHP/Fuzzy AHP masih dipisahkan karena detail prototype, matrix, pairwise input, dan kalkulasi metode penuh didefer ke FE-11.
 
 ---
 
@@ -1066,10 +1077,13 @@ Halaman tersebut merupakan inti sistem dan relatif lebih stabil dibandingkan AHP
 
 ```txt
 Dataset
+Scraping
+Preprocessing
 Sentiment Analysis
 Aspect Classification
 Model Evaluation
 Reports
+Settings
 ```
 
 ---
@@ -1078,7 +1092,6 @@ Reports
 
 ```txt
 AHP / Fuzzy AHP final implementation
-Settings advanced
 API integration final
 ```
 
@@ -1086,14 +1099,14 @@ API integration final
 
 ## Impact
 
-Keputusan ini menjaga pengembangan frontend tetap paralel tanpa tergantung penuh pada finalisasi metode AHP/Fuzzy AHP.
+Keputusan ini menjaga pengembangan frontend tetap paralel tanpa tergantung penuh pada finalisasi metode AHP/Fuzzy AHP, sekaligus menyediakan route inti yang siap digunakan untuk demo skripsi.
 
 ---
 
 ## Next Action
 
 ```txt
-Buat halaman core menggunakan mock data dan komponen reusable.
+Lanjut ke FE-11 untuk membuat prototype AHP/Fuzzy AHP yang fleksibel, data-driven, dan tetap tidak melakukan real API call sampai FE-12.
 ```
 
 ---
@@ -1115,26 +1128,26 @@ FE-11 — AHP/Fuzzy AHP Prototype
 ## Date
 
 ```txt
-TBD
+2026-06-02
 ```
 
 ## Status
 
 ```txt
-Draft
+Approved
 ```
 
 ---
 
 ## Decision
 
-Halaman AHP/Fuzzy AHP akan dibuat sebagai prototype fleksibel dan data-driven terlebih dahulu.
+Halaman AHP/Fuzzy AHP dibuat sebagai frontend prototype fleksibel dan data-driven menggunakan mock data, tanpa real API call dan tanpa kalkulasi AHP/Fuzzy AHP aktual di frontend.
 
 ---
 
 ## Reason
 
-Phase 10A AHP/Fuzzy AHP masih berjalan paralel. Karena itu, frontend tidak boleh mengunci struktur final criteria, pairwise comparison, TFN, consistency ratio, dan final ranking sebelum metode selesai.
+Phase metodologi AHP/Fuzzy AHP masih berjalan paralel. Karena itu, frontend tidak boleh mengunci struktur final criteria, pairwise comparison, TFN, Consistency Ratio, dan final ranking sebelum backend calculation service dan metodologi final siap.
 
 ---
 
@@ -1142,6 +1155,22 @@ Phase 10A AHP/Fuzzy AHP masih berjalan paralel. Karena itu, frontend tidak boleh
 
 ```txt
 Flexible mock-based AHP/Fuzzy AHP prototype
+```
+
+## Selected Prototype Sections
+
+```txt
+Page Header
+Method Overview
+Criteria Setup Preview
+Expert Judgement / Pairwise Comparison Preview
+AHP Pairwise Comparison Matrix
+Consistency Ratio Card
+AHP Weight Result
+Fuzzy AHP Weight Result
+AHP vs Fuzzy AHP Ranking Comparison
+Final Recommendation Summary
+Method Limitation / Prototype Note
 ```
 
 ---
@@ -1171,6 +1200,10 @@ Keputusan ini akan memengaruhi:
 - `types/fuzzy-ahp.ts`
 - `MatrixTable`
 - `RankingCard`
+- `RecommendationCard`
+- `ConsistencyBadge`
+- `PairwiseComparisonInput`
+- `CriteriaEditor`
 - AHP/Fuzzy AHP page
 - API contract untuk calculation service
 
@@ -1179,7 +1212,7 @@ Keputusan ini akan memengaruhi:
 ## Next Action
 
 ```txt
-Buat prototype halaman AHP/Fuzzy AHP menggunakan mock criteria, mock pairwise matrix, mock consistency ratio, dan mock ranking comparison.
+Lanjut ke FE-12 untuk menyiapkan API contract dan integration preparation tanpa mengubah frontend prototype menjadi calculation service.
 ```
 
 ---
@@ -1201,26 +1234,28 @@ FE-12 — API Integration Preparation
 ## Date
 
 ```txt
-TBD
+2026-06-02
 ```
 
 ## Status
 
 ```txt
-Draft
+Approved
 ```
 
 ---
 
 ## Decision
 
-Frontend akan menyiapkan API client dan API contract sebelum integrasi penuh dengan FastAPI.
+Frontend menyiapkan API client, endpoint constants, environment variable, dan service layer typed sebelum integrasi penuh dengan FastAPI.
+
+Keputusan ini tidak mengubah halaman yang masih mock-first. Service functions disiapkan sebagai kontrak awal dan belum dipanggil oleh Dashboard, core pages, atau AHP/Fuzzy AHP prototype.
 
 ---
 
 ## Reason
 
-Frontend dan backend berjalan paralel. API contract dibutuhkan agar integrasi tidak dilakukan secara improvisasi.
+Frontend dan backend berjalan paralel. API contract dibutuhkan agar integrasi tidak dilakukan secara improvisasi dan agar migrasi dari mock data ke real API dapat dilakukan bertahap per halaman.
 
 ---
 
@@ -1237,6 +1272,8 @@ API contract-first integration preparation
 ```txt
 Review API
 Dataset API
+Scraping API
+Preprocessing API
 Sentiment API
 Aspect API
 Model Evaluation API
@@ -1269,6 +1306,8 @@ Keputusan ini akan memengaruhi:
 
 - `lib/api.ts`
 - `lib/http-client.ts`
+- `lib/api-endpoints.ts`
+- `services/`
 - `types/api.ts`
 - environment variable frontend
 - backend endpoint documentation
@@ -1279,7 +1318,7 @@ Keputusan ini akan memengaruhi:
 ## Next Action
 
 ```txt
-Buat API contract draft dan HTTP client wrapper setelah mock data/types stabil.
+Gunakan service layer FE-12 sebagai dasar migrasi mock-to-real pada fase integrasi berikutnya. Jangan memanggil API dari pages sebelum kontrak backend disetujui.
 ```
 
 ---
