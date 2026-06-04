@@ -2,6 +2,7 @@ export const API_ENDPOINTS = {
   reviews: {
     base: "/api/reviews",
     list: "/api/reviews",
+    random: "/reviews/random",
   },
   dataset: {
     base: "/api/dataset",

@@ -3,6 +3,8 @@ import { httpClient } from "@/lib/http-client";
 import type {
   ApiResponse,
   PaginatedResponse,
+  RandomReviewQuery,
+  RandomReviewResponse,
   Review,
   ReviewListQuery,
 } from "@/types";
@@ -13,5 +15,18 @@ export function getReviews(
 ): Promise<ApiResponse<PaginatedResponse<Review>>> {
   return httpClient.get<PaginatedResponse<Review>>(API_ENDPOINTS.reviews.list, {
     query,
+  });
+}
+
+export function getRandomReviews(
+  params: RandomReviewQuery = {},
+): Promise<ApiResponse<RandomReviewResponse>> {
+  return httpClient.get<RandomReviewResponse>(API_ENDPOINTS.reviews.random, {
+    query: {
+      aspect: params.aspect,
+      limit: params.limit,
+      sentiment: params.sentiment,
+      with_aspect: params.withAspect,
+    },
   });
 }

@@ -2,6 +2,7 @@ import { ChartCard } from "@/components/cards/ChartCard";
 import { StatCard } from "@/components/cards/StatCard";
 import { SummaryCard } from "@/components/cards/SummaryCard";
 import { AppShell, PageHeader } from "@/components/layout";
+import { RandomReviewSamplesSection } from "@/components/tables/RandomReviewSamplesSection";
 import { SimpleTable } from "@/components/tables/SimpleTable";
 import { researchResults } from "@/lib/research-results";
 import { researchSampleReviews } from "@/lib/research-sample-reviews";
@@ -173,53 +174,12 @@ export default function ScrapingPage() {
         />
       </ChartCard>
 
-      <ChartCard
-        description="Sampel kecil berasal dari dataset riset; dataset mentah penuh tidak dimuat ke frontend."
+      <RandomReviewSamplesSection
+        description="Pratinjau sampel acak dari dataset riset Spotify. Refresh akan mengambil sampel baru dari backend jika ml-service aktif."
+        fallbackReviews={researchSampleReviews}
+        query={{ limit: 10 }}
         title="Pratinjau Sampel Ulasan Riset"
-      >
-        <SimpleTable
-          columns={[
-            {
-              key: "text",
-              header: "Ulasan Mentah",
-              className: "max-w-[420px]",
-              render: (row) => (
-                <div>
-                  <p className="line-clamp-2 font-medium leading-6 text-foreground">
-                    {row.text}
-                  </p>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                  Sampel real dataset riset
-                  </p>
-                </div>
-              ),
-            },
-            {
-              key: "rating",
-              header: "Rating",
-              align: "right",
-              render: (row) => `${row.rating}/5`,
-            },
-            {
-              key: "date",
-              header: "Tanggal",
-              render: (row) => formatDate(row.reviewDate),
-            },
-            {
-              key: "status",
-              header: "Status",
-              render: () => (
-                <span className="rounded-md border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-medium text-slate-700">
-                  Sampel riset
-                </span>
-              ),
-            },
-          ]}
-          data={researchSampleReviews}
-          minWidthClassName="min-w-[760px]"
-          rowKey={(row) => row.id}
-        />
-      </ChartCard>
+      />
     </AppShell>
   );
 }

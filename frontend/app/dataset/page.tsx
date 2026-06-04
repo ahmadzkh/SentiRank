@@ -10,7 +10,7 @@ import { SentimentDistributionChart } from "@/components/charts/SentimentDistrib
 import type { SentimentDistributionDatum } from "@/components/charts/SentimentDistributionChart";
 import { TextLengthHistogramChart } from "@/components/charts/TextLengthHistogramChart";
 import { AppShell, PageHeader } from "@/components/layout";
-import { ReviewTable } from "@/components/tables/ReviewTable";
+import { RandomReviewSamplesSection } from "@/components/tables/RandomReviewSamplesSection";
 import { SimpleTable } from "@/components/tables/SimpleTable";
 import type { SimpleTableColumn } from "@/components/tables/SimpleTable";
 import { SENTIMENT_LABELS, SENTIMENT_META } from "@/constants/sentiment";
@@ -558,12 +558,12 @@ export default function DatasetPage() {
         </ChartCard>
       </section>
 
-      <ChartCard
-        description="Sampel kecil dari dataset riset dipusatkan di `frontend/lib/research-sample-reviews.ts`; external_id asli tidak ditampilkan."
+      <RandomReviewSamplesSection
+        description="Sampel acak dari dataset riset. Jika backend tidak aktif, tabel memakai fallback sampel riset lokal tanpa menampilkan external_id asli."
+        fallbackReviews={researchSampleReviews}
+        query={{ limit: 10, withAspect: true }}
         title="Sampel Ulasan Riset"
-      >
-        <ReviewTable reviews={researchSampleReviews} />
-      </ChartCard>
+      />
     </AppShell>
   );
 }

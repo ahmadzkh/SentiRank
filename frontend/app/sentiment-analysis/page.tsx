@@ -5,15 +5,14 @@ import { SentimentBadge } from "@/components/badges/SentimentBadge";
 import { SentimentDistributionChart } from "@/components/charts/SentimentDistributionChart";
 import type { SentimentDistributionDatum } from "@/components/charts/SentimentDistributionChart";
 import { AppShell, PageHeader } from "@/components/layout";
-import { SimpleTable } from "@/components/tables/SimpleTable";
+import { RandomReviewSamplesSection } from "@/components/tables/RandomReviewSamplesSection";
 import { SENTIMENT_LABELS, SENTIMENT_META } from "@/constants/sentiment";
 import { researchResults } from "@/lib/research-results";
-import { researchSentimentPredictionSamples } from "@/lib/research-sample-reviews";
+import {
+  researchSampleReviews,
+  researchSentimentPredictionSamples,
+} from "@/lib/research-sample-reviews";
 import type { ReviewSentimentLabel } from "@/types/sentiment";
-
-function formatPercent(value: number) {
-  return `${Math.round(value * 100)}%`;
-}
 
 function formatMetricPercent(value: number) {
   return `${(value * 100).toFixed(2)}%`;
@@ -162,55 +161,12 @@ export default function SentimentAnalysisPage() {
         <SentimentDistributionChart data={sentimentDistributionData} />
       </ChartCard>
 
-      <ChartCard
-        description="Sampel kecil dari `indobert_test_predictions.csv`; bukan panggilan API runtime."
+      <RandomReviewSamplesSection
+        description="Sampel acak dari dataset riset dengan label sentimen final. Refresh akan mengambil sampel baru dari backend jika tersedia."
+        fallbackReviews={researchSampleReviews}
+        query={{ limit: 10 }}
         title="Tabel Sampel Prediksi Sentimen Riset"
-      >
-        <SimpleTable
-          columns={[
-            {
-              key: "review",
-              header: "Ulasan",
-              className: "max-w-[420px]",
-              render: (row) => (
-                <p className="line-clamp-2 font-medium leading-6 text-foreground">
-                  {row.reviewText}
-                </p>
-              ),
-            },
-            {
-              key: "label",
-              header: "Label",
-              render: (row) => <SentimentBadge sentiment={row.predictedLabel} />,
-            },
-            {
-              key: "finalLabel",
-              header: "Final",
-              render: (row) => <SentimentBadge sentiment={row.finalLabel} />,
-            },
-            {
-              key: "confidence",
-              header: "Confidence",
-              align: "right",
-              render: (row) => formatMetricPercent(row.confidence),
-            },
-            {
-              key: "probability",
-              header: "Probabilitas",
-              render: (row) => (
-                <span className="text-xs leading-5 text-muted-foreground">
-                  Positif {formatPercent(row.probabilities.positive)} / Netral{" "}
-                  {formatPercent(row.probabilities.neutral)} / Negatif{" "}
-                  {formatPercent(row.probabilities.negative)}
-                </span>
-              ),
-            },
-          ]}
-          data={researchSentimentPredictionSamples}
-          minWidthClassName="min-w-[940px]"
-          rowKey={(row) => row.id}
-        />
-      </ChartCard>
+      />
     </AppShell>
   );
 }

@@ -107,7 +107,7 @@ function classifyAxiosError<TData>(
   if (status === 404) {
     return createErrorResponse<TData>(
       "ENDPOINT_NOT_FOUND",
-      `404 endpoint mismatch: ${endpoint} tidak ditemukan di backend. Pastikan frontend tidak memanggil /api/ahp dan backend menyediakan route /ahp.`,
+      `404 endpoint mismatch: ${endpoint} tidak ditemukan di backend. Pastikan route frontend sesuai endpoint FastAPI yang tersedia.`,
       {
         baseUrl,
         endpoint,

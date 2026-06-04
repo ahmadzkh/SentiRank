@@ -1,7 +1,7 @@
 export type { AhpCriterion, AhpCriterionSource, AhpConsistencyStatus, AhpRankedCriterion, AhpResult, PairwiseComparison } from "./ahp";
 export type { AhpDemoRunLabel, BackendAhpCalculateRequest, BackendAhpCalculateResponse, BackendAhpComparisonItem, BackendAhpComparisonRequest, BackendAhpComparisonResponse, BackendAhpComparisonSummary, BackendAhpCriterion, BackendAhpCriterionWeight, BackendAhpPairwiseComparison, BackendFuzzyAhpCalculateRequest, BackendFuzzyAhpCalculateResponse, BackendFuzzyAhpCriterionWeight, BackendFuzzyAhpPairwiseComparison, BackendFuzzyTriangularNumber } from "./ahp-api";
 export { AHP_DEMO_RUN_LABEL } from "./ahp-api";
-export type { AhpCalculationRequest, ApiError, ApiQueryParams, ApiQueryValue, ApiRequestOptions, ApiResponse, DatasetSummary, FuzzyAhpCalculationRequest, PaginatedResponse, PaginationMeta, PreprocessingSummary, ReviewListQuery, ScrapingSummary, TextAnalysisRequest } from "./api";
+export type { AhpCalculationRequest, ApiError, ApiQueryParams, ApiQueryValue, ApiRequestOptions, ApiResponse, DatasetSummary, FuzzyAhpCalculationRequest, PaginatedResponse, PaginationMeta, PreprocessingSummary, RandomReviewQuery, RandomReviewResponse, ResearchReviewSample, ReviewListQuery, ScrapingSummary, TextAnalysisRequest } from "./api";
 export type { AspectLabel, AspectResult, AspectSummary } from "./aspect";
 export type { EvaluationModelSummary, EvaluationSummary, ConfusionMatrix, ConfusionMatrixRow, MetricFormat, ModelMetric, ModelTask } from "./evaluation";
 export type { FuzzyAhpRankedCriterion, FuzzyAhpResult, FuzzyAhpStatus, FuzzyScaleOption, FuzzyTriangularNumber } from "./fuzzy-ahp";

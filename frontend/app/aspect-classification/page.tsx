@@ -1,14 +1,12 @@
-import { AspectBadge } from "@/components/badges/AspectBadge";
-import { SentimentBadge } from "@/components/badges/SentimentBadge";
 import { ChartCard } from "@/components/cards/ChartCard";
 import { StatCard } from "@/components/cards/StatCard";
 import { SummaryCard } from "@/components/cards/SummaryCard";
 import { AspectRankingChart } from "@/components/charts/AspectRankingChart";
 import type { AspectRankingDatum } from "@/components/charts/AspectRankingChart";
 import { AppShell, PageHeader } from "@/components/layout";
-import { SimpleTable } from "@/components/tables/SimpleTable";
+import { RandomReviewSamplesSection } from "@/components/tables/RandomReviewSamplesSection";
 import { researchResults } from "@/lib/research-results";
-import { researchAspectSampleResults } from "@/lib/research-sample-reviews";
+import { researchSampleReviews } from "@/lib/research-sample-reviews";
 
 const aspectRankingData =
   researchResults.aspectSummary.mergedAspectDistribution.map((aspect) => ({
@@ -93,63 +91,12 @@ export default function AspectClassificationPage() {
         </SummaryCard>
       </section>
 
-      <ChartCard
-        description="Sampel kecil dari dataset aspek weak-label; bukan ground truth expert dan bukan inferensi runtime frontend."
+      <RandomReviewSamplesSection
+        description="Sampel acak dari dataset riset yang memiliki label aspek. Refresh akan mengambil sampel baru dari backend jika ml-service aktif."
+        fallbackReviews={researchSampleReviews}
+        query={{ limit: 10, withAspect: true }}
         title="Tabel Sampel Aspek Riset"
-      >
-        <SimpleTable
-          columns={[
-            {
-              key: "review",
-              header: "Ulasan",
-              className: "max-w-[420px]",
-              render: (row) => (
-                <p className="line-clamp-2 font-medium leading-6 text-foreground">
-                  {row.reviewText}
-                </p>
-              ),
-            },
-            {
-              key: "aspect",
-              header: "Aspek",
-              render: (row) => (
-                <div className="space-y-1">
-                  <AspectBadge aspect={row.aspectLabel} />
-                  <p className="text-xs text-muted-foreground">
-                    {row.sourceAspectLabel}
-                  </p>
-                </div>
-              ),
-            },
-            {
-              key: "sentiment",
-              header: "Sentimen",
-              render: (row) => <SentimentBadge sentiment={row.sentimentLabel} />,
-            },
-            {
-              key: "confidence",
-              header: "Confidence",
-              render: (row) => (
-                <span className="rounded-md border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-medium capitalize text-slate-700">
-                  {row.confidenceLevel}
-                </span>
-              ),
-            },
-            {
-              key: "evidence",
-              header: "Bukti Keyword",
-              render: (row) => (
-                <span className="text-xs leading-5 text-muted-foreground">
-                  {row.evidenceTerms.join(", ")}
-                </span>
-              ),
-            },
-          ]}
-          data={researchAspectSampleResults}
-          minWidthClassName="min-w-[940px]"
-          rowKey={(row) => row.id}
-        />
-      </ChartCard>
+      />
     </AppShell>
   );
 }

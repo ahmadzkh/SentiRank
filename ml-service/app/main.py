@@ -11,6 +11,7 @@ from app.routers import (
     preprocessing,
     ranking,
     ranking_comparison,
+    reviews,
     sentiment,
 )
 
@@ -42,3 +43,4 @@ app.include_router(ahp.router)
 app.include_router(fuzzy_ahp.router)
 app.include_router(ranking.router)
 app.include_router(ranking_comparison.router)
+app.include_router(reviews.router)

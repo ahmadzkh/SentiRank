@@ -1602,6 +1602,54 @@ Gunakan FE-15 sebagai dasar demo berbasis research summary. Integrasi API halama
 
 ---
 
+# FE-15D — Random Research Review Samples Integration
+
+## Decision ID
+
+```txt
+FE-15-D02
+```
+
+## Phase
+
+```txt
+FE-15D — Random Research Review Samples Integration
+```
+
+## Date
+
+```txt
+2026-06-04
+```
+
+## Status
+
+```txt
+Approved
+```
+
+## Decision
+
+Frontend target pages may request random review samples from a minimal backend endpoint:
+
+```txt
+GET /reviews/random
+```
+
+The endpoint reads `datasets/processed/reviews_with_aspect_labels_refined.csv`, returns only limited random samples, hashes identifiers before returning them to the UI, and preserves local research-sample fallback when the backend is offline.
+
+## Reason
+
+Supervisor demo pages need varied real review samples without loading large processed CSV files into frontend page components. A small backend endpoint keeps the frontend API-contract-ready while avoiding new model inference, scraping, training, Prisma/auth changes, or AHP/Fuzzy AHP calculation changes.
+
+## Implementation Boundary
+
+```txt
+Runtime random review sample integration only. No backend calculation logic changes, no model training, no schema migration, no auth/session/userId change, and no removal of mock fallback behavior.
+```
+
+---
+
 # Final Notes
 
 Dokumen ini akan diperbarui setiap kali terdapat keputusan desain baru pada frontend SentiRank. Setiap keputusan yang berdampak pada struktur UI, design system, komponen, route, atau integrasi harus dicatat agar proses pengembangan dapat diaudit dan dijelaskan kembali dalam dokumentasi skripsi.

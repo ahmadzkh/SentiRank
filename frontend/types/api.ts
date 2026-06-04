@@ -55,6 +55,32 @@ export interface ReviewListQuery {
   aspect?: AspectLabel;
 }
 
+export interface RandomReviewQuery {
+  limit?: number;
+  sentiment?: string;
+  aspect?: string;
+  withAspect?: boolean;
+}
+
+export interface ResearchReviewSample {
+  id: string;
+  reviewText: string;
+  rating: number | null;
+  sentiment: string | null;
+  aspect: string | null;
+  reviewedAt: string | null;
+  source: string | null;
+  aspectConfidence?: string | null;
+  keywords?: string[];
+}
+
+export interface RandomReviewResponse {
+  items: ResearchReviewSample[];
+  source: string;
+  limit: number;
+  count: number;
+}
+
 export interface TextAnalysisRequest {
   text: string;
   reviewId?: string;

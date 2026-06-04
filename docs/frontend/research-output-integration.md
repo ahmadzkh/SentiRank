@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Dokumen ini mencatat integrasi ringkasan output riset ke frontend SentiRank untuk kebutuhan demo skripsi. FE-15 mengganti data mock generik pada halaman utama dengan ringkasan dari artefak proyek, tetapi tetap mempertahankan mock fallback untuk tabel/preview yang belum memiliki data baris penuh di frontend.
+Dokumen ini mencatat integrasi ringkasan output riset ke frontend SentiRank untuk kebutuhan demo skripsi. FE-15 mengganti data mock generik pada halaman utama dengan ringkasan dari artefak proyek, memakai sampel riset nyata untuk tabel kecil, dan tetap mempertahankan fallback lokal ketika backend demo tidak aktif.
 
 ## Source Artifacts Inspected
 
@@ -95,7 +95,7 @@ Ringkasan riset dipusatkan di `frontend/lib/research-results.ts`.
 
 - Contoh before/after text preprocessing spesifik belum ditemukan sebagai artefak ringkas frontend, sehingga ditandai `TBD` dan `Belum tersedia di artefak frontend`.
 - Final expert judgement AHP/Fuzzy AHP belum tersedia. Output AHP/Fuzzy AHP FE-13 tetap `sample_development_only`, `not_final_expert_judgement`, dan bukan hasil final skripsi.
-- Dataset mentah baris penuh tidak dimuat ke frontend pada FE-15; tabel ulasan tetap memakai mock fallback.
+- Dataset mentah baris penuh tidak dimuat ke frontend pada FE-15; tabel ulasan memakai sampel riset kecil atau endpoint random review yang hanya mengembalikan limit sampel.
 
 ## Affected Pages
 
@@ -110,7 +110,7 @@ Ringkasan riset dipusatkan di `frontend/lib/research-results.ts`.
 
 ## Limitations
 
-- FE-15 hanya mengintegrasikan ringkasan riset, bukan real API halaman dataset/sentimen/aspek.
+- FE-15 hanya mengintegrasikan ringkasan riset dan endpoint sampel random terbatas, bukan integrasi API penuh untuk halaman dataset/sentimen/aspek.
 - FE-15 tidak melakukan training model dan tidak menjalankan notebook.
 - FE-15 tidak mengubah backend calculation logic, Prisma schema, migration, auth, userId/sessionId, atau service AHP/Fuzzy AHP.
 - Mock fallback tetap dipertahankan untuk UI preview yang belum memiliki artefak data baris penuh.
@@ -298,6 +298,104 @@ Sampel hanya memuat baris kecil untuk UI. `external_id` asli tidak diekspos di f
 - Sampel aspek berasal dari weak-label refinement, bukan ground truth expert.
 - Beberapa teks review real dapat mengandung gaya bahasa pengguna asli; FE-15C memilih sampel yang lebih aman untuk presentasi dan tidak mengekspos identifier asli.
 - Data masih statis di frontend dan belum dimigrasikan ke service/API runtime.
+
+## FE-15D — Random Research Review Samples Integration
+
+### Files Inspected
+
+- `ml-service/app/main.py`
+- `ml-service/app/routers/*`
+- `ml-service/app/services/*`
+- `ml-service/app/schemas/*`
+- `datasets/processed/reviews_with_aspect_labels_refined.csv`
+- `frontend/lib/api-endpoints.ts`
+- `frontend/services/review-service.ts`
+- `frontend/types/api.ts`
+- `frontend/lib/research-sample-reviews.ts`
+- `frontend/app/dataset/page.tsx`
+- `frontend/app/scraping/page.tsx`
+- `frontend/app/sentiment-analysis/page.tsx`
+- `frontend/app/aspect-classification/page.tsx`
+
+### Real Dataset Source Used
+
+FE-15D memakai dataset processed berikut sebagai sumber backend random samples:
+
+```txt
+datasets/processed/reviews_with_aspect_labels_refined.csv
+```
+
+File ini dipilih karena memuat teks ulasan, rating, sentimen final, aspek refined, tanggal review, sumber, confidence aspek, dan keyword evidence. `external_id` asli tidak dikembalikan ke frontend; backend membuat ID aman berbasis hash.
+
+### Backend Endpoint Created
+
+Endpoint minimal yang dibuat:
+
+```txt
+GET /reviews/random?limit=10
+GET /reviews/random?limit=10&with_aspect=true
+GET /reviews/random?limit=10&sentiment=negative
+GET /reviews/random?limit=10&aspect=Ads
+```
+
+Response envelope mengikuti gaya SentiRank:
+
+```json
+{
+  "success": true,
+  "message": "Random research review samples loaded.",
+  "data": {
+    "items": [],
+    "source": "datasets/processed/reviews_with_aspect_labels_refined.csv",
+    "limit": 10,
+    "count": 10
+  }
+}
+```
+
+### Frontend Pages Updated
+
+- `/dataset`: section `Sampel Ulasan Riset`
+- `/scraping`: section `Pratinjau Sampel Ulasan Riset`
+- `/sentiment-analysis`: section `Tabel Sampel Prediksi Sentimen Riset`
+- `/aspect-classification`: section `Tabel Sampel Aspek Riset`
+
+Setiap section memakai tombol `Refresh Sampel`, metadata sumber data, jumlah sampel, status backend/fallback, dan tabel full-width satu row per section.
+
+### Fields Mapped
+
+- `id`: hash aman dari identifier/source row, bukan `external_id` asli.
+- `reviewText`: `content`, fallback ke `text_indobert` atau `text_svm`.
+- `rating`: nilai rating jika tersedia.
+- `sentiment`: `final_sentiment`, fallback ke `initial_sentiment`.
+- `aspect`: `aspect_label` refined jika tersedia.
+- `reviewedAt`: `reviewed_at`.
+- `source`: `source`, fallback ke `app_id` atau path dataset.
+- `aspectConfidence`: `aspect_label_confidence`.
+- `keywords`: `aspect_keywords_matched` dipisahkan per token.
+
+### Fallback Behavior
+
+Jika backend offline, base URL belum dikonfigurasi, endpoint gagal, atau request validasi gagal, frontend menampilkan pesan:
+
+```txt
+Backend API belum aktif. Jalankan ml-service terlebih dahulu.
+```
+
+Tabel tetap terlihat dengan fallback dari:
+
+```txt
+frontend/lib/research-sample-reviews.ts
+```
+
+Fallback ini berisi sampel riset nyata kecil dari FE-15C, bukan mock FE-07, dan diberi label sebagai fallback lokal.
+
+### Remaining Limitations
+
+- Endpoint ini hanya endpoint demo terbatas untuk sampel random, bukan API dataset penuh.
+- Sampel acak tidak menjamin distribusi kelas yang seimbang pada setiap refresh.
+- Browser tetap membutuhkan `NEXT_PUBLIC_API_BASE_URL` yang mengarah ke ml-service.
+- FE-15D tidak mengganti FE-13 AHP/Fuzzy AHP API demo, tidak menjalankan training, dan tidak mengubah kalkulasi backend.
 
 ## Next Phase Recommendation
 

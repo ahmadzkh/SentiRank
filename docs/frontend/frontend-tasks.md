@@ -1046,8 +1046,14 @@ Mengganti data mock generik pada halaman utama dengan ringkasan output riset yan
 - [x] FE-15C: Pastikan tabel besar memakai layout full-width satu row per section.
 - [x] FE-15C: Perbaiki overflow teks panjang pada card/table.
 - [x] FE-15C: Dokumentasikan mock/fallback yang dihapus dan yang masih tersisa.
+- [x] FE-15D: Audit backend review route, service, schema, dan dataset processed yang tersedia.
+- [x] FE-15D: Tambahkan endpoint `GET /reviews/random` untuk sampel acak riset.
+- [x] FE-15D: Tambahkan frontend API endpoint, service `getRandomReviews`, dan tipe random review.
+- [x] FE-15D: Tambahkan tabel sampel refreshable pada Dataset, Scraping, Sentiment Analysis, dan Aspect Classification.
+- [x] FE-15D: Pertahankan fallback sampel riset lokal jika backend offline atau endpoint gagal.
 - [x] Jalankan `npm run lint`.
 - [x] Jalankan `npm run build`.
+- [x] Jalankan `uv run pytest` setelah perubahan backend.
 
 ### Acceptance Criteria
 
@@ -1071,12 +1077,17 @@ Mengganti data mock generik pada halaman utama dengan ringkasan output riset yan
 - [x] FE-15C menghapus review/sentiment/aspect mock tables dari halaman Dataset, Dashboard, Scraping, Sentiment Analysis, dan Aspect Classification.
 - [x] FE-15C mengurangi kartu metrik berulang, terutama pada Model Evaluation.
 - [x] FE-15C menjaga AHP/Fuzzy AHP sample development warning dan mock fallback backend offline.
+- [x] FE-15D menyediakan endpoint `GET /reviews/random?limit=10` dengan envelope `{ success, message, data }`.
+- [x] FE-15D mengembalikan hanya sampel acak, tidak memuat dataset penuh ke frontend page components, dan tidak mengekspos `external_id` asli.
+- [x] FE-15D memetakan sampel ke `id`, `reviewText`, `rating`, `sentiment`, `aspect`, `reviewedAt`, dan `source`.
+- [x] FE-15D menyediakan tombol `Refresh Sampel`, status backend/fallback, sumber data, dan jumlah sampel pada empat halaman target.
 - [x] `npm run lint` berhasil.
 - [x] `npm run build` berhasil.
+- [x] `uv run pytest` berhasil.
 
 ### Completion Note
 
-Completed on 2026-06-04. FE-15 adds centralized research output data in `frontend/lib/research-results.ts`, updates the primary demo pages to use research summary metrics from project artifacts, preserves mock fallback and FE-13 AHP/Fuzzy AHP API demo behavior, documents unavailable/TBD data, and validates the frontend with lint/build. FE-15B extends this with `frontend/lib/research-eda-results.ts`, Dataset EDA visualizations, Dashboard/Reports EDA summary cards, and documentation of actual EDA paths and skipped artifacts. FE-15C adds `frontend/lib/research-sample-reviews.ts`, replaces remaining generic review/sentiment/aspect mock tables with small research-backed samples, reduces duplicated UI metrics, and documents remaining fallback areas.
+Completed on 2026-06-04. FE-15 adds centralized research output data in `frontend/lib/research-results.ts`, updates the primary demo pages to use research summary metrics from project artifacts, preserves mock fallback and FE-13 AHP/Fuzzy AHP API demo behavior, documents unavailable/TBD data, and validates the frontend with lint/build. FE-15B extends this with `frontend/lib/research-eda-results.ts`, Dataset EDA visualizations, Dashboard/Reports EDA summary cards, and documentation of actual EDA paths and skipped artifacts. FE-15C adds `frontend/lib/research-sample-reviews.ts`, replaces remaining generic review/sentiment/aspect mock tables with small research-backed samples, reduces duplicated UI metrics, and documents remaining fallback areas. FE-15D adds `GET /reviews/random`, refreshable random research sample tables on the four target pages, local research-sample fallback for backend offline mode, and backend validation with `uv run pytest`.
 
 ### Final Decision
 
