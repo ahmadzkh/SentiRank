@@ -35,6 +35,8 @@ Error response:
 
 The frontend calls these API Gateway routes only. Internal service ports must not be exposed to the frontend.
 
+As of MS-05, the public AHP/Fuzzy AHP routes are implemented in `api-gateway-service` and forwarded to `decision-service`. The gateway preserves the decision-service response envelope and does not calculate AHP or Fuzzy AHP directly.
+
 ### AHP and Fuzzy AHP
 
 - `GET /ahp/criteria`

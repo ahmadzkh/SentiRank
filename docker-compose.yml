@@ -25,7 +25,6 @@ services:
       DECISION_SERVICE_URL: ${DECISION_SERVICE_URL:-http://decision-service:8004}
       REPORT_SERVICE_URL: ${REPORT_SERVICE_URL:-http://report-service:8005}
     depends_on:
-      - review-service
       - decision-service
     networks:
       - sentirank-network

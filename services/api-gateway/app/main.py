@@ -1,16 +1,29 @@
-"""Minimal API Gateway service skeleton for MS-03."""
+"""API Gateway service for SentiRank microservice routing."""
 
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
-SERVICE_NAME = "api-gateway-service"
-SERVICE_PORT = 8000
-SERVICE_ROLE = "Public entry point for frontend requests"
+from app.core.config import get_settings
+from app.routers import ahp, health
+
+settings = get_settings()
 
 app = FastAPI(
     title="SentiRank API Gateway Service",
-    version="0.1.0",
-    description="MS-03 skeleton only. Routing will be implemented in MS-05.",
+    version=settings.service_version,
+    description="Frontend-facing API Gateway for SentiRank microservices.",
 )
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=settings.cors_origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+app.include_router(health.router)
+app.include_router(ahp.router)
 
 
 def response(message: str, data: dict | None = None) -> dict:
@@ -24,26 +37,25 @@ def response(message: str, data: dict | None = None) -> dict:
 
 @app.get("/")
 def root() -> dict:
-    """Return a placeholder root response for the gateway skeleton."""
+    """Return gateway metadata and frontend-facing route information."""
     return response(
-        "SentiRank API Gateway skeleton is running.",
+        "SentiRank API Gateway is running.",
         {
-            "service": SERVICE_NAME,
-            "role": SERVICE_ROLE,
-            "business_logic": "not_implemented_in_ms_03",
-        },
-    )
-
-
-@app.get("/health")
-def health() -> dict:
-    """Return health status for Docker Compose checks."""
-    return response(
-        "Service is healthy.",
-        {
-            "service": SERVICE_NAME,
-            "status": "healthy",
-            "port": SERVICE_PORT,
-            "stage": "ms_03_skeleton",
+            "service": settings.service_name,
+            "role": "Single frontend-facing entry point for SentiRank services",
+            "status": "ready",
+            "version": settings.service_version,
+            "gateway_routes": [
+                "GET /",
+                "GET /health",
+                "GET /health/services",
+                "GET /ahp/criteria",
+                "POST /ahp/calculate",
+                "POST /ahp/fuzzy-calculate",
+                "POST /ahp/compare",
+            ],
+            "routing": {
+                "decision-service": settings.decision_service_url,
+            },
         },
     )
