@@ -1,16 +1,21 @@
-"""Minimal decision service skeleton for MS-03."""
+"""Decision service entrypoint for SentiRank AHP and Fuzzy AHP APIs."""
 
 from fastapi import FastAPI
+
+from app.routers import ahp
 
 SERVICE_NAME = "decision-service"
 SERVICE_PORT = 8004
 SERVICE_ROLE = "AHP and Fuzzy AHP decision-support calculations"
+SERVICE_VERSION = "0.1.0"
 
 app = FastAPI(
     title="SentiRank Decision Service",
-    version="0.1.0",
-    description="MS-03 skeleton only. AHP/Fuzzy AHP logic will be extracted in MS-04.",
+    version=SERVICE_VERSION,
+    description="Independent FastAPI service for SentiRank decision-support calculations.",
 )
+
+app.include_router(ahp.router)
 
 
 def response(message: str, data: dict | None = None) -> dict:
@@ -24,13 +29,22 @@ def response(message: str, data: dict | None = None) -> dict:
 
 @app.get("/")
 def root() -> dict:
-    """Return a placeholder root response for the decision service skeleton."""
+    """Return service metadata and available endpoint information."""
     return response(
-        "SentiRank Decision Service skeleton is running.",
+        "SentiRank Decision Service is running.",
         {
             "service": SERVICE_NAME,
             "role": SERVICE_ROLE,
-            "business_logic": "not_extracted_in_ms_03",
+            "status": "ready",
+            "version": SERVICE_VERSION,
+            "available_endpoints": [
+                "GET /",
+                "GET /health",
+                "GET /ahp/criteria",
+                "POST /ahp/calculate",
+                "POST /ahp/fuzzy-calculate",
+                "POST /ahp/compare",
+            ],
         },
     )
 
@@ -39,11 +53,10 @@ def root() -> dict:
 def health() -> dict:
     """Return health status for Docker Compose checks."""
     return response(
-        "Service is healthy.",
+        "Decision service is healthy.",
         {
             "service": SERVICE_NAME,
             "status": "healthy",
-            "port": SERVICE_PORT,
-            "stage": "ms_03_skeleton",
+            "version": SERVICE_VERSION,
         },
     )

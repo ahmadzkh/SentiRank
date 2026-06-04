@@ -15,7 +15,7 @@ MS-03 provides infrastructure scaffolding only. It creates the deployment topolo
 | `review-service` | `sentirank-review-service` | 8001 | Skeleton FastAPI service with root and health endpoints |
 | `sentiment-service` | `sentirank-sentiment-service` | 8002 | Placeholder health-check service only |
 | `aspect-service` | `sentirank-aspect-service` | 8003 | Placeholder health-check service only |
-| `decision-service` | `sentirank-decision-service` | 8004 | Skeleton FastAPI service; AHP/Fuzzy AHP logic is not extracted yet |
+| `decision-service` | `sentirank-decision-service` | 8004 | Extracted AHP/Fuzzy AHP calculation service as of MS-04 |
 | `report-service` | `sentirank-report-service` | 8005 | Placeholder health-check service only |
 | `database-service` | `sentirank-database-service` | 5432 | PostgreSQL container for thesis-stage Compose topology |
 
@@ -93,12 +93,17 @@ services/<service-name>/
   requirements.txt
 ```
 
-Each skeleton service exposes only:
+Most skeleton services expose only:
 
 - `GET /`
 - `GET /health`
 
-No business endpoints are implemented in MS-03.
+As of MS-04, `decision-service` additionally exposes:
+
+- `GET /ahp/criteria`
+- `POST /ahp/calculate`
+- `POST /ahp/fuzzy-calculate`
+- `POST /ahp/compare`
 
 ## Transition Notes
 
@@ -106,8 +111,7 @@ No business endpoints are implemented in MS-03.
 
 Planned next steps:
 
-1. MS-04 extracts stable AHP/Fuzzy AHP logic into `decision-service`.
-2. MS-05 implements API Gateway routing to internal services.
-3. Later phases extract review, sentiment, aspect, and report responsibilities step by step.
+1. MS-05 implements API Gateway routing to internal services.
+2. Later phases extract review, sentiment, aspect, and report responsibilities step by step.
 
 This keeps the refactor controlled and avoids breaking the completed ML and frontend workflows while still establishing a concrete microservice deployment foundation.
