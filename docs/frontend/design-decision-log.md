@@ -8,11 +8,11 @@
 | Module           | Frontend UI/UX                     |
 | Document         | Design Decision Log                |
 | Track            | Frontend Track                     |
-| Current Phase    | FE-12 — API Integration Preparation |
+| Current Phase    | FE-13 — Real API Integration Demo Mode |
 | Default Theme    | Light Mode                         |
 | Visual Direction | SentiRank Research Analytics Light |
 | Status           | Draft                              |
-| Last Updated     | 2026-06-02                         |
+| Last Updated     | 2026-06-04                         |
 
 ---
 
@@ -1319,6 +1319,105 @@ Keputusan ini akan memengaruhi:
 
 ```txt
 Gunakan service layer FE-12 sebagai dasar migrasi mock-to-real pada fase integrasi berikutnya. Jangan memanggil API dari pages sebelum kontrak backend disetujui.
+```
+
+---
+
+# FE-13 — Real API Integration Demo Mode
+
+## Decision ID
+
+```txt
+FE-13-D01
+```
+
+## Phase
+
+```txt
+FE-13 — Real API Integration Demo Mode
+```
+
+## Date
+
+```txt
+2026-06-04
+```
+
+## Status
+
+```txt
+Approved
+```
+
+---
+
+## Decision
+
+Halaman AHP/Fuzzy AHP frontend dihubungkan ke endpoint FastAPI sample/development untuk criteria, AHP calculation, Fuzzy AHP calculation, dan ranking comparison.
+
+Integrasi ini hanya mode demo. Output API wajib diberi label `sample_development_only` dan `not_final_expert_judgement`, mock fallback tetap tersedia, dan frontend tidak melakukan kalkulasi metode.
+
+---
+
+## Reason
+
+FE-13 dibutuhkan untuk membuktikan alur integrasi frontend dengan service backend AHP/Fuzzy AHP sebelum final expert judgement dan integrasi API penuh dilakukan.
+
+---
+
+## Selected Option
+
+```txt
+Frontend demo integration with backend sample/development AHP endpoints
+```
+
+---
+
+## API Endpoints
+
+```txt
+GET /ahp/criteria
+POST /ahp/calculate
+POST /ahp/fuzzy-calculate
+POST /ahp/compare
+```
+
+---
+
+## Rejected Options
+
+```txt
+Calculate AHP/Fuzzy AHP in frontend
+Modify backend calculation logic for UI convenience
+Replace all mock pages with real API calls
+Add final expert judgement workflow in FE-13
+```
+
+---
+
+## Reason for Rejection
+
+Frontend calculation would make the methodology harder to audit and duplicate backend responsibility. Backend calculation logic is already covered by tests and must not be changed for a demo UI phase. Replacing all mock pages would exceed FE-13 scope.
+
+---
+
+## Impact
+
+Keputusan ini memengaruhi:
+
+- `frontend/app/ahp-fuzzy-ahp/page.tsx`
+- `frontend/lib/api-endpoints.ts`
+- `frontend/lib/ahp-demo-payload.ts`
+- `frontend/services/ahp-service.ts`
+- `frontend/services/fuzzy-ahp-service.ts`
+- `frontend/types/ahp-api.ts`
+
+---
+
+## Next Action
+
+```txt
+Gunakan FE-13 sebagai demo integration proof. Integrasi real API halaman lain, CORS policy, auth, user/session tracking, dan final expert judgement tetap menjadi fase lanjutan.
 ```
 
 ---

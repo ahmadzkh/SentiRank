@@ -2,16 +2,17 @@ import { API_ENDPOINTS } from "@/lib/api-endpoints";
 import { httpClient } from "@/lib/http-client";
 import type {
   ApiResponse,
-  FuzzyAhpCalculationRequest,
-  FuzzyAhpResult,
+  BackendFuzzyAhpCalculateRequest,
+  BackendFuzzyAhpCalculateResponse,
 } from "@/types";
 
-// TODO(FE-12): Connect this draft placeholder to the real Fuzzy AHP calculation service after backend contracts are approved. Do not calculate Fuzzy AHP in the frontend.
+// TODO(FE-13): This endpoint targets backend sample/development Fuzzy AHP only.
+// Keep pages labeled as sample_development_only and not_final_expert_judgement until final expert judgement is approved.
 export function calculateFuzzyAhp(
-  input: FuzzyAhpCalculationRequest,
-): Promise<ApiResponse<FuzzyAhpResult>> {
-  return httpClient.post<FuzzyAhpResult>(
-    API_ENDPOINTS.fuzzyAhp.calculate,
+  input: BackendFuzzyAhpCalculateRequest,
+): Promise<ApiResponse<BackendFuzzyAhpCalculateResponse>> {
+  return httpClient.post<BackendFuzzyAhpCalculateResponse>(
+    API_ENDPOINTS.ahp.fuzzyCalculate,
     input,
   );
 }

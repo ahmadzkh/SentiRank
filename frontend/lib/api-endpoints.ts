@@ -26,8 +26,11 @@ export const API_ENDPOINTS = {
     summary: "/api/aspects/summary",
   },
   ahp: {
-    base: "/api/ahp",
-    calculate: "/api/ahp/calculate",
+    base: "/ahp",
+    criteria: "/ahp/criteria",
+    calculate: "/ahp/calculate",
+    fuzzyCalculate: "/ahp/fuzzy-calculate",
+    compare: "/ahp/compare",
   },
   fuzzyAhp: {
     base: "/api/fuzzy-ahp",

@@ -21,6 +21,7 @@
 - [x] FE-10 — Core pages selesai
 - [x] FE-11 — AHP/Fuzzy AHP prototype selesai
 - [x] FE-12 — API integration preparation selesai
+- [x] FE-13 — Real API integration demo mode selesai
 
 ---
 
@@ -870,4 +871,63 @@ Implementation scope:
 
 ```txt
 Contracts and service functions only. Real backend integration and page migration remain future work.
+```
+
+---
+
+## FE-13 — Real API Integration Demo Mode
+
+### Objective
+
+Menghubungkan halaman AHP/Fuzzy AHP frontend ke endpoint FastAPI sample/development AHP untuk demo integrasi API tanpa menghitung AHP/Fuzzy AHP di frontend dan tanpa mengubah logic backend.
+
+### Task Checklist
+
+- [x] Tambahkan DTO frontend untuk kontrak backend AHP/Fuzzy AHP snake_case.
+- [x] Update endpoint constants AHP agar memakai `/ahp/criteria`, `/ahp/calculate`, `/ahp/fuzzy-calculate`, dan `/ahp/compare`.
+- [x] Update service AHP/Fuzzy AHP untuk memanggil endpoint backend sample/development.
+- [x] Tambahkan payload builder sample development dengan label `sample_development_only` dan `not_final_expert_judgement`.
+- [x] Tambahkan state flow halaman AHP/Fuzzy AHP: idle, checking backend, loading criteria, calculating, success, dan error/backend offline.
+- [x] Render hasil backend untuk criteria, matrix, AHP weights, Fuzzy AHP weights, comparison, dan recommendation summary.
+- [x] Pertahankan prototype mock sebagai fallback dan pembanding.
+- [x] Pastikan UI tetap Bahasa Indonesia dan method names AHP/Fuzzy AHP tidak diterjemahkan.
+- [x] Pastikan tidak ada kalkulasi AHP/Fuzzy AHP di frontend.
+- [x] Pastikan tidak ada perubahan backend calculation logic, Prisma schema, migration, auth, userId/sessionId, atau training model.
+- [x] Jalankan `npm run lint`.
+- [x] Jalankan `npm run build`.
+- [x] Jalankan `uv run pytest`.
+
+### Acceptance Criteria
+
+- [x] `/ahp-fuzzy-ahp` memiliki tombol demo API AHP/Fuzzy AHP.
+- [x] Demo API memuat criteria dari `GET /ahp/criteria`.
+- [x] Demo API mengirim payload AHP ke `POST /ahp/calculate`.
+- [x] Demo API mengirim payload Fuzzy AHP ke `POST /ahp/fuzzy-calculate`.
+- [x] Demo API mengirim output weights backend ke `POST /ahp/compare`.
+- [x] UI menampilkan label `sample_development_only` dan `not_final_expert_judgement`.
+- [x] UI menampilkan error/backend offline state dan mock fallback tetap tersedia.
+- [x] Hasil backend ditampilkan sebagai output sample/development, bukan hasil final skripsi.
+- [x] Frontend tidak menghitung bobot AHP, Fuzzy AHP, Consistency Ratio, atau ranking comparison.
+- [x] Backend calculation logic tidak dimodifikasi.
+- [x] Existing mock dashboard, core pages, dan halaman lain tidak dihapus.
+- [x] `npm run lint` berhasil.
+- [x] `npm run build` berhasil.
+- [x] `uv run pytest` berhasil.
+
+### Completion Note
+
+Completed on 2026-06-04. FE-13 connects only the AHP/Fuzzy AHP frontend page to backend sample/development endpoints for criteria, AHP calculation, Fuzzy AHP calculation, and ranking comparison. The page keeps mock fallback content, labels demo output as `sample_development_only` and `not_final_expert_judgement`, and performs no frontend AHP/Fuzzy AHP calculation.
+
+### Final Decision
+
+Real API integration demo mode selected:
+
+```txt
+AHP/Fuzzy AHP page uses backend sample/development endpoints while preserving mock fallback and final-result warnings
+```
+
+Implementation scope:
+
+```txt
+Frontend demo integration only. Backend calculation logic, auth, database, model training, and final expert judgement workflows remain unchanged.
 ```
