@@ -7,119 +7,100 @@ import { AspectRankingChart } from "@/components/charts/AspectRankingChart";
 import type { AspectRankingDatum } from "@/components/charts/AspectRankingChart";
 import { AppShell, PageHeader } from "@/components/layout";
 import { SimpleTable } from "@/components/tables/SimpleTable";
-import { ASPECT_LABELS, ASPECT_META } from "@/constants/aspect";
-import {
-  mockAspectResults,
-  mockAspectSummary,
-  mockReviews,
-} from "@/lib/mock-data";
-import type { AspectLabel } from "@/types/aspect";
+import { mockAspectResults } from "@/lib/mock-data";
+import { researchResults } from "@/lib/research-results";
 
 function formatPercent(value: number) {
   return `${Math.round(value * 100)}%`;
 }
 
-const aspectRankingData = ASPECT_LABELS.map((aspect) => ({
-  aspect,
-  label: ASPECT_META[aspect].label,
-  count: mockAspectSummary.counts[aspect],
-}))
-  .filter((item) => item.count > 0)
-  .sort((first, second) => second.count - first.count) satisfies AspectRankingDatum[];
+const aspectRankingData =
+  researchResults.aspectSummary.mergedAspectDistribution.map((aspect) => ({
+    aspect: aspect.label,
+    label: aspect.label,
+    count: aspect.count,
+  })) satisfies AspectRankingDatum[];
 
-const negativeReviewGroups = ASPECT_LABELS.map((aspect) => ({
-  aspect,
-  label: ASPECT_META[aspect].label,
-  description: ASPECT_META[aspect].description,
-  reviews: mockReviews.filter(
-    (review) => {
-      const aspectLabels = review.aspectLabels as
-        | readonly AspectLabel[]
-        | undefined;
+const negativeAspectGroups =
+  researchResults.aspectSummary.negativeAspectDistribution;
 
-      return (
-        review.sentimentLabel === "negative" && aspectLabels?.includes(aspect)
-      );
-    },
-  ),
-}))
-  .filter((group) => group.reviews.length > 0)
-  .sort((first, second) => second.reviews.length - first.reviews.length);
-
-const topNegativeAspect = mockAspectSummary.topNegativeAspect;
+const dominantAspect = researchResults.aspectSummary.mergedAspectDistribution[0];
+const topNegativeAspect = researchResults.aspectSummary.topNegativeAspect;
 
 export default function AspectClassificationPage() {
   return (
     <AppShell>
       <PageHeader
-        description="Tampilan mock untuk melihat hasil klasifikasi aspek SVM, ranking frekuensi aspek, pengelompokan ulasan negatif, dan tabel hasil klasifikasi."
+        description="Ringkasan hasil riset SVM merged_5class, ranking aspek, pengelompokan aspek negatif, dan tabel mock fallback untuk bentuk hasil klasifikasi."
         eyebrow="SVM"
         title="Klasifikasi Aspek"
       />
 
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
         <StatCard
-          description="Total ulasan yang sudah memiliki label aspek mock."
+          description="Dataset aspek setelah filter dapat ditindaklanjuti dan confidence."
           label="Ulasan Diklasifikasi"
-          value={mockAspectSummary.totalClassified}
+          value={researchResults.aspectSummary.finalDatasetRows.toLocaleString("id-ID")}
         />
         <StatCard
-          description="Aspek paling sering muncul pada seluruh data mock."
+          description="Aspek terbesar pada distribusi merged_5class."
           label="Aspek Dominan"
           tone="primary"
-          value={ASPECT_META[mockAspectSummary.topAspect].label}
+          value={dominantAspect?.label ?? "Belum tersedia"}
         />
         <StatCard
           description="Aspek negatif paling sering pada ulasan bermasalah."
           label="Aspek Negatif Utama"
           tone="negative"
-          value={ASPECT_META[topNegativeAspect].label}
+          value={topNegativeAspect.label}
         />
         <StatCard
-          description="Ulasan yang memiliki lebih dari satu aspek."
-          label="Multi-aspek"
-          value={mockAspectSummary.multiAspectReviewCount}
+          description="Kandidat kriteria untuk AHP/Fuzzy AHP."
+          label="Kriteria"
+          value={researchResults.aspectSummary.finalCriteriaCount}
         />
         <StatCard
-          description="Jumlah label aspek hasil mock SVM."
+          description="Contoh baris mock fallback untuk bentuk tabel UI."
           label="Hasil Aspek"
           tone="primary"
           value={mockAspectResults.length}
         />
         <StatCard
-          description={mockAspectSummary.modelVersion}
+          description={researchResults.svmEvaluation.finalClassifier}
           label="Model"
-          value={mockAspectSummary.modelName}
+          value={researchResults.svmEvaluation.modelName}
         />
       </section>
 
       <section className="grid gap-6 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
         <ChartCard
-          description="Frekuensi aspek dari seluruh ulasan mock. Chart tetap data-driven dan tidak mengunci daftar aspek final."
-          insight={`${ASPECT_META[mockAspectSummary.topAspect].label} menjadi aspek dominan pada dataset mock.`}
+          description="Frekuensi aspek dari dataset final SVM merged_5class."
+          insight={`${dominantAspect?.label ?? "Belum tersedia"} menjadi aspek dominan pada artefak riset SVM.`}
           title="Frekuensi / Ranking Aspek"
         >
           <AspectRankingChart data={aspectRankingData} />
         </ChartCard>
 
         <SummaryCard
-          description="Grouping ini membantu menjelaskan tema keluhan sebelum diprioritaskan pada FE-11."
+          description="Grouping negatif berasal dari weak-label refinement dan dipetakan ke kandidat kriteria AHP/Fuzzy AHP."
           title="Pengelompokan Ulasan Negatif"
         >
           <div className="space-y-3">
-            {negativeReviewGroups.map((group) => (
+            {negativeAspectGroups.map((group) => (
               <div
                 className="rounded-md border border-border bg-background px-4 py-3"
-                key={group.aspect}
+                key={group.label}
               >
                 <div className="flex items-center justify-between gap-3">
-                  <AspectBadge aspect={group.aspect} count={group.reviews.length} />
+                  <span className="rounded-md border border-blue-200 bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700">
+                    {group.label}
+                  </span>
                   <span className="text-xs font-medium text-muted-foreground">
-                    {group.reviews.length} ulasan negatif
+                    {group.count.toLocaleString("id-ID")} sinyal negatif
                   </span>
                 </div>
                 <p className="mt-2 text-xs leading-5 text-muted-foreground">
-                  {group.description}
+                  Ringkasan aspek weak-label, bukan ground truth expert.
                 </p>
               </div>
             ))}
@@ -128,8 +109,8 @@ export default function AspectClassificationPage() {
       </section>
 
       <ChartCard
-        description="Tabel hasil klasifikasi aspek dari data mock. Tidak ada inferensi SVM nyata pada frontend."
-        title="Tabel Hasil Aspek"
+        description="Tabel ini tetap mock fallback karena FE-15 hanya mengintegrasikan ringkasan output riset, bukan prediksi aspek baris penuh."
+        title="Tabel Hasil Aspek - Mode Mock/Fallback"
       >
         <SimpleTable
           columns={[
@@ -161,7 +142,7 @@ export default function AspectClassificationPage() {
             },
             {
               key: "evidence",
-              header: "Evidence",
+              header: "Bukti Keyword",
               render: (row) => (
                 <span className="text-xs leading-5 text-muted-foreground">
                   {row.evidenceTerms.join(", ")}

@@ -9,14 +9,13 @@ import { SentimentDistributionChart } from "@/components/charts/SentimentDistrib
 import type { SentimentDistributionDatum } from "@/components/charts/SentimentDistributionChart";
 import { AppShell, PageHeader } from "@/components/layout";
 import { SimpleTable } from "@/components/tables/SimpleTable";
-import { ASPECT_META } from "@/constants/aspect";
 import { SENTIMENT_LABELS, SENTIMENT_META } from "@/constants/sentiment";
 import {
   mockAhpResult,
   mockFuzzyAhpResult,
-  mockReportSummary,
-  mockSentimentSummary,
 } from "@/lib/mock-data";
+import { researchResults } from "@/lib/research-results";
+import type { ReviewSentimentLabel } from "@/types/sentiment";
 
 function formatPercent(value: number) {
   return `${Math.round(value * 100)}%`;
@@ -30,11 +29,21 @@ function getShortLabel(label: string) {
   return label.split(" ").slice(0, 2).join(" ");
 }
 
+function toSentimentKey(label: string): ReviewSentimentLabel {
+  return label.toLowerCase() as ReviewSentimentLabel;
+}
+
 const sentimentDistributionData = SENTIMENT_LABELS.map((label) => ({
   label,
   name: SENTIMENT_META[label].label,
-  count: mockSentimentSummary.counts[label],
-  percentage: mockSentimentSummary.percentages[label],
+  count:
+    researchResults.datasetSummary.finalLabelDistribution.find(
+      (item) => toSentimentKey(item.label) === label,
+    )?.count ?? 0,
+  percentage:
+    researchResults.datasetSummary.finalLabelDistribution.find(
+      (item) => toSentimentKey(item.label) === label,
+    )?.percentage ?? 0,
   color: SENTIMENT_META[label].chartColor,
 })) satisfies SentimentDistributionDatum[];
 
@@ -64,31 +73,31 @@ const keyMetrics = [
   {
     id: "dataset-size",
     label: "Ukuran dataset",
-    value: `${mockReportSummary.dataset.totalReviews} ulasan`,
+    value: `${researchResults.datasetSummary.totalReviews.toLocaleString("id-ID")} ulasan`,
     source: "Dataset",
   },
   {
     id: "negative-rate",
     label: "Proporsi negatif",
-    value: `${mockReportSummary.sentiment.negativeRate}%`,
+    value: `${researchResults.datasetSummary.finalLabelDistribution.find((item) => item.label === "Negative")?.percentage.toFixed(2) ?? "0"}%`,
     source: "Analisis Sentimen",
   },
   {
     id: "top-aspect",
     label: "Aspek negatif utama",
-    value: ASPECT_META[mockReportSummary.aspect.topNegativeAspect].label,
+    value: researchResults.aspectSummary.topNegativeAspect.label,
     source: "Klasifikasi Aspek",
   },
   {
     id: "priority-aspect",
     label: "Prioritas rekomendasi",
-    value: ASPECT_META[mockReportSummary.prioritization.recommendedAspect].label,
+    value: "Belum final",
     source: "AHP / Fuzzy AHP",
   },
   {
     id: "model-f1",
     label: "Macro F1 sentimen",
-    value: formatPercent(mockReportSummary.evaluation.sentimentMacroF1),
+    value: formatPercent(researchResults.indobertEvaluation.f1Macro),
     source: "Evaluasi Model",
   },
 ];
@@ -122,54 +131,53 @@ export default function ReportsPage() {
 
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
         <StatCard
-          description={mockReportSummary.dataset.source}
+          description={researchResults.datasetSummary.sourceName}
           label="Dataset"
-          value={mockReportSummary.dataset.totalReviews}
+          value={researchResults.datasetSummary.totalReviews.toLocaleString("id-ID")}
         />
         <StatCard
-          description="Proporsi ulasan negatif pada data mock."
+          description="Proporsi ulasan negatif final setelah relabeling."
           label="Ulasan Negatif"
           tone="negative"
-          value={`${mockReportSummary.sentiment.negativeRate}%`}
+          value={`${researchResults.datasetSummary.finalLabelDistribution.find((item) => item.label === "Negative")?.percentage.toFixed(2) ?? "0"}%`}
         />
         <StatCard
-          description={`${mockReportSummary.aspect.topNegativeAspectCount} sinyal negatif.`}
+          description={`${researchResults.aspectSummary.topNegativeAspect.count.toLocaleString("id-ID")} sinyal negatif.`}
           label="Aspek Utama"
           tone="primary"
-          value={ASPECT_META[mockReportSummary.aspect.topNegativeAspect].label}
+          value={researchResults.aspectSummary.topNegativeAspect.label}
         />
         <StatCard
-          description="Bobot AHP rekomendasi mock."
-          label="Bobot AHP"
+          description="AHP/Fuzzy AHP belum final expert judgement."
+          label="Prioritas AHP"
           tone="primary"
-          value={formatWeight(mockReportSummary.prioritization.ahpWeight)}
+          value="Sampel"
         />
         <StatCard
-          description="Macro F1 IndoBERT mock."
+          description={researchResults.indobertEvaluation.finalCandidate}
           label="Sentimen Macro F1"
-          value={formatPercent(mockReportSummary.evaluation.sentimentMacroF1)}
+          value={formatPercent(researchResults.indobertEvaluation.f1Macro)}
         />
         <StatCard
-          description="Macro F1 SVM mock."
+          description={researchResults.svmEvaluation.finalClassifier}
           label="Aspek Macro F1"
-          value={formatPercent(mockReportSummary.evaluation.aspectMacroF1)}
+          value={formatPercent(researchResults.svmEvaluation.f1Macro)}
         />
       </section>
 
       <section className="grid gap-6 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
         <SummaryCard
           description="Narasi ini disusun untuk mendukung presentasi hasil, bukan sebagai laporan final otomatis."
-          title={mockReportSummary.title}
+          title="Ringkasan Insight Ulasan Spotify SentiRank"
         >
           <p className="text-sm leading-6 text-muted-foreground">
-            Sampel ulasan Spotify menunjukkan dominasi sentimen{" "}
-            {SENTIMENT_META[mockReportSummary.sentiment.dominantLabel].label.toLowerCase()}
-            . Aspek{" "}
-            {ASPECT_META[mockReportSummary.aspect.topNegativeAspect].label} menjadi
-            sinyal negatif utama dan digunakan sebagai dasar rekomendasi prioritas.
+            {researchResults.reportSummary.datasetFindings}{" "}
+            {researchResults.reportSummary.sentimentFindings} Aspek{" "}
+            {researchResults.aspectSummary.topNegativeAspect.label} menjadi sinyal
+            negatif utama pada ringkasan weak-label.
           </p>
           <div className="mt-4 rounded-md border border-blue-100 bg-blue-50 px-4 py-3 text-sm leading-6 text-blue-900">
-            {mockReportSummary.prioritization.interpretation}
+            {researchResults.reportSummary.ahpFuzzyAhpDemoLimitation}
           </div>
         </SummaryCard>
 
@@ -209,13 +217,13 @@ export default function ReportsPage() {
       <section className="grid gap-6 xl:grid-cols-2">
         <ChartCard
           description="Ringkasan sentimen yang siap dimasukkan ke narasi Bab 4."
-          title="Ringkasan Sentimen"
+          title="Ringkasan Sentimen Final"
         >
           <SentimentDistributionChart data={sentimentDistributionData} />
         </ChartCard>
 
         <ChartCard
-          description="Perbandingan bobot AHP dan Fuzzy AHP masih berupa output mock dan bukan implementasi penuh FE-11."
+          description="Perbandingan bobot AHP dan Fuzzy AHP masih sample development/mock fallback, bukan final expert judgement."
           insight="Ekspor masih dinonaktifkan sampai integrasi dan artefak final tersedia."
           title="Placeholder Ringkasan Rekomendasi"
         >
@@ -225,7 +233,7 @@ export default function ReportsPage() {
 
       <section className="grid gap-6 xl:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
         <RankingCard
-          description="Urutan prioritas dari mock AHP untuk kebutuhan preview laporan."
+          description="Urutan prioritas dari mock fallback untuk kebutuhan preview laporan. Hasil final menunggu expert judgement."
           items={priorityRankingItems}
           title="Ranking Prioritas"
         />
@@ -235,7 +243,7 @@ export default function ReportsPage() {
           title="Ringkasan Penelitian"
         >
           <div className="grid gap-3 md:grid-cols-2">
-            {mockReportSummary.highlights.map((highlight) => (
+            {researchResults.reportSummary.highLevelFindings.map((highlight) => (
               <div
                 className="rounded-md border border-border bg-background px-4 py-3 text-sm leading-6 text-muted-foreground"
                 key={highlight}
@@ -245,7 +253,10 @@ export default function ReportsPage() {
             ))}
           </div>
           <div className="mt-4 space-y-2">
-            {mockReportSummary.recommendations.map((recommendation) => (
+            {[
+              researchResults.reportSummary.aspectFindings,
+              researchResults.reportSummary.modelEvaluationFindings,
+            ].map((recommendation) => (
               <p
                 className="rounded-md border border-blue-100 bg-blue-50 px-4 py-3 text-sm leading-6 text-blue-900"
                 key={recommendation}

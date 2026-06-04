@@ -11,54 +11,51 @@ import type { RankingCardItem } from "@/components/cards/RankingCard";
 import { StatCard } from "@/components/cards/StatCard";
 import { AppShell, PageHeader } from "@/components/layout";
 import { ReviewTable } from "@/components/tables/ReviewTable";
-import { ASPECT_META } from "@/constants/aspect";
 import { SENTIMENT_LABELS, SENTIMENT_META } from "@/constants/sentiment";
 import {
   mockAhpResult,
-  mockAspectSummary,
   mockFuzzyAhpResult,
-  mockModelEvaluation,
-  mockReportSummary,
   mockReviews,
-  mockSentimentSummary,
 } from "@/lib/mock-data";
-import type { AspectLabel } from "@/types/aspect";
-import type { ModelMetric } from "@/types/evaluation";
+import { researchResults } from "@/lib/research-results";
+import type { ReviewSentimentLabel } from "@/types/sentiment";
 
 function formatWeight(value: number) {
   return `${Math.round(value * 100)}%`;
 }
 
-function formatMetricValue(metric: ModelMetric) {
-  if (metric.format === "percentage") {
-    return formatWeight(metric.value);
-  }
-
-  return metric.value.toLocaleString("en");
+function formatMetricPercent(value: number) {
+  return `${(value * 100).toFixed(2)}%`;
 }
 
 function getShortLabel(label: string) {
   return label.split(" ").slice(0, 2).join(" ");
 }
 
+function toSentimentKey(label: string): ReviewSentimentLabel {
+  return label.toLowerCase() as ReviewSentimentLabel;
+}
+
 const sentimentDistributionData = SENTIMENT_LABELS.map((label) => ({
   label,
   name: SENTIMENT_META[label].label,
-  count: mockSentimentSummary.counts[label],
-  percentage: mockSentimentSummary.percentages[label],
+  count:
+    researchResults.datasetSummary.finalLabelDistribution.find(
+      (item) => toSentimentKey(item.label) === label,
+    )?.count ?? 0,
+  percentage:
+    researchResults.datasetSummary.finalLabelDistribution.find(
+      (item) => toSentimentKey(item.label) === label,
+    )?.percentage ?? 0,
   color: SENTIMENT_META[label].chartColor,
 })) satisfies SentimentDistributionDatum[];
 
-const negativeAspectRankingData = (
-  Object.entries(mockAspectSummary.negativeCounts) as [AspectLabel, number][]
-)
-  .filter(([, count]) => count > 0)
-  .map(([aspect, count]) => ({
-    aspect,
-    label: ASPECT_META[aspect].label,
-    count,
-  }))
-  .sort((first, second) => second.count - first.count) satisfies AspectRankingDatum[];
+const negativeAspectRankingData =
+  researchResults.aspectSummary.negativeAspectDistribution.map((item) => ({
+    aspect: item.label,
+    label: item.label,
+    count: item.count,
+  })) satisfies AspectRankingDatum[];
 
 const priorityComparisonData = mockAhpResult.ranking.map((ahpItem) => {
   const fuzzyItem = mockFuzzyAhpResult.ranking.find(
@@ -93,15 +90,52 @@ const latestNegativeReviews = mockReviews
   )
   .slice(0, 5);
 
-const modelMetricCards = mockModelEvaluation.models.flatMap((model) =>
-  model.metrics.map((metric) => ({
-    metric,
-    modelName: model.modelName,
-  })),
-);
+const modelMetricCards = [
+  {
+    description: "Macro F1 kandidat final IndoBERT run_3.",
+    label: "IndoBERT Macro F1",
+    modelName: "IndoBERT",
+    value: formatMetricPercent(researchResults.indobertEvaluation.f1Macro),
+  },
+  {
+    description: "F1 kelas Netral kandidat final IndoBERT run_3.",
+    label: "F1 Netral",
+    modelName: "IndoBERT",
+    value: formatMetricPercent(researchResults.indobertEvaluation.neutralF1),
+  },
+  {
+    description: "Accuracy classifier final SVM merged_5class.",
+    label: "SVM Accuracy",
+    modelName: "SVM",
+    value: formatMetricPercent(researchResults.svmEvaluation.accuracy),
+  },
+  {
+    description: "Macro F1 classifier final SVM merged_5class.",
+    label: "SVM Macro F1",
+    modelName: "SVM",
+    value: formatMetricPercent(researchResults.svmEvaluation.f1Macro),
+  },
+  {
+    description: "F1 kelas minimum untuk stabilitas kelas minoritas SVM.",
+    label: "F1 Kelas Minimum",
+    modelName: "SVM",
+    value: formatMetricPercent(researchResults.svmEvaluation.minClassF1),
+  },
+];
 
-const topNegativeAspectLabel =
-  ASPECT_META[mockAspectSummary.topNegativeAspect].label;
+const topNegativeAspectLabel = researchResults.aspectSummary.topNegativeAspect.label;
+const positiveCount =
+  researchResults.datasetSummary.finalLabelDistribution.find(
+    (item) => item.label === "Positive",
+  )?.count ?? 0;
+const neutralCount =
+  researchResults.datasetSummary.finalLabelDistribution.find(
+    (item) => item.label === "Neutral",
+  )?.count ?? 0;
+const negativeCount =
+  researchResults.datasetSummary.finalLabelDistribution.find(
+    (item) => item.label === "Negative",
+  )?.count ?? 0;
 
 export default function DashboardPage() {
   return (
@@ -114,54 +148,54 @@ export default function DashboardPage() {
 
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
         <StatCard
-          description="Ulasan Spotify sintetis yang digunakan untuk pengembangan UI."
+          description="Total ulasan dari pipeline riset SentiRank."
           label="Total Ulasan"
-          value={mockSentimentSummary.totalReviews.toLocaleString("en")}
+          value={researchResults.datasetSummary.totalReviews.toLocaleString("id-ID")}
         />
         <StatCard
-          description={`${mockSentimentSummary.percentages.positive}% dari ulasan yang dianalisis.`}
+          description="Label final setelah relabeling pipeline."
           label="Ulasan Positif"
           tone="positive"
-          value={mockSentimentSummary.counts.positive}
+          value={positiveCount.toLocaleString("id-ID")}
         />
         <StatCard
-          description={`${mockSentimentSummary.percentages.neutral}% dari ulasan yang dianalisis.`}
+          description="Label final setelah relabeling pipeline."
           label="Ulasan Netral"
           tone="neutral"
-          value={mockSentimentSummary.counts.neutral}
+          value={neutralCount.toLocaleString("id-ID")}
         />
         <StatCard
-          description={`${mockSentimentSummary.percentages.negative}% dari ulasan yang dianalisis.`}
+          description="Label final setelah relabeling pipeline."
           label="Ulasan Negatif"
           tone="negative"
-          value={mockSentimentSummary.counts.negative}
+          value={negativeCount.toLocaleString("id-ID")}
         />
         <StatCard
-          description={`${mockAspectSummary.negativeCounts[mockAspectSummary.topNegativeAspect]} sinyal ulasan negatif.`}
+          description={`${researchResults.aspectSummary.topNegativeAspect.count.toLocaleString("id-ID")} sinyal negatif weak-label.`}
           label="Aspek Negatif Tertinggi"
           tone="primary"
           value={topNegativeAspectLabel}
         />
         <StatCard
-          description="Bobot AHP dari preview prioritas mock."
+          description="AHP/Fuzzy AHP masih sample development, bukan hasil final."
           label="Skor Prioritas"
           tone="primary"
-          value={formatWeight(mockReportSummary.prioritization.ahpWeight)}
+          value="Sampel"
         />
       </section>
 
       <section className="grid gap-6 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
         <ChartCard
-          description="Distribusi ulasan positif, netral, dan negatif dari ringkasan mock FE-07."
-          insight={`${mockSentimentSummary.counts.negative} dari ${mockSentimentSummary.totalReviews} ulasan bernilai negatif pada sampel dashboard sintetis.`}
+          description="Distribusi final sentimen dari pipeline relabeling SentiRank."
+          insight={`${negativeCount.toLocaleString("id-ID")} dari ${researchResults.datasetSummary.totalReviews.toLocaleString("id-ID")} ulasan berlabel negatif setelah relabeling.`}
           title="Distribusi Sentimen"
         >
           <SentimentDistributionChart data={sentimentDistributionData} />
         </ChartCard>
 
         <ChartCard
-          description="Jumlah aspek negatif dari ringkasan mock klasifikasi aspek SVM."
-          insight={`${topNegativeAspectLabel} menjadi aspek negatif tertinggi pada dataset mock ini.`}
+          description="Ranking aspek negatif dari weak-label refinement yang dipetakan ke kandidat merged_5class."
+          insight={`${topNegativeAspectLabel} menjadi aspek negatif tertinggi pada artefak riset sementara.`}
           title="Ranking Aspek Negatif"
         >
           <AspectRankingChart data={negativeAspectRankingData} />
@@ -170,15 +204,15 @@ export default function DashboardPage() {
 
       <section className="grid gap-6 xl:grid-cols-[minmax(0,1.2fr)_minmax(320px,0.8fr)]">
         <ChartCard
-          description="Perbandingan prototype bobot AHP dan Fuzzy AHP dari output mock FE-07."
-          insight="Nilai ini hanya output metode mock; frontend tidak menghitung AHP atau Fuzzy AHP."
+          description="Perbandingan bobot AHP dan Fuzzy AHP dari output mock fallback FE-13."
+          insight={researchResults.reportSummary.ahpFuzzyAhpDemoLimitation}
           title="Preview Prioritas AHP / Fuzzy AHP"
         >
           <AhpRankingComparisonChart data={priorityComparisonData} />
         </ChartCard>
 
         <RankingCard
-          description="Kandidat prioritas tertinggi berdasarkan output ranking AHP mock."
+          description="Kandidat prioritas mock fallback. Lihat halaman AHP/Fuzzy AHP untuk demo API backend sampel."
           items={priorityRankingItems}
           title="Ranking Prioritas"
         />
@@ -190,27 +224,26 @@ export default function DashboardPage() {
             Ringkasan Performa Model
           </h3>
           <p className="mt-1 text-sm leading-5 text-muted-foreground">
-            Metrik evaluasi mock ditampilkan untuk mendukung tampilan demo
-            skripsi. Nilai final harus berasal dari artefak model yang sudah
-            divalidasi.
+            Metrik berasal dari artefak evaluasi riset: IndoBERT
+            run_3_weighted_loss_lr_1e-5 dan SVM merged_5class.
           </p>
         </div>
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
-          {modelMetricCards.map(({ metric, modelName }) => (
+          {modelMetricCards.map((metric) => (
             <ModelMetricCard
               description={metric.description}
-              key={metric.id}
+              key={metric.label}
               label={metric.label}
-              modelName={modelName}
-              value={formatMetricValue(metric)}
+              modelName={metric.modelName}
+              value={metric.value}
             />
           ))}
         </div>
       </section>
 
       <ChartCard
-        description="Contoh ulasan Spotify negatif terbaru dengan label sentimen dan aspek."
-        title="Ulasan Negatif Terbaru"
+        description="Contoh ulasan negatif tetap memakai mock fallback karena FE-15 hanya mengintegrasikan ringkasan riset, bukan dataset mentah ke frontend."
+        title="Ulasan Negatif Terbaru - Mock/Fallback"
       >
         <ReviewTable
           emptyMessage="Belum ada ulasan negatif pada data mock saat ini."
@@ -223,10 +256,10 @@ export default function DashboardPage() {
           Ringkasan Rekomendasi
         </p>
         <p className="mt-2 max-w-4xl text-sm leading-6 text-blue-900">
-          {mockReportSummary.prioritization.interpretation}
+          {researchResults.reportSummary.modelEvaluationFindings}
         </p>
         <div className="mt-4 grid gap-3 md:grid-cols-3">
-          {mockReportSummary.highlights.map((highlight) => (
+          {researchResults.reportSummary.highLevelFindings.slice(0, 3).map((highlight) => (
             <div
               className="rounded-md border border-blue-100 bg-white px-4 py-3 text-sm leading-6 text-slate-700"
               key={highlight}

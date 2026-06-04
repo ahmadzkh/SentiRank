@@ -8,7 +8,7 @@
 | Module           | Frontend UI/UX                     |
 | Document         | Design Decision Log                |
 | Track            | Frontend Track                     |
-| Current Phase    | FE-14 — Demo QA, UI Polish, and Supervisor Presentation Readiness |
+| Current Phase    | FE-15 — Research Output Data Integration |
 | Default Theme    | Light Mode                         |
 | Visual Direction | SentiRank Research Analytics Light |
 | Status           | Draft                              |
@@ -1505,6 +1505,99 @@ Keputusan ini memengaruhi:
 
 ```txt
 Gunakan demo guide untuk rehearsal supervisor demo. Integrasi API halaman lain dan final expert judgement tetap menjadi fase lanjutan setelah kontrak/backend siap.
+```
+
+---
+
+# FE-15 — Research Output Data Integration
+
+## Decision ID
+
+```txt
+FE-15-D01
+```
+
+## Phase
+
+```txt
+FE-15 — Research Output Data Integration
+```
+
+## Date
+
+```txt
+2026-06-04
+```
+
+## Status
+
+```txt
+Approved
+```
+
+---
+
+## Decision
+
+Frontend SentiRank menggunakan sumber data ringkasan riset terpusat di `frontend/lib/research-results.ts` untuk mengganti data mock generik pada halaman demo utama.
+
+Integrasi FE-15 hanya memasukkan research summary dari artefak proyek ke halaman Dashboard, Dataset, Scraping, Preprocessing, Sentiment Analysis, Aspect Classification, Model Evaluation, dan Reports. Mock fallback tetap dipertahankan untuk tabel/preview yang belum memiliki artefak baris penuh, dan mode API AHP/Fuzzy AHP FE-13 tidak diganti.
+
+---
+
+## Reason
+
+Supervisor demo membutuhkan angka dan narasi yang lebih dekat dengan output riset aktual, bukan mock UI generik. Namun, data yang belum tersedia sebagai artefak ringkas tidak boleh dikarang. Karena itu, FE-15 memakai data yang dapat dilacak ke artefak proyek dan memberi label `TBD` atau catatan tidak tersedia untuk bagian yang belum memiliki bukti.
+
+---
+
+## Selected Option
+
+```txt
+Centralized research summary data source consumed by supervisor-demo pages
+```
+
+---
+
+## Rejected Options
+
+```txt
+Hardcode research metrics directly inside page components
+Invent unavailable research numbers
+Replace FE-13 AHP/Fuzzy AHP API demo with static data
+Remove mock fallback behavior
+Load full raw dataset into frontend pages
+```
+
+---
+
+## Reason for Rejection
+
+Hardcode angka riset di banyak halaman akan sulit diaudit dan rawan inkonsistensi. Mengarang angka yang tidak ditemukan akan melemahkan validitas skripsi. Menghapus mock fallback membuat demo rapuh ketika data baris penuh atau backend belum siap. Memuat dataset mentah ke frontend juga tidak diperlukan untuk fase ringkasan demo.
+
+---
+
+## Impact
+
+Keputusan ini memengaruhi:
+
+- `frontend/lib/research-results.ts`
+- `frontend/app/dashboard/page.tsx`
+- `frontend/app/dataset/page.tsx`
+- `frontend/app/scraping/page.tsx`
+- `frontend/app/preprocessing/page.tsx`
+- `frontend/app/sentiment-analysis/page.tsx`
+- `frontend/app/aspect-classification/page.tsx`
+- `frontend/app/model-evaluation/page.tsx`
+- `frontend/app/reports/page.tsx`
+- `docs/frontend/research-output-integration.md`
+
+---
+
+## Next Action
+
+```txt
+Gunakan FE-15 sebagai dasar demo berbasis research summary. Integrasi API halaman lain dan final expert judgement AHP/Fuzzy AHP tetap menjadi fase lanjutan.
 ```
 
 ---

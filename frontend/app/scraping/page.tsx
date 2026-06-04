@@ -3,7 +3,8 @@ import { StatCard } from "@/components/cards/StatCard";
 import { SummaryCard } from "@/components/cards/SummaryCard";
 import { AppShell, PageHeader } from "@/components/layout";
 import { SimpleTable } from "@/components/tables/SimpleTable";
-import { mockReviews, mockScrapingSummary } from "@/lib/mock-data";
+import { mockReviews } from "@/lib/mock-data";
+import { researchResults } from "@/lib/research-results";
 
 function formatDate(value: string) {
   return new Intl.DateTimeFormat("id-ID", {
@@ -17,70 +18,70 @@ export default function ScrapingPage() {
   return (
     <AppShell>
       <PageHeader
-        description="Status pengumpulan ulasan Spotify dalam mode mock. Halaman ini tidak menjalankan scraping nyata dari frontend."
+        description="Ringkasan pengumpulan ulasan Spotify dari artefak riset. Halaman ini tidak menjalankan scraping nyata dari frontend."
         eyebrow="Pengumpulan data"
         title="Scraping"
       />
 
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
         <StatCard
-          description="Jumlah target konfigurasi batch mock."
+          description="Target kuota akuisisi berdasarkan rating."
           label="Request Ulasan"
-          value={mockScrapingSummary.requestedReviews}
+          value={researchResults.scrapingSummary.targetReviews.toLocaleString("id-ID")}
         />
         <StatCard
-          description="Data yang tersedia untuk preview frontend."
+          description="Total ulasan yang terkumpul pada pipeline."
           label="Terkumpul"
           tone="primary"
-          value={mockScrapingSummary.collectedReviews}
+          value={researchResults.scrapingSummary.collectedReviews.toLocaleString("id-ID")}
         />
         <StatCard
-          description="Tidak ada kegagalan pada batch mock."
+          description="Tidak ada failure count pada ringkasan FE-15."
           label="Gagal"
           tone="positive"
-          value={mockScrapingSummary.failedItems}
+          value={researchResults.scrapingSummary.failedItems}
         />
         <StatCard
           description="Sumber aplikasi Spotify."
           label="Package"
-          value={mockScrapingSummary.sourcePackage}
+          value={researchResults.scrapingSummary.packageName}
         />
         <StatCard
-          description="Region placeholder untuk backend."
+          description="Region dari konfigurasi scraping."
           label="Region"
-          value={mockScrapingSummary.region}
+          value={researchResults.scrapingSummary.region}
         />
         <StatCard
-          description="Status hanya untuk tampilan demo."
+          description="Ringkasan berasal dari artefak riset."
           label="Status Batch"
           tone="primary"
-          value={mockScrapingSummary.status}
+          value="Selesai"
         />
       </section>
 
       <section className="grid gap-6 xl:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)]">
         <SummaryCard
-          description="Konfigurasi ini menunjukkan kontrak UI yang akan dihubungkan ke backend pada fase API."
+          description="Konfigurasi ini menunjukkan strategi scraping yang digunakan untuk membentuk dataset riset."
           items={[
             {
-              label: "Batch ID",
-              value: mockScrapingSummary.batchId,
-              description: "Identifier sintetis untuk alur demo.",
+              label: "Aplikasi",
+              value: researchResults.scrapingSummary.appTitle,
+              description: researchResults.scrapingSummary.packageName,
             },
             {
-              label: "Tanggal batch terakhir",
-              value: formatDate(mockScrapingSummary.latestBatchDate),
-              description: "Mengacu pada data mock terbaru.",
+              label: "Rentang data",
+              value: `${formatDate(researchResults.datasetSummary.dateRange.start)} - ${formatDate(researchResults.datasetSummary.dateRange.end)}`,
+              description: "Tanggal minimum dan maksimum review.",
             },
             {
               label: "Bahasa",
-              value: mockScrapingSummary.language,
-              description: "Placeholder bahasa ulasan.",
+              value: researchResults.scrapingSummary.language,
+              description: "Konfigurasi scraping pada Play Store Indonesia.",
             },
             {
               label: "Mode",
-              value: "Hanya mock",
-              description: "Tidak ada network call atau scraping runtime.",
+              value: "Ringkasan riset",
+              description: "Tidak ada network call atau scraping runtime dari frontend.",
             },
           ]}
           title="Ringkasan Status Scraping"
@@ -88,7 +89,7 @@ export default function ScrapingPage() {
 
         <ChartCard
           description="Parameter ditampilkan sebagai kontrak UI, bukan kontrol scraping aktif."
-          title="Parameter Scraping Mock"
+          title="Parameter Scraping Riset"
         >
           <SimpleTable
             columns={[
@@ -112,7 +113,26 @@ export default function ScrapingPage() {
                 render: (row) => row.note,
               },
             ]}
-            data={mockScrapingSummary.parameters}
+            data={[
+              {
+                id: "param-source",
+                label: "Sumber",
+                value: researchResults.scrapingSummary.sourceName,
+                note: researchResults.scrapingSummary.packageName,
+              },
+              {
+                id: "param-strategy",
+                label: "Strategi batch",
+                value: "Berdasarkan rating",
+                note: researchResults.scrapingSummary.batchStrategy,
+              },
+              {
+                id: "param-target",
+                label: "Target ulasan",
+                value: researchResults.scrapingSummary.targetReviews.toLocaleString("id-ID"),
+                note: "Target kuota keseluruhan.",
+              },
+            ]}
             minWidthClassName="min-w-[600px]"
             rowKey={(row) => row.id}
           />
@@ -120,57 +140,46 @@ export default function ScrapingPage() {
       </section>
 
       <ChartCard
-        description="Ringkasan batch memperlihatkan alur koleksi data tanpa memanggil scraper nyata."
-        title="Ringkasan Batch Pengumpulan"
+        description="Ringkasan kuota memperlihatkan pencapaian pengumpulan per rating."
+        title="Ringkasan Kuota Pengumpulan"
       >
         <SimpleTable
           columns={[
             {
-              key: "id",
-              header: "Batch",
-              render: (row) => row.id,
-            },
-            {
-              key: "date",
-              header: "Tanggal",
-              render: (row) => formatDate(row.date),
+              key: "rating",
+              header: "Rating",
+              render: (row) => `${row.rating}/5`,
             },
             {
               key: "requested",
               header: "Request",
               align: "right",
-              render: (row) => row.requested,
+              render: (row) => row.targetCount.toLocaleString("id-ID"),
             },
             {
               key: "collected",
               header: "Terkumpul",
               align: "right",
-              render: (row) => row.collected,
-            },
-            {
-              key: "failed",
-              header: "Gagal",
-              align: "right",
-              render: (row) => row.failed,
+              render: (row) => row.actualCount.toLocaleString("id-ID"),
             },
             {
               key: "status",
               header: "Status",
               render: (row) => (
                 <span className="rounded-md border border-blue-200 bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700">
-                  {row.status}
+                  {(row.achievementRate * 100).toFixed(2)}%
                 </span>
               ),
             },
           ]}
-          data={mockScrapingSummary.batches}
-          rowKey={(row) => row.id}
+          data={researchResults.scrapingSummary.quotaAchievement}
+          rowKey={(row) => `rating-${row.rating}`}
         />
       </ChartCard>
 
       <ChartCard
-        description="Pratinjau ulasan mentah dari data mock. Kolom ini belum melakukan normalisasi, scraping ulang, atau ekspor nyata."
-        title="Pratinjau Ulasan Mentah"
+        description="Dataset mentah tidak dimuat ke frontend. Tabel ini tetap contoh mock fallback untuk memperlihatkan bentuk inspeksi ulasan."
+        title="Pratinjau Ulasan Mentah - Mock/Fallback"
       >
         <SimpleTable
           columns={[

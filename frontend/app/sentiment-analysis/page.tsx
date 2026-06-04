@@ -10,18 +10,33 @@ import { SENTIMENT_LABELS, SENTIMENT_META } from "@/constants/sentiment";
 import {
   mockSentimentPrediction,
   mockSentimentResults,
-  mockSentimentSummary,
 } from "@/lib/mock-data";
+import { researchResults } from "@/lib/research-results";
+import type { ReviewSentimentLabel } from "@/types/sentiment";
 
 function formatPercent(value: number) {
   return `${Math.round(value * 100)}%`;
 }
 
+function formatMetricPercent(value: number) {
+  return `${(value * 100).toFixed(2)}%`;
+}
+
+function toSentimentKey(label: string): ReviewSentimentLabel {
+  return label.toLowerCase() as ReviewSentimentLabel;
+}
+
 const sentimentDistributionData = SENTIMENT_LABELS.map((label) => ({
   label,
   name: SENTIMENT_META[label].label,
-  count: mockSentimentSummary.counts[label],
-  percentage: mockSentimentSummary.percentages[label],
+  count:
+    researchResults.datasetSummary.finalLabelDistribution.find(
+      (item) => toSentimentKey(item.label) === label,
+    )?.count ?? 0,
+  percentage:
+    researchResults.datasetSummary.finalLabelDistribution.find(
+      (item) => toSentimentKey(item.label) === label,
+    )?.percentage ?? 0,
   color: SENTIMENT_META[label].chartColor,
 })) satisfies SentimentDistributionDatum[];
 
@@ -29,52 +44,64 @@ export default function SentimentAnalysisPage() {
   return (
     <AppShell>
       <PageHeader
-        description="Tampilan mock untuk melihat ringkasan hasil IndoBERT, contoh prediksi tunggal, distribusi sentimen, dan tabel hasil batch."
+        description="Ringkasan hasil riset IndoBERT, distribusi sentimen final, dan contoh prediksi mock fallback untuk bentuk UI inference."
         eyebrow="IndoBERT"
         title="Analisis Sentimen"
       />
 
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
         <StatCard
-          description="Jumlah ulasan batch mock."
+          description="Total ulasan dari pipeline riset."
           label="Total Ulasan"
-          value={mockSentimentSummary.totalReviews}
+          value={researchResults.datasetSummary.totalReviews.toLocaleString("id-ID")}
         />
         <StatCard
-          description={`${mockSentimentSummary.percentages.positive}% dari data mock.`}
+          description="Distribusi label final setelah relabeling."
           label="Positif"
           tone="positive"
-          value={mockSentimentSummary.counts.positive}
+          value={
+            researchResults.datasetSummary.finalLabelDistribution
+              .find((item) => item.label === "Positive")
+              ?.count.toLocaleString("id-ID") ?? "0"
+          }
         />
         <StatCard
-          description={`${mockSentimentSummary.percentages.neutral}% dari data mock.`}
+          description="Distribusi label final setelah relabeling."
           label="Netral"
           tone="neutral"
-          value={mockSentimentSummary.counts.neutral}
+          value={
+            researchResults.datasetSummary.finalLabelDistribution
+              .find((item) => item.label === "Neutral")
+              ?.count.toLocaleString("id-ID") ?? "0"
+          }
         />
         <StatCard
-          description={`${mockSentimentSummary.percentages.negative}% dari data mock.`}
+          description="Distribusi label final setelah relabeling."
           label="Negatif"
           tone="negative"
-          value={mockSentimentSummary.counts.negative}
+          value={
+            researchResults.datasetSummary.finalLabelDistribution
+              .find((item) => item.label === "Negative")
+              ?.count.toLocaleString("id-ID") ?? "0"
+          }
         />
         <StatCard
-          description="Rata-rata confidence prediksi batch."
-          label="Confidence Rata-rata"
+          description="Macro F1 kandidat final IndoBERT run_3."
+          label="Macro F1"
           tone="primary"
-          value={formatPercent(mockSentimentSummary.averageConfidence)}
+          value={formatMetricPercent(researchResults.indobertEvaluation.f1Macro)}
         />
         <StatCard
-          description={mockSentimentSummary.modelVersion}
+          description={researchResults.indobertEvaluation.finalCandidate}
           label="Model"
-          value={mockSentimentSummary.modelName}
+          value={researchResults.indobertEvaluation.modelName}
         />
       </section>
 
       <section className="grid gap-6 xl:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
         <ChartCard
-          description="Form ini hanya menggambarkan interaksi prediksi; tidak ada panggilan model nyata dari frontend."
-          title="Input Ulasan Tunggal Mock"
+          description="Form ini tetap mock fallback untuk menggambarkan interaksi prediksi; belum ada panggilan model nyata dari frontend."
+          title="Input Ulasan Tunggal - Mode Mock/Fallback"
         >
           <div className="space-y-4">
             <label
@@ -94,13 +121,13 @@ export default function SentimentAnalysisPage() {
               disabled
               type="button"
             >
-              Jalankan Prediksi Mock
+              Jalankan Prediksi Mode Mock/Fallback
             </button>
           </div>
         </ChartCard>
 
         <SummaryCard
-          description="Hasil ini berasal dari mock data FE-07 untuk menyiapkan tampilan sebelum API inference tersedia."
+          description="Kartu ini menunjukkan output mock fallback. Metrik model final ditampilkan pada halaman Evaluasi Model."
           items={[
             {
               label: "Prediksi",
@@ -114,8 +141,8 @@ export default function SentimentAnalysisPage() {
             },
             {
               label: "Model",
-              value: mockSentimentPrediction.modelName,
-              description: mockSentimentPrediction.modelVersion,
+              value: researchResults.indobertEvaluation.modelName,
+              description: researchResults.indobertEvaluation.finalCandidate,
             },
             {
               label: "Status",
@@ -123,7 +150,7 @@ export default function SentimentAnalysisPage() {
               description: "Belum menjalankan inferensi model nyata.",
             },
           ]}
-          title="Hasil Prediksi Sentimen Mock"
+          title="Hasil Prediksi Sentimen - Mode Mock/Fallback"
         >
           <p className="rounded-md border border-blue-100 bg-blue-50 px-4 py-3 text-sm leading-6 text-blue-900">
             {mockSentimentPrediction.explanation}
@@ -132,16 +159,16 @@ export default function SentimentAnalysisPage() {
       </section>
 
       <ChartCard
-        description="Ringkasan distribusi sentimen batch dari data mock."
-        insight="Halaman ini menyiapkan bentuk visual untuk integrasi hasil IndoBERT dari backend pada fase API."
-        title="Distribusi Sentimen"
+        description="Ringkasan distribusi sentimen final dari pipeline relabeling riset."
+        insight={researchResults.reportSummary.sentimentFindings}
+        title="Distribusi Sentimen Final"
       >
         <SentimentDistributionChart data={sentimentDistributionData} />
       </ChartCard>
 
       <ChartCard
-        description="Tabel hasil batch menampilkan teks ulasan, label, confidence, dan probabilitas mock."
-        title="Tabel Hasil Sentimen"
+        description="Tabel ini tetap mock fallback karena FE-15 hanya mengintegrasikan ringkasan output riset, bukan prediksi baris penuh."
+        title="Tabel Hasil Sentimen - Mode Mock/Fallback"
       >
         <SimpleTable
           columns={[

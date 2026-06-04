@@ -23,6 +23,7 @@
 - [x] FE-12 — API integration preparation selesai
 - [x] FE-13 — Real API integration demo mode selesai
 - [x] FE-14 — Demo QA, UI polish, dan supervisor presentation readiness selesai
+- [x] FE-15 — Research output data integration selesai
 
 ---
 
@@ -1002,4 +1003,74 @@ Implementation scope:
 
 ```txt
 UI copy/documentation polish only. No backend calculation logic, model training, Prisma, auth, user/session, or major feature changes.
+```
+
+---
+
+## FE-15 — Research Output Data Integration
+
+### Objective
+
+Mengganti data mock generik pada halaman utama dengan ringkasan output riset yang bersumber dari artefak proyek SentiRank, tanpa menghapus mock fallback dan tanpa mengubah integrasi API AHP/Fuzzy AHP FE-13.
+
+### Task Checklist
+
+- [x] Audit artefak metodologi, notebook, figure, dan output EDA/evaluasi yang tersedia.
+- [x] Buat sumber data terpusat `frontend/lib/research-results.ts`.
+- [x] Integrasikan `datasetSummary`.
+- [x] Integrasikan `scrapingSummary`.
+- [x] Integrasikan `preprocessingSummary`.
+- [x] Integrasikan `indobertEvaluation`.
+- [x] Integrasikan `svmEvaluation`.
+- [x] Integrasikan `modelSelectionSummary`.
+- [x] Integrasikan `reportSummary`.
+- [x] Update `/dashboard` agar memakai ringkasan riset.
+- [x] Update `/dataset` agar memakai ringkasan riset.
+- [x] Update `/scraping` agar memakai ringkasan riset.
+- [x] Update `/preprocessing` agar memakai ringkasan riset.
+- [x] Update `/sentiment-analysis` agar memakai ringkasan riset.
+- [x] Update `/aspect-classification` agar memakai ringkasan riset.
+- [x] Update `/model-evaluation` agar memakai ringkasan riset.
+- [x] Update `/reports` agar memakai ringkasan riset.
+- [x] Pertahankan mock fallback untuk tabel/preview yang belum memiliki artefak baris penuh.
+- [x] Pertahankan FE-13 AHP/Fuzzy AHP API integration dan warning sample development.
+- [x] Buat `docs/frontend/research-output-integration.md`.
+- [x] Jalankan `npm run lint`.
+- [x] Jalankan `npm run build`.
+
+### Acceptance Criteria
+
+- [x] Research summary values dipusatkan di satu file dan tidak disebar langsung di page components.
+- [x] Dataset summary mencakup total review, sumber scraping, distribusi rating, distribusi label, duplicate/missing summary, date range, dan catatan pipeline.
+- [x] Scraping summary mencakup package/source Spotify, batch strategy, collected data summary, rating groups, dan raw dataset notes.
+- [x] Preprocessing summary mencakup preprocessing steps, relabeling summary, aspect labeling summary, processed data notes, dan nilai TBD untuk contoh yang tidak tersedia.
+- [x] IndoBERT evaluation memakai final candidate `run_3_weighted_loss_lr_1e-5` dengan metrik dari artefak riset.
+- [x] SVM evaluation memakai final classifier `merged_5class` dengan metrik dari artefak riset.
+- [x] Model selection summary menjelaskan kandidat final, alasan pemilihan, dan limitation notes.
+- [x] Report summary menampilkan temuan dataset, sentimen, aspek, evaluasi model, dan batas AHP/Fuzzy AHP.
+- [x] Halaman Dashboard, Dataset, Scraping, Preprocessing, Sentiment Analysis, Aspect Classification, Model Evaluation, dan Reports memakai research summary data.
+- [x] UI user-facing tetap Bahasa Indonesia dan method names tetap IndoBERT, SVM, AHP, Fuzzy AHP, API, TFN, dan Consistency Ratio.
+- [x] Real research summary data, mock UI fallback data, dan sample development AHP/Fuzzy AHP dibedakan dengan jelas.
+- [x] Tidak ada angka metrik yang dikarang; data tidak tersedia diberi `TBD` atau catatan tidak tersedia.
+- [x] Tidak ada training model, perubahan backend calculation logic, Prisma schema, migration, auth, userId/sessionId, atau penghapusan mock fallback.
+- [x] `docs/frontend/research-output-integration.md` mencatat purpose, source artifacts, integrated data, unavailable/TBD data, affected pages, limitations, dan next phase recommendation.
+- [x] `npm run lint` berhasil.
+- [x] `npm run build` berhasil.
+
+### Completion Note
+
+Completed on 2026-06-04. FE-15 adds centralized research output data in `frontend/lib/research-results.ts`, updates the primary demo pages to use research summary metrics from project artifacts, preserves mock fallback and FE-13 AHP/Fuzzy AHP API demo behavior, documents unavailable/TBD data, and validates the frontend with lint/build.
+
+### Final Decision
+
+Research output integration selected:
+
+```txt
+Centralized research summary data source consumed by supervisor-demo pages
+```
+
+Implementation scope:
+
+```txt
+Frontend research summary integration only. No backend calculation changes, model training, Prisma/auth changes, final AHP/Fuzzy AHP expert judgement, or removal of mock fallback behavior.
 ```

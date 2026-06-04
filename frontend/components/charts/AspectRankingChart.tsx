@@ -10,10 +10,9 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
-import type { AspectLabel } from "@/types/aspect";
 
 export interface AspectRankingDatum {
-  aspect: AspectLabel;
+  aspect: string;
   label: string;
   count: number;
 }

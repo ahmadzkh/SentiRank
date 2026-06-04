@@ -2,15 +2,14 @@ import { ChartCard } from "@/components/cards/ChartCard";
 import { StatCard } from "@/components/cards/StatCard";
 import { SummaryCard } from "@/components/cards/SummaryCard";
 import { AppShell, PageHeader } from "@/components/layout";
-import { ReviewTable } from "@/components/tables/ReviewTable";
 import { SimpleTable } from "@/components/tables/SimpleTable";
-import { mockPreprocessingSummary, mockReviews } from "@/lib/mock-data";
+import { researchResults } from "@/lib/research-results";
 
 export default function PreprocessingPage() {
   return (
     <AppShell>
       <PageHeader
-        description="Menjelaskan pipeline pembersihan teks sebelum hasil ulasan digunakan oleh IndoBERT dan SVM."
+        description="Menjelaskan pipeline relabeling, pembersihan teks, dan weak aspect labeling sebelum data digunakan oleh IndoBERT dan SVM."
         eyebrow="Persiapan teks"
         title="Prapemrosesan"
       />
@@ -19,36 +18,36 @@ export default function PreprocessingPage() {
         <StatCard
           description="Jumlah ulasan sebelum pipeline teks."
           label="Ulasan Mentah"
-          value={mockPreprocessingSummary.rawReviews}
+          value={researchResults.preprocessingSummary.totalRows.toLocaleString("id-ID")}
         />
         <StatCard
-          description="Baris yang sudah memiliki teks bersih mock."
+          description="Baris dengan teks IndoBERT tersedia."
           label="Ulasan Diproses"
           tone="positive"
-          value={mockPreprocessingSummary.processedReviews}
+          value={researchResults.preprocessingSummary.totalRows.toLocaleString("id-ID")}
         />
         <StatCard
-          description="Tidak ada duplikasi pada sampel demo."
-          label="Duplikasi Dihapus"
-          value={mockPreprocessingSummary.removedDuplicates}
+          description="Label berubah setelah audit rating 3."
+          label="Relabeling"
+          value={researchResults.preprocessingSummary.relabelingSummary.changedLabelCount.toLocaleString("id-ID")}
         />
         <StatCard
-          description="Tidak ada teks kosong setelah pembersihan."
+          description="Teks kosong untuk input IndoBERT."
           label="Kosong Setelah Cleaning"
           tone="positive"
-          value={mockPreprocessingSummary.emptyAfterCleaning}
+          value={researchResults.preprocessingSummary.emptyTextIndobertCount}
         />
         <StatCard
-          description="Total token dari teks bersih mock."
-          label="Token Bersih"
+          description="Baris dengan keyword match setelah refinement."
+          label="Keyword Match"
           tone="primary"
-          value={mockPreprocessingSummary.cleanedTokenCount}
+          value={researchResults.preprocessingSummary.aspectLabelingSummary.rowsWithKeywordMatch.toLocaleString("id-ID")}
         />
         <StatCard
-          description="Status proses untuk demonstrasi skripsi."
+          description="Artefak prapemrosesan tersedia."
           label="Status Pipeline"
           tone="primary"
-          value={mockPreprocessingSummary.status}
+          value="Selesai"
         />
       </section>
 
@@ -89,7 +88,7 @@ export default function PreprocessingPage() {
                 ),
               },
             ]}
-            data={mockPreprocessingSummary.pipelineSteps}
+            data={researchResults.preprocessingSummary.preprocessingSteps}
             minWidthClassName="min-w-[760px]"
             rowKey={(row) => row.id}
           />
@@ -100,7 +99,7 @@ export default function PreprocessingPage() {
           title="Ringkasan Proses"
         >
           <ul className="space-y-3 text-sm leading-6 text-muted-foreground">
-            {mockPreprocessingSummary.noiseSummary.map((item) => (
+            {researchResults.preprocessingSummary.processedDataNotes.map((item) => (
               <li
                 className="rounded-md border border-border bg-background px-4 py-3"
                 key={item}
@@ -113,7 +112,7 @@ export default function PreprocessingPage() {
       </section>
 
       <ChartCard
-        description="Contoh before/after dipertahankan agar transformasi teks dapat diaudit secara visual."
+        description="Contoh before/after spesifik belum tersedia sebagai artefak ringkas frontend. Status ditampilkan eksplisit agar tidak mengarang sampel."
         title="Sampel Teks Sebelum / Sesudah"
       >
         <SimpleTable
@@ -139,26 +138,65 @@ export default function PreprocessingPage() {
               ),
             },
             {
-              key: "status",
-              header: "Status",
+              key: "note",
+              header: "Catatan",
               render: (row) => (
                 <span className="rounded-md border border-blue-200 bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700">
-                  {row.status}
+                  {row.note}
                 </span>
               ),
             },
           ]}
-          data={mockPreprocessingSummary.textSamples}
+          data={researchResults.preprocessingSummary.beforeAfterExamples}
           minWidthClassName="min-w-[840px]"
           rowKey={(row) => row.id}
         />
       </ChartCard>
 
       <ChartCard
-        description="Tabel ini menampilkan data yang siap digunakan oleh halaman Analisis Sentimen dan Klasifikasi Aspek."
+        description="Ringkasan panjang teks sebelum dan sesudah cleaning dari artefak preprocessing."
         title="Ringkasan Data Diproses"
       >
-        <ReviewTable reviews={mockReviews.filter((review) => review.isProcessed)} />
+        <SimpleTable
+          columns={[
+            {
+              key: "stage",
+              header: "Tahap",
+              render: (row) => (
+                <span className="font-medium text-foreground">
+                  {row.stage}
+                </span>
+              ),
+            },
+            {
+              key: "count",
+              header: "Baris",
+              align: "right",
+              render: (row) => row.count.toLocaleString("id-ID"),
+            },
+            {
+              key: "mean",
+              header: "Rata-rata",
+              align: "right",
+              render: (row) => row.mean.toFixed(2),
+            },
+            {
+              key: "median",
+              header: "Median",
+              align: "right",
+              render: (row) => row.median,
+            },
+            {
+              key: "max",
+              header: "Maksimum",
+              align: "right",
+              render: (row) => row.max,
+            },
+          ]}
+          data={researchResults.preprocessingSummary.textLengthBeforeAfter}
+          minWidthClassName="min-w-[680px]"
+          rowKey={(row) => row.stage}
+        />
       </ChartCard>
     </AppShell>
   );
