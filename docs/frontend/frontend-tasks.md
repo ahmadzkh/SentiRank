@@ -22,6 +22,7 @@
 - [x] FE-11 — AHP/Fuzzy AHP prototype selesai
 - [x] FE-12 — API integration preparation selesai
 - [x] FE-13 — Real API integration demo mode selesai
+- [x] FE-14 — Demo QA, UI polish, dan supervisor presentation readiness selesai
 
 ---
 
@@ -930,4 +931,75 @@ Implementation scope:
 
 ```txt
 Frontend demo integration only. Backend calculation logic, auth, database, model training, and final expert judgement workflows remain unchanged.
+```
+
+---
+
+## FE-14 — Demo QA, UI Polish, and Supervisor Presentation Readiness
+
+### Objective
+
+Mempersiapkan frontend SentiRank untuk supervisor demo dengan audit halaman, polish copy UI Bahasa Indonesia, kejelasan mode AHP/Fuzzy AHP, dokumentasi demo, dan validasi lint/build.
+
+### Task Checklist
+
+- [x] Audit landing page `/`.
+- [x] Audit dashboard `/dashboard`.
+- [x] Audit halaman Dataset `/dataset`.
+- [x] Audit halaman Scraping `/scraping`.
+- [x] Audit halaman Preprocessing `/preprocessing`.
+- [x] Audit halaman Sentiment Analysis `/sentiment-analysis`.
+- [x] Audit halaman Aspect Classification `/aspect-classification`.
+- [x] Audit halaman AHP/Fuzzy AHP `/ahp-fuzzy-ahp`.
+- [x] Audit halaman Model Evaluation `/model-evaluation`.
+- [x] Audit halaman Reports `/reports`.
+- [x] Audit halaman Settings `/settings`.
+- [x] Pastikan UI copy utama menggunakan Bahasa Indonesia.
+- [x] Pastikan method names tetap IndoBERT, SVM, AHP, Fuzzy AHP, API, TFN, dan Consistency Ratio.
+- [x] Pastikan layout tetap mengikuti SentiRank Research Analytics Light.
+- [x] Pastikan sidebar, topbar, dan mobile navigation tetap konsisten.
+- [x] Pastikan halaman AHP/Fuzzy AHP menampilkan label `sample_development_only`, `not_final_expert_judgement`, dan `not_final_skripsi_result`.
+- [x] Pastikan backend offline message tetap jelas.
+- [x] Pastikan API success mode dan mock fallback mode tidak menampilkan output duplikatif.
+- [x] Pastikan Consistency Ratio memakai persen dua desimal dan raw CR.
+- [x] Buat `docs/frontend/demo-guide.md`.
+- [x] Jalankan `npm run lint`.
+- [x] Jalankan `npm run build`.
+
+### Acceptance Criteria
+
+- [x] Semua route demo utama dapat diaudit dari sisi struktur UI dan copy.
+- [x] UI user-facing copy memakai Bahasa Indonesia formal untuk demo skripsi.
+- [x] Method names IndoBERT, SVM, AHP, Fuzzy AHP, API, TFN, dan Consistency Ratio tidak diterjemahkan.
+- [x] Semua halaman tetap mengikuti Light Mode dan SentiRank Research Analytics Light.
+- [x] Layout dashboard memakai AppShell, sidebar/topbar, main content, dan mobile navigation yang konsisten.
+- [x] Halaman AHP/Fuzzy AHP menampilkan `sample_development_only`, `not_final_expert_judgement`, dan `not_final_skripsi_result`.
+- [x] Halaman AHP/Fuzzy AHP menyatakan sample development judgement bukan final expert judgement dan bukan hasil final skripsi.
+- [x] Backend offline message berbunyi `Backend API belum aktif. Jalankan ml-service terlebih dahulu.`
+- [x] API success mode hanya menampilkan hasil backend sample sebagai output utama.
+- [x] Backend offline/error mode menampilkan `Mode Mock/Fallback` tanpa menyebut mock sebagai hasil backend.
+- [x] Consistency Ratio ditampilkan dengan format persen dua desimal dan raw CR empat desimal.
+- [x] Mock fallback behavior tetap tersedia.
+- [x] Tidak ada perubahan backend calculation logic.
+- [x] Tidak ada training model, perubahan Prisma schema, migration, auth, userId/sessionId, atau fitur besar baru.
+- [x] `docs/frontend/demo-guide.md` mencakup purpose, cara menjalankan backend, cara menjalankan frontend, `.env.local`, urutan route demo, penjelasan AHP/Fuzzy AHP, catatan sample development judgement, dan troubleshooting.
+- [x] `npm run lint` berhasil.
+- [x] `npm run build` berhasil.
+
+### Completion Note
+
+Completed on 2026-06-04. FE-14 audits and polishes the existing frontend demo surface, adds `docs/frontend/demo-guide.md`, clarifies AHP/Fuzzy AHP demo labels including `not_final_skripsi_result`, preserves mock fallback behavior, and validates the frontend with lint/build.
+
+### Final Decision
+
+Supervisor demo readiness selected:
+
+```txt
+Polished mock-first frontend demo with AHP/Fuzzy AHP backend sample mode and clear final-result warnings
+```
+
+Implementation scope:
+
+```txt
+UI copy/documentation polish only. No backend calculation logic, model training, Prisma, auth, user/session, or major feature changes.
 ```

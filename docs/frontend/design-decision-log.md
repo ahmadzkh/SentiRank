@@ -8,7 +8,7 @@
 | Module           | Frontend UI/UX                     |
 | Document         | Design Decision Log                |
 | Track            | Frontend Track                     |
-| Current Phase    | FE-13 — Real API Integration Demo Mode |
+| Current Phase    | FE-14 — Demo QA, UI Polish, and Supervisor Presentation Readiness |
 | Default Theme    | Light Mode                         |
 | Visual Direction | SentiRank Research Analytics Light |
 | Status           | Draft                              |
@@ -1418,6 +1418,93 @@ Keputusan ini memengaruhi:
 
 ```txt
 Gunakan FE-13 sebagai demo integration proof. Integrasi real API halaman lain, CORS policy, auth, user/session tracking, dan final expert judgement tetap menjadi fase lanjutan.
+```
+
+---
+
+# FE-14 — Demo QA, UI Polish, and Supervisor Presentation Readiness
+
+## Decision ID
+
+```txt
+FE-14-D01
+```
+
+## Phase
+
+```txt
+FE-14 — Demo QA, UI Polish, and Supervisor Presentation Readiness
+```
+
+## Date
+
+```txt
+2026-06-04
+```
+
+## Status
+
+```txt
+Approved
+```
+
+---
+
+## Decision
+
+Frontend SentiRank dipoles untuk kesiapan supervisor demo tanpa menambah fitur besar. Halaman demo utama diaudit, dokumentasi demo dibuat, dan halaman AHP/Fuzzy AHP dipertegas agar output sample/development tidak disalahpahami sebagai hasil final skripsi.
+
+Halaman AHP/Fuzzy AHP wajib menampilkan label `sample_development_only`, `not_final_expert_judgement`, dan `not_final_skripsi_result`. Mode backend success menampilkan hasil backend sample sebagai output utama, sedangkan mode backend offline/error menampilkan `Mode Mock/Fallback`.
+
+---
+
+## Reason
+
+Supervisor demo membutuhkan alur yang mudah dijelaskan, copy UI Bahasa Indonesia yang konsisten, warning metodologi yang eksplisit, dan panduan operasional agar demonstrasi tidak bergantung pada improvisasi saat presentasi.
+
+---
+
+## Selected Option
+
+```txt
+Demo readiness polish with explicit sample-development and final-result warnings
+```
+
+---
+
+## Rejected Options
+
+```txt
+Add major new features before demo
+Remove mock fallback behavior
+Modify backend calculation logic for presentation convenience
+Treat sample development judgement as final result
+```
+
+---
+
+## Reason for Rejection
+
+Fitur besar baru akan memperluas risiko sebelum demo. Menghapus mock fallback membuat demo rapuh ketika backend offline. Mengubah backend calculation logic atau menyajikan sample development judgement sebagai hasil final akan melemahkan audit metodologi skripsi.
+
+---
+
+## Impact
+
+Keputusan ini memengaruhi:
+
+- `frontend/app/ahp-fuzzy-ahp/page.tsx`
+- `frontend/lib/ahp-demo-payload.ts`
+- `docs/frontend/demo-guide.md`
+- `docs/frontend/frontend-tasks.md`
+- `docs/frontend/design-decision-log.md`
+
+---
+
+## Next Action
+
+```txt
+Gunakan demo guide untuk rehearsal supervisor demo. Integrasi API halaman lain dan final expert judgement tetap menjadi fase lanjutan setelah kontrak/backend siap.
 ```
 
 ---

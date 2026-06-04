@@ -45,7 +45,7 @@ import type { FuzzyTriangularNumber as UiFuzzyTriangularNumber } from "@/types/f
 
 const CONSISTENCY_THRESHOLD = 0.1;
 const SAMPLE_DEVELOPMENT_WARNING =
-  "Hasil ini menggunakan sample development judgement dan belum merupakan hasil final expert judgement.";
+  "Hasil ini menggunakan sample development judgement, belum merupakan hasil final expert judgement, dan bukan hasil final skripsi.";
 
 type DemoStatus =
   | "idle"
@@ -446,7 +446,7 @@ function InitialPreviewSection() {
           },
           {
             description:
-              "Payload demo akan memakai judgement sample development yang sudah dilabeli bukan final expert judgement.",
+              "Payload demo akan memakai judgement sample development yang sudah dilabeli bukan final expert judgement dan bukan hasil final skripsi.",
             label: "Judgement",
             value: "Sample development",
           },
@@ -915,7 +915,7 @@ export default function AhpFuzzyAhpPrototypePage() {
             <p className="mt-2 max-w-3xl text-sm leading-6 text-amber-800">
               Backend API belum aktif. Nilai di bawah berasal dari data mock
               frontend agar halaman tetap demo-visible, bukan hasil backend dan
-              bukan hasil final expert judgement.
+              bukan hasil final expert judgement atau hasil final skripsi.
             </p>
           </div>
 

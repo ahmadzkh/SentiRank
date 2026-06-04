@@ -113,4 +113,5 @@ export function buildFuzzyAhpDemoPayload(
 export const AHP_DEMO_LABELS = [
   "sample_development_only",
   "not_final_expert_judgement",
+  "not_final_skripsi_result",
 ] as const;
