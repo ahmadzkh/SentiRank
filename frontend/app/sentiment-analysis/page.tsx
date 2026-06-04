@@ -7,11 +7,8 @@ import type { SentimentDistributionDatum } from "@/components/charts/SentimentDi
 import { AppShell, PageHeader } from "@/components/layout";
 import { SimpleTable } from "@/components/tables/SimpleTable";
 import { SENTIMENT_LABELS, SENTIMENT_META } from "@/constants/sentiment";
-import {
-  mockSentimentPrediction,
-  mockSentimentResults,
-} from "@/lib/mock-data";
 import { researchResults } from "@/lib/research-results";
+import { researchSentimentPredictionSamples } from "@/lib/research-sample-reviews";
 import type { ReviewSentimentLabel } from "@/types/sentiment";
 
 function formatPercent(value: number) {
@@ -40,50 +37,32 @@ const sentimentDistributionData = SENTIMENT_LABELS.map((label) => ({
   color: SENTIMENT_META[label].chartColor,
 })) satisfies SentimentDistributionDatum[];
 
+const sentimentPreview = researchSentimentPredictionSamples[0];
+const dominantSentiment = researchResults.datasetSummary.finalLabelDistribution.reduce(
+  (current, item) => (item.count > current.count ? item : current),
+  researchResults.datasetSummary.finalLabelDistribution[0],
+);
+
 export default function SentimentAnalysisPage() {
   return (
     <AppShell>
       <PageHeader
-        description="Ringkasan hasil riset IndoBERT, distribusi sentimen final, dan contoh prediksi mock fallback untuk bentuk UI inference."
+        description="Ringkasan hasil riset IndoBERT, distribusi sentimen final, dan sampel prediksi dari artefak evaluasi."
         eyebrow="IndoBERT"
         title="Analisis Sentimen"
       />
 
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
+      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <StatCard
           description="Total ulasan dari pipeline riset."
           label="Total Ulasan"
           value={researchResults.datasetSummary.totalReviews.toLocaleString("id-ID")}
         />
         <StatCard
-          description="Distribusi label final setelah relabeling."
-          label="Positif"
-          tone="positive"
-          value={
-            researchResults.datasetSummary.finalLabelDistribution
-              .find((item) => item.label === "Positive")
-              ?.count.toLocaleString("id-ID") ?? "0"
-          }
-        />
-        <StatCard
-          description="Distribusi label final setelah relabeling."
-          label="Netral"
-          tone="neutral"
-          value={
-            researchResults.datasetSummary.finalLabelDistribution
-              .find((item) => item.label === "Neutral")
-              ?.count.toLocaleString("id-ID") ?? "0"
-          }
-        />
-        <StatCard
-          description="Distribusi label final setelah relabeling."
-          label="Negatif"
-          tone="negative"
-          value={
-            researchResults.datasetSummary.finalLabelDistribution
-              .find((item) => item.label === "Negative")
-              ?.count.toLocaleString("id-ID") ?? "0"
-          }
+          description="Label final terbanyak setelah relabeling."
+          label="Label Dominan"
+          tone="primary"
+          value={dominantSentiment?.label ?? "Belum tersedia"}
         />
         <StatCard
           description="Macro F1 kandidat final IndoBERT run_3."
@@ -100,8 +79,8 @@ export default function SentimentAnalysisPage() {
 
       <section className="grid gap-6 xl:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
         <ChartCard
-          description="Form ini tetap mock fallback untuk menggambarkan interaksi prediksi; belum ada panggilan model nyata dari frontend."
-          title="Input Ulasan Tunggal - Mode Mock/Fallback"
+          description="Contoh ini berasal dari file prediksi evaluasi IndoBERT; frontend tidak menjalankan inferensi model."
+          title="Contoh Input Ulasan dari Artefak Riset"
         >
           <div className="space-y-4">
             <label
@@ -112,7 +91,7 @@ export default function SentimentAnalysisPage() {
             </label>
             <textarea
               className="min-h-32 w-full resize-none rounded-md border border-input bg-white px-3 py-2 text-sm leading-6 text-foreground outline-none ring-offset-background placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring"
-              defaultValue={mockSentimentPrediction.inputText}
+              defaultValue={sentimentPreview?.reviewText ?? "Belum tersedia di artefak riset"}
               id="mock-review-input"
               readOnly
             />
@@ -121,23 +100,38 @@ export default function SentimentAnalysisPage() {
               disabled
               type="button"
             >
-              Jalankan Prediksi Mode Mock/Fallback
+              Prediksi dari Artefak Evaluasi
             </button>
           </div>
         </ChartCard>
 
         <SummaryCard
-          description="Kartu ini menunjukkan output mock fallback. Metrik model final ditampilkan pada halaman Evaluasi Model."
+          description="Kartu ini menunjukkan sampel output IndoBERT dari artefak evaluasi, bukan inferensi runtime frontend."
           items={[
             {
               label: "Prediksi",
-              value: <SentimentBadge sentiment={mockSentimentPrediction.label} />,
-              description: "Label sentimen mock untuk teks contoh.",
+              value: (
+                <SentimentBadge
+                  sentiment={sentimentPreview?.predictedLabel ?? "neutral"}
+                />
+              ),
+              description: "Label prediksi IndoBERT pada sampel evaluasi.",
             },
             {
               label: "Confidence",
-              value: formatPercent(mockSentimentPrediction.confidence),
-              description: "Nilai confidence sintetis untuk UI.",
+              value: sentimentPreview
+                ? formatMetricPercent(sentimentPreview.confidence)
+                : "Belum tersedia",
+              description: "Confidence dari prediction artifact.",
+            },
+            {
+              label: "Label final",
+              value: (
+                <SentimentBadge
+                  sentiment={sentimentPreview?.finalLabel ?? "neutral"}
+                />
+              ),
+              description: "Label target setelah relabeling.",
             },
             {
               label: "Model",
@@ -146,14 +140,16 @@ export default function SentimentAnalysisPage() {
             },
             {
               label: "Status",
-              value: "Hanya mock",
-              description: "Belum menjalankan inferensi model nyata.",
+              value: "Artefak riset",
+              description: "Belum menjalankan inferensi API dari halaman frontend.",
             },
           ]}
-          title="Hasil Prediksi Sentimen - Mode Mock/Fallback"
+          title="Hasil Prediksi Sentimen - Sampel Riset"
         >
           <p className="rounded-md border border-blue-100 bg-blue-50 px-4 py-3 text-sm leading-6 text-blue-900">
-            {mockSentimentPrediction.explanation}
+            Sampel prediksi ini dibaca dari output evaluasi IndoBERT
+            `run_3_weighted_loss_lr_1e-5`. Gunakan halaman Evaluasi Model untuk
+            membaca metrik agregat.
           </p>
         </SummaryCard>
       </section>
@@ -167,8 +163,8 @@ export default function SentimentAnalysisPage() {
       </ChartCard>
 
       <ChartCard
-        description="Tabel ini tetap mock fallback karena FE-15 hanya mengintegrasikan ringkasan output riset, bukan prediksi baris penuh."
-        title="Tabel Hasil Sentimen - Mode Mock/Fallback"
+        description="Sampel kecil dari `indobert_test_predictions.csv`; bukan panggilan API runtime."
+        title="Tabel Sampel Prediksi Sentimen Riset"
       >
         <SimpleTable
           columns={[
@@ -185,13 +181,18 @@ export default function SentimentAnalysisPage() {
             {
               key: "label",
               header: "Label",
-              render: (row) => <SentimentBadge sentiment={row.label} />,
+              render: (row) => <SentimentBadge sentiment={row.predictedLabel} />,
+            },
+            {
+              key: "finalLabel",
+              header: "Final",
+              render: (row) => <SentimentBadge sentiment={row.finalLabel} />,
             },
             {
               key: "confidence",
               header: "Confidence",
               align: "right",
-              render: (row) => formatPercent(row.confidence),
+              render: (row) => formatMetricPercent(row.confidence),
             },
             {
               key: "probability",
@@ -205,8 +206,8 @@ export default function SentimentAnalysisPage() {
               ),
             },
           ]}
-          data={mockSentimentResults}
-          minWidthClassName="min-w-[880px]"
+          data={researchSentimentPredictionSamples}
+          minWidthClassName="min-w-[940px]"
           rowKey={(row) => row.id}
         />
       </ChartCard>

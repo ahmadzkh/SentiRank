@@ -30,7 +30,7 @@ export function ReviewTable({
   return (
     <div className="overflow-hidden rounded-lg border border-border">
       <div className="overflow-x-auto">
-        <table className="min-w-[840px] w-full border-collapse bg-card text-left text-sm">
+        <table className="min-w-[920px] w-full border-collapse bg-card text-left text-sm">
           <thead className="bg-slate-50 text-xs font-semibold uppercase tracking-normal text-muted-foreground">
             <tr>
               <th className="px-4 py-3">Ulasan</th>
@@ -43,8 +43,8 @@ export function ReviewTable({
           <tbody className="divide-y divide-border">
             {reviews.map((review) => (
               <tr className="align-top hover:bg-slate-50" key={review.id}>
-                <td className="max-w-[360px] px-4 py-4">
-                  <p className="line-clamp-2 font-medium leading-6 text-foreground">
+                <td className="max-w-[440px] px-4 py-4">
+                  <p className="line-clamp-3 break-words font-medium leading-6 text-foreground">
                     {review.text}
                   </p>
                   <p className="mt-1 text-xs text-muted-foreground">

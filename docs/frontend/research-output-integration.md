@@ -215,6 +215,90 @@ Visualisasi baru mencakup chart distribusi rating, chart sentimen final, chart t
 - FE-15B tidak menjalankan ulang notebook, scraping, preprocessing, training, atau backend service.
 - Aspect dan candidate terms tetap weak-label/exploratory dan tidak boleh diperlakukan sebagai final expert judgement AHP/Fuzzy AHP.
 
+## FE-15C — UI Deduplication and Real Dataset Sample Integration
+
+### Files Inspected
+
+- `datasets/processed/reviews_final.csv`
+- `datasets/processed/reviews_with_aspect_labels_refined.csv`
+- `datasets/processed/svm/svm_aspect_dataset.csv`
+- `datasets/outputs/eda/03_indobert/run_3_weighted_loss_lr_1e-5/indobert_test_predictions.csv`
+- `datasets/outputs/eda/04_svm/svm_merged_5class_predictions.csv`
+- `frontend/app/dashboard/page.tsx`
+- `frontend/app/dataset/page.tsx`
+- `frontend/app/scraping/page.tsx`
+- `frontend/app/sentiment-analysis/page.tsx`
+- `frontend/app/aspect-classification/page.tsx`
+- `frontend/app/model-evaluation/page.tsx`
+- `frontend/app/reports/page.tsx`
+- `frontend/components/tables/ReviewTable.tsx`
+- `frontend/components/cards/StatCard.tsx`
+
+### Real Data Files Used
+
+FE-15C menambahkan sampel data real terpusat:
+
+```txt
+frontend/lib/research-sample-reviews.ts
+```
+
+Data yang digunakan:
+
+- `datasets/processed/reviews_with_aspect_labels_refined.csv` untuk 10 sampel review riset dan 10 sampel aspek weak-label.
+- `datasets/outputs/eda/03_indobert/run_3_weighted_loss_lr_1e-5/indobert_test_predictions.csv` untuk 10 sampel prediksi sentimen IndoBERT.
+
+Sampel hanya memuat baris kecil untuk UI. `external_id` asli tidak diekspos di frontend.
+
+### Remaining Mock / Fallback Areas
+
+- Halaman AHP/Fuzzy AHP tetap mempertahankan `Mode Mock/Fallback` ketika backend offline.
+- Dashboard dan Reports masih menampilkan preview AHP/Fuzzy AHP sample development/mock fallback karena final expert judgement belum tersedia.
+- Form prediksi sentimen tetap non-interaktif; sampel yang ditampilkan berasal dari artefak evaluasi, bukan inference API runtime.
+
+### Mock / Fallback Removed
+
+- `/dataset` tidak lagi memakai `mockReviews`; tabel review memakai `researchSampleReviews`.
+- `/dashboard` tidak lagi memakai `mockReviews` untuk tabel ulasan negatif; tabel memakai sampel real riset.
+- `/scraping` tidak lagi memakai `mockReviews` untuk preview review; tabel memakai sampel real riset.
+- `/sentiment-analysis` tidak lagi memakai `mockSentimentResults`; tabel memakai sampel prediksi IndoBERT dari artefak evaluasi.
+- `/aspect-classification` tidak lagi memakai `mockAspectResults`; tabel memakai sampel aspek weak-label dari artefak riset.
+
+### UI Duplication Removed
+
+- `/dataset`: kartu `Review Mentah` dan `Duplikasi` dihapus dari KPI atas karena nilainya sudah tersedia pada ringkasan dan tabel kualitas data.
+- `/sentiment-analysis`: kartu Positif/Netral/Negatif dihapus karena distribusi sudah ditampilkan melalui chart.
+- `/aspect-classification`: kartu `Kriteria` dan `Sampel Aspek` dihapus karena nilainya sudah jelas pada chart/tabel.
+- `/model-evaluation`: kartu metrik detail berulang dihapus. Halaman kini memakai 4 KPI utama, chart perbandingan metrik, tabel detail, dan confusion matrix full-width.
+- `/reports`: KPI dikurangi agar halaman berfungsi sebagai ringkasan, bukan duplikasi dashboard.
+- `/scraping`: package/region dipindahkan dari kartu KPI ke ringkasan agar `com.spotify.music` tidak menjadi nilai besar yang overflow.
+
+### Tables Converted to One-Row / Full-Width Layout
+
+- `/dataset`: tabel kualitas data, rating, label before/after, text length before/after, aspect by sentiment, General fallback/candidate terms, artifact references, dan review samples dibuat full-width per section.
+- `/scraping`: tabel parameter scraping, quota, dan sample review dibuat sebagai section terpisah.
+- `/model-evaluation`: IndoBERT confusion matrix dan SVM confusion matrix dipisah menjadi card full-width vertikal.
+- `/reports`: tabel `Metrik Kunci` dipisah dari summary card agar tidak berdampingan dengan content lain.
+
+### Charts Prioritized
+
+- Dataset page tetap memprioritaskan chart untuk distribusi rating, sentimen, temporal, rating per bulan, panjang teks, dan aspek.
+- Model Evaluation page menambahkan chart perbandingan metrik model untuk Accuracy, Precision, Recall, dan Macro F1.
+- Tabel dipertahankan untuk data yang membutuhkan angka presisi atau banyak kolom, seperti confusion matrix, data quality audit, artifact references, dan sample reviews.
+
+### Metrics Unavailable / TBD
+
+- Final expert judgement AHP/Fuzzy AHP belum tersedia.
+- Real API inference untuk sentiment/aspect belum digunakan dari halaman frontend.
+- Full raw dataset tidak dimuat langsung ke frontend.
+- PNG figures tetap hanya menjadi artefak referensi; tidak digunakan untuk inferensi angka.
+
+### Risks and Limitations
+
+- Sampel review adalah subset kecil yang dipilih untuk demonstrasi UI dan tidak mewakili distribusi penuh.
+- Sampel aspek berasal dari weak-label refinement, bukan ground truth expert.
+- Beberapa teks review real dapat mengandung gaya bahasa pengguna asli; FE-15C memilih sampel yang lebih aman untuk presentasi dan tidak mengekspos identifier asli.
+- Data masih statis di frontend dan belum dimigrasikan ke service/API runtime.
+
 ## Next Phase Recommendation
 
 Fase berikutnya sebaiknya mengarah ke integrasi data runtime bertahap untuk dataset/sentimen/aspek/evaluasi melalui service layer FE-12, atau finalisasi expert judgement AHP/Fuzzy AHP sebelum menampilkan hasil prioritas sebagai output final skripsi.

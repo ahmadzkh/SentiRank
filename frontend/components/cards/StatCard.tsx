@@ -37,7 +37,7 @@ export function StatCard({
       )}
     >
       <p className="text-sm font-medium text-muted-foreground">{label}</p>
-      <div className="mt-3 text-2xl font-semibold tracking-normal text-foreground">
+      <div className="mt-3 min-w-0 break-words text-2xl font-semibold tracking-normal text-foreground">
         {value}
       </div>
       {description ? (

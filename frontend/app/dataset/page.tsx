@@ -14,8 +14,8 @@ import { ReviewTable } from "@/components/tables/ReviewTable";
 import { SimpleTable } from "@/components/tables/SimpleTable";
 import type { SimpleTableColumn } from "@/components/tables/SimpleTable";
 import { SENTIMENT_LABELS, SENTIMENT_META } from "@/constants/sentiment";
-import { mockReviews } from "@/lib/mock-data";
 import { researchEdaResults } from "@/lib/research-eda-results";
+import { researchSampleReviews } from "@/lib/research-sample-reviews";
 import type { ReviewSentimentLabel } from "@/types/sentiment";
 
 function formatNumber(value: number) {
@@ -150,6 +150,17 @@ const artifactRows = researchEdaResults.sourceArtifacts.map((artifact) => {
   };
 });
 
+const termRows = [
+  ...researchEdaResults.generalFallback.topTerms.slice(0, 6).map((item) => ({
+    ...item,
+    group: "General fallback",
+  })),
+  ...researchEdaResults.candidateTerms.topTerms.slice(0, 6).map((item) => ({
+    ...item,
+    group: "Candidate term",
+  })),
+];
+
 export default function DatasetPage() {
   return (
     <AppShell>
@@ -159,16 +170,11 @@ export default function DatasetPage() {
         title="Dataset"
       />
 
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
+      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <StatCard
           description={researchEdaResults.datasetSummary.source}
           label="Total Dataset"
           value={formatNumber(researchEdaResults.datasetSummary.totalRows)}
-        />
-        <StatCard
-          description="Jumlah review mentah hasil akuisisi."
-          label="Review Mentah"
-          value={formatNumber(researchEdaResults.datasetSummary.rawReviewCount)}
         />
         <StatCard
           description="Baris untuk analisis sentimen."
@@ -187,19 +193,13 @@ export default function DatasetPage() {
           )}
         />
         <StatCard
-          description="Duplikasi external_id pada audit EDA."
-          label="Duplikasi"
-          tone="positive"
-          value={researchEdaResults.duplicateSummary.duplicateExternalIdCount}
-        />
-        <StatCard
           description="Rentang tanggal review yang tersedia."
           label="Rentang Data"
           value="2014-2026"
         />
       </section>
 
-      <section className="grid gap-6 xl:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
+      <section>
         <SummaryCard
           description="Ringkasan Dataset memakai artefak EDA lokal, bukan mock FE-07."
           items={[
@@ -231,7 +231,9 @@ export default function DatasetPage() {
           ]}
           title="Ringkasan Dataset"
         />
+      </section>
 
+      <section>
         <ChartCard
           description="Audit kualitas data dari missing value, duplikasi, dan teks kosong preprocessing."
           title="Kualitas Data"
@@ -284,14 +286,14 @@ export default function DatasetPage() {
 
         <ChartCard
           description="Distribusi sentimen final setelah proses relabeling."
-          insight="Label Positive dan Negative relatif seimbang; Neutral menjadi lebih kecil setelah relabeling."
+          insight="Label Positif dan Negatif relatif seimbang; Netral menjadi lebih kecil setelah relabeling."
           title="Distribusi Sentimen Final"
         >
           <SentimentDistributionChart data={finalSentimentDistributionData} />
         </ChartCard>
       </section>
 
-      <section className="grid gap-6 xl:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)]">
+      <section>
         <ChartCard
           description="Tabel rating tetap disediakan untuk pembacaan angka presisi."
           title="Tabel Rating"
@@ -303,7 +305,9 @@ export default function DatasetPage() {
             rowKey={(row) => `rating-${row.rating}`}
           />
         </ChartCard>
+      </section>
 
+      <section>
         <ChartCard
           description="Perbandingan label sebelum dan sesudah relabeling."
           title="Label Sebelum / Sesudah Relabeling"
@@ -345,14 +349,16 @@ export default function DatasetPage() {
         </ChartCard>
       </section>
 
-      <section className="grid gap-6 xl:grid-cols-2">
+      <section>
         <ChartCard
           description="Agregasi jumlah review per tahun dari temporal_distribution_monthly_raw."
           title="Distribusi Temporal Tahunan"
         >
           <ReviewTemporalChart data={researchEdaResults.temporalYearlyDistribution} />
         </ChartCard>
+      </section>
 
+      <section>
         <ChartCard
           description="Distribusi bulanan terbaru per rating, dipadatkan ke 12 bulan terakhir agar tetap terbaca."
           title="Distribusi Bulanan per Rating"
@@ -363,7 +369,7 @@ export default function DatasetPage() {
         </ChartCard>
       </section>
 
-      <section className="grid gap-6 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
+      <section>
         <ChartCard
           description="Histogram panjang teks mentah dari artefak akuisisi data."
           insight={`Median teks mentah ${researchEdaResults.rawTextLengthSummary.median} karakter, rata-rata ${researchEdaResults.rawTextLengthSummary.mean.toFixed(2)} karakter.`}
@@ -371,7 +377,9 @@ export default function DatasetPage() {
         >
           <TextLengthHistogramChart data={researchEdaResults.textLengthHistogramRaw} />
         </ChartCard>
+      </section>
 
+      <section>
         <ChartCard
           description="Ringkasan panjang teks sebelum dan sesudah cleaning."
           title="Panjang Teks Sebelum / Sesudah Cleaning"
@@ -419,14 +427,16 @@ export default function DatasetPage() {
         </ChartCard>
       </section>
 
-      <section className="grid gap-6 xl:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
+      <section>
         <ChartCard
           description="Distribusi aspek hasil refinement weak-label, termasuk General fallback."
           title="Distribusi Aspek Refined"
         >
           <AspectRankingChart data={aspectRankingData} />
         </ChartCard>
+      </section>
 
+      <section>
         <ChartCard
           description="Aspek dikelompokkan berdasarkan sentimen untuk melihat sinyal negatif dan positif."
           title="Aspek Berdasarkan Sentimen"
@@ -475,64 +485,45 @@ export default function DatasetPage() {
         </ChartCard>
       </section>
 
-      <section className="grid gap-6 xl:grid-cols-2">
+      <section>
         <SummaryCard
           description="General fallback bersifat eksploratif dan tidak dipakai langsung sebagai kriteria final AHP/Fuzzy AHP."
           title="General Fallback dan Candidate Terms"
         >
-          <div className="grid gap-4 md:grid-cols-2">
-            <div>
-              <p className="text-sm font-medium text-foreground">
-                Top General Terms
-              </p>
-              <SimpleTable
-                columns={[
-                  {
-                    key: "term",
-                    header: "Term",
-                    render: (row) => row.term,
-                  },
-                  {
-                    key: "count",
-                    header: "Jumlah",
-                    align: "right",
-                    render: (row) => formatNumber(row.count),
-                  },
-                ]}
-                data={researchEdaResults.generalFallback.topTerms.slice(0, 6)}
-                minWidthClassName="min-w-[320px]"
-                rowKey={(row) => row.term}
-              />
-            </div>
-            <div>
-              <p className="text-sm font-medium text-foreground">
-                Candidate Terms Negatif/Netral
-              </p>
-              <SimpleTable
-                columns={[
-                  {
-                    key: "term",
-                    header: "Term",
-                    render: (row) => row.term,
-                  },
-                  {
-                    key: "count",
-                    header: "Jumlah",
-                    align: "right",
-                    render: (row) => formatNumber(row.count),
-                  },
-                ]}
-                data={researchEdaResults.candidateTerms.topTerms.slice(0, 6)}
-                minWidthClassName="min-w-[320px]"
-                rowKey={(row) => row.term}
-              />
-            </div>
-          </div>
+          <SimpleTable
+            columns={[
+              {
+                key: "group",
+                header: "Kelompok",
+                render: (row) => row.group,
+              },
+              {
+                key: "term",
+                header: "Term",
+                render: (row) => (
+                  <span className="font-medium text-foreground">
+                    {row.term}
+                  </span>
+                ),
+              },
+              {
+                key: "count",
+                header: "Jumlah",
+                align: "right",
+                render: (row) => formatNumber(row.count),
+              },
+            ]}
+            data={termRows}
+            minWidthClassName="min-w-[620px]"
+            rowKey={(row) => `${row.group}-${row.term}`}
+          />
           <p className="mt-4 rounded-md border border-blue-100 bg-blue-50 px-4 py-3 text-sm leading-6 text-blue-900">
             {researchEdaResults.candidateTerms.methodologyNote}
           </p>
         </SummaryCard>
+      </section>
 
+      <section>
         <ChartCard
           description="Referensi artefak EDA yang dipakai untuk halaman Dataset FE-15B."
           title="Artefak EDA"
@@ -568,10 +559,10 @@ export default function DatasetPage() {
       </section>
 
       <ChartCard
-        description="Dataset mentah baris penuh tidak dimuat ke frontend. Tabel ini tetap contoh mock fallback untuk menjaga tampilan inspeksi review."
-        title="Tabel Ulasan - Mode Mock/Fallback"
+        description="Sampel kecil dari dataset riset dipusatkan di `frontend/lib/research-sample-reviews.ts`; external_id asli tidak ditampilkan."
+        title="Sampel Ulasan Riset"
       >
-        <ReviewTable reviews={mockReviews} />
+        <ReviewTable reviews={researchSampleReviews} />
       </ChartCard>
     </AppShell>
   );

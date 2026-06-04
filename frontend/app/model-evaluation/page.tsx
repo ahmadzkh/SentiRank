@@ -1,7 +1,8 @@
 import { ChartCard } from "@/components/cards/ChartCard";
-import { ModelMetricCard } from "@/components/cards/ModelMetricCard";
 import { StatCard } from "@/components/cards/StatCard";
 import { SummaryCard } from "@/components/cards/SummaryCard";
+import { ModelMetricComparisonChart } from "@/components/charts/ModelMetricComparisonChart";
+import type { ModelMetricComparisonDatum } from "@/components/charts/ModelMetricComparisonChart";
 import { AppShell, PageHeader } from "@/components/layout";
 import { SimpleTable } from "@/components/tables/SimpleTable";
 import { researchResults } from "@/lib/research-results";
@@ -124,27 +125,71 @@ const modelMetrics = [
 const overviewMetrics = [
   {
     id: "overview-indobert-f1",
-    label: "IndoBERT Macro F1",
+    label: "Macro F1 IndoBERT Final",
     value: researchResults.indobertEvaluation.f1Macro,
     description: researchResults.indobertEvaluation.finalCandidate,
-  },
-  {
-    id: "overview-neutral-f1",
-    label: "F1 Netral",
-    value: researchResults.indobertEvaluation.neutralF1,
-    description: "Kelas Netral menjadi fokus evaluasi sentimen.",
+    type: "metric",
   },
   {
     id: "overview-svm-f1",
-    label: "SVM Macro F1",
+    label: "Macro F1 SVM Final",
     value: researchResults.svmEvaluation.f1Macro,
     description: researchResults.svmEvaluation.finalClassifier,
+    type: "metric",
   },
   {
-    id: "overview-svm-min-class",
-    label: "SVM Min Class F1",
-    value: researchResults.svmEvaluation.minClassF1,
-    description: "Stabilitas kelas minoritas pada merged_5class.",
+    id: "overview-indobert-run",
+    label: "Run IndoBERT Terpilih",
+    value: researchResults.indobertEvaluation.finalCandidate,
+    description: "Kandidat final untuk klasifikasi sentimen.",
+    type: "text",
+  },
+  {
+    id: "overview-svm-scenario",
+    label: "Skenario SVM Terpilih",
+    value: researchResults.svmEvaluation.finalClassifier,
+    description: "Skenario final untuk klasifikasi aspek.",
+    type: "text",
+  },
+];
+
+const modelMetricComparisonData = [
+  {
+    metric: "Accuracy",
+    indobert: researchResults.indobertEvaluation.accuracy * 100,
+    svm: researchResults.svmEvaluation.accuracy * 100,
+  },
+  {
+    metric: "Precision",
+    indobert: researchResults.indobertEvaluation.precisionMacro * 100,
+    svm: researchResults.svmEvaluation.precisionMacro * 100,
+  },
+  {
+    metric: "Recall",
+    indobert: researchResults.indobertEvaluation.recallMacro * 100,
+    svm: researchResults.svmEvaluation.recallMacro * 100,
+  },
+  {
+    metric: "Macro F1",
+    indobert: researchResults.indobertEvaluation.f1Macro * 100,
+    svm: researchResults.svmEvaluation.f1Macro * 100,
+  },
+] satisfies ModelMetricComparisonDatum[];
+
+const confusionMatrixModels = [
+  {
+    id: "indobert",
+    modelName: "IndoBERT",
+    modelVersion: researchResults.indobertEvaluation.finalCandidate,
+    sampleCount: researchResults.indobertEvaluation.support,
+    matrix: researchResults.indobertEvaluation.confusionMatrix,
+  },
+  {
+    id: "svm",
+    modelName: "SVM",
+    modelVersion: researchResults.svmEvaluation.finalClassifier,
+    sampleCount: researchResults.svmEvaluation.support,
+    matrix: researchResults.svmEvaluation.confusionMatrix,
   },
 ];
 
@@ -164,42 +209,30 @@ export default function ModelEvaluationPage() {
             key={metric.id}
             label={metric.label}
             tone="primary"
-            value={formatPercent(metric.value)}
+            value={
+              metric.type === "metric" ? (
+                formatPercent(Number(metric.value))
+              ) : (
+                <span className="block text-base leading-6 break-words">
+                  {metric.value}
+                </span>
+              )
+            }
           />
         ))}
       </section>
 
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
-        {modelMetrics.map((metric) => (
-          <ModelMetricCard
-            description={metric.description}
-            key={metric.id}
-            label={metric.label}
-            modelName={metric.modelName}
-            value={formatPercent(metric.value)}
-          />
-        ))}
-      </section>
+      <ChartCard
+        description="Perbandingan metrik utama dari artefak evaluasi final. Tabel di bawah tetap menyediakan angka presisi."
+        title="Perbandingan Metrik Model"
+      >
+        <ModelMetricComparisonChart data={modelMetricComparisonData} />
+      </ChartCard>
 
-      <section className="grid gap-6 xl:grid-cols-2">
-        {[
-          {
-            id: "indobert",
-            modelName: "IndoBERT",
-            modelVersion: researchResults.indobertEvaluation.finalCandidate,
-            sampleCount: researchResults.indobertEvaluation.support,
-            matrix: researchResults.indobertEvaluation.confusionMatrix,
-          },
-          {
-            id: "svm",
-            modelName: "SVM",
-            modelVersion: researchResults.svmEvaluation.finalClassifier,
-            sampleCount: researchResults.svmEvaluation.support,
-            matrix: researchResults.svmEvaluation.confusionMatrix,
-          },
-        ].map((model) => (
+      <section className="space-y-6">
+        {confusionMatrixModels.map((model) => (
           <ChartCard
-            description={`${model.modelName} ${model.modelVersion} dievaluasi pada ${model.sampleCount.toLocaleString("id-ID")} sampel test.`}
+            description={`${model.modelName} ${model.modelVersion} dievaluasi pada ${model.sampleCount.toLocaleString("id-ID")} sampel uji.`}
             key={model.id}
             title={`Confusion Matrix - ${model.modelName}`}
           >

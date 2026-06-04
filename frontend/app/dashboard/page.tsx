@@ -16,10 +16,10 @@ import { SENTIMENT_LABELS, SENTIMENT_META } from "@/constants/sentiment";
 import {
   mockAhpResult,
   mockFuzzyAhpResult,
-  mockReviews,
 } from "@/lib/mock-data";
 import { researchEdaResults } from "@/lib/research-eda-results";
 import { researchResults } from "@/lib/research-results";
+import { researchSampleReviews } from "@/lib/research-sample-reviews";
 import type { ReviewSentimentLabel } from "@/types/sentiment";
 
 function formatWeight(value: number) {
@@ -83,7 +83,7 @@ const priorityRankingItems = mockAhpResult.ranking
     description: item.interpretation,
   })) satisfies RankingCardItem[];
 
-const latestNegativeReviews = mockReviews
+const latestNegativeReviews = researchSampleReviews
   .filter((review) => review.sentimentLabel === "negative")
   .sort(
     (first, second) =>
@@ -276,11 +276,11 @@ export default function DashboardPage() {
       </section>
 
       <ChartCard
-        description="Contoh ulasan negatif tetap memakai mock fallback karena FE-15 hanya mengintegrasikan ringkasan riset, bukan dataset mentah ke frontend."
-        title="Ulasan Negatif Terbaru - Mock/Fallback"
+        description="Sampel kecil dari dataset riset; external_id asli tidak ditampilkan di frontend."
+        title="Sampel Ulasan Negatif Riset"
       >
         <ReviewTable
-          emptyMessage="Belum ada ulasan negatif pada data mock saat ini."
+          emptyMessage="Belum ada ulasan negatif pada sampel riset saat ini."
           reviews={latestNegativeReviews}
         />
       </ChartCard>

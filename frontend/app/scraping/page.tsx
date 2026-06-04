@@ -3,8 +3,8 @@ import { StatCard } from "@/components/cards/StatCard";
 import { SummaryCard } from "@/components/cards/SummaryCard";
 import { AppShell, PageHeader } from "@/components/layout";
 import { SimpleTable } from "@/components/tables/SimpleTable";
-import { mockReviews } from "@/lib/mock-data";
 import { researchResults } from "@/lib/research-results";
+import { researchSampleReviews } from "@/lib/research-sample-reviews";
 
 function formatDate(value: string) {
   return new Intl.DateTimeFormat("id-ID", {
@@ -13,6 +13,10 @@ function formatDate(value: string) {
     year: "numeric",
   }).format(new Date(value));
 }
+
+const acquisitionRate =
+  researchResults.scrapingSummary.collectedReviews /
+  researchResults.scrapingSummary.targetReviews;
 
 export default function ScrapingPage() {
   return (
@@ -23,7 +27,7 @@ export default function ScrapingPage() {
         title="Scraping"
       />
 
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
+      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <StatCard
           description="Target kuota akuisisi berdasarkan rating."
           label="Request Ulasan"
@@ -42,31 +46,21 @@ export default function ScrapingPage() {
           value={researchResults.scrapingSummary.failedItems}
         />
         <StatCard
-          description="Sumber aplikasi Spotify."
-          label="Package"
-          value={researchResults.scrapingSummary.packageName}
-        />
-        <StatCard
-          description="Region dari konfigurasi scraping."
-          label="Region"
-          value={researchResults.scrapingSummary.region}
-        />
-        <StatCard
-          description="Ringkasan berasal dari artefak riset."
-          label="Status Batch"
+          description="Perbandingan terkumpul terhadap target."
+          label="Pencapaian"
           tone="primary"
-          value="Selesai"
+          value={`${(acquisitionRate * 100).toFixed(2)}%`}
         />
       </section>
 
-      <section className="grid gap-6 xl:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)]">
+      <section>
         <SummaryCard
           description="Konfigurasi ini menunjukkan strategi scraping yang digunakan untuk membentuk dataset riset."
           items={[
             {
               label: "Aplikasi",
               value: researchResults.scrapingSummary.appTitle,
-              description: researchResults.scrapingSummary.packageName,
+              description: `Package: ${researchResults.scrapingSummary.packageName}`,
             },
             {
               label: "Rentang data",
@@ -74,8 +68,8 @@ export default function ScrapingPage() {
               description: "Tanggal minimum dan maksimum review.",
             },
             {
-              label: "Bahasa",
-              value: researchResults.scrapingSummary.language,
+              label: "Region / Bahasa",
+              value: `${researchResults.scrapingSummary.region} / ${researchResults.scrapingSummary.language}`,
               description: "Konfigurasi scraping pada Play Store Indonesia.",
             },
             {
@@ -86,7 +80,9 @@ export default function ScrapingPage() {
           ]}
           title="Ringkasan Status Scraping"
         />
+      </section>
 
+      <section>
         <ChartCard
           description="Parameter ditampilkan sebagai kontrak UI, bukan kontrol scraping aktif."
           title="Parameter Scraping Riset"
@@ -178,8 +174,8 @@ export default function ScrapingPage() {
       </ChartCard>
 
       <ChartCard
-        description="Dataset mentah tidak dimuat ke frontend. Tabel ini tetap contoh mock fallback untuk memperlihatkan bentuk inspeksi ulasan."
-        title="Pratinjau Ulasan Mentah - Mock/Fallback"
+        description="Sampel kecil berasal dari dataset riset; dataset mentah penuh tidak dimuat ke frontend."
+        title="Pratinjau Sampel Ulasan Riset"
       >
         <SimpleTable
           columns={[
@@ -193,7 +189,7 @@ export default function ScrapingPage() {
                     {row.text}
                   </p>
                   <p className="mt-1 text-xs text-muted-foreground">
-                    {row.userName}
+                  Sampel real dataset riset
                   </p>
                 </div>
               ),
@@ -214,12 +210,12 @@ export default function ScrapingPage() {
               header: "Status",
               render: () => (
                 <span className="rounded-md border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-medium text-slate-700">
-                  Mock
+                  Sampel riset
                 </span>
               ),
             },
           ]}
-          data={mockReviews}
+          data={researchSampleReviews}
           minWidthClassName="min-w-[760px]"
           rowKey={(row) => row.id}
         />

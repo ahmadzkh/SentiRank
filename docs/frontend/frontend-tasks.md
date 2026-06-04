@@ -1040,6 +1040,12 @@ Mengganti data mock generik pada halaman utama dengan ringkasan output riset yan
 - [x] FE-15B: Tambahkan visualisasi EDA dataset pada `/dataset`.
 - [x] FE-15B: Tambahkan ringkasan EDA relevan pada `/dashboard` dan `/reports`.
 - [x] FE-15B: Dokumentasikan file EDA yang digunakan, direferensikan, dan di-skip.
+- [x] FE-15C: Buat `frontend/lib/research-sample-reviews.ts` untuk sampel review, sentimen, dan aspek real.
+- [x] FE-15C: Ganti tabel review/sentimen/aspek mock dengan sampel riset kecil jika tersedia.
+- [x] FE-15C: Kurangi duplikasi kartu metrik dan pindahkan detail sekunder ke chart/tabel.
+- [x] FE-15C: Pastikan tabel besar memakai layout full-width satu row per section.
+- [x] FE-15C: Perbaiki overflow teks panjang pada card/table.
+- [x] FE-15C: Dokumentasikan mock/fallback yang dihapus dan yang masih tersisa.
 - [x] Jalankan `npm run lint`.
 - [x] Jalankan `npm run build`.
 
@@ -1061,12 +1067,16 @@ Mengganti data mock generik pada halaman utama dengan ringkasan output riset yan
 - [x] `docs/frontend/research-output-integration.md` mencatat purpose, source artifacts, integrated data, unavailable/TBD data, affected pages, limitations, dan next phase recommendation.
 - [x] FE-15B memakai CSV/JSON EDA yang tersedia tanpa mengarang metric dan tanpa memuat raw dataset besar ke frontend.
 - [x] FE-15B memvisualisasikan rating, sentimen, temporal, panjang teks, aspek, kualitas data, General fallback, dan referensi artefak EDA.
+- [x] FE-15C memakai sampel real dari dataset riset dan prediction artifact tanpa mengekspos `external_id` asli.
+- [x] FE-15C menghapus review/sentiment/aspect mock tables dari halaman Dataset, Dashboard, Scraping, Sentiment Analysis, dan Aspect Classification.
+- [x] FE-15C mengurangi kartu metrik berulang, terutama pada Model Evaluation.
+- [x] FE-15C menjaga AHP/Fuzzy AHP sample development warning dan mock fallback backend offline.
 - [x] `npm run lint` berhasil.
 - [x] `npm run build` berhasil.
 
 ### Completion Note
 
-Completed on 2026-06-04. FE-15 adds centralized research output data in `frontend/lib/research-results.ts`, updates the primary demo pages to use research summary metrics from project artifacts, preserves mock fallback and FE-13 AHP/Fuzzy AHP API demo behavior, documents unavailable/TBD data, and validates the frontend with lint/build. FE-15B extends this with `frontend/lib/research-eda-results.ts`, Dataset EDA visualizations, Dashboard/Reports EDA summary cards, and documentation of actual EDA paths and skipped artifacts.
+Completed on 2026-06-04. FE-15 adds centralized research output data in `frontend/lib/research-results.ts`, updates the primary demo pages to use research summary metrics from project artifacts, preserves mock fallback and FE-13 AHP/Fuzzy AHP API demo behavior, documents unavailable/TBD data, and validates the frontend with lint/build. FE-15B extends this with `frontend/lib/research-eda-results.ts`, Dataset EDA visualizations, Dashboard/Reports EDA summary cards, and documentation of actual EDA paths and skipped artifacts. FE-15C adds `frontend/lib/research-sample-reviews.ts`, replaces remaining generic review/sentiment/aspect mock tables with small research-backed samples, reduces duplicated UI metrics, and documents remaining fallback areas.
 
 ### Final Decision
 

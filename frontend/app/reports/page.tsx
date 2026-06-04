@@ -142,29 +142,17 @@ export default function ReportsPage() {
         title="Laporan"
       />
 
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
+      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <StatCard
           description={researchResults.datasetSummary.sourceName}
           label="Dataset"
           value={researchResults.datasetSummary.totalReviews.toLocaleString("id-ID")}
         />
         <StatCard
-          description="Proporsi ulasan negatif final setelah relabeling."
-          label="Ulasan Negatif"
-          tone="negative"
-          value={`${researchResults.datasetSummary.finalLabelDistribution.find((item) => item.label === "Negative")?.percentage.toFixed(2) ?? "0"}%`}
-        />
-        <StatCard
           description={`${researchResults.aspectSummary.topNegativeAspect.count.toLocaleString("id-ID")} sinyal negatif.`}
           label="Aspek Utama"
           tone="primary"
           value={researchResults.aspectSummary.topNegativeAspect.label}
-        />
-        <StatCard
-          description="AHP/Fuzzy AHP belum final expert judgement."
-          label="Prioritas AHP"
-          tone="primary"
-          value="Sampel"
         />
         <StatCard
           description={researchResults.indobertEvaluation.finalCandidate}
@@ -178,7 +166,7 @@ export default function ReportsPage() {
         />
       </section>
 
-      <section className="grid gap-6 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+      <section>
         <SummaryCard
           description="Narasi ini disusun untuk mendukung presentasi hasil, bukan sebagai laporan final otomatis."
           title="Ringkasan Insight Ulasan Spotify SentiRank"
@@ -221,7 +209,9 @@ export default function ReportsPage() {
             ))}
           </div>
         </SummaryCard>
+      </section>
 
+      <section>
         <ChartCard
           description="Metrik kunci dari setiap tahap analisis untuk dibaca cepat oleh evaluator."
           title="Metrik Kunci"

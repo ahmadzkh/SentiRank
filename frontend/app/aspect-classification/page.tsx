@@ -7,12 +7,8 @@ import { AspectRankingChart } from "@/components/charts/AspectRankingChart";
 import type { AspectRankingDatum } from "@/components/charts/AspectRankingChart";
 import { AppShell, PageHeader } from "@/components/layout";
 import { SimpleTable } from "@/components/tables/SimpleTable";
-import { mockAspectResults } from "@/lib/mock-data";
 import { researchResults } from "@/lib/research-results";
-
-function formatPercent(value: number) {
-  return `${Math.round(value * 100)}%`;
-}
+import { researchAspectSampleResults } from "@/lib/research-sample-reviews";
 
 const aspectRankingData =
   researchResults.aspectSummary.mergedAspectDistribution.map((aspect) => ({
@@ -31,12 +27,12 @@ export default function AspectClassificationPage() {
   return (
     <AppShell>
       <PageHeader
-        description="Ringkasan hasil riset SVM merged_5class, ranking aspek, pengelompokan aspek negatif, dan tabel mock fallback untuk bentuk hasil klasifikasi."
+        description="Ringkasan hasil riset SVM merged_5class, ranking aspek, pengelompokan aspek negatif, dan sampel weak-label dari dataset riset."
         eyebrow="SVM"
         title="Klasifikasi Aspek"
       />
 
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
+      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <StatCard
           description="Dataset aspek setelah filter dapat ditindaklanjuti dan confidence."
           label="Ulasan Diklasifikasi"
@@ -53,17 +49,6 @@ export default function AspectClassificationPage() {
           label="Aspek Negatif Utama"
           tone="negative"
           value={topNegativeAspect.label}
-        />
-        <StatCard
-          description="Kandidat kriteria untuk AHP/Fuzzy AHP."
-          label="Kriteria"
-          value={researchResults.aspectSummary.finalCriteriaCount}
-        />
-        <StatCard
-          description="Contoh baris mock fallback untuk bentuk tabel UI."
-          label="Hasil Aspek"
-          tone="primary"
-          value={mockAspectResults.length}
         />
         <StatCard
           description={researchResults.svmEvaluation.finalClassifier}
@@ -109,8 +94,8 @@ export default function AspectClassificationPage() {
       </section>
 
       <ChartCard
-        description="Tabel ini tetap mock fallback karena FE-15 hanya mengintegrasikan ringkasan output riset, bukan prediksi aspek baris penuh."
-        title="Tabel Hasil Aspek - Mode Mock/Fallback"
+        description="Sampel kecil dari dataset aspek weak-label; bukan ground truth expert dan bukan inferensi runtime frontend."
+        title="Tabel Sampel Aspek Riset"
       >
         <SimpleTable
           columns={[
@@ -127,7 +112,14 @@ export default function AspectClassificationPage() {
             {
               key: "aspect",
               header: "Aspek",
-              render: (row) => <AspectBadge aspect={row.label} />,
+              render: (row) => (
+                <div className="space-y-1">
+                  <AspectBadge aspect={row.aspectLabel} />
+                  <p className="text-xs text-muted-foreground">
+                    {row.sourceAspectLabel}
+                  </p>
+                </div>
+              ),
             },
             {
               key: "sentiment",
@@ -137,8 +129,11 @@ export default function AspectClassificationPage() {
             {
               key: "confidence",
               header: "Confidence",
-              align: "right",
-              render: (row) => formatPercent(row.confidence),
+              render: (row) => (
+                <span className="rounded-md border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-medium capitalize text-slate-700">
+                  {row.confidenceLevel}
+                </span>
+              ),
             },
             {
               key: "evidence",
@@ -150,8 +145,8 @@ export default function AspectClassificationPage() {
               ),
             },
           ]}
-          data={mockAspectResults}
-          minWidthClassName="min-w-[900px]"
+          data={researchAspectSampleResults}
+          minWidthClassName="min-w-[940px]"
           rowKey={(row) => row.id}
         />
       </ChartCard>
