@@ -1,0 +1,1 @@
+"""SentiRank sentiment service skeleton."""

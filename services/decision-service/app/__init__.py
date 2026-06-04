@@ -1,0 +1,1 @@
+"""SentiRank decision service skeleton."""

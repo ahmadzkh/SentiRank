@@ -1,0 +1,1 @@
+"""SentiRank review service skeleton."""

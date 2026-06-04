@@ -1,0 +1,98 @@
+services:
+  frontend-service:
+    build:
+      context: ./frontend
+    container_name: sentirank-frontend-service
+    ports:
+      - "${FRONTEND_PORT:-3000}:3000"
+    environment:
+      NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL:-http://localhost:8000}
+    depends_on:
+      - api-gateway-service
+    networks:
+      - sentirank-network
+
+  api-gateway-service:
+    build:
+      context: ./services/api-gateway
+    container_name: sentirank-api-gateway-service
+    ports:
+      - "${API_GATEWAY_PORT:-8000}:8000"
+    environment:
+      REVIEW_SERVICE_URL: ${REVIEW_SERVICE_URL:-http://review-service:8001}
+      SENTIMENT_SERVICE_URL: ${SENTIMENT_SERVICE_URL:-http://sentiment-service:8002}
+      ASPECT_SERVICE_URL: ${ASPECT_SERVICE_URL:-http://aspect-service:8003}
+      DECISION_SERVICE_URL: ${DECISION_SERVICE_URL:-http://decision-service:8004}
+      REPORT_SERVICE_URL: ${REPORT_SERVICE_URL:-http://report-service:8005}
+    depends_on:
+      - review-service
+      - decision-service
+    networks:
+      - sentirank-network
+
+  review-service:
+    build:
+      context: ./services/review-service
+    container_name: sentirank-review-service
+    ports:
+      - "${REVIEW_SERVICE_PORT:-8001}:8001"
+    networks:
+      - sentirank-network
+
+  sentiment-service:
+    build:
+      context: ./services/sentiment-service
+    container_name: sentirank-sentiment-service
+    ports:
+      - "${SENTIMENT_SERVICE_PORT:-8002}:8002"
+    networks:
+      - sentirank-network
+
+  aspect-service:
+    build:
+      context: ./services/aspect-service
+    container_name: sentirank-aspect-service
+    ports:
+      - "${ASPECT_SERVICE_PORT:-8003}:8003"
+    networks:
+      - sentirank-network
+
+  decision-service:
+    build:
+      context: ./services/decision-service
+    container_name: sentirank-decision-service
+    ports:
+      - "${DECISION_SERVICE_PORT:-8004}:8004"
+    networks:
+      - sentirank-network
+
+  report-service:
+    build:
+      context: ./services/report-service
+    container_name: sentirank-report-service
+    ports:
+      - "${REPORT_SERVICE_PORT:-8005}:8005"
+    networks:
+      - sentirank-network
+
+  database-service:
+    image: postgres:16-alpine
+    container_name: sentirank-database-service
+    ports:
+      - "${DATABASE_PORT:-5432}:5432"
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-sentirank}
+      POSTGRES_USER: ${POSTGRES_USER:-sentirank}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-sentirank}
+    volumes:
+      - sentirank-postgres-data:/var/lib/postgresql/data
+    networks:
+      - sentirank-network
+
+networks:
+  sentirank-network:
+    name: sentirank-network
+
+volumes:
+  sentirank-postgres-data:
+    name: sentirank-postgres-data

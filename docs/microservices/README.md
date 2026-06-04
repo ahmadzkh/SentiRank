@@ -4,5 +4,6 @@ This folder contains documentation for the target SentiRank microservice archite
 
 - `architecture.md` defines the target service boundaries, migration strategy, deployment topology, and thesis-stage limitations.
 - `api-contract.md` defines the API Gateway and internal service endpoint contracts.
+- `docker-compose-foundation.md` explains the MS-03 Compose topology, skeleton service ports, and health-check workflow.
 
-These documents are planning artifacts only. They do not implement services, Docker Compose, API Gateway routing, or frontend changes.
+MS-01 and MS-02 are documentation-only planning artifacts. MS-03 adds Docker Compose and minimal health-check skeletons, but it still does not extract business logic, implement API Gateway routing, or change frontend UI behavior.
