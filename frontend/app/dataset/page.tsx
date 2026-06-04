@@ -1,30 +1,52 @@
 import { ChartCard } from "@/components/cards/ChartCard";
 import { StatCard } from "@/components/cards/StatCard";
 import { SummaryCard } from "@/components/cards/SummaryCard";
+import { AspectRankingChart } from "@/components/charts/AspectRankingChart";
+import type { AspectRankingDatum } from "@/components/charts/AspectRankingChart";
+import { RatingDistributionChart } from "@/components/charts/RatingDistributionChart";
+import { RatingTemporalStackedChart } from "@/components/charts/RatingTemporalStackedChart";
+import { ReviewTemporalChart } from "@/components/charts/ReviewTemporalChart";
 import { SentimentDistributionChart } from "@/components/charts/SentimentDistributionChart";
 import type { SentimentDistributionDatum } from "@/components/charts/SentimentDistributionChart";
+import { TextLengthHistogramChart } from "@/components/charts/TextLengthHistogramChart";
 import { AppShell, PageHeader } from "@/components/layout";
 import { ReviewTable } from "@/components/tables/ReviewTable";
 import { SimpleTable } from "@/components/tables/SimpleTable";
 import type { SimpleTableColumn } from "@/components/tables/SimpleTable";
 import { SENTIMENT_LABELS, SENTIMENT_META } from "@/constants/sentiment";
 import { mockReviews } from "@/lib/mock-data";
-import { researchResults } from "@/lib/research-results";
+import { researchEdaResults } from "@/lib/research-eda-results";
 import type { ReviewSentimentLabel } from "@/types/sentiment";
+
+function formatNumber(value: number) {
+  return value.toLocaleString("id-ID");
+}
+
+function formatPercent(value: number) {
+  return `${value.toFixed(2)}%`;
+}
+
+function formatDate(value: string) {
+  return new Intl.DateTimeFormat("id-ID", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  }).format(new Date(value));
+}
 
 function toSentimentKey(label: string): ReviewSentimentLabel {
   return label.toLowerCase() as ReviewSentimentLabel;
 }
 
-const sentimentDistributionData = SENTIMENT_LABELS.map((label) => ({
+const finalSentimentDistributionData = SENTIMENT_LABELS.map((label) => ({
   label,
   name: SENTIMENT_META[label].label,
   count:
-    researchResults.datasetSummary.finalLabelDistribution.find(
+    researchEdaResults.labelDistributionAfterRelabeling.find(
       (item) => toSentimentKey(item.label) === label,
     )?.count ?? 0,
   percentage:
-    researchResults.datasetSummary.finalLabelDistribution.find(
+    researchEdaResults.labelDistributionAfterRelabeling.find(
       (item) => toSentimentKey(item.label) === label,
     )?.percentage ?? 0,
   color: SENTIMENT_META[label].chartColor,
@@ -40,117 +62,178 @@ const ratingColumns = [
     key: "count",
     header: "Jumlah",
     align: "right",
-    render: (row) => row.count,
+    render: (row) => formatNumber(row.count),
   },
   {
-    key: "share",
+    key: "percentage",
     header: "Proporsi",
     align: "right",
-    render: (row) =>
-      `${row.percentage.toFixed(2)}%`,
+    render: (row) => formatPercent(row.percentage),
   },
 ] satisfies SimpleTableColumn<
-  (typeof researchResults.datasetSummary.ratingDistribution)[number]
+  (typeof researchEdaResults.ratingDistribution)[number]
 >[];
+
+const sentimentComparisonRows = SENTIMENT_LABELS.map((label) => {
+  const rawLabel = SENTIMENT_META[label].label;
+  const sourceLabel =
+    rawLabel === "Positif"
+      ? "Positive"
+      : rawLabel === "Netral"
+        ? "Neutral"
+        : "Negative";
+
+  return {
+    id: label,
+    label: rawLabel,
+    before:
+      researchEdaResults.labelDistributionBeforeRelabeling.find(
+        (item) => item.label === sourceLabel,
+      )?.count ?? 0,
+    after:
+      researchEdaResults.labelDistributionAfterRelabeling.find(
+        (item) => item.label === sourceLabel,
+      )?.count ?? 0,
+  };
+});
 
 const qualityChecks = [
   {
-    id: "quality-duplicates",
+    id: "duplicate-external-id",
     label: "Duplikasi external_id",
-    value: `${researchResults.datasetSummary.duplicateSummary.duplicateExternalIdCount} baris`,
+    value: `${formatNumber(
+      researchEdaResults.duplicateSummary.duplicateExternalIdCount,
+    )} baris`,
     status: "Aman",
-    note: researchResults.datasetSummary.duplicateSummary.note,
+    note: researchEdaResults.duplicateSummary.note,
   },
-  ...researchResults.datasetSummary.missingSummary.map((item) => ({
+  ...researchEdaResults.missingValueSummary.map((item) => ({
     id: `missing-${item.field}`,
     label: `Nilai kosong ${item.field}`,
-    value: `${item.missingCount} baris`,
+    value: `${formatNumber(item.missingCount)} baris`,
     status: item.missingCount === 0 ? "Aman" : "Perlu cek",
     note: "Audit missing value dari artefak akuisisi data.",
   })),
+  {
+    id: "empty-indobert",
+    label: "Teks kosong IndoBERT",
+    value: "0 baris",
+    status: "Aman",
+    note: "Ringkasan dari preprocessing_summary.json.",
+  },
+  {
+    id: "empty-svm",
+    label: "Teks kosong SVM",
+    value: "91 baris",
+    status: "Perlu filter",
+    note: "Baris kosong difilter sebelum dataset aspek SVM final.",
+  },
 ];
+
+const aspectRankingData =
+  researchEdaResults.aspectLabelDistributionRefined.map((item) => ({
+    aspect: item.label,
+    label: item.label,
+    count: item.count,
+  })) satisfies AspectRankingDatum[];
+
+const artifactRows = researchEdaResults.sourceArtifacts.map((artifact) => {
+  const [phase = "EDA"] = artifact
+    .replace("datasets/outputs/eda/", "")
+    .split("/");
+
+  return {
+    id: artifact,
+    phase,
+    path: artifact,
+    format: artifact.endsWith(".csv") ? "CSV" : "JSON",
+  };
+});
 
 export default function DatasetPage() {
   return (
     <AppShell>
       <PageHeader
-        description="Pemeriksaan sumber data riset, kualitas dataset, distribusi label, dan ringkasan ulasan Spotify sebelum masuk ke pipeline analisis."
-        eyebrow="Data dan kualitas"
+        description="Eksplorasi dataset Spotify berbasis artefak EDA: kualitas data, distribusi rating/sentimen, temporal, panjang teks, dan aspek weak-label."
+        eyebrow="Data dan EDA"
         title="Dataset"
       />
 
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
         <StatCard
-          description={researchResults.datasetSummary.sourceName}
-          label="Total Baris"
-          value={researchResults.datasetSummary.totalReviews.toLocaleString("id-ID")}
+          description={researchEdaResults.datasetSummary.source}
+          label="Total Dataset"
+          value={formatNumber(researchEdaResults.datasetSummary.totalRows)}
         />
         <StatCard
-          description="Berdasarkan audit external_id."
-          label="Ulasan Unik"
+          description="Jumlah review mentah hasil akuisisi."
+          label="Review Mentah"
+          value={formatNumber(researchEdaResults.datasetSummary.rawReviewCount)}
+        />
+        <StatCard
+          description="Baris untuk analisis sentimen."
+          label="Review Diproses"
           tone="positive"
-          value={researchResults.datasetSummary.totalReviews.toLocaleString("id-ID")}
-        />
-        <StatCard
-          description="Duplicate external_id pada notebook akuisisi."
-          label="Duplikasi"
-          value={
-            researchResults.datasetSummary.duplicateSummary
-              .duplicateExternalIdCount
-          }
-        />
-        <StatCard
-          description="external_id, rating, content, reviewed_at."
-          label="Nilai Kosong"
-          tone="positive"
-          value={researchResults.datasetSummary.missingSummary.reduce(
-            (total, item) => total + item.missingCount,
-            0,
+          value={formatNumber(
+            researchEdaResults.datasetSummary.processedSentimentRows,
           )}
         />
         <StatCard
-          description="Distribusi label final tersedia dari relabeling."
-          label="Cakupan Label"
+          description="Dataset final klasifikasi aspek SVM."
+          label="Dataset Aspek"
           tone="primary"
-          value="100%"
+          value={formatNumber(
+            researchEdaResults.datasetSummary.processedAspectRows,
+          )}
         />
         <StatCard
-          description="Rentang tanggal review dari audit akuisisi."
+          description="Duplikasi external_id pada audit EDA."
+          label="Duplikasi"
+          tone="positive"
+          value={researchEdaResults.duplicateSummary.duplicateExternalIdCount}
+        />
+        <StatCard
+          description="Rentang tanggal review yang tersedia."
           label="Rentang Data"
           value="2014-2026"
         />
       </section>
 
-      <section className="grid gap-6 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+      <section className="grid gap-6 xl:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
         <SummaryCard
-          description="Ringkasan ini berasal dari artefak pipeline riset SentiRank, bukan mock FE-07."
+          description="Ringkasan Dataset memakai artefak EDA lokal, bukan mock FE-07."
           items={[
             {
-              label: "Status impor",
-              value: "Artefak riset tersedia",
-              description: "Ringkasan dataset dibaca dari output EDA lokal.",
+              label: "Sumber",
+              value: researchEdaResults.datasetSummary.packageName,
+              description: researchEdaResults.datasetSummary.appTitle,
             },
             {
               label: "Rentang tanggal",
-              value: `${researchResults.datasetSummary.dateRange.start} sampai ${researchResults.datasetSummary.dateRange.end}`,
-              description: "Tanggal minimum dan maksimum dari notebook akuisisi.",
+              value: `${formatDate(
+                researchEdaResults.datasetSummary.dateRange.start,
+              )} - ${formatDate(researchEdaResults.datasetSummary.dateRange.end)}`,
+              description: "Minimum dan maksimum review pada EDA akuisisi.",
             },
             {
-              label: "Baris diproses",
-              value: researchResults.preprocessingSummary.totalRows.toLocaleString("id-ID"),
-              description: "Total baris yang masuk preprocessing.",
+              label: "Path EDA aktual",
+              value: researchEdaResults.edaRoots.actualRoot,
+              description:
+                "Path `dataset/output/eda` dan `datasets/output/eda` tidak ditemukan.",
             },
             {
-              label: "Sumber",
-              value: researchResults.datasetSummary.sourcePackage,
-              description: researchResults.datasetSummary.appTitle,
+              label: "SVM aspect rows",
+              value: formatNumber(
+                researchEdaResults.datasetSummary.processedAspectRows,
+              ),
+              description: "Baris akhir setelah filter aspek weak-label.",
             },
           ]}
           title="Ringkasan Dataset"
         />
 
         <ChartCard
-          description="Validasi kualitas data penting sebelum preprocessing dan pemodelan."
+          description="Audit kualitas data dari missing value, duplikasi, dan teks kosong preprocessing."
           title="Kualitas Data"
         >
           <SimpleTable
@@ -173,7 +256,7 @@ export default function DatasetPage() {
                 key: "status",
                 header: "Status",
                 render: (row) => (
-                  <span className="rounded-md border border-green-200 bg-green-50 px-2 py-1 text-xs font-medium text-green-700">
+                  <span className="rounded-md border border-blue-200 bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700">
                     {row.status}
                   </span>
                 ),
@@ -185,7 +268,7 @@ export default function DatasetPage() {
               },
             ]}
             data={qualityChecks}
-            minWidthClassName="min-w-[680px]"
+            minWidthClassName="min-w-[760px]"
             rowKey={(row) => row.id}
           />
         </ChartCard>
@@ -193,28 +276,299 @@ export default function DatasetPage() {
 
       <section className="grid gap-6 xl:grid-cols-2">
         <ChartCard
-          description="Distribusi label sentimen final setelah relabeling pipeline."
-          insight="Positif dan Negatif relatif seimbang, sedangkan Netral lebih kecil setelah relabeling."
-          title="Distribusi Label Sentimen Final"
+          description="Distribusi rating mentah dari output akuisisi data."
+          title="Distribusi Rating"
         >
-          <SentimentDistributionChart data={sentimentDistributionData} />
+          <RatingDistributionChart data={researchEdaResults.ratingDistribution} />
         </ChartCard>
 
         <ChartCard
-          description="Distribusi rating dari artefak akuisisi data."
-          title="Distribusi Rating"
+          description="Distribusi sentimen final setelah proses relabeling."
+          insight="Label Positive dan Negative relatif seimbang; Neutral menjadi lebih kecil setelah relabeling."
+          title="Distribusi Sentimen Final"
+        >
+          <SentimentDistributionChart data={finalSentimentDistributionData} />
+        </ChartCard>
+      </section>
+
+      <section className="grid gap-6 xl:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)]">
+        <ChartCard
+          description="Tabel rating tetap disediakan untuk pembacaan angka presisi."
+          title="Tabel Rating"
         >
           <SimpleTable
             columns={ratingColumns}
-            data={researchResults.datasetSummary.ratingDistribution}
+            data={researchEdaResults.ratingDistribution}
             minWidthClassName="min-w-[420px]"
             rowKey={(row) => `rating-${row.rating}`}
+          />
+        </ChartCard>
+
+        <ChartCard
+          description="Perbandingan label sebelum dan sesudah relabeling."
+          title="Label Sebelum / Sesudah Relabeling"
+        >
+          <SimpleTable
+            columns={[
+              {
+                key: "label",
+                header: "Label",
+                render: (row) => (
+                  <span className="font-medium text-foreground">
+                    {row.label}
+                  </span>
+                ),
+              },
+              {
+                key: "before",
+                header: "Sebelum",
+                align: "right",
+                render: (row) => formatNumber(row.before),
+              },
+              {
+                key: "after",
+                header: "Sesudah",
+                align: "right",
+                render: (row) => formatNumber(row.after),
+              },
+              {
+                key: "delta",
+                header: "Perubahan",
+                align: "right",
+                render: (row) => formatNumber(row.after - row.before),
+              },
+            ]}
+            data={sentimentComparisonRows}
+            minWidthClassName="min-w-[560px]"
+            rowKey={(row) => row.id}
+          />
+        </ChartCard>
+      </section>
+
+      <section className="grid gap-6 xl:grid-cols-2">
+        <ChartCard
+          description="Agregasi jumlah review per tahun dari temporal_distribution_monthly_raw."
+          title="Distribusi Temporal Tahunan"
+        >
+          <ReviewTemporalChart data={researchEdaResults.temporalYearlyDistribution} />
+        </ChartCard>
+
+        <ChartCard
+          description="Distribusi bulanan terbaru per rating, dipadatkan ke 12 bulan terakhir agar tetap terbaca."
+          title="Distribusi Bulanan per Rating"
+        >
+          <RatingTemporalStackedChart
+            data={researchEdaResults.recentMonthlyByRating}
+          />
+        </ChartCard>
+      </section>
+
+      <section className="grid gap-6 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
+        <ChartCard
+          description="Histogram panjang teks mentah dari artefak akuisisi data."
+          insight={`Median teks mentah ${researchEdaResults.rawTextLengthSummary.median} karakter, rata-rata ${researchEdaResults.rawTextLengthSummary.mean.toFixed(2)} karakter.`}
+          title="Histogram Panjang Teks Mentah"
+        >
+          <TextLengthHistogramChart data={researchEdaResults.textLengthHistogramRaw} />
+        </ChartCard>
+
+        <ChartCard
+          description="Ringkasan panjang teks sebelum dan sesudah cleaning."
+          title="Panjang Teks Sebelum / Sesudah Cleaning"
+        >
+          <SimpleTable
+            columns={[
+              {
+                key: "stage",
+                header: "Tahap",
+                render: (row) => (
+                  <span className="font-medium text-foreground">
+                    {row.stage}
+                  </span>
+                ),
+              },
+              {
+                key: "count",
+                header: "Baris",
+                align: "right",
+                render: (row) => formatNumber(row.count),
+              },
+              {
+                key: "median",
+                header: "Median",
+                align: "right",
+                render: (row) => row.median,
+              },
+              {
+                key: "mean",
+                header: "Rata-rata",
+                align: "right",
+                render: (row) => row.mean.toFixed(2),
+              },
+              {
+                key: "max",
+                header: "Maksimum",
+                align: "right",
+                render: (row) => row.max,
+              },
+            ]}
+            data={researchEdaResults.textLengthBeforeAfterCleaning}
+            minWidthClassName="min-w-[680px]"
+            rowKey={(row) => row.stage}
+          />
+        </ChartCard>
+      </section>
+
+      <section className="grid gap-6 xl:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
+        <ChartCard
+          description="Distribusi aspek hasil refinement weak-label, termasuk General fallback."
+          title="Distribusi Aspek Refined"
+        >
+          <AspectRankingChart data={aspectRankingData} />
+        </ChartCard>
+
+        <ChartCard
+          description="Aspek dikelompokkan berdasarkan sentimen untuk melihat sinyal negatif dan positif."
+          title="Aspek Berdasarkan Sentimen"
+        >
+          <SimpleTable
+            columns={[
+              {
+                key: "aspect",
+                header: "Aspek",
+                className: "max-w-[260px]",
+                render: (row) => (
+                  <span className="font-medium text-foreground">
+                    {row.aspect}
+                  </span>
+                ),
+              },
+              {
+                key: "negative",
+                header: "Negatif",
+                align: "right",
+                render: (row) => formatNumber(row.negative),
+              },
+              {
+                key: "neutral",
+                header: "Netral",
+                align: "right",
+                render: (row) => formatNumber(row.neutral),
+              },
+              {
+                key: "positive",
+                header: "Positif",
+                align: "right",
+                render: (row) => formatNumber(row.positive),
+              },
+              {
+                key: "total",
+                header: "Total",
+                align: "right",
+                render: (row) => formatNumber(row.total),
+              },
+            ]}
+            data={researchEdaResults.aspectBySentimentRefined}
+            minWidthClassName="min-w-[820px]"
+            rowKey={(row) => row.aspect}
+          />
+        </ChartCard>
+      </section>
+
+      <section className="grid gap-6 xl:grid-cols-2">
+        <SummaryCard
+          description="General fallback bersifat eksploratif dan tidak dipakai langsung sebagai kriteria final AHP/Fuzzy AHP."
+          title="General Fallback dan Candidate Terms"
+        >
+          <div className="grid gap-4 md:grid-cols-2">
+            <div>
+              <p className="text-sm font-medium text-foreground">
+                Top General Terms
+              </p>
+              <SimpleTable
+                columns={[
+                  {
+                    key: "term",
+                    header: "Term",
+                    render: (row) => row.term,
+                  },
+                  {
+                    key: "count",
+                    header: "Jumlah",
+                    align: "right",
+                    render: (row) => formatNumber(row.count),
+                  },
+                ]}
+                data={researchEdaResults.generalFallback.topTerms.slice(0, 6)}
+                minWidthClassName="min-w-[320px]"
+                rowKey={(row) => row.term}
+              />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-foreground">
+                Candidate Terms Negatif/Netral
+              </p>
+              <SimpleTable
+                columns={[
+                  {
+                    key: "term",
+                    header: "Term",
+                    render: (row) => row.term,
+                  },
+                  {
+                    key: "count",
+                    header: "Jumlah",
+                    align: "right",
+                    render: (row) => formatNumber(row.count),
+                  },
+                ]}
+                data={researchEdaResults.candidateTerms.topTerms.slice(0, 6)}
+                minWidthClassName="min-w-[320px]"
+                rowKey={(row) => row.term}
+              />
+            </div>
+          </div>
+          <p className="mt-4 rounded-md border border-blue-100 bg-blue-50 px-4 py-3 text-sm leading-6 text-blue-900">
+            {researchEdaResults.candidateTerms.methodologyNote}
+          </p>
+        </SummaryCard>
+
+        <ChartCard
+          description="Referensi artefak EDA yang dipakai untuk halaman Dataset FE-15B."
+          title="Artefak EDA"
+        >
+          <SimpleTable
+            columns={[
+              {
+                key: "phase",
+                header: "Folder",
+                render: (row) => row.phase,
+              },
+              {
+                key: "format",
+                header: "Format",
+                render: (row) => row.format,
+              },
+              {
+                key: "path",
+                header: "Path",
+                className: "max-w-[460px]",
+                render: (row) => (
+                  <code className="text-xs text-muted-foreground">
+                    {row.path}
+                  </code>
+                ),
+              },
+            ]}
+            data={artifactRows}
+            minWidthClassName="min-w-[760px]"
+            rowKey={(row) => row.id}
           />
         </ChartCard>
       </section>
 
       <ChartCard
-        description="FE-15 belum memuat dataset mentah ke frontend. Tabel ini tetap contoh mock fallback untuk menjaga tampilan inspeksi."
+        description="Dataset mentah baris penuh tidak dimuat ke frontend. Tabel ini tetap contoh mock fallback untuk menjaga tampilan inspeksi review."
         title="Tabel Ulasan - Mode Mock/Fallback"
       >
         <ReviewTable reviews={mockReviews} />

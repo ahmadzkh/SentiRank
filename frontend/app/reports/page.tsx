@@ -14,6 +14,7 @@ import {
   mockAhpResult,
   mockFuzzyAhpResult,
 } from "@/lib/mock-data";
+import { researchEdaResults } from "@/lib/research-eda-results";
 import { researchResults } from "@/lib/research-results";
 import type { ReviewSentimentLabel } from "@/types/sentiment";
 
@@ -75,6 +76,18 @@ const keyMetrics = [
     label: "Ukuran dataset",
     value: `${researchResults.datasetSummary.totalReviews.toLocaleString("id-ID")} ulasan`,
     source: "Dataset",
+  },
+  {
+    id: "processed-aspect-rows",
+    label: "Dataset aspek SVM",
+    value: `${researchEdaResults.datasetSummary.processedAspectRows.toLocaleString("id-ID")} baris`,
+    source: "EDA Dataset",
+  },
+  {
+    id: "text-median",
+    label: "Median panjang teks",
+    value: `${researchEdaResults.rawTextLengthSummary.median} karakter`,
+    source: "EDA Dataset",
   },
   {
     id: "negative-rate",
@@ -178,6 +191,34 @@ export default function ReportsPage() {
           </p>
           <div className="mt-4 rounded-md border border-blue-100 bg-blue-50 px-4 py-3 text-sm leading-6 text-blue-900">
             {researchResults.reportSummary.ahpFuzzyAhpDemoLimitation}
+          </div>
+          <div className="mt-4 grid gap-3 md:grid-cols-3">
+            {[
+              {
+                label: "Kualitas data",
+                value: `${researchEdaResults.duplicateSummary.duplicateExternalIdCount} duplikasi external_id`,
+              },
+              {
+                label: "Puncak temporal",
+                value: `${researchEdaResults.temporalPeakMonths[0]?.month ?? "TBD"} - ${researchEdaResults.temporalPeakMonths[0]?.total.toLocaleString("id-ID") ?? "0"} ulasan`,
+              },
+              {
+                label: "General fallback",
+                value: `${researchEdaResults.generalFallback.generalRows.toLocaleString("id-ID")} baris eksploratif`,
+              },
+            ].map((item) => (
+              <div
+                className="rounded-md border border-border bg-background px-4 py-3"
+                key={item.label}
+              >
+                <p className="text-xs font-medium uppercase tracking-normal text-muted-foreground">
+                  {item.label}
+                </p>
+                <p className="mt-1 text-sm font-semibold text-foreground">
+                  {item.value}
+                </p>
+              </div>
+            ))}
           </div>
         </SummaryCard>
 

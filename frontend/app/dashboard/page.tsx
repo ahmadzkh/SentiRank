@@ -9,6 +9,7 @@ import { ModelMetricCard } from "@/components/cards/ModelMetricCard";
 import { RankingCard } from "@/components/cards/RankingCard";
 import type { RankingCardItem } from "@/components/cards/RankingCard";
 import { StatCard } from "@/components/cards/StatCard";
+import { SummaryCard } from "@/components/cards/SummaryCard";
 import { AppShell, PageHeader } from "@/components/layout";
 import { ReviewTable } from "@/components/tables/ReviewTable";
 import { SENTIMENT_LABELS, SENTIMENT_META } from "@/constants/sentiment";
@@ -17,6 +18,7 @@ import {
   mockFuzzyAhpResult,
   mockReviews,
 } from "@/lib/mock-data";
+import { researchEdaResults } from "@/lib/research-eda-results";
 import { researchResults } from "@/lib/research-results";
 import type { ReviewSentimentLabel } from "@/types/sentiment";
 
@@ -183,6 +185,38 @@ export default function DashboardPage() {
           value="Sampel"
         />
       </section>
+
+      <SummaryCard
+        description="Ringkasan EDA dataset dari artefak `datasets/outputs/eda`, bukan data mock."
+        items={[
+          {
+            label: "Review mentah",
+            value: researchEdaResults.datasetSummary.rawReviewCount.toLocaleString(
+              "id-ID",
+            ),
+            description: "Jumlah review hasil akuisisi Spotify Play Store.",
+          },
+          {
+            label: "Dataset aspek",
+            value:
+              researchEdaResults.datasetSummary.processedAspectRows.toLocaleString(
+                "id-ID",
+              ),
+            description: "Baris final untuk klasifikasi aspek SVM.",
+          },
+          {
+            label: "Puncak bulan",
+            value: `${researchEdaResults.temporalPeakMonths[0]?.month ?? "TBD"} (${researchEdaResults.temporalPeakMonths[0]?.total.toLocaleString("id-ID") ?? "0"} ulasan)`,
+            description: "Bulan dengan jumlah review tertinggi pada EDA temporal.",
+          },
+          {
+            label: "Median panjang teks",
+            value: `${researchEdaResults.rawTextLengthSummary.median} karakter`,
+            description: "Median panjang review mentah.",
+          },
+        ]}
+        title="Ringkasan EDA Dataset"
+      />
 
       <section className="grid gap-6 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
         <ChartCard

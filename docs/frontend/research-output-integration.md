@@ -115,6 +115,106 @@ Ringkasan riset dipusatkan di `frontend/lib/research-results.ts`.
 - FE-15 tidak mengubah backend calculation logic, Prisma schema, migration, auth, userId/sessionId, atau service AHP/Fuzzy AHP.
 - Mock fallback tetap dipertahankan untuk UI preview yang belum memiliki artefak data baris penuh.
 
+## FE-15B — Dataset EDA Metrics Visualization Integration
+
+### EDA Files Inspected
+
+Path yang diminta `dataset/output/eda` dan `datasets/output/eda` tidak ditemukan. Path aktual yang tersedia adalah:
+
+```txt
+datasets/outputs/eda
+```
+
+File dan folder EDA yang diperiksa:
+
+- `datasets/outputs/eda/01_data_acquisition/*.csv`
+- `datasets/outputs/eda/01_data_acquisition/*.json`
+- `datasets/outputs/eda/02_preprocessing/*.csv`
+- `datasets/outputs/eda/02_preprocessing/*.json`
+- `datasets/outputs/eda/04_svm/*.csv`
+- `datasets/outputs/eda/04_svm/*.json`
+- `docs/figures/01_data_acquisition/*.png`
+- `docs/figures/02_preprocessing/*.png`
+- `ml-service/notebooks/01_data_acquisition.ipynb`
+- `ml-service/notebooks/02_preprocessing.ipynb`
+
+### CSV/JSON Metrics Used
+
+FE-15B menambahkan sumber data terpusat:
+
+```txt
+frontend/lib/research-eda-results.ts
+```
+
+Metrik EDA yang digunakan:
+
+- `rating_distribution_raw.csv/json`
+- `sentiment_distribution_raw.csv/json`
+- `missing_value_summary.csv/json`
+- `text_length_summary_raw.json`
+- `text_length_histogram_raw.csv`
+- `temporal_distribution_monthly_raw.csv/json`
+- `temporal_distribution_monthly_by_rating.csv/json`
+- `label_distribution_before_relabeling.csv/json`
+- `label_distribution_after_relabeling.csv/json`
+- `text_length_before_after_cleaning.csv/json`
+- `aspect_label_distribution_refined.csv/json`
+- `aspect_by_sentiment_distribution_refined.csv/json`
+- `aspect_label_confidence_distribution.csv/json`
+- `general_fallback_analysis.json`
+- `general_fallback_terms.csv`
+- `aspect_taxonomy_candidate_terms.csv`
+- `aspect_taxonomy_derivation_summary.json`
+- `svm_aspect_confidence_distribution.csv/json`
+- `final_aspect_taxonomy_for_ahp.json`
+
+### Figures Referenced
+
+PNG figures tidak di-OCR dan tidak dipakai untuk mengarang angka. Figures hanya dicatat sebagai artefak pendukung:
+
+- `docs/figures/01_data_acquisition/rating_distribution_raw.png`
+- `docs/figures/01_data_acquisition/sentiment_distribution_raw.png`
+- `docs/figures/01_data_acquisition/temporal_distribution_raw.png`
+- `docs/figures/01_data_acquisition/temporal_distribution_by_rating_raw.png`
+- `docs/figures/01_data_acquisition/text_length_histogram_raw.png`
+- `docs/figures/02_preprocessing/label_distribution_before_relabeling.png`
+- `docs/figures/02_preprocessing/label_distribution_after_relabeling.png`
+- `docs/figures/02_preprocessing/aspect_label_distribution_refined.png`
+- `docs/figures/02_preprocessing/aspect_by_sentiment_distribution_refined.png`
+- `docs/figures/02_preprocessing/general_fallback_top_terms.png`
+
+### Dataset Page Changes
+
+Halaman `/dataset` sekarang dikelompokkan menjadi:
+
+1. Ringkasan Dataset.
+2. Kualitas Data.
+3. Distribusi Rating dan Sentimen.
+4. Distribusi Temporal.
+5. Analisis Panjang Teks.
+6. Distribusi Aspek.
+7. Artefak EDA.
+
+Visualisasi baru mencakup chart distribusi rating, chart sentimen final, chart temporal tahunan, chart temporal bulanan per rating, histogram panjang teks mentah, tabel label sebelum/sesudah relabeling, tabel panjang teks before/after cleaning, tabel aspek berdasarkan sentimen, tabel top general/candidate terms, dan tabel referensi artefak.
+
+### Dashboard and Reports Changes
+
+- `/dashboard` mendapat `Ringkasan EDA Dataset` berisi review mentah, dataset aspek, puncak temporal, dan median panjang teks.
+- `/reports` mendapat metrik EDA tambahan pada `Metrik Kunci` dan ringkasan insight dataset: dataset aspek SVM, median panjang teks, duplikasi external_id, puncak temporal, dan General fallback.
+
+### Metrics Unavailable or Skipped
+
+- Path `dataset/output/eda` dan `datasets/output/eda` tidak ada; yang digunakan adalah `datasets/outputs/eda`.
+- Raw dataset CSV besar di `datasets/raw` dan `datasets/processed` tidak dimuat ke frontend agar halaman tetap ringan.
+- PNG figures tidak dipakai sebagai sumber angka karena tidak dilakukan OCR atau inferensi visual.
+- Metrik model IndoBERT/SVM di folder `03_indobert`, `04_svm`, dan `05_evaluation` tetap berada pada FE-15 utama; FE-15B fokus pada EDA dataset.
+
+### Limitations
+
+- FE-15B memetakan metrik yang sudah ada menjadi data frontend statis; belum membaca file CSV/JSON runtime.
+- FE-15B tidak menjalankan ulang notebook, scraping, preprocessing, training, atau backend service.
+- Aspect dan candidate terms tetap weak-label/exploratory dan tidak boleh diperlakukan sebagai final expert judgement AHP/Fuzzy AHP.
+
 ## Next Phase Recommendation
 
 Fase berikutnya sebaiknya mengarah ke integrasi data runtime bertahap untuk dataset/sentimen/aspek/evaluasi melalui service layer FE-12, atau finalisasi expert judgement AHP/Fuzzy AHP sebelum menampilkan hasil prioritas sebagai output final skripsi.

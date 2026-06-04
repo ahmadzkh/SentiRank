@@ -1035,6 +1035,11 @@ Mengganti data mock generik pada halaman utama dengan ringkasan output riset yan
 - [x] Pertahankan mock fallback untuk tabel/preview yang belum memiliki artefak baris penuh.
 - [x] Pertahankan FE-13 AHP/Fuzzy AHP API integration dan warning sample development.
 - [x] Buat `docs/frontend/research-output-integration.md`.
+- [x] FE-15B: Audit path EDA dan identifikasi path aktual `datasets/outputs/eda`.
+- [x] FE-15B: Buat sumber EDA terpusat `frontend/lib/research-eda-results.ts`.
+- [x] FE-15B: Tambahkan visualisasi EDA dataset pada `/dataset`.
+- [x] FE-15B: Tambahkan ringkasan EDA relevan pada `/dashboard` dan `/reports`.
+- [x] FE-15B: Dokumentasikan file EDA yang digunakan, direferensikan, dan di-skip.
 - [x] Jalankan `npm run lint`.
 - [x] Jalankan `npm run build`.
 
@@ -1054,12 +1059,14 @@ Mengganti data mock generik pada halaman utama dengan ringkasan output riset yan
 - [x] Tidak ada angka metrik yang dikarang; data tidak tersedia diberi `TBD` atau catatan tidak tersedia.
 - [x] Tidak ada training model, perubahan backend calculation logic, Prisma schema, migration, auth, userId/sessionId, atau penghapusan mock fallback.
 - [x] `docs/frontend/research-output-integration.md` mencatat purpose, source artifacts, integrated data, unavailable/TBD data, affected pages, limitations, dan next phase recommendation.
+- [x] FE-15B memakai CSV/JSON EDA yang tersedia tanpa mengarang metric dan tanpa memuat raw dataset besar ke frontend.
+- [x] FE-15B memvisualisasikan rating, sentimen, temporal, panjang teks, aspek, kualitas data, General fallback, dan referensi artefak EDA.
 - [x] `npm run lint` berhasil.
 - [x] `npm run build` berhasil.
 
 ### Completion Note
 
-Completed on 2026-06-04. FE-15 adds centralized research output data in `frontend/lib/research-results.ts`, updates the primary demo pages to use research summary metrics from project artifacts, preserves mock fallback and FE-13 AHP/Fuzzy AHP API demo behavior, documents unavailable/TBD data, and validates the frontend with lint/build.
+Completed on 2026-06-04. FE-15 adds centralized research output data in `frontend/lib/research-results.ts`, updates the primary demo pages to use research summary metrics from project artifacts, preserves mock fallback and FE-13 AHP/Fuzzy AHP API demo behavior, documents unavailable/TBD data, and validates the frontend with lint/build. FE-15B extends this with `frontend/lib/research-eda-results.ts`, Dataset EDA visualizations, Dashboard/Reports EDA summary cards, and documentation of actual EDA paths and skipped artifacts.
 
 ### Final Decision
 
