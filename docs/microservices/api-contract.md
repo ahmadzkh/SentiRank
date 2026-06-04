@@ -1,0 +1,532 @@
+# SentiRank Microservice API Contract
+
+## Purpose
+
+This document defines the target API contract for the SentiRank API Gateway and internal microservices. It is a planning document for the gradual migration from the current modular backend toward Microservice Architecture.
+
+## Global Response Envelope
+
+All public and internal services should use the same response envelope.
+
+Success response:
+
+```json
+{
+  "success": true,
+  "message": "Request completed successfully.",
+  "data": {}
+}
+```
+
+Error response:
+
+```json
+{
+  "success": false,
+  "message": "Request failed.",
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "details": {}
+  }
+}
+```
+
+## API Gateway Public Endpoints
+
+The frontend calls these API Gateway routes only. Internal service ports must not be exposed to the frontend.
+
+### AHP and Fuzzy AHP
+
+- `GET /ahp/criteria`
+- `POST /ahp/calculate`
+- `POST /ahp/fuzzy-calculate`
+- `POST /ahp/compare`
+
+### Review and Dataset
+
+- `GET /reviews/random`
+- `GET /dataset/summary`
+- `GET /scraping/summary`
+- `GET /preprocessing/summary`
+
+### Sentiment
+
+- `POST /sentiment/predict`
+- `GET /sentiment/summary`
+- `GET /sentiment/evaluation`
+
+### Aspect
+
+- `POST /aspects/classify`
+- `GET /aspects/summary`
+- `GET /aspects/evaluation`
+
+### Report
+
+- `GET /reports/summary`
+- `GET /evaluation/summary`
+
+### Health
+
+- `GET /health`
+- `GET /health/services`
+
+## Internal Service Endpoints
+
+### review-service
+
+- `GET /reviews/random`
+- `GET /dataset/summary`
+- `GET /scraping/summary`
+- `GET /preprocessing/summary`
+
+### sentiment-service
+
+- `POST /sentiment/predict`
+- `GET /sentiment/summary`
+- `GET /sentiment/evaluation`
+
+### aspect-service
+
+- `POST /aspects/classify`
+- `GET /aspects/summary`
+- `GET /aspects/evaluation`
+
+### decision-service
+
+- `GET /ahp/criteria`
+- `POST /ahp/calculate`
+- `POST /ahp/fuzzy-calculate`
+- `POST /ahp/compare`
+
+### report-service
+
+- `GET /reports/summary`
+- `GET /evaluation/summary`
+
+## Payload Examples
+
+### AHP Criteria
+
+Request:
+
+```http
+GET /ahp/criteria
+```
+
+Response:
+
+```json
+{
+  "success": true,
+  "message": "AHP criteria loaded.",
+  "data": {
+    "criteria": [
+      {
+        "id": "C1",
+        "name": "Features, Content & Audio Experience"
+      },
+      {
+        "id": "C2",
+        "name": "App Reliability & Usability"
+      },
+      {
+        "id": "C3",
+        "name": "Ads Experience"
+      },
+      {
+        "id": "C4",
+        "name": "Subscription & Pricing"
+      },
+      {
+        "id": "C5",
+        "name": "Account/Login"
+      }
+    ]
+  }
+}
+```
+
+### AHP Calculate
+
+Demo request marked as sample/development only:
+
+```json
+{
+  "run_label": "sample_development_only",
+  "not_final_expert_judgement": true,
+  "criteria": [
+    { "id": "C1", "name": "Features, Content & Audio Experience" },
+    { "id": "C2", "name": "App Reliability & Usability" },
+    { "id": "C3", "name": "Ads Experience" },
+    { "id": "C4", "name": "Subscription & Pricing" },
+    { "id": "C5", "name": "Account/Login" }
+  ],
+  "comparisons": [
+    {
+      "criterion_a": "C1",
+      "criterion_b": "C2",
+      "value_a_over_b": 0.3333333333,
+      "justification": "Sample development only."
+    }
+  ]
+}
+```
+
+Response:
+
+```json
+{
+  "success": true,
+  "message": "AHP calculation completed.",
+  "data": {
+    "run_label": "sample_development_only",
+    "not_final_expert_judgement": true,
+    "weights": [
+      {
+        "criterion_id": "C2",
+        "criterion_name": "App Reliability & Usability",
+        "weight": 0.5294117647,
+        "rank": 1
+      }
+    ],
+    "consistency_ratio": 0.0,
+    "is_consistent": true
+  }
+}
+```
+
+### Fuzzy AHP Calculate
+
+Demo request marked as sample/development only:
+
+```json
+{
+  "run_label": "sample_development_only",
+  "not_final_expert_judgement": true,
+  "defuzzification_method": "centroid",
+  "criteria": [
+    { "id": "C1", "name": "Features, Content & Audio Experience" },
+    { "id": "C2", "name": "App Reliability & Usability" },
+    { "id": "C3", "name": "Ads Experience" },
+    { "id": "C4", "name": "Subscription & Pricing" },
+    { "id": "C5", "name": "Account/Login" }
+  ],
+  "comparisons": [
+    {
+      "criterion_a": "C1",
+      "criterion_b": "C2",
+      "fuzzy_value_a_over_b": {
+        "l": 0.25,
+        "m": 0.3333333333,
+        "u": 0.5
+      },
+      "linguistic_scale": "moderate",
+      "justification": "Sample development only."
+    }
+  ]
+}
+```
+
+Response:
+
+```json
+{
+  "success": true,
+  "message": "Fuzzy AHP calculation completed.",
+  "data": {
+    "run_label": "sample_development_only",
+    "not_final_expert_judgement": true,
+    "defuzzification_method": "centroid",
+    "weights": [
+      {
+        "criterion_id": "C2",
+        "criterion_name": "App Reliability & Usability",
+        "normalized_weight": 0.52,
+        "rank": 1
+      }
+    ],
+    "consistency_ratio_modal": 0.0,
+    "is_consistent_modal": true
+  }
+}
+```
+
+### AHP vs Fuzzy AHP Compare
+
+Request:
+
+```json
+{
+  "run_label": "sample_development_only",
+  "not_final_expert_judgement": true,
+  "ahp_weights": [
+    {
+      "criterion_id": "C2",
+      "criterion_name": "App Reliability & Usability",
+      "weight": 0.5294117647,
+      "rank": 1
+    }
+  ],
+  "fuzzy_ahp_weights": [
+    {
+      "criterion_id": "C2",
+      "criterion_name": "App Reliability & Usability",
+      "normalized_weight": 0.52,
+      "rank": 1
+    }
+  ]
+}
+```
+
+Response:
+
+```json
+{
+  "success": true,
+  "message": "AHP and Fuzzy AHP comparison completed.",
+  "data": {
+    "summary": {
+      "total_criteria": 5,
+      "changed_rank_count": 0,
+      "identical_top_rank": true
+    }
+  }
+}
+```
+
+### Random Reviews
+
+Request:
+
+```http
+GET /reviews/random?limit=5
+```
+
+Response:
+
+```json
+{
+  "success": true,
+  "message": "Random reviews loaded.",
+  "data": {
+    "reviews": [
+      {
+        "external_id": "review_001",
+        "rating": 2,
+        "content": "App sering error dan iklan terlalu banyak.",
+        "final_sentiment": "Negative"
+      }
+    ]
+  }
+}
+```
+
+### Sentiment Predict
+
+Request:
+
+```json
+{
+  "text": "Aplikasi sering keluar sendiri."
+}
+```
+
+Response:
+
+```json
+{
+  "success": true,
+  "message": "Sentiment prediction completed.",
+  "data": {
+    "model": "run_3_weighted_loss_lr_1e-5",
+    "label": "Negative",
+    "confidence": 0.91
+  }
+}
+```
+
+### Aspect Classify
+
+Request:
+
+```json
+{
+  "text": "Lagu sering tidak bisa diputar dan kualitas audio jelek."
+}
+```
+
+Response:
+
+```json
+{
+  "success": true,
+  "message": "Aspect classification completed.",
+  "data": {
+    "classifier": "merged_5class",
+    "label": "Features, Content & Audio Experience",
+    "confidence": 0.84
+  }
+}
+```
+
+### Evaluation Summary
+
+Request:
+
+```http
+GET /evaluation/summary
+```
+
+Response:
+
+```json
+{
+  "success": true,
+  "message": "Evaluation summary loaded.",
+  "data": {
+    "sentiment_model": "run_3_weighted_loss_lr_1e-5",
+    "aspect_classifier": "merged_5class",
+    "notes": [
+      "IndoBERT handles sentiment classification.",
+      "SVM handles aspect classification."
+    ]
+  }
+}
+```
+
+## Service Ownership Table
+
+| Endpoint | Public gateway route | Internal service | Method | Responsibility | Frontend page/module consumer |
+| --- | --- | --- | --- | --- | --- |
+| `/ahp/criteria` | `/ahp/criteria` | `decision-service` | GET | Load final AHP criteria | AHP/Fuzzy AHP page |
+| `/ahp/calculate` | `/ahp/calculate` | `decision-service` | POST | Calculate AHP weights | AHP/Fuzzy AHP page |
+| `/ahp/fuzzy-calculate` | `/ahp/fuzzy-calculate` | `decision-service` | POST | Calculate Fuzzy AHP weights | AHP/Fuzzy AHP page |
+| `/ahp/compare` | `/ahp/compare` | `decision-service` | POST | Compare AHP and Fuzzy AHP | AHP/Fuzzy AHP page |
+| `/reviews/random` | `/reviews/random` | `review-service` | GET | Load random review samples | Dataset/review module |
+| `/dataset/summary` | `/dataset/summary` | `review-service` | GET | Load dataset summary | Dataset module |
+| `/scraping/summary` | `/scraping/summary` | `review-service` | GET | Load scraping summary | Dataset module |
+| `/preprocessing/summary` | `/preprocessing/summary` | `review-service` | GET | Load preprocessing summary | Preprocessing module |
+| `/sentiment/predict` | `/sentiment/predict` | `sentiment-service` | POST | Predict sentiment | Sentiment module |
+| `/sentiment/summary` | `/sentiment/summary` | `sentiment-service` | GET | Load sentiment summary | Sentiment module |
+| `/sentiment/evaluation` | `/sentiment/evaluation` | `sentiment-service` | GET | Load sentiment evaluation | Evaluation module |
+| `/aspects/classify` | `/aspects/classify` | `aspect-service` | POST | Classify aspect | Aspect module |
+| `/aspects/summary` | `/aspects/summary` | `aspect-service` | GET | Load aspect summary | Aspect module |
+| `/aspects/evaluation` | `/aspects/evaluation` | `aspect-service` | GET | Load aspect evaluation | Evaluation module |
+| `/reports/summary` | `/reports/summary` | `report-service` | GET | Load report summary | Report module |
+| `/evaluation/summary` | `/evaluation/summary` | `report-service` | GET | Load consolidated evaluation summary | Evaluation module |
+| `/health` | `/health` | `api-gateway-service` | GET | Gateway health | System status |
+| `/health/services` | `/health/services` | `api-gateway-service` | GET | Internal service health aggregation | System status |
+
+## Error Handling Contract
+
+### Validation Error
+
+```json
+{
+  "success": false,
+  "message": "Request validation failed.",
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "details": {
+      "field": "comparisons",
+      "reason": "Expected 10 pairwise comparisons."
+    }
+  }
+}
+```
+
+### Internal Service Unavailable
+
+```json
+{
+  "success": false,
+  "message": "Internal service is unavailable.",
+  "error": {
+    "code": "SERVICE_UNAVAILABLE",
+    "details": {
+      "service": "decision-service"
+    }
+  }
+}
+```
+
+### Gateway Timeout
+
+```json
+{
+  "success": false,
+  "message": "Gateway request timed out.",
+  "error": {
+    "code": "GATEWAY_TIMEOUT",
+    "details": {
+      "service": "sentiment-service",
+      "timeout_seconds": 30
+    }
+  }
+}
+```
+
+### Model Unavailable
+
+```json
+{
+  "success": false,
+  "message": "Requested model is unavailable.",
+  "error": {
+    "code": "MODEL_UNAVAILABLE",
+    "details": {
+      "model": "run_3_weighted_loss_lr_1e-5"
+    }
+  }
+}
+```
+
+### Missing Dataset File
+
+```json
+{
+  "success": false,
+  "message": "Required dataset file was not found.",
+  "error": {
+    "code": "DATASET_FILE_MISSING",
+    "details": {
+      "path": "datasets/outputs/eda/01_data_acquisition/summary.json"
+    }
+  }
+}
+```
+
+### Inconsistent AHP Judgement
+
+```json
+{
+  "success": false,
+  "message": "AHP judgement consistency ratio exceeds threshold.",
+  "error": {
+    "code": "AHP_INCONSISTENT_JUDGEMENT",
+    "details": {
+      "consistency_ratio": 0.18,
+      "threshold": 0.1
+    }
+  }
+}
+```
+
+## Versioning Strategy
+
+The initial thesis implementation may use unversioned routes such as `/ahp/criteria`. A future production implementation can introduce versioned routes such as `/api/v1/ahp/criteria` without changing internal service boundaries.
+
+## Frontend Integration Rules
+
+- Frontend calls only the API Gateway.
+- Frontend uses `NEXT_PUBLIC_API_BASE_URL=http://localhost:8000`.
+- Frontend unwraps the Gateway response envelope.
+- Frontend does not call internal service ports.
+- Frontend does not calculate AHP or Fuzzy AHP directly.
+
+## Migration Notes
+
+FE-13 currently connects the AHP/Fuzzy AHP page to a backend demo API. During microservice migration, the frontend contract should remain stable by routing the same public AHP/Fuzzy AHP paths through `api-gateway-service`.
+
+The gateway will forward those routes to `decision-service`, so frontend code should only need the base API URL to point at `http://localhost:8000`.
