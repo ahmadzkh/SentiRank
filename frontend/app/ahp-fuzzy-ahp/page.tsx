@@ -99,6 +99,73 @@ function formatDecimal(value: number) {
   }).format(value);
 }
 
+function isAvailableNumber(value: number | null | undefined): value is number {
+  return typeof value === "number" && Number.isFinite(value);
+}
+
+function formatCrPercentage(value: number | null | undefined) {
+  if (!isAvailableNumber(value)) {
+    return "Tidak tersedia";
+  }
+
+  return `${(value * 100).toFixed(2)}%`;
+}
+
+function formatRawCr(value: number | null | undefined) {
+  if (!isAvailableNumber(value)) {
+    return "Tidak tersedia";
+  }
+
+  return value.toFixed(4);
+}
+
+function getConsistencyStatus(value: number | null | undefined) {
+  if (!isAvailableNumber(value)) {
+    return "Tidak tersedia";
+  }
+
+  return value <= CONSISTENCY_THRESHOLD ? "Konsisten" : "Tidak konsisten";
+}
+
+function getConsistencyTone(value: number | null | undefined) {
+  if (!isAvailableNumber(value)) {
+    return "neutral" as const;
+  }
+
+  return value <= CONSISTENCY_THRESHOLD ? "primary" : "negative";
+}
+
+function formatConsistencySummary(value: number | null | undefined) {
+  if (!isAvailableNumber(value)) {
+    return "Tidak tersedia";
+  }
+
+  return `${formatCrPercentage(value)} (raw ${formatRawCr(value)}, ${getConsistencyStatus(value)})`;
+}
+
+function ConsistencyRatioValue({
+  value,
+}: {
+  value: number | null | undefined;
+}) {
+  return (
+    <div className="space-y-1">
+      <span className="block text-2xl font-semibold tracking-normal text-foreground">
+        {formatCrPercentage(value)}
+      </span>
+      <span className="block text-xs font-medium leading-5 text-muted-foreground">
+        Raw CR: {formatRawCr(value)}
+      </span>
+      <span className="block text-xs font-medium leading-5 text-muted-foreground">
+        Status: {getConsistencyStatus(value)}
+      </span>
+      <span className="block text-xs font-medium leading-5 text-muted-foreground">
+        Threshold konsistensi: CR ≤ 10%
+      </span>
+    </div>
+  );
+}
+
 function formatUiTfn(value: UiFuzzyTriangularNumber) {
   return `(${formatDecimal(value.lower)}, ${formatDecimal(value.middle)}, ${formatDecimal(value.upper)})`;
 }
@@ -443,14 +510,20 @@ function BackendResultSection({ result }: { result: AhpDemoResult }) {
         <StatCard
           description="Nilai dari response `/ahp/calculate`."
           label="Consistency Ratio AHP"
-          tone={result.ahp.is_consistent ? "primary" : "negative"}
-          value={formatWeight(result.ahp.consistency_ratio)}
+          tone={getConsistencyTone(result.ahp.consistency_ratio)}
+          value={
+            <ConsistencyRatioValue value={result.ahp.consistency_ratio} />
+          }
         />
         <StatCard
           description="Nilai modal dari response `/ahp/fuzzy-calculate`."
           label="CR Modal Fuzzy AHP"
-          tone={result.fuzzyAhp.is_consistent_modal ? "primary" : "negative"}
-          value={formatWeight(result.fuzzyAhp.consistency_ratio_modal)}
+          tone={getConsistencyTone(result.fuzzyAhp.consistency_ratio_modal)}
+          value={
+            <ConsistencyRatioValue
+              value={result.fuzzyAhp.consistency_ratio_modal}
+            />
+          }
         />
         <StatCard
           description="Prioritas tertinggi hasil backend AHP."
@@ -629,8 +702,8 @@ function BackendResultSection({ result }: { result: AhpDemoResult }) {
         basis={[
           `Prioritas AHP backend: ${topAhpRank?.criterion_name ?? "belum tersedia"} (${topAhpRank ? formatWeight(topAhpRank.weight) : "-"})`,
           `Prioritas Fuzzy AHP backend: ${topFuzzyRank?.criterion_name ?? "belum tersedia"} (${topFuzzyRank ? formatWeight(topFuzzyRank.normalized_weight) : "-"})`,
-          `Consistency Ratio AHP: ${formatWeight(result.ahp.consistency_ratio)}`,
-          `Consistency Ratio modal Fuzzy AHP: ${formatWeight(result.fuzzyAhp.consistency_ratio_modal)}`,
+          `Consistency Ratio AHP: ${formatConsistencySummary(result.ahp.consistency_ratio)}`,
+          `Consistency Ratio modal Fuzzy AHP: ${formatConsistencySummary(result.fuzzyAhp.consistency_ratio_modal)}`,
         ]}
         note={SAMPLE_DEVELOPMENT_WARNING}
         recommendation={
@@ -861,11 +934,11 @@ export default function AhpFuzzyAhpPrototypePage() {
             <StatCard
               description="Nilai mock, bukan hasil kalkulasi frontend."
               label="Consistency Ratio"
-              tone="primary"
+              tone={getConsistencyTone(mockAhpResult.consistencyRatio)}
               value={
-                mockAhpResult.consistencyRatio === null
-                  ? "Belum tersedia"
-                  : formatWeight(mockAhpResult.consistencyRatio)
+                <ConsistencyRatioValue
+                  value={mockAhpResult.consistencyRatio}
+                />
               }
             />
             <StatCard
@@ -958,6 +1031,7 @@ export default function AhpFuzzyAhpPrototypePage() {
             <p className="text-sm leading-6 text-muted-foreground">
               Nilai ini berasal dari hasil mock. Ambang ditampilkan sebagai
               parameter UI dan tidak melakukan validasi metode di frontend.
+              Threshold konsistensi: CR ≤ 10%.
             </p>
           </div>
         </SummaryCard>
@@ -1062,7 +1136,7 @@ export default function AhpFuzzyAhpPrototypePage() {
         basis={[
           `Prioritas AHP tertinggi: ${topAhpRank?.label ?? "belum tersedia"} (${topAhpRank ? formatWeight(topAhpRank.weight) : "-"})`,
           `Prioritas Fuzzy AHP tertinggi: ${topFuzzyRank?.label ?? "belum tersedia"} (${topFuzzyRank ? formatWeight(topFuzzyRank.normalizedWeight) : "-"})`,
-          `Consistency Ratio mock: ${mockAhpResult.consistencyRatio === null ? "belum tersedia" : formatWeight(mockAhpResult.consistencyRatio)}`,
+          `Consistency Ratio mock: ${formatConsistencySummary(mockAhpResult.consistencyRatio)}`,
           `Jumlah kriteria aktif: ${mockAhpCriteria.filter((criterion) => criterion.isActive).length}`,
         ]}
         note="Rekomendasi ini hanya ringkasan prototype. Nilai final wajib berasal dari backend calculation service dan artefak metodologi yang tervalidasi."

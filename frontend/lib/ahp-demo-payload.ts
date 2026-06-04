@@ -14,28 +14,28 @@ const REQUIRED_CRITERION_IDS = ["C1", "C2", "C3", "C4", "C5"] as const;
 
 const sampleAhpComparisons = [
   ["C1", "C2", 0.3333333333333333],
-  ["C1", "C3", 3],
-  ["C1", "C4", 1],
+  ["C1", "C3", 2],
+  ["C1", "C4", 0.5],
   ["C1", "C5", 3],
   ["C2", "C3", 9],
-  ["C2", "C4", 3],
+  ["C2", "C4", 2],
   ["C2", "C5", 9],
   ["C3", "C4", 0.3333333333333333],
-  ["C3", "C5", 1],
-  ["C4", "C5", 3],
+  ["C3", "C5", 0.5],
+  ["C4", "C5", 2],
 ] as const;
 
 const sampleFuzzyAhpComparisons = [
   ["C1", "C2", "moderate", 0.25, 0.3333333333333333, 0.5],
-  ["C1", "C3", "moderate", 2, 3, 4],
-  ["C1", "C4", "equal", 1, 1, 1],
+  ["C1", "C3", "slight", 1, 2, 3],
+  ["C1", "C4", "slightly_less", 0.3333333333333333, 0.5, 1],
   ["C1", "C5", "moderate", 2, 3, 4],
   ["C2", "C3", "extreme", 8, 9, 9],
-  ["C2", "C4", "moderate", 2, 3, 4],
+  ["C2", "C4", "slight", 1, 2, 3],
   ["C2", "C5", "extreme", 8, 9, 9],
   ["C3", "C4", "moderate", 0.25, 0.3333333333333333, 0.5],
-  ["C3", "C5", "equal", 1, 1, 1],
-  ["C4", "C5", "moderate", 2, 3, 4],
+  ["C3", "C5", "slightly_less", 0.3333333333333333, 0.5, 1],
+  ["C4", "C5", "slight", 1, 2, 3],
 ] as const;
 
 function selectDemoCriteria(criteria: readonly BackendAhpCriterion[]) {

@@ -20,11 +20,11 @@ const statusMeta: Record<
     className: "border-green-200 bg-green-50 text-green-700",
   },
   needs_review: {
-    label: "Perlu ditinjau",
+    label: "Tidak konsisten",
     className: "border-amber-200 bg-amber-50 text-amber-700",
   },
   not_available: {
-    label: "Belum tersedia",
+    label: "Tidak tersedia",
     className: "border-slate-200 bg-slate-50 text-slate-700",
   },
 };
@@ -34,7 +34,7 @@ function formatRatio(value: number | null) {
     return "CR belum tersedia";
   }
 
-  return `CR ${Math.round(value * 100)}%`;
+  return `CR ${(value * 100).toFixed(2)}% (raw ${value.toFixed(4)})`;
 }
 
 export function ConsistencyBadge({
@@ -53,8 +53,8 @@ export function ConsistencyBadge({
         className,
       )}
     >
-      {meta.label} - {formatRatio(ratio)} - Ambang{" "}
-      {Math.round(threshold * 100)}%
+      {meta.label} - {formatRatio(ratio)} - Threshold konsistensi: CR ≤{" "}
+      {(threshold * 100).toFixed(0)}%
     </span>
   );
 }
