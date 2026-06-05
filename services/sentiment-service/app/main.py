@@ -1,16 +1,25 @@
-"""Minimal sentiment service skeleton for MS-03."""
+"""Sentiment service entrypoint for SentiRank sentiment APIs."""
 
 from fastapi import FastAPI
+
+from app.core.config import FINAL_SENTIMENT_MODEL, get_settings
+from app.routers import sentiment
+from app.services.sentiment_inference_service import SentimentInferenceService
 
 SERVICE_NAME = "sentiment-service"
 SERVICE_PORT = 8002
 SERVICE_ROLE = "IndoBERT sentiment inference and evaluation summaries"
+SERVICE_VERSION = "0.1.0"
+
+settings = get_settings()
 
 app = FastAPI(
     title="SentiRank Sentiment Service",
-    version="0.1.0",
-    description="MS-03 placeholder only. IndoBERT logic remains in ml-service.",
+    version=SERVICE_VERSION,
+    description="Independent FastAPI service for SentiRank sentiment prediction, summaries, and evaluation outputs.",
 )
+
+app.include_router(sentiment.router)
 
 
 def response(message: str, data: dict | None = None) -> dict:
@@ -24,14 +33,27 @@ def response(message: str, data: dict | None = None) -> dict:
 
 @app.get("/")
 def root() -> dict:
-    """Return a placeholder root response for the sentiment service skeleton."""
+    """Return service metadata and available endpoint information."""
     return response(
-        "SentiRank Sentiment Service placeholder is running.",
+        "SentiRank Sentiment Service is running.",
         {
             "service": SERVICE_NAME,
             "role": SERVICE_ROLE,
-            "business_logic": "not_implemented_in_ms_03",
-            "final_candidate": "run_3_weighted_loss_lr_1e-5",
+            "status": "ready",
+            "version": SERVICE_VERSION,
+            "final_candidate": FINAL_SENTIMENT_MODEL,
+            "data_paths": {
+                "datasets_dir": str(settings.datasets_dir),
+                "docs_dir": str(settings.docs_dir),
+                "sentiment_model_dir": str(settings.sentiment_model_dir),
+            },
+            "available_endpoints": [
+                "GET /",
+                "GET /health",
+                "POST /sentiment/predict",
+                "GET /sentiment/summary",
+                "GET /sentiment/evaluation",
+            ],
         },
     )
 
@@ -39,12 +61,14 @@ def root() -> dict:
 @app.get("/health")
 def health() -> dict:
     """Return health status for Docker Compose checks."""
+    model_status = SentimentInferenceService(settings).model_status()
     return response(
-        "Service is healthy.",
+        "Sentiment service is healthy.",
         {
             "service": SERVICE_NAME,
             "status": "healthy",
+            "version": SERVICE_VERSION,
             "port": SERVICE_PORT,
-            "stage": "ms_03_placeholder",
+            "model_status": model_status,
         },
     )

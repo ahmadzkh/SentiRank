@@ -8,5 +8,6 @@ This folder contains documentation for the target SentiRank microservice archite
 - `decision-service-extraction.md` documents the MS-04 extraction of AHP/Fuzzy AHP calculations into `decision-service`.
 - `api-gateway-implementation.md` documents the MS-05 gateway routing layer for frontend-facing AHP/Fuzzy AHP APIs.
 - `review-service-extraction.md` documents the MS-06 extraction of review/data summary endpoints into `review-service`.
+- `sentiment-service-extraction.md` documents the MS-07 extraction of sentiment prediction, summary, and evaluation endpoints into `sentiment-service`.
 
-MS-01 and MS-02 are documentation-only planning artifacts. MS-03 adds Docker Compose and minimal health-check skeletons. MS-04 extracts decision-support calculations into `decision-service`. MS-05 routes frontend-facing AHP/Fuzzy AHP API paths through `api-gateway-service`. MS-06 extracts review/data summaries into `review-service` and exposes them through the gateway.
+MS-01 and MS-02 are documentation-only planning artifacts. MS-03 adds Docker Compose and minimal health-check skeletons. MS-04 extracts decision-support calculations into `decision-service`. MS-05 routes frontend-facing AHP/Fuzzy AHP API paths through `api-gateway-service`. MS-06 extracts review/data summaries into `review-service` and exposes them through the gateway. MS-07 extracts sentiment-domain endpoints into `sentiment-service` and exposes them through the gateway with fallback-safe demo prediction when no local IndoBERT artifact is mounted.

@@ -26,6 +26,7 @@ services:
       REPORT_SERVICE_URL: ${REPORT_SERVICE_URL:-http://report-service:8005}
     depends_on:
       - review-service
+      - sentiment-service
       - decision-service
     networks:
       - sentirank-network
@@ -51,6 +52,14 @@ services:
     container_name: sentirank-sentiment-service
     ports:
       - "${SENTIMENT_SERVICE_PORT:-8002}:8002"
+    environment:
+      DATASETS_DIR: /app/datasets
+      DOCS_DIR: /app/docs
+      SENTIMENT_MODEL_DIR: /app/models/indobert
+    volumes:
+      - ./datasets:/app/datasets:ro
+      - ./docs:/app/docs:ro
+      - ./ml-service/saved_models/indobert:/app/models/indobert:ro
     networks:
       - sentirank-network
 

@@ -39,6 +39,8 @@ As of MS-05, the public AHP/Fuzzy AHP routes are implemented in `api-gateway-ser
 
 As of MS-06, the public review/data routes are implemented in `api-gateway-service` and forwarded to `review-service`. The gateway preserves the review-service response envelope and does not read datasets directly.
 
+As of MS-07, the public sentiment routes are implemented in `api-gateway-service` and forwarded to `sentiment-service`. The gateway preserves the sentiment-service response envelope and does not perform IndoBERT inference directly.
+
 ### AHP and Fuzzy AHP
 
 - `GET /ahp/criteria`
@@ -459,8 +461,43 @@ Request:
 
 ```json
 {
-  "text": "Aplikasi sering keluar sendiri."
+  "text": "Aplikasi sering error dan lambat.",
+  "run_label": "demo"
 }
+```
+
+Fallback response when the IndoBERT model artifact is not mounted:
+
+```json
+{
+  "success": true,
+  "message": "Sentiment prediction completed.",
+  "data": {
+    "text": "Aplikasi sering error dan lambat.",
+    "label": "Negative",
+    "confidence": 0.78,
+    "probabilities": {
+      "Negative": 0.78,
+      "Neutral": 0.12,
+      "Positive": 0.1
+    },
+    "model_name": "run_3_weighted_loss_lr_1e-5",
+    "mode": "fallback",
+    "warnings": [
+      "Model artifact is not available in this environment. Returning fallback demo prediction."
+    ]
+  }
+}
+```
+
+The fallback mode is for service integration and demo behavior only. It must not be interpreted as real IndoBERT inference.
+
+### Sentiment Summary
+
+Request:
+
+```http
+GET /sentiment/summary
 ```
 
 Response:
@@ -468,11 +505,49 @@ Response:
 ```json
 {
   "success": true,
-  "message": "Sentiment prediction completed.",
+  "message": "Sentiment summary loaded.",
   "data": {
-    "model": "run_3_weighted_loss_lr_1e-5",
-    "label": "Negative",
-    "confidence": 0.91
+    "selected_model": "run_3_weighted_loss_lr_1e-5",
+    "sentiment_labels": ["Negative", "Neutral", "Positive"],
+    "model_status": "unavailable",
+    "final_sentiment_distribution": {
+      "Negative": 39686,
+      "Neutral": 17629,
+      "Positive": 40467
+    },
+    "warnings": []
+  }
+}
+```
+
+### Sentiment Evaluation
+
+Request:
+
+```http
+GET /sentiment/evaluation
+```
+
+Response:
+
+```json
+{
+  "success": true,
+  "message": "Sentiment evaluation loaded.",
+  "data": {
+    "selected_candidate": "run_3_weighted_loss_lr_1e-5",
+    "selected_metrics": {
+      "accuracy": 0.7362285247,
+      "f1_macro": 0.7093262951,
+      "f1_weighted": 0.7444675722,
+      "neutral_recall": 0.6669187146,
+      "neutral_f1": 0.5562036891
+    },
+    "limitations": [
+      "Model artifact may not be mounted in the current runtime environment.",
+      "Run 4 slang normalization was tested but did not outperform Run 3."
+    ],
+    "warnings": []
   }
 }
 ```
