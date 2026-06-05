@@ -6,18 +6,18 @@
 | --- | --- |
 | Project | SentiRank |
 | Module | Frontend |
-| Phase | FE-12 - API Integration Preparation |
-| Date | 2026-06-02 |
-| Status | Approved |
-| Strategy | Mock-first and API-contract-ready |
+| Phase | FE-12 + MS-10 - API Gateway Integration |
+| Date | 2026-06-05 |
+| Status | Updated |
+| Strategy | API Gateway-only frontend integration |
 
 ---
 
 ## 1. Purpose
 
-Dokumen ini mendefinisikan persiapan integrasi API frontend SentiRank dengan backend/FastAPI tanpa mengubah perilaku halaman yang masih mock-first.
+Dokumen ini mendefinisikan integrasi API frontend SentiRank dengan backend/FastAPI melalui `api-gateway-service`.
 
-FE-12 tidak melakukan integrasi penuh. Tujuan fase ini adalah menyiapkan fondasi agar halaman Dashboard, Dataset, Scraping, Preprocessing, Sentiment Analysis, Aspect Classification, AHP/Fuzzy AHP, Model Evaluation, Reports, dan Settings dapat dipindahkan dari mock data ke API secara bertahap pada fase berikutnya.
+MS-10 mengunci aturan bahwa frontend hanya memanggil API Gateway. Internal service ports seperti `8001`, `8002`, `8003`, `8004`, dan `8005` tidak boleh dipanggil langsung dari browser.
 
 ---
 
@@ -30,15 +30,16 @@ Page / Component
 -> Service Function
 -> HTTP Client
 -> API Endpoint Constant
--> FastAPI Backend
+-> API Gateway
+-> Internal Microservice
 ```
 
-Prinsip FE-12:
+Prinsip MS-10:
 
-- Halaman tetap memakai mock data.
-- Service function sudah tersedia tetapi belum dipanggil oleh halaman.
-- Endpoint masih draft placeholder.
-- Error response dinormalisasi melalui `ApiResponse<T>`.
+- Frontend menggunakan `NEXT_PUBLIC_API_BASE_URL=http://localhost:8000`.
+- Service layer memakai route Gateway, bukan `/api/*` Next.js route placeholder.
+- HTTP client membuka envelope Gateway dan mengembalikan `data`.
+- AHP/Fuzzy AHP demo memanggil `decision-service` hanya melalui Gateway.
 - AHP dan Fuzzy AHP tetap dihitung oleh backend/service, bukan frontend.
 
 ---
@@ -69,18 +70,18 @@ Catatan:
 
 Draft endpoint group FE-12:
 
-| Group | Base Path | Planned Usage |
+| Group | Gateway Path | Usage |
 | --- | --- | --- |
-| Review API | `/api/reviews` | Review list and review data access. |
-| Dataset API | `/api/dataset` | Dataset summary and metadata. |
-| Scraping API | `/api/scraping` | Scraping batch summary and status. |
-| Preprocessing API | `/api/preprocessing` | Preprocessing summary and processed data status. |
-| Sentiment API | `/api/sentiment` | Sentiment prediction and sentiment summary. |
-| Aspect API | `/api/aspects` | Aspect classification and aspect summary. |
-| AHP API | `/api/ahp` | AHP calculation service. |
-| Fuzzy AHP API | `/api/fuzzy-ahp` | Fuzzy AHP calculation service. |
-| Model Evaluation API | `/api/evaluation` | Model evaluation summary. |
-| Report API | `/api/reports` | Research report summary. |
+| Review API | `/reviews/random` | Review sample access. |
+| Dataset API | `/dataset/summary` | Dataset summary and metadata. |
+| Scraping API | `/scraping/summary` | Scraping batch summary and status. |
+| Preprocessing API | `/preprocessing/summary` | Preprocessing summary and processed data status. |
+| Sentiment API | `/sentiment/*` | Sentiment prediction, summary, and evaluation. |
+| Aspect API | `/aspects/*` | Aspect classification, summary, and evaluation. |
+| AHP/Fuzzy AHP API | `/ahp/*` | AHP, Fuzzy AHP, and comparison calculation through Gateway. |
+| Model Evaluation API | `/evaluation/summary` | Consolidated model evaluation summary. |
+| Report API | `/reports/summary` | Research report summary. |
+| Health API | `/health`, `/health/services` | Gateway and internal service status. |
 
 Endpoint constants are stored in:
 
@@ -113,23 +114,23 @@ Planned service functions:
 | `evaluation-service.ts` | `getEvaluationSummary()` |
 | `report-service.ts` | `getReportSummary()` |
 
-Each service returns `Promise<ApiResponse<T>>` and includes TODO notes for later backend contract connection.
+Each service opens the Gateway response envelope and returns the business `data` payload. For low-level diagnostics, `httpClient.request<T>()` can still return the normalized envelope.
 
 ---
 
 ## 6. Data Flow Plan
 
-Current FE-12 flow:
+Current MS-10 flow:
 
 ```txt
-Pages -> Mock Data
-Services -> Not called yet
+Pages -> Mock Data by default
+AHP/Fuzzy AHP demo panel -> Service Functions -> API Gateway -> decision-service
 ```
 
-Future integration flow:
+Future page migration flow:
 
 ```txt
-Pages -> Service Functions -> HTTP Client -> FastAPI -> ApiResponse<T>
+Pages -> Service Functions -> HTTP Client -> API Gateway -> Internal Service
 ```
 
 Migration should happen page by page. Each page should keep a clear fallback or loading/error state before mock data is removed.
@@ -159,13 +160,10 @@ Rules:
 
 ## 8. Error and Loading Handling Plan
 
-The HTTP client normalizes failed requests into:
+The HTTP client normalizes failed requests and exposes this offline Gateway message to UI integrations:
 
 ```txt
-ApiResponse<T>
-success: false
-data: null
-error: { code, message, details }
+API Gateway belum aktif. Jalankan microservice backend terlebih dahulu.
 ```
 
 Future page integration should add:
@@ -186,6 +184,18 @@ Future page integration should add:
 - Do not put API keys or service credentials in frontend code.
 - Validate user input on backend even if frontend validation exists.
 - AHP/Fuzzy AHP calculation logic should stay in backend/service to keep methodology auditable.
+
+---
+
+## 11. MS-10 Acceptance Criteria
+
+- [x] `NEXT_PUBLIC_API_BASE_URL` points to `http://localhost:8000`.
+- [x] Frontend endpoint constants use API Gateway public routes.
+- [x] HTTP client can unwrap the Gateway response envelope.
+- [x] AHP/Fuzzy AHP demo panel calls `/ahp/criteria`, `/ahp/calculate`, `/ahp/fuzzy-calculate`, and `/ahp/compare` through the Gateway.
+- [x] AHP/Fuzzy AHP sample warning remains visible.
+- [x] Frontend does not call internal service ports directly.
+- [x] Frontend does not calculate AHP/Fuzzy AHP weights locally.
 
 ---
 

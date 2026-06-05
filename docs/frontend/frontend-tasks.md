@@ -871,3 +871,36 @@ Implementation scope:
 ```txt
 Contracts and service functions only. Real backend integration and page migration remain future work.
 ```
+
+---
+
+## MS-10 — Frontend Gateway Integration
+
+### Objective
+
+Menghubungkan frontend SentiRank ke `api-gateway-service` sebagai satu-satunya entry point API tanpa memanggil internal microservice ports secara langsung.
+
+### Task Checklist
+
+- [x] Pastikan `frontend/.env.example` menggunakan `NEXT_PUBLIC_API_BASE_URL=http://localhost:8000`.
+- [x] Ubah endpoint constants dari placeholder `/api/*` ke public Gateway routes.
+- [x] Tambahkan helper unwrap response envelope Gateway di HTTP client.
+- [x] Update service layer agar membaca payload `data` dari Gateway response.
+- [x] Tambahkan health service untuk `/health` dan `/health/services`.
+- [x] Tambahkan panel demo API Gateway pada halaman AHP/Fuzzy AHP.
+- [x] Pertahankan warning sample development judgement.
+- [x] Pastikan tidak ada kalkulasi AHP/Fuzzy AHP di frontend.
+- [x] Jalankan `npm run lint`.
+- [x] Jalankan `npm run build`.
+
+### Acceptance Criteria
+
+- [x] Frontend memakai `NEXT_PUBLIC_API_BASE_URL=http://localhost:8000`.
+- [x] Frontend tidak memakai internal service URL atau port `8001` sampai `8005`.
+- [x] AHP/Fuzzy AHP demo memanggil `/ahp/criteria`, `/ahp/calculate`, `/ahp/fuzzy-calculate`, dan `/ahp/compare` melalui Gateway.
+- [x] Jika Gateway offline, UI menampilkan pesan `API Gateway belum aktif. Jalankan microservice backend terlebih dahulu.`
+- [x] Tidak ada perubahan Prisma, model, scraping, preprocessing, raw/processed dataset, atau legacy `ml-service`.
+
+### Completion Note
+
+Completed on 2026-06-05. MS-10 updates the frontend API client, endpoint constants, services, and AHP/Fuzzy AHP page integration so browser-facing calls use `api-gateway-service` only. Existing mock UI remains available, while the AHP/Fuzzy AHP page now has a Gateway-backed sample demo panel that does not calculate AHP/Fuzzy AHP in the frontend.
