@@ -4,7 +4,7 @@
 
 MS-05 implements `api-gateway-service` as the single frontend-facing API entry point for SentiRank.
 
-MS-05 introduced AHP/Fuzzy AHP proxying to `decision-service`. MS-06 extends the same gateway boundary with review/data routes proxied to `review-service`.
+MS-05 introduced AHP/Fuzzy AHP proxying to `decision-service`. MS-06 through MS-09 extend the same gateway boundary with review/data, sentiment, aspect, report, and evaluation routes.
 
 ## Gateway Role
 
@@ -29,6 +29,14 @@ Current gateway-owned public routes:
 - `GET /dataset/summary`
 - `GET /scraping/summary`
 - `GET /preprocessing/summary`
+- `POST /sentiment/predict`
+- `GET /sentiment/summary`
+- `GET /sentiment/evaluation`
+- `POST /aspects/classify`
+- `GET /aspects/summary`
+- `GET /aspects/evaluation`
+- `GET /reports/summary`
+- `GET /evaluation/summary`
 
 ## AHP/Fuzzy AHP Routing
 
@@ -55,6 +63,16 @@ The gateway forwards review/data routes to `review-service`:
 | `GET /preprocessing/summary` | `GET {REVIEW_SERVICE_URL}/preprocessing/summary` |
 
 `review-service` owns file-backed research output reads. The gateway does not read datasets directly.
+
+## Frontend Integration
+
+As of MS-10, the frontend uses:
+
+```text
+NEXT_PUBLIC_API_BASE_URL=http://localhost:8000
+```
+
+Frontend code must call only API Gateway public routes. It must not call internal service ports `8001` through `8005` or legacy `ml-service` directly. The AHP/Fuzzy AHP frontend demo sends sample/development judgement payloads through `/ahp/*` Gateway routes and keeps the sample-not-final warning visible.
 
 ## Environment Configuration
 
@@ -147,11 +165,11 @@ curl http://localhost:8000/dataset/summary
 
 ## Scope Boundary
 
-MS-05 does not:
+The gateway and frontend integration do not:
 
 - calculate AHP or Fuzzy AHP in the gateway
 - read datasets directly in the gateway
-- modify frontend code
+- calculate AHP or Fuzzy AHP in the frontend
 - modify `decision-service` calculation logic
 - modify legacy `ml-service`
 - implement review, sentiment, aspect, or report business logic

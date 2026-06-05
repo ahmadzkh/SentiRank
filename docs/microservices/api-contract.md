@@ -870,6 +870,7 @@ The initial thesis implementation may use unversioned routes such as `/ahp/crite
 - Frontend unwraps the Gateway response envelope.
 - Frontend does not call internal service ports.
 - Frontend does not calculate AHP or Fuzzy AHP directly.
+- As of MS-10, the AHP/Fuzzy AHP page may run sample/development calculations through `/ahp/*` Gateway routes, but it must keep the sample-not-final expert judgement warning visible.
 
 ## Migration Notes
 

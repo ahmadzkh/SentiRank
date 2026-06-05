@@ -1,6 +1,8 @@
 import type { ApiQueryValue, ApiRequestOptions, ApiResponse } from "@/types/api";
 
 const DEFAULT_API_BASE_URL = "http://localhost:8000";
+export const API_GATEWAY_OFFLINE_MESSAGE =
+  "API Gateway belum aktif. Jalankan microservice backend terlebih dahulu.";
 
 function getApiBaseUrl() {
   return process.env.NEXT_PUBLIC_API_BASE_URL ?? DEFAULT_API_BASE_URL;
@@ -13,8 +15,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 function isApiResponse(value: unknown): value is ApiResponse<unknown> {
   return (
     isRecord(value) &&
-    typeof value.success === "boolean" &&
-    Object.prototype.hasOwnProperty.call(value, "data")
+    typeof value.success === "boolean"
   );
 }
 
@@ -81,6 +82,40 @@ function createErrorResponse<TData>(
   };
 }
 
+function normalizeApiResponse<TData>(payload: ApiResponse<unknown>): ApiResponse<TData> {
+  if (payload.success) {
+    return {
+      success: true,
+      data: (Object.prototype.hasOwnProperty.call(payload, "data")
+        ? payload.data
+        : null) as TData,
+      message: payload.message,
+      meta: payload.meta,
+    };
+  }
+
+  const error: Record<string, unknown> = isRecord(payload.error) ? payload.error : {};
+  const code = typeof error.code === "string" ? error.code : "API_ERROR";
+  const message =
+    typeof payload.message === "string"
+      ? payload.message
+      : typeof error.message === "string"
+        ? error.message
+        : "API request failed.";
+  const details = isRecord(error.details) ? error.details : undefined;
+
+  return createErrorResponse<TData>(code, message, details);
+}
+
+export function unwrapApiEnvelope<TData>(response: ApiResponse<TData>): TData {
+  if (response.success) {
+    return response.data as TData;
+  }
+
+  const message = response.error?.message || response.message || "API request failed.";
+  throw new Error(message);
+}
+
 async function request<TData>(
   endpoint: string,
   options: ApiRequestOptions = {},
@@ -101,8 +136,8 @@ async function request<TData>(
     const payload = await parseResponseBody(response);
 
     if (!response.ok) {
-      if (isApiResponse(payload) && payload.error) {
-        return payload as ApiResponse<TData>;
+      if (isApiResponse(payload)) {
+        return normalizeApiResponse<TData>(payload);
       }
 
       return createErrorResponse<TData>(
@@ -113,7 +148,7 @@ async function request<TData>(
     }
 
     if (isApiResponse(payload)) {
-      return payload as ApiResponse<TData>;
+      return normalizeApiResponse<TData>(payload);
     }
 
     return {
@@ -121,19 +156,33 @@ async function request<TData>(
       data: payload as TData,
     };
   } catch (error) {
-    return createErrorResponse<TData>("NETWORK_ERROR", "API request failed.", {
+    return createErrorResponse<TData>("NETWORK_ERROR", API_GATEWAY_OFFLINE_MESSAGE, {
       message: error instanceof Error ? error.message : String(error),
     });
   }
 }
 
+async function requestData<TData>(
+  endpoint: string,
+  options: ApiRequestOptions = {},
+): Promise<TData> {
+  return unwrapApiEnvelope(await request<TData>(endpoint, options));
+}
+
 export const httpClient = {
   request,
+  requestData,
   get<TData>(endpoint: string, options?: ApiRequestOptions) {
     return request<TData>(endpoint, { ...options, method: "GET" });
   },
+  getData<TData>(endpoint: string, options?: ApiRequestOptions) {
+    return requestData<TData>(endpoint, { ...options, method: "GET" });
+  },
   post<TData>(endpoint: string, body?: unknown, options?: ApiRequestOptions) {
     return request<TData>(endpoint, { ...options, body, method: "POST" });
+  },
+  postData<TData>(endpoint: string, body?: unknown, options?: ApiRequestOptions) {
+    return requestData<TData>(endpoint, { ...options, body, method: "POST" });
   },
   put<TData>(endpoint: string, body?: unknown, options?: ApiRequestOptions) {
     return request<TData>(endpoint, { ...options, body, method: "PUT" });

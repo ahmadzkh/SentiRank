@@ -1,3 +1,3 @@
 export { API_ENDPOINTS } from "./api-endpoints";
 export type { ApiEndpointGroup } from "./api-endpoints";
-export { httpClient } from "./http-client";
+export { API_GATEWAY_OFFLINE_MESSAGE, httpClient, unwrapApiEnvelope } from "./http-client";

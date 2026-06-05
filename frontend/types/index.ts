@@ -3,6 +3,7 @@ export type { AhpCalculationRequest, ApiError, ApiQueryParams, ApiQueryValue, Ap
 export type { AspectLabel, AspectResult, AspectSummary } from "./aspect";
 export type { EvaluationModelSummary, EvaluationSummary, ConfusionMatrix, ConfusionMatrixRow, MetricFormat, ModelMetric, ModelTask } from "./evaluation";
 export type { FuzzyAhpRankedCriterion, FuzzyAhpResult, FuzzyAhpStatus, FuzzyScaleOption, FuzzyTriangularNumber } from "./fuzzy-ahp";
+export type { GatewayAhpCalculateRequest, GatewayAhpCalculateResponse, GatewayAhpCriterionWeight, GatewayAhpPairwiseComparison, GatewayCriterion, GatewayFuzzyAhpCalculateRequest, GatewayFuzzyAhpCalculateResponse, GatewayFuzzyAhpCriterionWeight, GatewayFuzzyAhpPairwiseComparison, GatewayFuzzyTriangularNumber, GatewayHealthStatus, GatewayRankingComparisonItem, GatewayRankingComparisonRequest, GatewayRankingComparisonResponse, GatewayServicesHealthStatus } from "./gateway";
 export type { NavigationItem, NavigationItemStatus } from "./navigation";
 export type { ReportSummary } from "./report";
 export type { Review } from "./review";

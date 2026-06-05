@@ -1,45 +1,55 @@
 export const API_ENDPOINTS = {
   reviews: {
-    base: "/api/reviews",
-    list: "/api/reviews",
+    base: "/reviews",
+    random: "/reviews/random",
   },
   dataset: {
-    base: "/api/dataset",
-    summary: "/api/dataset/summary",
+    base: "/dataset",
+    summary: "/dataset/summary",
   },
   scraping: {
-    base: "/api/scraping",
-    summary: "/api/scraping/summary",
+    base: "/scraping",
+    summary: "/scraping/summary",
   },
   preprocessing: {
-    base: "/api/preprocessing",
-    summary: "/api/preprocessing/summary",
+    base: "/preprocessing",
+    summary: "/preprocessing/summary",
   },
   sentiment: {
-    base: "/api/sentiment",
-    predict: "/api/sentiment/predict",
-    summary: "/api/sentiment/summary",
+    base: "/sentiment",
+    predict: "/sentiment/predict",
+    summary: "/sentiment/summary",
+    evaluation: "/sentiment/evaluation",
   },
   aspects: {
-    base: "/api/aspects",
-    classify: "/api/aspects/classify",
-    summary: "/api/aspects/summary",
+    base: "/aspects",
+    classify: "/aspects/classify",
+    summary: "/aspects/summary",
+    evaluation: "/aspects/evaluation",
   },
   ahp: {
-    base: "/api/ahp",
-    calculate: "/api/ahp/calculate",
+    base: "/ahp",
+    criteria: "/ahp/criteria",
+    calculate: "/ahp/calculate",
+    fuzzyCalculate: "/ahp/fuzzy-calculate",
+    compare: "/ahp/compare",
   },
   fuzzyAhp: {
-    base: "/api/fuzzy-ahp",
-    calculate: "/api/fuzzy-ahp/calculate",
+    base: "/ahp",
+    calculate: "/ahp/fuzzy-calculate",
   },
   evaluation: {
-    base: "/api/evaluation",
-    summary: "/api/evaluation/summary",
+    base: "/evaluation",
+    summary: "/evaluation/summary",
   },
   reports: {
-    base: "/api/reports",
-    summary: "/api/reports/summary",
+    base: "/reports",
+    summary: "/reports/summary",
+  },
+  health: {
+    base: "/health",
+    service: "/health",
+    services: "/health/services",
   },
 } as const;
 

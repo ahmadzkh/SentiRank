@@ -1,5 +1,6 @@
 import { ConsistencyBadge } from "@/components/badges/ConsistencyBadge";
 import { ChartCard } from "@/components/cards/ChartCard";
+import { AhpGatewayDemoPanel } from "@/components/cards/AhpGatewayDemoPanel";
 import { RankingCard } from "@/components/cards/RankingCard";
 import type { RankingCardItem } from "@/components/cards/RankingCard";
 import { RecommendationCard } from "@/components/cards/RecommendationCard";
@@ -148,6 +149,8 @@ export default function AhpFuzzyAhpPrototypePage() {
         ]}
         title="Ringkasan Metode"
       />
+
+      <AhpGatewayDemoPanel />
 
       <section className="grid gap-6 xl:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
         <ChartCard
