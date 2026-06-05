@@ -43,6 +43,8 @@ As of MS-07, the public sentiment routes are implemented in `api-gateway-service
 
 As of MS-08, the public aspect routes are implemented in `api-gateway-service` and forwarded to `aspect-service`. The gateway preserves the aspect-service response envelope and does not perform SVM aspect classification directly.
 
+As of MS-09, the public report/evaluation summary routes are implemented in `api-gateway-service` and forwarded to `report-service`. The gateway preserves the report-service response envelope and does not train models or calculate final AHP/Fuzzy AHP rankings.
+
 ### AHP and Fuzzy AHP
 
 - `GET /ahp/criteria`
@@ -659,6 +661,50 @@ Response:
 }
 ```
 
+### Report Summary
+
+Request:
+
+```http
+GET /reports/summary
+```
+
+Response:
+
+```json
+{
+  "success": true,
+  "message": "Report summary loaded.",
+  "data": {
+    "project_name": "SentiRank",
+    "application": "Spotify Google Play Reviews",
+    "pipeline_status": {
+      "data_acquisition": "available",
+      "preprocessing": "available",
+      "sentiment_modeling": "available",
+      "aspect_classification": "available",
+      "model_evaluation": "available",
+      "ahp_fuzzy_ahp": "sample_development_only"
+    },
+    "selected_models": {
+      "sentiment": "run_3_weighted_loss_lr_1e-5",
+      "aspect": "merged_5class"
+    },
+    "final_criteria": [
+      {
+        "name": "App Reliability & Usability",
+        "use_in_ahp": true
+      }
+    ],
+    "demo_notes": [
+      "Report service aggregates existing research outputs only.",
+      "Final AHP/Fuzzy AHP priority ranking requires real expert judgement. Sample/development outputs are not final expert judgement and must not be interpreted as final Spotify improvement priorities."
+    ],
+    "warnings": []
+  }
+}
+```
+
 ### Evaluation Summary
 
 Request:
@@ -674,12 +720,23 @@ Response:
   "success": true,
   "message": "Evaluation summary loaded.",
   "data": {
-    "sentiment_model": "run_3_weighted_loss_lr_1e-5",
-    "aspect_classifier": "merged_5class",
-    "notes": [
-      "IndoBERT handles sentiment classification.",
-      "SVM handles aspect classification."
-    ]
+    "selected_indobert_model": "run_3_weighted_loss_lr_1e-5",
+    "selected_svm_model": "merged_5class",
+    "indobert_run_comparison": [],
+    "svm_scenario_comparison": [],
+    "final_aspect_criteria": [
+      {
+        "name": "Features, Content & Audio Experience",
+        "use_in_ahp": true
+      }
+    ],
+    "ahp_fuzzy_ahp_sample_status": {
+      "status": "sample_development_only",
+      "is_sample": true,
+      "not_final_expert_judgement": true,
+      "note": "Final AHP/Fuzzy AHP priority ranking requires real expert judgement. Sample/development outputs are not final expert judgement and must not be interpreted as final Spotify improvement priorities."
+    },
+    "warnings": []
   }
 }
 ```

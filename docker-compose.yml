@@ -29,6 +29,7 @@ services:
       - sentiment-service
       - aspect-service
       - decision-service
+      - report-service
     networks:
       - sentirank-network
 
@@ -96,6 +97,12 @@ services:
     container_name: sentirank-report-service
     ports:
       - "${REPORT_SERVICE_PORT:-8005}:8005"
+    environment:
+      DATASETS_DIR: /app/datasets
+      DOCS_DIR: /app/docs
+    volumes:
+      - ./datasets:/app/datasets:ro
+      - ./docs:/app/docs:ro
     networks:
       - sentirank-network
 

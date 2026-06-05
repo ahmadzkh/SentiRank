@@ -1,16 +1,24 @@
-"""Minimal report service skeleton for MS-03."""
+"""Report service entrypoint for SentiRank report and evaluation APIs."""
 
 from fastapi import FastAPI
+
+from app.core.config import FINAL_ASPECT_CLASSIFIER, FINAL_SENTIMENT_MODEL, get_settings
+from app.routers import report
 
 SERVICE_NAME = "report-service"
 SERVICE_PORT = 8005
 SERVICE_ROLE = "Report and consolidated evaluation summary aggregation"
+SERVICE_VERSION = "0.1.0"
+
+settings = get_settings()
 
 app = FastAPI(
     title="SentiRank Report Service",
-    version="0.1.0",
-    description="MS-03 placeholder only. Report aggregation will be implemented later.",
+    version=SERVICE_VERSION,
+    description="Independent FastAPI service for SentiRank report and consolidated evaluation summaries.",
 )
+
+app.include_router(report.router)
 
 
 def response(message: str, data: dict | None = None) -> dict:
@@ -24,13 +32,28 @@ def response(message: str, data: dict | None = None) -> dict:
 
 @app.get("/")
 def root() -> dict:
-    """Return a placeholder root response for the report service skeleton."""
+    """Return service metadata and available endpoint information."""
     return response(
-        "SentiRank Report Service placeholder is running.",
+        "SentiRank Report Service is running.",
         {
             "service": SERVICE_NAME,
             "role": SERVICE_ROLE,
-            "business_logic": "not_implemented_in_ms_03",
+            "status": "ready",
+            "version": SERVICE_VERSION,
+            "selected_models": {
+                "sentiment": FINAL_SENTIMENT_MODEL,
+                "aspect": FINAL_ASPECT_CLASSIFIER,
+            },
+            "data_paths": {
+                "datasets_dir": str(settings.datasets_dir),
+                "docs_dir": str(settings.docs_dir),
+            },
+            "available_endpoints": [
+                "GET /",
+                "GET /health",
+                "GET /reports/summary",
+                "GET /evaluation/summary",
+            ],
         },
     )
 
@@ -39,11 +62,12 @@ def root() -> dict:
 def health() -> dict:
     """Return health status for Docker Compose checks."""
     return response(
-        "Service is healthy.",
+        "Report service is healthy.",
         {
             "service": SERVICE_NAME,
             "status": "healthy",
+            "version": SERVICE_VERSION,
             "port": SERVICE_PORT,
-            "stage": "ms_03_placeholder",
         },
     )
+

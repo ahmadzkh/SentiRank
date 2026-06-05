@@ -16,7 +16,7 @@ MS-03 provides infrastructure scaffolding only. It creates the deployment topolo
 | `sentiment-service` | `sentirank-sentiment-service` | 8002 | Extracted sentiment prediction and evaluation summary service as of MS-07 |
 | `aspect-service` | `sentirank-aspect-service` | 8003 | Extracted aspect classification and SVM evaluation summary service as of MS-08 |
 | `decision-service` | `sentirank-decision-service` | 8004 | Extracted AHP/Fuzzy AHP calculation service as of MS-04 |
-| `report-service` | `sentirank-report-service` | 8005 | Placeholder health-check service only |
+| `report-service` | `sentirank-report-service` | 8005 | Extracted report and consolidated evaluation summary service as of MS-09 |
 | `database-service` | `sentirank-database-service` | 5432 | PostgreSQL container for thesis-stage Compose topology |
 
 ## Run the Compose Stack
@@ -57,7 +57,7 @@ http://localhost:8001/health
 http://localhost:8004/health
 ```
 
-Optional placeholder services also expose:
+Additional extracted services also expose:
 
 ```text
 http://localhost:8002/health
@@ -165,13 +165,31 @@ environment:
 
 If no local SVM artifact is mounted, `aspect-service` keeps the API usable with explicitly marked fallback demo classifications.
 
+As of MS-09, `report-service` additionally exposes:
+
+- `GET /reports/summary`
+- `GET /evaluation/summary`
+
+`report-service` mounts repository research outputs as read-only Docker volumes:
+
+```yaml
+volumes:
+  - ./datasets:/app/datasets:ro
+  - ./docs:/app/docs:ro
+environment:
+  DATASETS_DIR: /app/datasets
+  DOCS_DIR: /app/docs
+```
+
+`report-service` aggregates existing generated outputs only. It does not train models, run scraping/preprocessing, or calculate final AHP/Fuzzy AHP expert rankings.
+
 ## Transition Notes
 
 `ml-service` remains the legacy modular backend during the transition. Existing research notebooks, scripts, model outputs, and AHP/Fuzzy AHP backend logic remain where they are.
 
 Planned next steps:
 
-1. MS-09 extracts report-service responsibilities.
+1. Later phases can replace file-based report aggregation with database-backed persistence if needed.
 2. Later phases replace remaining legacy boundaries step by step.
 
 This keeps the refactor controlled and avoids breaking the completed ML and frontend workflows while still establishing a concrete microservice deployment foundation.
