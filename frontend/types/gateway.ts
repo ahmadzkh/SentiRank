@@ -141,8 +141,11 @@ export interface GatewayServicesHealthStatus {
 
 export interface GatewayReviewSample {
   external_id?: string | null;
+  user_id?: string | null;
+  user_name?: string | null;
   rating?: number | null;
   content?: string | null;
+  word_count?: number | null;
   initial_sentiment?: string | null;
   final_sentiment?: string | null;
   aspect_label?: string | null;
@@ -156,6 +159,7 @@ export interface GatewayRandomReviewFilters {
   sentiment?: string | null;
   rating?: number | null;
   seed?: number | null;
+  sort?: string | null;
 }
 
 export interface GatewayRandomReviewsResponse {

@@ -87,14 +87,14 @@ def test_latest_negative_reviews_should_forward_query_params(monkeypatch) -> Non
 
     monkeypatch.setattr(ServiceClient, "request_json", fake_request_json)
 
-    response = client.get("/reviews/latest-negative?limit=5")
+    response = client.get("/reviews/latest-negative?limit=10&sort=word_count_desc")
 
     assert response.status_code == 200
     assert calls == [
         {
             "method": "GET",
             "url": "http://review-service:8001/reviews/latest-negative",
-            "query_params": {"limit": "5"},
+            "query_params": {"limit": "10", "sort": "word_count_desc"},
             "service_name": "review-service",
         }
     ]

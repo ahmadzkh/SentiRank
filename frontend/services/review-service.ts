@@ -17,7 +17,7 @@ export function getReviews(
 }
 
 export function getLatestNegativeReviews(
-  query?: Pick<ReviewListQuery, "limit">,
+  query?: Pick<ReviewListQuery, "limit" | "sort">,
 ): Promise<GatewayRandomReviewsResponse> {
   return httpClient.getData<GatewayRandomReviewsResponse>(
     API_ENDPOINTS.reviews.latestNegative,

@@ -101,7 +101,7 @@ export async function getDashboardSummary(): Promise<DashboardData> {
     getAspectSummary(),
     fetchEvaluationSummary(),
     fetchRankingComparison(),
-    getLatestNegativeReviews({ limit: 5 }),
+    getLatestNegativeReviews({ limit: 10, sort: "word_count_desc" }),
   ]);
 
   const sources: DashboardSources = {

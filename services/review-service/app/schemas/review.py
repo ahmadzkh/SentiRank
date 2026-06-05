@@ -3,8 +3,11 @@ from pydantic import BaseModel, Field
 
 class ReviewSample(BaseModel):
     external_id: str | None = None
+    user_id: str | None = None
+    user_name: str | None = None
     rating: int | None = None
     content: str | None = None
+    word_count: int | None = None
     initial_sentiment: str | None = None
     final_sentiment: str | None = None
     aspect_label: str | None = None
@@ -18,6 +21,7 @@ class RandomReviewFilters(BaseModel):
     sentiment: str | None = None
     rating: int | None = None
     seed: int | None = None
+    sort: str | None = None
 
 
 class RandomReviewsData(BaseModel):

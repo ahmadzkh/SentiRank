@@ -130,12 +130,17 @@ export default async function DashboardPage() {
       </ChartCard>
 
       <ChartCard
-        description="Daftar ulasan negatif terbaru dari dataset penelitian."
-        title="Ulasan Negatif Terbaru"
+        description="Sepuluh ulasan negatif dengan jumlah kata terbanyak dari dataset penelitian."
+        title="Ulasan Negatif Terpanjang"
       >
         <ReviewTable
           emptyMessage={EMPTY_MESSAGE}
+          reviewHeader="Isi Ulasan Negatif"
+          reviewerHeader="Identitas Reviewer"
           reviews={dashboard.latestNegativeReviews}
+          showReviewerColumn
+          showWordCount
+          wordCountHeader="Jumlah Kata"
         />
       </ChartCard>
     </AppShell>

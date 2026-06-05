@@ -46,7 +46,7 @@ def write_reviews(path: Path) -> None:
                     "final_sentiment": "Positive" if index % 2 == 0 else "Negative",
                     "reviewed_at": "2026-05-01T00:00:00",
                     "source": "fixture",
-                    "author_name": "should not be returned",
+                    "author_name": "Fixture Author",
                 }
             )
 
@@ -122,7 +122,7 @@ def test_random_reviews_should_filter_and_sample_deterministically(tmp_path: Pat
     assert all(review.final_sentiment == "Positive" for review in first.reviews)
 
 
-def test_random_reviews_should_clamp_limit_and_not_expose_author(tmp_path: Path) -> None:
+def test_random_reviews_should_clamp_limit_and_return_author_identity(tmp_path: Path) -> None:
     service = make_service(tmp_path)
     write_reviews(service.datasets_dir / "processed" / "reviews_final.csv")
 
@@ -132,4 +132,66 @@ def test_random_reviews_should_clamp_limit_and_not_expose_author(tmp_path: Path)
     assert result.filters.applied_limit == 50
     assert result.count == 6
     assert "author_name" not in dumped_review
+    assert dumped_review["user_name"] == "Fixture Author"
     assert result.warnings
+
+
+def test_latest_negative_reviews_should_sort_by_word_count_and_enrich_author(tmp_path: Path) -> None:
+    service = make_service(tmp_path)
+    processed_path = service.datasets_dir / "processed" / "reviews_with_aspect_labels_refined.csv"
+    raw_path = service.datasets_dir / "raw" / "reviews_raw_labeled.csv"
+    processed_path.parent.mkdir(parents=True, exist_ok=True)
+    raw_path.parent.mkdir(parents=True, exist_ok=True)
+
+    with processed_path.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(
+            handle,
+            fieldnames=[
+                "external_id",
+                "rating",
+                "content",
+                "initial_sentiment",
+                "final_sentiment",
+                "reviewed_at",
+                "source",
+                "aspect_label",
+            ],
+        )
+        writer.writeheader()
+        writer.writerow(
+            {
+                "external_id": "review-short",
+                "rating": 1,
+                "content": "terlalu banyak iklan",
+                "initial_sentiment": "Negative",
+                "final_sentiment": "Negative",
+                "reviewed_at": "2026-05-03T00:00:00",
+                "source": "fixture",
+                "aspect_label": "Ads Experience",
+            }
+        )
+        writer.writerow(
+            {
+                "external_id": "review-long",
+                "rating": 1,
+                "content": "aplikasi sering error macet lama sekali ketika buka playlist dan iklan muncul berulang",
+                "initial_sentiment": "Negative",
+                "final_sentiment": "Negative",
+                "reviewed_at": "2026-05-01T00:00:00",
+                "source": "fixture",
+                "aspect_label": "App Reliability & Usability",
+            }
+        )
+
+    with raw_path.open("w", encoding="utf-8", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=["external_id", "author_name"])
+        writer.writeheader()
+        writer.writerow({"external_id": "review-long", "author_name": "Reviewer Long"})
+
+    result = service.latest_negative_reviews(limit=2, sort="word_count_desc")
+
+    assert [review.external_id for review in result.reviews] == ["review-long", "review-short"]
+    assert result.reviews[0].user_name == "Reviewer Long"
+    assert result.reviews[0].user_id == "review-long"
+    assert result.reviews[0].word_count > result.reviews[1].word_count
+    assert result.filters.sort == "word_count_desc"

@@ -64,6 +64,7 @@ export interface ReviewListQuery {
   seed?: number;
   sentiment?: ReviewSentimentLabel;
   aspect?: AspectLabel;
+  sort?: "reviewed_at_desc" | "word_count_desc";
 }
 
 export interface TextAnalysisRequest {

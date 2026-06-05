@@ -263,15 +263,24 @@ export function reviewSamplesToReviews(
   return samples.map((sample, index) => ({
     id: sample.external_id ?? `gateway-review-${index + 1}`,
     source: "spotify_play_store",
-    userName: "Tidak ditampilkan",
+    userName:
+      sample.user_name ??
+      sample.user_id ??
+      sample.external_id ??
+      `Reviewer ${index + 1}`,
     rating: reviewRating(sample.rating),
     text: sample.content ?? EMPTY_TEXT,
+    wordCount: sample.word_count ?? countWords(sample.content),
     language: "id",
     reviewDate: sample.reviewed_at ?? "1970-01-01",
     sentimentLabel: sentimentLabel(sample.final_sentiment ?? sample.initial_sentiment),
     aspectLabels: sample.aspect_label ? [aspectKeyFromGatewayLabel(sample.aspect_label)] : [],
     isProcessed: true,
   }));
+}
+
+function countWords(value?: string | null): number {
+  return value?.split(/\s+/).filter((word) => word.trim()).length ?? 0;
 }
 
 function reviewRating(value?: number | null): 1 | 2 | 3 | 4 | 5 {

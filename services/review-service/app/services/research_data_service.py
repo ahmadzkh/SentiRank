@@ -217,11 +217,18 @@ class ResearchDataService:
             warnings=warnings,
         )
 
-    def latest_negative_reviews(self, limit: int) -> RandomReviewsData:
+    def latest_negative_reviews(
+        self,
+        limit: int,
+        sort: str = "reviewed_at_desc",
+    ) -> RandomReviewsData:
         warnings: list[str] = []
         clamped_limit = max(1, min(limit, self.settings.max_random_review_limit))
         if clamped_limit != limit:
             warnings.append(f"Requested limit {limit} was clamped to {clamped_limit}.")
+        if sort not in {"reviewed_at_desc", "word_count_desc"}:
+            warnings.append(f"Unsupported sort '{sort}' was replaced with reviewed_at_desc.")
+            sort = "reviewed_at_desc"
 
         dataset_path = self._latest_negative_reviews_path(warnings)
         filters = RandomReviewFilters(
@@ -230,6 +237,7 @@ class ResearchDataService:
             sentiment="Negative",
             rating=None,
             seed=None,
+            sort=sort,
         )
 
         if dataset_path is None:
@@ -237,8 +245,23 @@ class ResearchDataService:
             return RandomReviewsData(reviews=[], count=0, filters=filters, warnings=warnings)
 
         rows = self._read_review_rows(dataset_path, sentiment="Negative", rating=None)
-        rows.sort(key=lambda row: row.get("reviewed_at") or "", reverse=True)
-        reviews = [self._review_sample(row) for row in rows[:clamped_limit]]
+        if sort == "word_count_desc":
+            rows.sort(
+                key=lambda row: (
+                    self._word_count(row),
+                    row.get("reviewed_at") or "",
+                ),
+                reverse=True,
+            )
+        else:
+            rows.sort(key=lambda row: row.get("reviewed_at") or "", reverse=True)
+
+        author_names = self._author_names_by_external_id()
+        selected_rows = [
+            self._with_author_name(row, author_names)
+            for row in rows[:clamped_limit]
+        ]
+        reviews = [self._review_sample(row) for row in selected_rows]
 
         return RandomReviewsData(
             reviews=reviews,
@@ -323,16 +346,56 @@ class ResearchDataService:
         return rows
 
     def _review_sample(self, row: dict[str, str]) -> ReviewSample:
+        external_id = row.get("external_id") or None
+        user_name = self._first_non_empty(
+            row,
+            ("author_name", "user_name", "username", "reviewer_name"),
+        )
+        user_id = self._first_non_empty(
+            row,
+            ("user_id", "reviewer_id", "author_id"),
+        ) or external_id
+
         return ReviewSample(
-            external_id=row.get("external_id") or None,
+            external_id=external_id,
+            user_id=user_id,
+            user_name=user_name,
             rating=self._safe_int(row.get("rating")),
             content=row.get("content") or None,
+            word_count=self._word_count(row),
             initial_sentiment=row.get("initial_sentiment") or None,
             final_sentiment=row.get("final_sentiment") or row.get("initial_sentiment") or None,
             aspect_label=row.get("aspect_label") or None,
             reviewed_at=row.get("reviewed_at") or None,
             source=row.get("source") or None,
         )
+
+    def _author_names_by_external_id(self) -> dict[str, str]:
+        raw_path = self.datasets_dir / "raw" / "reviews_raw_labeled.csv"
+        if not raw_path.exists():
+            return {}
+
+        author_names: dict[str, str] = {}
+        with raw_path.open("r", encoding="utf-8-sig", newline="") as handle:
+            reader = csv.DictReader(handle)
+            for row in reader:
+                external_id = row.get("external_id")
+                author_name = row.get("author_name")
+                if external_id and author_name:
+                    author_names[external_id] = author_name
+        return author_names
+
+    @staticmethod
+    def _with_author_name(
+        row: dict[str, str],
+        author_names: dict[str, str],
+    ) -> dict[str, str]:
+        if row.get("author_name") or not row.get("external_id"):
+            return row
+        author_name = author_names.get(str(row["external_id"]))
+        if not author_name:
+            return row
+        return {**row, "author_name": author_name}
 
     def _display_path(self, path: Path) -> str:
         try:
@@ -346,6 +409,22 @@ class ResearchDataService:
             return int(value)
         except (TypeError, ValueError):
             return None
+
+    @classmethod
+    def _word_count(cls, row: dict[str, str]) -> int:
+        existing = cls._safe_int(row.get("word_count") or row.get("content_word_count"))
+        if existing is not None:
+            return existing
+        content = row.get("content") or row.get("text") or ""
+        return len([word for word in content.split() if word.strip()])
+
+    @staticmethod
+    def _first_non_empty(row: dict[str, str], keys: tuple[str, ...]) -> str | None:
+        for key in keys:
+            value = row.get(key)
+            if value:
+                return value
+        return None
 
     @staticmethod
     def _first_value(payload: Any, key: str, fallback: Any) -> Any:

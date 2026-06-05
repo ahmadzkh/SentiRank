@@ -87,9 +87,12 @@ def random_reviews(
 
 
 @router.get("/reviews/latest-negative", response_model=None)
-def latest_negative_reviews(limit: int = Query(default=5, ge=1)):
+def latest_negative_reviews(
+    limit: int = Query(default=5, ge=1),
+    sort: str = Query(default="reviewed_at_desc", pattern="^(reviewed_at_desc|word_count_desc)$"),
+):
     try:
-        data = _service().latest_negative_reviews(limit=limit)
+        data = _service().latest_negative_reviews(limit=limit, sort=sort)
     except OSError as error:
         return error_response(
             "Latest negative reviews could not be loaded.",
