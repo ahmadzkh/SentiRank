@@ -6,10 +6,10 @@
 | --- | --- |
 | Project | SentiRank |
 | Module | Frontend |
-| Phase | FE-12 + MS-10 - API Gateway Integration |
+| Phase | FE-12 + MS-10B - API Gateway Integration and Failure Fallback |
 | Date | 2026-06-05 |
 | Status | Updated |
-| Strategy | API Gateway-only frontend integration |
+| Strategy | API Gateway-only frontend integration with zero/empty fallback |
 
 ---
 
@@ -41,6 +41,7 @@ Prinsip MS-10:
 - HTTP client membuka envelope Gateway dan mengembalikan `data`.
 - AHP/Fuzzy AHP demo memanggil `decision-service` hanya melalui Gateway.
 - AHP dan Fuzzy AHP tetap dihitung oleh backend/service, bukan frontend.
+- MS-10B menghapus mock sebagai fallback untuk halaman yang sudah memakai API Gateway.
 
 ---
 
@@ -120,59 +121,63 @@ Each service opens the Gateway response envelope and returns the business `data`
 
 ## 6. Data Flow Plan
 
-Current MS-10 flow:
-
-```txt
-Pages -> Mock Data by default
-AHP/Fuzzy AHP demo panel -> Service Functions -> API Gateway -> decision-service
-```
-
-Future page migration flow:
+Current MS-10B flow:
 
 ```txt
 Pages -> Service Functions -> HTTP Client -> API Gateway -> Internal Service
 ```
 
-Migration should happen page by page. Each page should keep a clear fallback or loading/error state before mock data is removed.
+Failure flow:
+
+```txt
+API Gateway unavailable or success=false
+-> normalized api-gateway unavailable error
+-> red alert
+-> zero/empty state
+```
+
+Gateway-backed pages must not fall back to legacy mock values because mock values can look like real thesis/demo output.
 
 ---
 
 ## 7. Mock-to-Real Migration Plan
 
-Recommended migration order:
+MS-10B migration rules:
 
-1. Connect Settings to API health/status metadata.
-2. Connect Dataset and Review API.
-3. Connect Scraping and Preprocessing summaries.
-4. Connect Sentiment and Aspect APIs.
-5. Connect Model Evaluation API.
-6. Connect Report API.
-7. Connect AHP and Fuzzy AHP calculation APIs after methodology contracts are stable.
-
-Rules:
-
-- Do not replace all mock data at once.
-- Validate response shape per page.
-- Keep TypeScript DTOs aligned with backend contracts.
+- Gateway-backed pages use real Gateway responses when available.
+- Gateway failure renders red alert plus `0`, `[]`, `-`, or `Data belum tersedia`.
+- Legacy mock data may remain in `frontend/lib/mock-data.ts` for design/reference only.
+- Mock data must not be shown as production/demo fallback on Dashboard, Dataset, Scraping, Preprocessing, Sentiment, Aspect, Evaluation, Report, or AHP/Fuzzy AHP pages.
 - Keep AHP/Fuzzy AHP calculation outside frontend.
 
 ---
 
 ## 8. Error and Loading Handling Plan
 
-The HTTP client normalizes failed requests and exposes this offline Gateway message to UI integrations:
+The HTTP client normalizes failed requests into:
+
+```json
+{
+  "source": "api-gateway",
+  "message": "API Gateway belum aktif. Jalankan microservice backend terlebih dahulu.",
+  "status": "unavailable"
+}
+```
+
+The user-facing message is:
 
 ```txt
 API Gateway belum aktif. Jalankan microservice backend terlebih dahulu.
 ```
 
-Future page integration should add:
+Gateway-backed pages render:
 
-- loading state before request completion;
+- red alert/banner for request failure;
 - empty state when `data` is valid but empty;
-- error state when `success === false`;
-- not-ready state when prerequisite data is missing;
-- retry action only after a real service call exists.
+- `0` for numeric metrics when Gateway is unavailable;
+- no legacy mock values as fallback.
+
+Backend `warnings` inside successful Gateway responses are treated as active backend data, not Gateway failure.
 
 ---
 
@@ -196,6 +201,17 @@ Future page integration should add:
 - [x] AHP/Fuzzy AHP sample warning remains visible.
 - [x] Frontend does not call internal service ports directly.
 - [x] Frontend does not calculate AHP/Fuzzy AHP weights locally.
+
+---
+
+## 12. MS-10B Acceptance Criteria
+
+- [x] Gateway failures normalize to `source=api-gateway`, `status=unavailable`.
+- [x] Gateway-backed pages show the red API Gateway unavailable alert.
+- [x] Dashboard, Dataset, Scraping, Preprocessing, Sentiment, Aspect, Evaluation, Report, and AHP/Fuzzy AHP pages no longer show legacy mock values as fallback.
+- [x] Numeric metrics fall back to `0`; charts and tables fall back to empty data.
+- [x] AHP/Fuzzy AHP sample-development warning remains on successful demo output.
+- [x] Frontend still calls only the API Gateway and does not calculate AHP/Fuzzy AHP locally.
 
 ---
 

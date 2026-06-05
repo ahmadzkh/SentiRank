@@ -904,3 +904,74 @@ Menghubungkan frontend SentiRank ke `api-gateway-service` sebagai satu-satunya e
 ### Completion Note
 
 Completed on 2026-06-05. MS-10 updates the frontend API client, endpoint constants, services, and AHP/Fuzzy AHP page integration so browser-facing calls use `api-gateway-service` only. Existing mock UI remains available, while the AHP/Fuzzy AHP page now has a Gateway-backed sample demo panel that does not calculate AHP/Fuzzy AHP in the frontend.
+
+---
+
+## MS-10B — Frontend Gateway Failure Fallback Cleanup
+
+### Objective
+
+Membersihkan perilaku fallback agar halaman yang sudah memakai API Gateway tidak menampilkan nilai mock ketika Gateway gagal atau belum aktif.
+
+### Task Checklist
+
+- [x] Normalisasi error Gateway menjadi `source=api-gateway`, `status=unavailable`.
+- [x] Tambahkan red alert untuk pesan `API Gateway belum aktif. Jalankan microservice backend terlebih dahulu.`
+- [x] Ubah Dashboard ke zero/empty state ketika Gateway gagal.
+- [x] Ubah Dataset, Scraping, dan Preprocessing ke zero/empty state ketika Gateway gagal.
+- [x] Ubah Sentiment, Aspect, Evaluation, dan Report ke zero/empty state ketika Gateway gagal.
+- [x] Bersihkan halaman AHP/Fuzzy AHP dari output mock aktif.
+- [x] Pertahankan sample-development warning pada hasil demo AHP/Fuzzy AHP.
+- [x] Jalankan `npm run lint`.
+- [x] Jalankan `npm run build`.
+
+### Acceptance Criteria
+
+- [x] Tidak ada halaman gateway-backed yang memakai mock data sebagai fallback produksi/demo.
+- [x] Jika API Gateway mati, angka menjadi `0`, tabel/chart kosong, dan alert merah muncul.
+- [x] Jika API Gateway aktif, halaman menggunakan data dari response envelope Gateway.
+- [x] Frontend tetap tidak memanggil internal service port secara langsung.
+- [x] Frontend tetap tidak menghitung AHP/Fuzzy AHP.
+
+### Completion Note
+
+Completed on 2026-06-05. MS-10B changes gateway-backed pages from mock fallback to explicit zero/empty fallback with a red API Gateway unavailable alert. Legacy mock data remains only as design/reference data, not as fallback for dashboard/demo output.
+
+---
+
+## MS-11 — Dashboard Finalisasi Penelitian
+
+### Objective
+
+Menjadikan Dashboard sebagai ringkasan final penelitian SentiRank yang membaca data terstruktur dari service backend, tanpa copy demo/developer-facing, dan tanpa kalkulasi ulang AHP/Fuzzy AHP di frontend.
+
+### Task Checklist
+
+- [x] Tambahkan endpoint read-only `GET /reports/ranking-comparison` dengan source priority CSV final lalu CSV current.
+- [x] Tambahkan proxy route `GET /reports/ranking-comparison` di API Gateway.
+- [x] Tambahkan distribusi aspek negatif final pada aspect summary.
+- [x] Tambahkan endpoint latest negative reviews dengan `aspect_label`.
+- [x] Tambahkan adapter dashboard `getDashboardSummary()`, `getSentimentStageComparison()`, `getTopAspects()`, `getEvaluationSummary()`, dan `getRankingComparison()`.
+- [x] Ubah Dashboard menjadi layout final: dataset cards, model metrics, sentiment stage bar chart, top 5 aspek negatif, comparison chart, ranking table, dan ulasan negatif terbaru.
+- [x] Hapus section Ringkasan Rekomendasi dari Dashboard.
+- [x] Hapus menu Laporan dan redirect `/reports` ke `/dashboard`.
+- [x] Bersihkan visible copy developer-facing dari Dashboard, sidebar, reports route, dan halaman reachable utama.
+- [x] Jalankan lint, typecheck, build, dan targeted backend tests.
+
+### Acceptance Criteria
+
+- [x] Dashboard tidak lagi menampilkan card positif/netral/negatif di top row.
+- [x] Ringkasan Dataset berisi maksimal 6 card sesuai pipeline penelitian.
+- [x] Ringkasan Performa Model berada di row kedua dan tidak menampilkan nama run.
+- [x] Distribusi sentimen tampil sebagai bar chart per tahap.
+- [x] Top aspek hanya menampilkan 5 aspek negatif final.
+- [x] AHP/Fuzzy AHP full width dan membaca ranking comparison dari CSV backend.
+- [x] Ranking Prioritas full width dan berbentuk tabel.
+- [x] Ringkasan Rekomendasi Dashboard sudah hilang.
+- [x] Menu Laporan sudah hilang dan `/reports` redirect ke Dashboard.
+- [x] Visible UI Dashboard/sidebar/reports tidak menampilkan Preview, Demo, Sample, mock-first, fallback, gateway, atau API Gateway.
+- [x] Validasi lint/typecheck/build/backend tests selesai.
+
+### Completion Note
+
+Completed on 2026-06-05. Dashboard finalisasi penelitian selesai dengan backend CSV ranking endpoint, dashboard adapter, layout final data-backed, Reports redirect, UI copy cleanup, dan validasi lint/typecheck/build serta targeted backend tests per service.

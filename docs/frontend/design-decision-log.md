@@ -1346,5 +1346,20 @@ Frontend Stack Plan:
 NextJS, TypeScript, Tailwind CSS, shadcn/ui
 
 Development Strategy:
-Mock-first, API-contract-ready, component-based
+Data-backed, service-layer integration, component-based
 ```
+
+---
+
+## 2026-06-05 — Dashboard Final Data-Backed Summary
+
+Decision:
+
+- Dashboard menjadi ringkasan final penelitian SentiRank untuk scraping, dataset, preprocessing, sentimen, aspek, evaluasi model, dan prioritas AHP/Fuzzy AHP.
+- Data ranking AHP/Fuzzy AHP dibaca dari endpoint backend berbasis `08_ranking_comparison.csv`; frontend tidak melakukan kalkulasi ulang prioritas.
+- Copy dashboard dan navigasi dibersihkan dari istilah internal agar aplikasi terlihat sebagai aplikasi penelitian final.
+
+Impact:
+
+- Section Dashboard difokuskan ke 6 card dataset, row metrik model, chart distribusi sentimen per tahap, top 5 aspek negatif, chart/tabel prioritas, dan ulasan negatif terbaru.
+- Menu Laporan dihapus dari navigasi; route lama diarahkan ke Dashboard.
