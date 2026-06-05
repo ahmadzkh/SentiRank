@@ -1,21 +1,28 @@
 import { API_ENDPOINTS } from "@/lib/api-endpoints";
 import { httpClient } from "@/lib/http-client";
 import type {
-  Review,
+  GatewayRandomReviewsResponse,
   ReviewListQuery,
 } from "@/types";
 
-export interface RandomReviewsResponse {
-  reviews: Review[];
-  count: number;
-  filters: Record<string, unknown>;
-  warnings: string[];
-}
-
 export function getReviews(
   query?: ReviewListQuery,
-): Promise<RandomReviewsResponse> {
-  return httpClient.getData<RandomReviewsResponse>(API_ENDPOINTS.reviews.random, {
-    query,
-  });
+): Promise<GatewayRandomReviewsResponse> {
+  return httpClient.getData<GatewayRandomReviewsResponse>(
+    API_ENDPOINTS.reviews.random,
+    {
+      query,
+    },
+  );
+}
+
+export function getLatestNegativeReviews(
+  query?: Pick<ReviewListQuery, "limit">,
+): Promise<GatewayRandomReviewsResponse> {
+  return httpClient.getData<GatewayRandomReviewsResponse>(
+    API_ENDPOINTS.reviews.latestNegative,
+    {
+      query,
+    },
+  );
 }

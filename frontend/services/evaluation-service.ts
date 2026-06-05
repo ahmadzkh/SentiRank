@@ -1,7 +1,9 @@
 import { API_ENDPOINTS } from "@/lib/api-endpoints";
 import { httpClient } from "@/lib/http-client";
-import type { EvaluationSummary } from "@/types";
+import type { GatewayEvaluationSummary } from "@/types";
 
-export function getEvaluationSummary(): Promise<EvaluationSummary> {
-  return httpClient.getData<EvaluationSummary>(API_ENDPOINTS.evaluation.summary);
+export function getEvaluationSummary(): Promise<GatewayEvaluationSummary> {
+  return httpClient.getData<GatewayEvaluationSummary>(
+    API_ENDPOINTS.evaluation.summary,
+  );
 }

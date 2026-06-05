@@ -1,9 +1,9 @@
 import { API_ENDPOINTS } from "@/lib/api-endpoints";
 import { httpClient } from "@/lib/http-client";
 import type {
+  GatewayAspectEvaluation,
+  GatewayAspectSummary,
   AspectResult,
-  AspectSummary,
-  EvaluationSummary,
   TextAnalysisRequest,
 } from "@/types";
 
@@ -13,10 +13,12 @@ export function classifyAspect(
   return httpClient.postData<AspectResult>(API_ENDPOINTS.aspects.classify, input);
 }
 
-export function getAspectSummary(): Promise<AspectSummary> {
-  return httpClient.getData<AspectSummary>(API_ENDPOINTS.aspects.summary);
+export function getAspectSummary(): Promise<GatewayAspectSummary> {
+  return httpClient.getData<GatewayAspectSummary>(API_ENDPOINTS.aspects.summary);
 }
 
-export function getAspectEvaluation(): Promise<EvaluationSummary> {
-  return httpClient.getData<EvaluationSummary>(API_ENDPOINTS.aspects.evaluation);
+export function getAspectEvaluation(): Promise<GatewayAspectEvaluation> {
+  return httpClient.getData<GatewayAspectEvaluation>(
+    API_ENDPOINTS.aspects.evaluation,
+  );
 }

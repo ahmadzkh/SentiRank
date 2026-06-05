@@ -1,10 +1,33 @@
-import type { ApiQueryValue, ApiRequestOptions, ApiResponse } from "@/types/api";
+import type {
+  ApiGatewayFailure,
+  ApiQueryValue,
+  ApiRequestOptions,
+  ApiResponse,
+} from "@/types/api";
 
 const DEFAULT_API_BASE_URL = "http://localhost:8000";
 export const API_GATEWAY_OFFLINE_MESSAGE =
-  "API Gateway belum aktif. Jalankan microservice backend terlebih dahulu.";
+  "Layanan data belum dapat diakses.";
+const API_GATEWAY_ERROR_CODE = "API_GATEWAY_UNAVAILABLE";
+const API_GATEWAY_TIMEOUT_MS = 10_000;
+
+export class ApiGatewayUnavailableError extends Error implements ApiGatewayFailure {
+  source = "api-gateway" as const;
+  status = "unavailable" as const;
+  details?: Record<string, unknown>;
+
+  constructor(details?: Record<string, unknown>) {
+    super(API_GATEWAY_OFFLINE_MESSAGE);
+    this.name = "ApiGatewayUnavailableError";
+    this.details = details;
+  }
+}
 
 function getApiBaseUrl() {
+  if (typeof window === "undefined" && process.env.API_GATEWAY_INTERNAL_URL) {
+    return process.env.API_GATEWAY_INTERNAL_URL;
+  }
+
   return process.env.NEXT_PUBLIC_API_BASE_URL ?? DEFAULT_API_BASE_URL;
 }
 
@@ -66,17 +89,18 @@ async function parseResponseBody(response: Response): Promise<unknown> {
   }
 }
 
-function createErrorResponse<TData>(
-  code: string,
-  message: string,
+function createGatewayUnavailableResponse<TData>(
   details?: Record<string, unknown>,
 ): ApiResponse<TData> {
   return {
     success: false,
     data: null,
+    message: API_GATEWAY_OFFLINE_MESSAGE,
     error: {
-      code,
-      message,
+      code: API_GATEWAY_ERROR_CODE,
+      message: API_GATEWAY_OFFLINE_MESSAGE,
+      source: "api-gateway",
+      status: "unavailable",
       details,
     },
   };
@@ -94,17 +118,10 @@ function normalizeApiResponse<TData>(payload: ApiResponse<unknown>): ApiResponse
     };
   }
 
-  const error: Record<string, unknown> = isRecord(payload.error) ? payload.error : {};
-  const code = typeof error.code === "string" ? error.code : "API_ERROR";
-  const message =
-    typeof payload.message === "string"
-      ? payload.message
-      : typeof error.message === "string"
-        ? error.message
-        : "API request failed.";
-  const details = isRecord(error.details) ? error.details : undefined;
-
-  return createErrorResponse<TData>(code, message, details);
+  return createGatewayUnavailableResponse<TData>({
+    upstream_message: payload.message,
+    upstream_error: payload.error,
+  });
 }
 
 export function unwrapApiEnvelope<TData>(response: ApiResponse<TData>): TData {
@@ -112,8 +129,7 @@ export function unwrapApiEnvelope<TData>(response: ApiResponse<TData>): TData {
     return response.data as TData;
   }
 
-  const message = response.error?.message || response.message || "API request failed.";
-  throw new Error(message);
+  throw new ApiGatewayUnavailableError(response.error?.details);
 }
 
 async function request<TData>(
@@ -122,6 +138,12 @@ async function request<TData>(
 ): Promise<ApiResponse<TData>> {
   const { body, headers, query, ...requestOptions } = options;
   const requestHeaders = new Headers(headers);
+  const abortController = requestOptions.signal
+    ? null
+    : new AbortController();
+  const timeoutId = abortController
+    ? setTimeout(() => abortController.abort(), API_GATEWAY_TIMEOUT_MS)
+    : null;
 
   if (typeof body !== "undefined" && !requestHeaders.has("Content-Type")) {
     requestHeaders.set("Content-Type", "application/json");
@@ -132,33 +154,34 @@ async function request<TData>(
       ...requestOptions,
       body: typeof body === "undefined" ? undefined : JSON.stringify(body),
       headers: requestHeaders,
+      signal: requestOptions.signal ?? abortController?.signal,
     });
     const payload = await parseResponseBody(response);
 
     if (!response.ok) {
-      if (isApiResponse(payload)) {
-        return normalizeApiResponse<TData>(payload);
-      }
-
-      return createErrorResponse<TData>(
-        `HTTP_${response.status}`,
-        response.statusText || "API request failed.",
-        isRecord(payload) ? payload : { payload },
-      );
+      return createGatewayUnavailableResponse<TData>({
+        http_status: response.status,
+        http_status_text: response.statusText,
+        payload: isRecord(payload) ? payload : { payload },
+      });
     }
 
     if (isApiResponse(payload)) {
       return normalizeApiResponse<TData>(payload);
     }
 
-    return {
-      success: true,
-      data: payload as TData,
-    };
+    return createGatewayUnavailableResponse<TData>({
+      reason: "Invalid API Gateway response envelope.",
+      payload: isRecord(payload) ? payload : { payload },
+    });
   } catch (error) {
-    return createErrorResponse<TData>("NETWORK_ERROR", API_GATEWAY_OFFLINE_MESSAGE, {
+    return createGatewayUnavailableResponse<TData>({
       message: error instanceof Error ? error.message : String(error),
     });
+  } finally {
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+    }
   }
 }
 

@@ -2,6 +2,7 @@ export const API_ENDPOINTS = {
   reviews: {
     base: "/reviews",
     random: "/reviews/random",
+    latestNegative: "/reviews/latest-negative",
   },
   dataset: {
     base: "/dataset",
@@ -45,6 +46,7 @@ export const API_ENDPOINTS = {
   reports: {
     base: "/reports",
     summary: "/reports/summary",
+    rankingComparison: "/reports/ranking-comparison",
   },
   health: {
     base: "/health",
