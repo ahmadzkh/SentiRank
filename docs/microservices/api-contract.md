@@ -37,6 +37,8 @@ The frontend calls these API Gateway routes only. Internal service ports must no
 
 As of MS-05, the public AHP/Fuzzy AHP routes are implemented in `api-gateway-service` and forwarded to `decision-service`. The gateway preserves the decision-service response envelope and does not calculate AHP or Fuzzy AHP directly.
 
+As of MS-06, the public review/data routes are implemented in `api-gateway-service` and forwarded to `review-service`. The gateway preserves the review-service response envelope and does not read datasets directly.
+
 ### AHP and Fuzzy AHP
 
 - `GET /ahp/criteria`
@@ -302,7 +304,7 @@ Response:
 Request:
 
 ```http
-GET /reviews/random?limit=5
+GET /reviews/random?limit=5&sentiment=Negative&rating=1&seed=42
 ```
 
 Response:
@@ -310,16 +312,143 @@ Response:
 ```json
 {
   "success": true,
-  "message": "Random reviews loaded.",
+  "message": "Random review samples loaded.",
   "data": {
     "reviews": [
       {
         "external_id": "review_001",
-        "rating": 2,
-        "content": "App sering error dan iklan terlalu banyak.",
-        "final_sentiment": "Negative"
+        "rating": 1,
+        "content": "Akun saya tidak bisa login.",
+        "initial_sentiment": "Negative",
+        "final_sentiment": "Negative",
+        "reviewed_at": "2026-05-13T02:16:04",
+        "source": "google_play_spotify_id"
       }
-    ]
+    ],
+    "count": 1,
+    "filters": {
+      "limit": 5,
+      "applied_limit": 5,
+      "sentiment": "Negative",
+      "rating": 1,
+      "seed": 42
+    },
+    "warnings": []
+  }
+}
+```
+
+### Dataset Summary
+
+Request:
+
+```http
+GET /dataset/summary
+```
+
+Response:
+
+```json
+{
+  "success": true,
+  "message": "Dataset summary loaded.",
+  "data": {
+    "dataset_availability": {
+      "data_acquisition_summary": true,
+      "scraping_summary": true,
+      "reviews_final": true
+    },
+    "total_review_count": 97782,
+    "rating_distribution": {
+      "1": 20000,
+      "2": 15000,
+      "3": 27782,
+      "4": 15000,
+      "5": 20000
+    },
+    "sentiment_distribution": {
+      "Negative": 35000,
+      "Neutral": 27782,
+      "Positive": 35000
+    },
+    "warnings": []
+  }
+}
+```
+
+### Scraping Summary
+
+Request:
+
+```http
+GET /scraping/summary
+```
+
+Response:
+
+```json
+{
+  "success": true,
+  "message": "Scraping summary loaded.",
+  "data": {
+    "app_id": "com.spotify.music",
+    "source_name": "google_play_spotify_id",
+    "target_quota_per_rating": {
+      "1": 20000,
+      "2": 15000,
+      "3": 30000,
+      "4": 15000,
+      "5": 20000
+    },
+    "achieved_count_per_rating": {
+      "1": 20000,
+      "2": 15000,
+      "3": 27782,
+      "4": 15000,
+      "5": 20000
+    },
+    "total_achieved_rows": 97782,
+    "rating_3_limitation_note": "Rating 3 target was 30,000 reviews, but only 27,782 were available.",
+    "warnings": []
+  }
+}
+```
+
+### Preprocessing Summary
+
+Request:
+
+```http
+GET /preprocessing/summary
+```
+
+Response:
+
+```json
+{
+  "success": true,
+  "message": "Preprocessing summary loaded.",
+  "data": {
+    "total_rows": 97782,
+    "relabeling_changes": {
+      "changed_label_count": 10153,
+      "changed_label_percentage": 10.3833,
+      "rating_3_changed_count": 10153
+    },
+    "sentiment_distribution_before": {
+      "Negative": 35000,
+      "Neutral": 27782,
+      "Positive": 35000
+    },
+    "sentiment_distribution_after": {
+      "Negative": 39686,
+      "Neutral": 17629,
+      "Positive": 40467
+    },
+    "general_fallback_limitation": {
+      "note": "General fallback labels are weak-label coverage gaps and are not final AHP/Fuzzy AHP criteria."
+    },
+    "warnings": []
   }
 }
 ```

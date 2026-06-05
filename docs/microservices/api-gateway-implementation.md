@@ -4,7 +4,7 @@
 
 MS-05 implements `api-gateway-service` as the single frontend-facing API entry point for SentiRank.
 
-In this phase, the gateway proxies only AHP and Fuzzy AHP routes to `decision-service`. Other internal services remain future extraction targets and are only represented in health aggregation when available.
+MS-05 introduced AHP/Fuzzy AHP proxying to `decision-service`. MS-06 extends the same gateway boundary with review/data routes proxied to `review-service`.
 
 ## Gateway Role
 
@@ -25,6 +25,10 @@ Current gateway-owned public routes:
 - `POST /ahp/calculate`
 - `POST /ahp/fuzzy-calculate`
 - `POST /ahp/compare`
+- `GET /reviews/random`
+- `GET /dataset/summary`
+- `GET /scraping/summary`
+- `GET /preprocessing/summary`
 
 ## AHP/Fuzzy AHP Routing
 
@@ -38,6 +42,19 @@ The gateway forwards AHP routes to `decision-service`:
 | `POST /ahp/compare` | `POST {DECISION_SERVICE_URL}/ahp/compare` |
 
 `decision-service` owns AHP, Fuzzy AHP, and ranking-comparison calculation logic. The gateway only forwards JSON payloads and preserves the upstream response envelope.
+
+## Review/Data Routing
+
+The gateway forwards review/data routes to `review-service`:
+
+| Public gateway route | Internal service route |
+| --- | --- |
+| `GET /reviews/random` | `GET {REVIEW_SERVICE_URL}/reviews/random` |
+| `GET /dataset/summary` | `GET {REVIEW_SERVICE_URL}/dataset/summary` |
+| `GET /scraping/summary` | `GET {REVIEW_SERVICE_URL}/scraping/summary` |
+| `GET /preprocessing/summary` | `GET {REVIEW_SERVICE_URL}/preprocessing/summary` |
+
+`review-service` owns file-backed research output reads. The gateway does not read datasets directly.
 
 ## Environment Configuration
 
@@ -124,6 +141,8 @@ docker compose up -d decision-service api-gateway-service
 curl http://localhost:8000/health
 curl http://localhost:8000/health/services
 curl http://localhost:8000/ahp/criteria
+curl "http://localhost:8000/reviews/random?limit=5"
+curl http://localhost:8000/dataset/summary
 ```
 
 ## Scope Boundary
@@ -131,6 +150,7 @@ curl http://localhost:8000/ahp/criteria
 MS-05 does not:
 
 - calculate AHP or Fuzzy AHP in the gateway
+- read datasets directly in the gateway
 - modify frontend code
 - modify `decision-service` calculation logic
 - modify legacy `ml-service`

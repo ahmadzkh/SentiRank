@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import get_settings
-from app.routers import ahp, health
+from app.routers import ahp, health, review
 
 settings = get_settings()
 
@@ -24,6 +24,7 @@ app.add_middleware(
 
 app.include_router(health.router)
 app.include_router(ahp.router)
+app.include_router(review.router)
 
 
 def response(message: str, data: dict | None = None) -> dict:
@@ -53,9 +54,14 @@ def root() -> dict:
                 "POST /ahp/calculate",
                 "POST /ahp/fuzzy-calculate",
                 "POST /ahp/compare",
+                "GET /reviews/random",
+                "GET /dataset/summary",
+                "GET /scraping/summary",
+                "GET /preprocessing/summary",
             ],
             "routing": {
                 "decision-service": settings.decision_service_url,
+                "review-service": settings.review_service_url,
             },
         },
     )

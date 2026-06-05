@@ -25,6 +25,7 @@ services:
       DECISION_SERVICE_URL: ${DECISION_SERVICE_URL:-http://decision-service:8004}
       REPORT_SERVICE_URL: ${REPORT_SERVICE_URL:-http://report-service:8005}
     depends_on:
+      - review-service
       - decision-service
     networks:
       - sentirank-network
@@ -35,6 +36,12 @@ services:
     container_name: sentirank-review-service
     ports:
       - "${REVIEW_SERVICE_PORT:-8001}:8001"
+    environment:
+      DATASETS_DIR: /app/datasets
+      DOCS_DIR: /app/docs
+    volumes:
+      - ./datasets:/app/datasets:ro
+      - ./docs:/app/docs:ro
     networks:
       - sentirank-network
 

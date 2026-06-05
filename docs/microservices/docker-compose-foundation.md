@@ -12,7 +12,7 @@ MS-03 provides infrastructure scaffolding only. It creates the deployment topolo
 | --- | --- | ---: | --- |
 | `frontend-service` | `sentirank-frontend-service` | 3000 | Usable development container for the existing Next.js frontend |
 | `api-gateway-service` | `sentirank-api-gateway-service` | 8000 | Skeleton FastAPI service with root and health endpoints |
-| `review-service` | `sentirank-review-service` | 8001 | Skeleton FastAPI service with root and health endpoints |
+| `review-service` | `sentirank-review-service` | 8001 | Extracted read-only review/data summary service as of MS-06 |
 | `sentiment-service` | `sentirank-sentiment-service` | 8002 | Placeholder health-check service only |
 | `aspect-service` | `sentirank-aspect-service` | 8003 | Placeholder health-check service only |
 | `decision-service` | `sentirank-decision-service` | 8004 | Extracted AHP/Fuzzy AHP calculation service as of MS-04 |
@@ -104,6 +104,24 @@ As of MS-04, `decision-service` additionally exposes:
 - `POST /ahp/calculate`
 - `POST /ahp/fuzzy-calculate`
 - `POST /ahp/compare`
+
+As of MS-06, `review-service` additionally exposes:
+
+- `GET /reviews/random`
+- `GET /dataset/summary`
+- `GET /scraping/summary`
+- `GET /preprocessing/summary`
+
+`review-service` mounts repository research outputs as read-only Docker volumes:
+
+```yaml
+volumes:
+  - ./datasets:/app/datasets:ro
+  - ./docs:/app/docs:ro
+environment:
+  DATASETS_DIR: /app/datasets
+  DOCS_DIR: /app/docs
+```
 
 ## Transition Notes
 

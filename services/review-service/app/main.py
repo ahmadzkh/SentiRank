@@ -1,16 +1,23 @@
-"""Minimal review service skeleton for MS-03."""
+"""Review service entrypoint for SentiRank research data APIs."""
 
 from fastapi import FastAPI
 
+from app.core.config import get_settings
+from app.routers import review
+
 SERVICE_NAME = "review-service"
-SERVICE_PORT = 8001
 SERVICE_ROLE = "Dataset, scraping, preprocessing, random review, and EDA summaries"
+SERVICE_VERSION = "0.1.0"
+
+settings = get_settings()
 
 app = FastAPI(
     title="SentiRank Review Service",
-    version="0.1.0",
-    description="MS-03 skeleton only. Review/data logic will be extracted in a later phase.",
+    version=SERVICE_VERSION,
+    description="Independent FastAPI service for SentiRank review and research-output summaries.",
 )
+
+app.include_router(review.router)
 
 
 def response(message: str, data: dict | None = None) -> dict:
@@ -24,13 +31,26 @@ def response(message: str, data: dict | None = None) -> dict:
 
 @app.get("/")
 def root() -> dict:
-    """Return a placeholder root response for the review service skeleton."""
+    """Return service metadata and available endpoint information."""
     return response(
-        "SentiRank Review Service skeleton is running.",
+        "SentiRank Review Service is running.",
         {
             "service": SERVICE_NAME,
             "role": SERVICE_ROLE,
-            "business_logic": "not_implemented_in_ms_03",
+            "status": "ready",
+            "version": SERVICE_VERSION,
+            "data_paths": {
+                "datasets_dir": str(settings.datasets_dir),
+                "docs_dir": str(settings.docs_dir),
+            },
+            "available_endpoints": [
+                "GET /",
+                "GET /health",
+                "GET /reviews/random",
+                "GET /dataset/summary",
+                "GET /scraping/summary",
+                "GET /preprocessing/summary",
+            ],
         },
     )
 
@@ -39,11 +59,10 @@ def root() -> dict:
 def health() -> dict:
     """Return health status for Docker Compose checks."""
     return response(
-        "Service is healthy.",
+        "Review service is healthy.",
         {
             "service": SERVICE_NAME,
             "status": "healthy",
-            "port": SERVICE_PORT,
-            "stage": "ms_03_skeleton",
+            "version": SERVICE_VERSION,
         },
     )

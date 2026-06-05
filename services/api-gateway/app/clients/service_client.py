@@ -29,21 +29,31 @@ class ServiceClient:
         method: str,
         url: str,
         json_body: dict[str, Any] | None = None,
+        query_params: dict[str, Any] | None = None,
+        service_name: str = "decision-service",
     ) -> tuple[int, dict[str, Any]]:
+        code_prefix = service_name.upper().replace("-", "_")
+        display_name = service_name.replace("-", " ")
+        display_name = display_name[:1].upper() + display_name[1:]
         try:
             async with httpx.AsyncClient(timeout=self.timeout_seconds) as client:
-                response = await client.request(method=method, url=url, json=json_body)
+                response = await client.request(
+                    method=method,
+                    url=url,
+                    json=json_body,
+                    params=query_params,
+                )
         except httpx.TimeoutException as error:
             raise ServiceClientError(
-                message="Decision service request timed out.",
-                code="DECISION_SERVICE_TIMEOUT",
+                message=f"{display_name} request timed out.",
+                code=f"{code_prefix}_TIMEOUT",
                 status_code=504,
                 details={"url": url},
             ) from error
         except httpx.RequestError as error:
             raise ServiceClientError(
-                message="Decision service is unavailable.",
-                code="DECISION_SERVICE_UNAVAILABLE",
+                message=f"{display_name} is unavailable.",
+                code=f"{code_prefix}_UNAVAILABLE",
                 status_code=503,
                 details={"url": url},
             ) from error
@@ -52,16 +62,16 @@ class ServiceClient:
             payload = response.json()
         except ValueError as error:
             raise ServiceClientError(
-                message="Decision service returned an invalid JSON response.",
-                code="DECISION_SERVICE_INVALID_JSON",
+                message=f"{display_name} returned an invalid JSON response.",
+                code=f"{code_prefix}_INVALID_JSON",
                 status_code=502,
                 details={"url": url, "upstream_status_code": response.status_code},
             ) from error
 
         if not isinstance(payload, dict):
             raise ServiceClientError(
-                message="Decision service returned an unsupported response payload.",
-                code="DECISION_SERVICE_INVALID_RESPONSE",
+                message=f"{display_name} returned an unsupported response payload.",
+                code=f"{code_prefix}_INVALID_RESPONSE",
                 status_code=502,
                 details={"url": url, "upstream_status_code": response.status_code},
             )
