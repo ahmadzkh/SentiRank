@@ -61,7 +61,9 @@ export function ReviewTable({
                         <AspectBadge aspect={aspect} key={aspect} />
                       ))
                     ) : (
-                      <AspectBadge />
+                      <span className="text-sm text-muted-foreground">
+                        Tidak tersedia
+                      </span>
                     )}
                   </div>
                 </td>

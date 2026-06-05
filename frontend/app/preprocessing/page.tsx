@@ -1,12 +1,66 @@
+import { ApiGatewayAlert } from "@/components/alerts/ApiGatewayAlert";
 import { ChartCard } from "@/components/cards/ChartCard";
 import { StatCard } from "@/components/cards/StatCard";
 import { SummaryCard } from "@/components/cards/SummaryCard";
 import { AppShell, PageHeader } from "@/components/layout";
 import { ReviewTable } from "@/components/tables/ReviewTable";
 import { SimpleTable } from "@/components/tables/SimpleTable";
-import { mockPreprocessingSummary, mockReviews } from "@/lib/mock-data";
+import { EMPTY_GATEWAY_MESSAGE, safeGatewayData } from "@/lib/api-status";
+import {
+  EMPTY_PREPROCESSING_SUMMARY,
+  EMPTY_RANDOM_REVIEWS,
+  EMPTY_TEXT,
+  numberValue,
+  recordNumber,
+  reviewSamplesToReviews,
+  stringValue,
+} from "@/lib/gateway-display";
+import { getPreprocessingSummary } from "@/services/preprocessing-service";
+import { getReviews } from "@/services/review-service";
 
-export default function PreprocessingPage() {
+export const dynamic = "force-dynamic";
+
+function objectRows(record: Record<string, unknown>) {
+  return Object.entries(record).map(([key, value]) => ({
+    key,
+    label: key,
+    value:
+      typeof value === "object" && value !== null
+        ? JSON.stringify(value)
+        : stringValue(String(value), EMPTY_TEXT),
+  }));
+}
+
+export default async function PreprocessingPage() {
+  const [preprocessingResult, reviewsResult] = await Promise.all([
+    safeGatewayData(getPreprocessingSummary, EMPTY_PREPROCESSING_SUMMARY),
+    safeGatewayData(() => getReviews({ limit: 10, seed: 30 }), EMPTY_RANDOM_REVIEWS),
+  ]);
+  const preprocessing = preprocessingResult.data;
+  const relabeling = preprocessing.relabeling_changes;
+  const reviews = reviewSamplesToReviews(reviewsResult.data.reviews);
+  const apiError = preprocessingResult.error ?? reviewsResult.error;
+  const pipelineRows = preprocessingResult.isAvailable
+    ? [
+        {
+          id: "relabeling",
+          name: "Relabeling sentimen",
+          rowsAffected: recordNumber(relabeling, "changed_label_count"),
+          status: "available",
+          description: "Ringkasan perubahan label dari output preprocessing.",
+        },
+        {
+          id: "aspect",
+          name: "Weak aspect labeling",
+          rowsAffected: numberValue(preprocessing.total_rows),
+          status: preprocessing.aspect_taxonomy_summary_available
+            ? "available"
+            : "partial",
+          description: "Ringkasan weak label aspek untuk SVM.",
+        },
+      ]
+    : [];
+
   return (
     <AppShell>
       <PageHeader
@@ -15,40 +69,42 @@ export default function PreprocessingPage() {
         title="Prapemrosesan"
       />
 
+      <ApiGatewayAlert error={apiError} />
+
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
         <StatCard
-          description="Jumlah ulasan sebelum pipeline teks."
+          description="Jumlah baris dari ringkasan preprocessing."
           label="Ulasan Mentah"
-          value={mockPreprocessingSummary.rawReviews}
+          value={preprocessing.total_rows ?? 0}
         />
         <StatCard
-          description="Baris yang sudah memiliki teks bersih mock."
+          description="Frontend tidak menjalankan preprocessing runtime."
           label="Ulasan Diproses"
           tone="positive"
-          value={mockPreprocessingSummary.processedReviews}
+          value={preprocessing.total_rows ?? 0}
         />
         <StatCard
-          description="Tidak ada duplikasi pada sampel demo."
+          description="Duplikasi tidak dihitung di frontend."
           label="Duplikasi Dihapus"
-          value={mockPreprocessingSummary.removedDuplicates}
+          value={0}
         />
         <StatCard
-          description="Tidak ada teks kosong setelah pembersihan."
+          description="Kosong setelah cleaning dibaca jika tersedia pada artefak."
           label="Kosong Setelah Cleaning"
           tone="positive"
-          value={mockPreprocessingSummary.emptyAfterCleaning}
+          value={0}
         />
         <StatCard
-          description="Total token dari teks bersih mock."
+          description="Total token tidak dihitung di frontend."
           label="Token Bersih"
           tone="primary"
-          value={mockPreprocessingSummary.cleanedTokenCount}
+          value={0}
         />
         <StatCard
-          description="Status proses untuk demonstrasi skripsi."
+          description="Status data preprocessing."
           label="Status Pipeline"
           tone="primary"
-          value={mockPreprocessingSummary.status}
+          value={preprocessingResult.isAvailable ? "Data tersedia" : EMPTY_TEXT}
         />
       </section>
 
@@ -83,13 +139,14 @@ export default function PreprocessingPage() {
                 key: "status",
                 header: "Status",
                 render: (row) => (
-                  <span className="rounded-md border border-green-200 bg-green-50 px-2 py-1 text-xs font-medium text-green-700">
+                  <span className="rounded-md border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-medium text-slate-700">
                     {row.status}
                   </span>
                 ),
               },
             ]}
-            data={mockPreprocessingSummary.pipelineSteps}
+            data={pipelineRows}
+            emptyMessage={EMPTY_GATEWAY_MESSAGE}
             minWidthClassName="min-w-[760px]"
             rowKey={(row) => row.id}
           />
@@ -99,66 +156,62 @@ export default function PreprocessingPage() {
           description="Catatan ini membantu menjelaskan batas UI: frontend menampilkan output, bukan menjalankan pipeline ML."
           title="Ringkasan Proses"
         >
-          <ul className="space-y-3 text-sm leading-6 text-muted-foreground">
-            {mockPreprocessingSummary.noiseSummary.map((item) => (
-              <li
-                className="rounded-md border border-border bg-background px-4 py-3"
-                key={item}
-              >
-                {item}
-              </li>
-            ))}
-          </ul>
+          <SimpleTable
+            columns={[
+              {
+                key: "label",
+                header: "Item",
+                render: (row) => row.label,
+              },
+              {
+                key: "value",
+                header: "Nilai",
+                render: (row) => row.value,
+              },
+            ]}
+            data={preprocessingResult.isAvailable ? objectRows(relabeling) : []}
+            emptyMessage={EMPTY_GATEWAY_MESSAGE}
+            minWidthClassName="min-w-[420px]"
+            rowKey={(row) => row.key}
+          />
         </SummaryCard>
       </section>
 
       <ChartCard
-        description="Contoh before/after dipertahankan agar transformasi teks dapat diaudit secara visual."
+        description="Contoh before/after ditampilkan bila tersedia dari dataset penelitian."
         title="Sampel Teks Sebelum / Sesudah"
       >
         <SimpleTable
           columns={[
             {
-              key: "raw",
-              header: "Teks Asli",
-              className: "max-w-[420px]",
-              render: (row) => (
-                <p className="line-clamp-3 leading-6 text-foreground">
-                  {row.rawText}
-                </p>
-              ),
+              key: "label",
+              header: "Sumber",
+              render: (row) => row.label,
             },
             {
-              key: "cleaned",
-              header: "Teks Bersih",
-              className: "max-w-[420px]",
-              render: (row) => (
-                <p className="line-clamp-3 leading-6 text-muted-foreground">
-                  {row.cleanedText}
-                </p>
-              ),
-            },
-            {
-              key: "status",
-              header: "Status",
-              render: (row) => (
-                <span className="rounded-md border border-blue-200 bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700">
-                  {row.status}
-                </span>
-              ),
+              key: "value",
+              header: "Ringkasan",
+              render: (row) => row.value,
             },
           ]}
-          data={mockPreprocessingSummary.textSamples}
-          minWidthClassName="min-w-[840px]"
-          rowKey={(row) => row.id}
+          data={
+            preprocessingResult.isAvailable &&
+            typeof preprocessing.text_cleaning_summary === "object" &&
+            preprocessing.text_cleaning_summary !== null
+              ? objectRows(preprocessing.text_cleaning_summary as Record<string, unknown>)
+              : []
+          }
+          emptyMessage={EMPTY_GATEWAY_MESSAGE}
+          minWidthClassName="min-w-[720px]"
+          rowKey={(row) => row.key}
         />
       </ChartCard>
 
       <ChartCard
-        description="Tabel ini menampilkan data yang siap digunakan oleh halaman Analisis Sentimen dan Klasifikasi Aspek."
+        description="Tabel ini menampilkan sampel data yang tersedia."
         title="Ringkasan Data Diproses"
       >
-        <ReviewTable reviews={mockReviews.filter((review) => review.isProcessed)} />
+        <ReviewTable emptyMessage={EMPTY_GATEWAY_MESSAGE} reviews={reviews} />
       </ChartCard>
     </AppShell>
   );

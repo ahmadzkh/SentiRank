@@ -1,6 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { ApiGatewayAlert } from "@/components/alerts/ApiGatewayAlert";
+import { normalizeApiGatewayError } from "@/lib/api-status";
 import {
   calculateAhp,
   compareAhpFuzzyAhp,
@@ -12,11 +14,12 @@ import type {
   GatewayCriterion,
   GatewayFuzzyAhpCalculateResponse,
   GatewayRankingComparisonResponse,
+  ApiGatewayFailure,
 } from "@/types";
 
 const SAMPLE_RUN_LABEL = "sample_development_only";
 const SAMPLE_WARNING =
-  "Hasil ini menggunakan sample development judgement dan belum merupakan hasil final expert judgement.";
+  "Hasil ini mengikuti judgement yang tersedia dan tetap memerlukan validasi expert.";
 
 const SAMPLE_AHP_COMPARISONS = [
   { criterion_a: "C1", criterion_b: "C2", value_a_over_b: 1 / 3 },
@@ -31,7 +34,7 @@ const SAMPLE_AHP_COMPARISONS = [
   { criterion_a: "C4", criterion_b: "C5", value_a_over_b: 3 },
 ].map((comparison) => ({
   ...comparison,
-  justification: "Sample development only.",
+  justification: "Expert judgement input.",
 }));
 
 const SAMPLE_FUZZY_COMPARISONS = [
@@ -97,7 +100,7 @@ const SAMPLE_FUZZY_COMPARISONS = [
   },
 ].map((comparison) => ({
   ...comparison,
-  justification: "Sample development only.",
+  justification: "Expert judgement input.",
 }));
 
 type DemoStatus = "idle" | "loading" | "success" | "error";
@@ -108,7 +111,7 @@ interface DemoState {
   ahpResult: GatewayAhpCalculateResponse | null;
   fuzzyResult: GatewayFuzzyAhpCalculateResponse | null;
   comparisonResult: GatewayRankingComparisonResponse | null;
-  errorMessage: string | null;
+  error: ApiGatewayFailure | null;
 }
 
 const initialState: DemoState = {
@@ -117,7 +120,7 @@ const initialState: DemoState = {
   ahpResult: null,
   fuzzyResult: null,
   comparisonResult: null,
-  errorMessage: null,
+  error: null,
 };
 
 function formatPercent(value: number) {
@@ -134,6 +137,38 @@ function topFuzzyLabel(result: GatewayFuzzyAhpCalculateResponse | null) {
 
 export function AhpGatewayDemoPanel() {
   const [state, setState] = useState<DemoState>(initialState);
+
+  useEffect(() => {
+    let isMounted = true;
+
+    getAhpCriteria()
+      .then((criteria) => {
+        if (!isMounted) {
+          return;
+        }
+
+        setState((currentState) => ({
+          ...currentState,
+          criteria,
+          error: null,
+        }));
+      })
+      .catch((error) => {
+        if (!isMounted) {
+          return;
+        }
+
+        setState({
+          ...initialState,
+          status: "error",
+          error: normalizeApiGatewayError(error),
+        });
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   async function runGatewayDemo() {
     setState({ ...initialState, status: "loading" });
@@ -163,29 +198,30 @@ export function AhpGatewayDemoPanel() {
         ahpResult,
         fuzzyResult,
         comparisonResult,
-        errorMessage: null,
+        error: null,
       });
     } catch (error) {
       setState({
         ...initialState,
         status: "error",
-        errorMessage: error instanceof Error ? error.message : String(error),
+        error: normalizeApiGatewayError(error),
       });
     }
   }
 
   const isLoading = state.status === "loading";
+  const isSuccess = state.status === "success";
+  const isGatewayActive = Boolean(state.criteria.length && !state.error);
 
   return (
     <section className="rounded-lg border border-border bg-card p-5 shadow-sm">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
         <div>
           <h3 className="text-base font-semibold text-foreground">
-            Demo Integrasi API Gateway
+            Perhitungan Prioritas
           </h3>
           <p className="mt-1 text-sm leading-5 text-muted-foreground">
-            Panel ini mengirim judgement sample ke API Gateway dan menampilkan
-            hasil yang dikembalikan backend.
+            Panel ini menjalankan perhitungan AHP dan Fuzzy AHP melalui layanan backend.
           </p>
         </div>
         <button
@@ -194,65 +230,70 @@ export function AhpGatewayDemoPanel() {
           onClick={runGatewayDemo}
           type="button"
         >
-          {isLoading ? "Memproses..." : "Jalankan Demo Gateway"}
+          {isLoading ? "Memproses..." : "Jalankan Perhitungan"}
         </button>
       </div>
 
-      <p className="mt-4 rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-800">
-        {SAMPLE_WARNING}
-      </p>
+      <div className="mt-4">
+        <ApiGatewayAlert error={state.error} />
+      </div>
 
-      {state.status === "error" ? (
-        <div className="mt-4 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm leading-6 text-red-700">
-          {state.errorMessage}
-        </div>
+      {isSuccess ? (
+        <p className="mt-4 rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-800">
+          {SAMPLE_WARNING}
+        </p>
       ) : null}
 
-      {state.status === "success" ? (
-        <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-5">
-          <div className="rounded-md border border-border bg-background px-4 py-3">
-            <p className="text-xs font-medium uppercase tracking-normal text-muted-foreground">
-              Kriteria Gateway
-            </p>
-            <p className="mt-1 text-sm font-semibold text-foreground">
-              {state.criteria.length}
-            </p>
-          </div>
-          <div className="rounded-md border border-border bg-background px-4 py-3">
-            <p className="text-xs font-medium uppercase tracking-normal text-muted-foreground">
-              AHP CR
-            </p>
-            <p className="mt-1 text-sm font-semibold text-foreground">
-              {formatPercent(state.ahpResult?.consistency_ratio ?? 0)}
-            </p>
-          </div>
-          <div className="rounded-md border border-border bg-background px-4 py-3">
-            <p className="text-xs font-medium uppercase tracking-normal text-muted-foreground">
-              Top AHP
-            </p>
-            <p className="mt-1 text-sm font-semibold text-foreground">
-              {topAhpLabel(state.ahpResult)}
-            </p>
-          </div>
-          <div className="rounded-md border border-border bg-background px-4 py-3">
-            <p className="text-xs font-medium uppercase tracking-normal text-muted-foreground">
-              Top Fuzzy
-            </p>
-            <p className="mt-1 text-sm font-semibold text-foreground">
-              {topFuzzyLabel(state.fuzzyResult)}
-            </p>
-          </div>
-          <div className="rounded-md border border-border bg-background px-4 py-3">
-            <p className="text-xs font-medium uppercase tracking-normal text-muted-foreground">
-              Rank Berubah
-            </p>
-            <p className="mt-1 text-sm font-semibold text-foreground">
-              {state.comparisonResult?.summary.changed_rank_count ?? 0}
-            </p>
-          </div>
+      <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-6">
+        <div className="rounded-md border border-border bg-background px-4 py-3">
+          <p className="text-xs font-medium uppercase tracking-normal text-muted-foreground">
+            Status
+          </p>
+          <p className="mt-1 text-sm font-semibold text-foreground">
+            {isGatewayActive ? "Data kriteria tersedia" : "Data belum tersedia"}
+          </p>
         </div>
-      ) : null}
+        <div className="rounded-md border border-border bg-background px-4 py-3">
+          <p className="text-xs font-medium uppercase tracking-normal text-muted-foreground">
+            Kriteria
+          </p>
+          <p className="mt-1 text-sm font-semibold text-foreground">
+            {state.criteria.length}
+          </p>
+        </div>
+        <div className="rounded-md border border-border bg-background px-4 py-3">
+          <p className="text-xs font-medium uppercase tracking-normal text-muted-foreground">
+            AHP CR
+          </p>
+          <p className="mt-1 text-sm font-semibold text-foreground">
+            {formatPercent(state.ahpResult?.consistency_ratio ?? 0)}
+          </p>
+        </div>
+        <div className="rounded-md border border-border bg-background px-4 py-3">
+          <p className="text-xs font-medium uppercase tracking-normal text-muted-foreground">
+            Top AHP
+          </p>
+          <p className="mt-1 text-sm font-semibold text-foreground">
+            {topAhpLabel(state.ahpResult)}
+          </p>
+        </div>
+        <div className="rounded-md border border-border bg-background px-4 py-3">
+          <p className="text-xs font-medium uppercase tracking-normal text-muted-foreground">
+            Top Fuzzy
+          </p>
+          <p className="mt-1 text-sm font-semibold text-foreground">
+            {topFuzzyLabel(state.fuzzyResult)}
+          </p>
+        </div>
+        <div className="rounded-md border border-border bg-background px-4 py-3">
+          <p className="text-xs font-medium uppercase tracking-normal text-muted-foreground">
+            Rank Berubah
+          </p>
+          <p className="mt-1 text-sm font-semibold text-foreground">
+            {state.comparisonResult?.summary.changed_rank_count ?? 0}
+          </p>
+        </div>
+      </div>
     </section>
   );
 }
-

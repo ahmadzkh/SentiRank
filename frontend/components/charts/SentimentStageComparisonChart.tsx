@@ -5,21 +5,22 @@ import {
   Bar,
   BarChart,
   CartesianGrid,
+  Legend,
   ResponsiveContainer,
   Tooltip,
   XAxis,
   YAxis,
 } from "recharts";
-import type { AspectLabel } from "@/types/aspect";
 
-export interface AspectRankingDatum {
-  aspect: AspectLabel;
-  label: string;
-  count: number;
+export interface SentimentStageComparisonDatum {
+  stage: string;
+  positive: number;
+  neutral: number;
+  negative: number;
 }
 
-interface AspectRankingChartProps {
-  data: readonly AspectRankingDatum[];
+interface SentimentStageComparisonChartProps {
+  data: readonly SentimentStageComparisonDatum[];
 }
 
 const COUNT_FORMATTER = new Intl.NumberFormat("id-ID");
@@ -36,7 +37,9 @@ function getServerSnapshot() {
   return false;
 }
 
-export function AspectRankingChart({ data }: AspectRankingChartProps) {
+export function SentimentStageComparisonChart({
+  data,
+}: SentimentStageComparisonChartProps) {
   const mounted = useSyncExternalStore(
     subscribe,
     getClientSnapshot,
@@ -56,30 +59,22 @@ export function AspectRankingChart({ data }: AspectRankingChartProps) {
   }
 
   return (
-    <div aria-label="Grafik ranking aspek negatif" className="h-80" role="img">
+    <div aria-label="Grafik distribusi sentimen per tahap" className="h-80" role="img">
       <ResponsiveContainer height="100%" width="100%">
-        <BarChart
-          data={data}
-          layout="vertical"
-          margin={{ bottom: 8, left: 12, right: 16, top: 8 }}
-        >
-          <CartesianGrid horizontal={false} stroke="#e2e8f0" />
-          <XAxis
+        <BarChart data={data} margin={{ bottom: 8, left: 0, right: 12, top: 8 }}>
+          <CartesianGrid vertical={false} stroke="#e2e8f0" />
+          <XAxis axisLine={false} dataKey="stage" tickLine={false} />
+          <YAxis
             allowDecimals={false}
             axisLine={false}
             tickFormatter={(value) => COUNT_FORMATTER.format(Number(value))}
             tickLine={false}
-            type="number"
-          />
-          <YAxis
-            axisLine={false}
-            dataKey="label"
-            tickLine={false}
-            type="category"
-            width={132}
           />
           <Tooltip formatter={(value) => [COUNT_FORMATTER.format(Number(value)), "Jumlah"]} />
-          <Bar dataKey="count" fill="#2563eb" name="Jumlah" radius={[0, 6, 6, 0]} />
+          <Legend />
+          <Bar dataKey="positive" fill="#16a34a" name="Positif" radius={[6, 6, 0, 0]} />
+          <Bar dataKey="neutral" fill="#64748b" name="Netral" radius={[6, 6, 0, 0]} />
+          <Bar dataKey="negative" fill="#dc2626" name="Negatif" radius={[6, 6, 0, 0]} />
         </BarChart>
       </ResponsiveContainer>
     </div>

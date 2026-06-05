@@ -182,7 +182,7 @@ export default function SettingsPage() {
       </ChartCard>
 
       <SummaryCard
-        description="Status ini menegaskan bahwa halaman FE-10 tetap mock-first dan API-contract-ready."
+        description="Status ini merangkum kesiapan antarmuka dan integrasi data."
         title="Status Sistem Mock"
       >
         <div className="grid gap-3 md:grid-cols-3">

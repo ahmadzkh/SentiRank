@@ -6,7 +6,6 @@ import {
   Circle,
   Database,
   DownloadCloud,
-  FileText,
   Gauge,
   LayoutDashboard,
   ListOrdered,
@@ -22,7 +21,6 @@ import { cn } from "@/lib/utils";
 const iconMap = {
   Database,
   DownloadCloud,
-  FileText,
   Gauge,
   LayoutDashboard,
   ListOrdered,

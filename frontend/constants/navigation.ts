@@ -75,21 +75,12 @@ export const NAVIGATION_ITEMS = [
     status: "planned",
   },
   {
-    id: "reports",
-    label: "Laporan",
-    href: APP_ROUTES.reports,
-    description: "Ringkasan siap skripsi dan temuan yang siap diekspor.",
-    iconName: "FileText",
-    order: 9,
-    status: "planned",
-  },
-  {
     id: "settings",
     label: "Pengaturan",
     href: APP_ROUTES.settings,
-    description: "Metadata aplikasi, placeholder API, dan status sistem.",
+    description: "Metadata aplikasi dan status sistem.",
     iconName: "Settings",
-    order: 10,
+    order: 9,
     status: "planned",
   },
 ] as const satisfies readonly NavigationItem[];

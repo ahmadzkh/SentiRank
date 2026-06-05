@@ -1,26 +1,28 @@
+import { ApiGatewayAlert } from "@/components/alerts/ApiGatewayAlert";
 import { ChartCard } from "@/components/cards/ChartCard";
 import { StatCard } from "@/components/cards/StatCard";
 import { SummaryCard } from "@/components/cards/SummaryCard";
 import { SentimentDistributionChart } from "@/components/charts/SentimentDistributionChart";
-import type { SentimentDistributionDatum } from "@/components/charts/SentimentDistributionChart";
 import { AppShell, PageHeader } from "@/components/layout";
 import { ReviewTable } from "@/components/tables/ReviewTable";
 import { SimpleTable } from "@/components/tables/SimpleTable";
 import type { SimpleTableColumn } from "@/components/tables/SimpleTable";
-import { SENTIMENT_LABELS, SENTIMENT_META } from "@/constants/sentiment";
+import { EMPTY_GATEWAY_MESSAGE, safeGatewayData } from "@/lib/api-status";
 import {
-  mockDatasetProfile,
-  mockReviews,
-  mockSentimentSummary,
-} from "@/lib/mock-data";
+  EMPTY_DATASET_SUMMARY,
+  EMPTY_RANDOM_REVIEWS,
+  EMPTY_TEXT,
+  ratingDistributionRows,
+  reviewSamplesToReviews,
+  sentimentDistributionData,
+  stringValue,
+} from "@/lib/gateway-display";
+import { getDatasetSummary } from "@/services/dataset-service";
+import { getReviews } from "@/services/review-service";
 
-const sentimentDistributionData = SENTIMENT_LABELS.map((label) => ({
-  label,
-  name: SENTIMENT_META[label].label,
-  count: mockSentimentSummary.counts[label],
-  percentage: mockSentimentSummary.percentages[label],
-  color: SENTIMENT_META[label].chartColor,
-})) satisfies SentimentDistributionDatum[];
+export const dynamic = "force-dynamic";
+
+type RatingRow = ReturnType<typeof ratingDistributionRows>[number];
 
 const ratingColumns = [
   {
@@ -38,14 +40,22 @@ const ratingColumns = [
     key: "share",
     header: "Proporsi",
     align: "right",
-    render: (row) =>
-      `${Math.round((row.count / mockDatasetProfile.totalRows) * 100)}%`,
+    render: (row) => `${row.share}%`,
   },
-] satisfies SimpleTableColumn<
-  (typeof mockDatasetProfile.ratingDistribution)[number]
->[];
+] satisfies SimpleTableColumn<RatingRow>[];
 
-export default function DatasetPage() {
+export default async function DatasetPage() {
+  const [datasetResult, reviewsResult] = await Promise.all([
+    safeGatewayData(getDatasetSummary, EMPTY_DATASET_SUMMARY),
+    safeGatewayData(() => getReviews({ limit: 10, seed: 10 }), EMPTY_RANDOM_REVIEWS),
+  ]);
+  const dataset = datasetResult.data;
+  const sourceApplication = dataset.source_application;
+  const ratingRows = ratingDistributionRows(dataset.rating_distribution);
+  const sentimentRows = sentimentDistributionData(dataset.sentiment_distribution);
+  const reviews = reviewSamplesToReviews(reviewsResult.data.reviews);
+  const apiError = datasetResult.error ?? reviewsResult.error;
+
   return (
     <AppShell>
       <PageHeader
@@ -54,65 +64,75 @@ export default function DatasetPage() {
         title="Dataset"
       />
 
+      <ApiGatewayAlert error={apiError} />
+
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
         <StatCard
-          description={mockDatasetProfile.sourceName}
+          description={stringValue(sourceApplication.title, EMPTY_TEXT)}
           label="Total Baris"
-          value={mockDatasetProfile.totalRows}
+          value={dataset.total_review_count ?? 0}
         />
         <StatCard
-          description="Baris tanpa duplikasi pada sampel mock."
+          description="Nilai berasal dari ringkasan dataset."
           label="Ulasan Unik"
           tone="positive"
-          value={mockDatasetProfile.uniqueReviews}
+          value={0}
         />
         <StatCard
-          description="Duplikasi tidak ditemukan pada dataset mock."
+          description="Data duplikasi belum tersedia."
           label="Duplikasi"
-          value={mockDatasetProfile.duplicateRows}
+          value={0}
         />
         <StatCard
-          description="Field penting lengkap untuk demo UI."
+          description="Ringkasan missing value ditampilkan pada tabel kualitas."
           label="Nilai Kosong"
           tone="positive"
-          value={mockDatasetProfile.missingValues}
+          value={0}
         />
         <StatCard
-          description="Semua data mock sudah memiliki label awal."
+          description="Cakupan label ditentukan dari distribusi sentimen."
           label="Cakupan Label"
           tone="primary"
-          value={`${mockDatasetProfile.labelCoverage}%`}
+          value={sentimentRows.length > 0 ? "100%" : "0%"}
         />
         <StatCard
-          description="Rata-rata rating ulasan Spotify mock."
+          description="Rating rata-rata tidak dihitung di frontend."
           label="Rating Rata-rata"
-          value={`${mockDatasetProfile.averageRating}/5`}
+          value="0/5"
         />
       </section>
 
       <section className="grid gap-6 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
         <SummaryCard
-          description="Dataset masih bersifat sintetis untuk pengembangan frontend dan belum memanggil API backend."
+          description={
+            datasetResult.isAvailable
+              ? "Ringkasan dataset penelitian tersedia."
+              : EMPTY_GATEWAY_MESSAGE
+          }
           items={[
             {
               label: "Status import",
-              value: mockDatasetProfile.importStatus,
-              description: "Sumber data siap untuk alur demo skripsi.",
+              value: datasetResult.isAvailable ? "Data tersedia" : EMPTY_TEXT,
+              description: "Data mengikuti sumber penelitian terstruktur.",
             },
             {
               label: "Rentang tanggal",
-              value: `${mockDatasetProfile.dateRange.start} sampai ${mockDatasetProfile.dateRange.end}`,
-              description: "Digunakan untuk konteks batch ulasan.",
+              value:
+                dataset.review_period.reviewed_at_min &&
+                dataset.review_period.reviewed_at_max
+                  ? `${dataset.review_period.reviewed_at_min} sampai ${dataset.review_period.reviewed_at_max}`
+                  : EMPTY_TEXT,
+              description: "Rentang ulasan dari artefak data acquisition.",
             },
             {
               label: "Baris diproses",
-              value: mockDatasetProfile.processedRows,
-              description: "Semua baris sudah memiliki teks bersih mock.",
+              value: dataset.total_review_count ?? 0,
+              description: "Mengikuti total baris pada ringkasan dataset.",
             },
             {
               label: "Sumber",
-              value: mockDatasetProfile.sourceName,
-              description: mockDatasetProfile.sourceDescription,
+              value: stringValue(sourceApplication.source_name, EMPTY_TEXT),
+              description: stringValue(sourceApplication.app_id, EMPTY_TEXT),
             },
           ]}
           title="Ringkasan Dataset"
@@ -142,7 +162,7 @@ export default function DatasetPage() {
                 key: "status",
                 header: "Status",
                 render: (row) => (
-                  <span className="rounded-md border border-green-200 bg-green-50 px-2 py-1 text-xs font-medium text-green-700">
+                  <span className="rounded-md border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-medium text-slate-700">
                     {row.status}
                   </span>
                 ),
@@ -153,7 +173,18 @@ export default function DatasetPage() {
                 render: (row) => row.note,
               },
             ]}
-            data={mockDatasetProfile.qualityChecks}
+            data={
+              datasetResult.isAvailable
+                ? Object.entries(dataset.dataset_availability).map(([key, value]) => ({
+                    id: key,
+                    label: key,
+                    note: value ? "Tersedia" : "Tidak tersedia",
+                    status: value ? "available" : "missing",
+                    value: value ? "Ya" : "Tidak",
+                  }))
+                : []
+            }
+            emptyMessage={EMPTY_GATEWAY_MESSAGE}
             minWidthClassName="min-w-[680px]"
             rowKey={(row) => row.id}
           />
@@ -162,20 +193,25 @@ export default function DatasetPage() {
 
       <section className="grid gap-6 xl:grid-cols-2">
         <ChartCard
-          description="Distribusi label sentimen awal dari mock data FE-07."
-          insight="Distribusi ini membantu evaluator melihat komposisi label sebelum membuka halaman analisis sentimen."
+          description="Distribusi label sentimen awal dari dataset penelitian."
+          insight={
+            sentimentRows.length > 0
+              ? "Distribusi ini berasal dari output data acquisition."
+              : EMPTY_GATEWAY_MESSAGE
+          }
           title="Distribusi Label Sentimen"
         >
-          <SentimentDistributionChart data={sentimentDistributionData} />
+          <SentimentDistributionChart data={sentimentRows} />
         </ChartCard>
 
         <ChartCard
-          description="Pratinjau distribusi rating ulasan Spotify pada dataset mock."
+          description="Distribusi rating ulasan Spotify dari dataset penelitian."
           title="Distribusi Rating"
         >
           <SimpleTable
             columns={ratingColumns}
-            data={mockDatasetProfile.ratingDistribution}
+            data={ratingRows}
+            emptyMessage={EMPTY_GATEWAY_MESSAGE}
             minWidthClassName="min-w-[420px]"
             rowKey={(row) => `rating-${row.rating}`}
           />
@@ -186,7 +222,10 @@ export default function DatasetPage() {
         description="Tabel ulasan digunakan sebagai permukaan inspeksi utama sebelum preprocessing dan model inference."
         title="Tabel Ulasan"
       >
-        <ReviewTable reviews={mockReviews} />
+        <ReviewTable
+          emptyMessage={EMPTY_GATEWAY_MESSAGE}
+          reviews={reviews}
+        />
       </ChartCard>
     </AppShell>
   );

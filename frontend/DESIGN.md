@@ -37,7 +37,7 @@ SentiRank should feel clean, academic, analytical, professional, readable, and c
 - Support thesis screenshots and live demo presentation.
 - Keep navigation predictable across the full analysis workflow.
 - Make AHP/Fuzzy AHP outputs understandable, not only numeric.
-- Keep the frontend mock-first and ready for future API integration.
+- Historical FE mock data remains available for design reference, but gateway-backed demo pages must use API Gateway data or explicit zero/empty states.
 - Use a restrained SaaS analytics style with white surfaces, slate/off-white background, and blue accent.
 
 ---
@@ -552,7 +552,7 @@ NextJS:
 - Use App Router in later setup.
 - Use a dashboard route group for shared sidebar/topbar layout.
 - Keep page components aligned with the IA route plan.
-- Keep data flow mock-first until API contracts are ready.
+- API Gateway contracts are active for demo pages; do not use mock data as a production/demo fallback when Gateway requests fail.
 
 TypeScript:
 
@@ -573,6 +573,6 @@ shadcn/ui:
 
 API readiness:
 
-- UI should work with mock data first.
+- UI should work with API Gateway data first on integrated pages.
 - Data sections must map cleanly to future FastAPI endpoints.
 - Loading, empty, error, and success states should be planned for every data-heavy page.

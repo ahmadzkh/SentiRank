@@ -1,11 +1,27 @@
+import { ApiGatewayAlert } from "@/components/alerts/ApiGatewayAlert";
 import { ChartCard } from "@/components/cards/ChartCard";
 import { StatCard } from "@/components/cards/StatCard";
 import { SummaryCard } from "@/components/cards/SummaryCard";
 import { AppShell, PageHeader } from "@/components/layout";
 import { SimpleTable } from "@/components/tables/SimpleTable";
-import { mockReviews, mockScrapingSummary } from "@/lib/mock-data";
+import { EMPTY_GATEWAY_MESSAGE, safeGatewayData } from "@/lib/api-status";
+import {
+  EMPTY_RANDOM_REVIEWS,
+  EMPTY_SCRAPING_SUMMARY,
+  EMPTY_TEXT,
+  reviewSamplesToReviews,
+  stringValue,
+} from "@/lib/gateway-display";
+import { getReviews } from "@/services/review-service";
+import { getScrapingSummary } from "@/services/scraping-service";
 
-function formatDate(value: string) {
+export const dynamic = "force-dynamic";
+
+function formatDate(value?: string | null) {
+  if (!value) {
+    return EMPTY_TEXT;
+  }
+
   return new Intl.DateTimeFormat("id-ID", {
     day: "2-digit",
     month: "short",
@@ -13,163 +29,164 @@ function formatDate(value: string) {
   }).format(new Date(value));
 }
 
-export default function ScrapingPage() {
+export default async function ScrapingPage() {
+  const [scrapingResult, reviewsResult] = await Promise.all([
+    safeGatewayData(getScrapingSummary, EMPTY_SCRAPING_SUMMARY),
+    safeGatewayData(() => getReviews({ limit: 10, seed: 20 }), EMPTY_RANDOM_REVIEWS),
+  ]);
+  const scraping = scrapingResult.data;
+  const reviews = reviewSamplesToReviews(reviewsResult.data.reviews);
+  const apiError = scrapingResult.error ?? reviewsResult.error;
+  const targetRows = Object.entries(scraping.target_quota_per_rating).map(
+    ([rating, target]) => ({
+      achieved: scraping.achieved_count_per_rating[rating] ?? 0,
+      rating,
+      target,
+    }),
+  );
+
   return (
     <AppShell>
       <PageHeader
-        description="Status pengumpulan ulasan Spotify dalam mode mock. Halaman ini tidak menjalankan scraping nyata dari frontend."
+        description="Status pengumpulan ulasan Spotify berdasarkan ringkasan scraping penelitian."
         eyebrow="Pengumpulan data"
         title="Scraping"
       />
 
+      <ApiGatewayAlert error={apiError} />
+
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
         <StatCard
-          description="Jumlah target konfigurasi batch mock."
+          description="Total target dari ringkasan quota scraping."
           label="Request Ulasan"
-          value={mockScrapingSummary.requestedReviews}
+          value={targetRows.reduce((total, row) => total + row.target, 0)}
         />
         <StatCard
-          description="Data yang tersedia untuk preview frontend."
+          description="Data yang tersedia dari artefak scraping."
           label="Terkumpul"
           tone="primary"
-          value={mockScrapingSummary.collectedReviews}
+          value={scraping.total_achieved_rows ?? 0}
         />
         <StatCard
-          description="Tidak ada kegagalan pada batch mock."
+          description="Kegagalan scraping tidak dihitung di frontend."
           label="Gagal"
           tone="positive"
-          value={mockScrapingSummary.failedItems}
+          value={0}
         />
         <StatCard
           description="Sumber aplikasi Spotify."
           label="Package"
-          value={mockScrapingSummary.sourcePackage}
+          value={stringValue(scraping.app_id, EMPTY_TEXT)}
         />
         <StatCard
-          description="Region placeholder untuk backend."
+          description="Negara/bahasa dari ringkasan scraping."
           label="Region"
-          value={mockScrapingSummary.region}
+          value={stringValue(scraping.country, EMPTY_TEXT)}
         />
         <StatCard
-          description="Status hanya untuk tampilan demo."
+          description="Status data scraping."
           label="Status Batch"
           tone="primary"
-          value={mockScrapingSummary.status}
+          value={scrapingResult.isAvailable ? "Data tersedia" : EMPTY_TEXT}
         />
       </section>
 
       <section className="grid gap-6 xl:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)]">
         <SummaryCard
-          description="Konfigurasi ini menunjukkan kontrak UI yang akan dihubungkan ke backend pada fase API."
+          description={
+            scrapingResult.isAvailable
+              ? "Ringkasan scraping penelitian tersedia."
+              : EMPTY_GATEWAY_MESSAGE
+          }
           items={[
             {
-              label: "Batch ID",
-              value: mockScrapingSummary.batchId,
-              description: "Identifier sintetis untuk alur demo.",
+              label: "Source",
+              value: stringValue(scraping.source_name, EMPTY_TEXT),
+              description: stringValue(scraping.app_title, EMPTY_TEXT),
             },
             {
-              label: "Tanggal batch terakhir",
-              value: formatDate(mockScrapingSummary.latestBatchDate),
-              description: "Mengacu pada data mock terbaru.",
+              label: "Tanggal generate",
+              value: formatDate(scraping.generated_at),
+              description: "Timestamp dari ringkasan scraping jika tersedia.",
             },
             {
               label: "Bahasa",
-              value: mockScrapingSummary.language,
-              description: "Placeholder bahasa ulasan.",
+              value: stringValue(scraping.lang, EMPTY_TEXT),
+              description: "Bahasa target scraping.",
             },
             {
               label: "Mode",
-              value: "Hanya mock",
-              description: "Tidak ada network call atau scraping runtime.",
+              value: scrapingResult.isAvailable ? "Data tersedia" : EMPTY_TEXT,
+              description: "Frontend hanya membaca hasil, tidak menjalankan scraper.",
             },
           ]}
           title="Ringkasan Status Scraping"
         />
 
         <ChartCard
-          description="Parameter ditampilkan sebagai kontrak UI, bukan kontrol scraping aktif."
-          title="Parameter Scraping Mock"
+          description="Target dan capaian per rating dari artefak scraping."
+          title="Quota Scraping"
         >
           <SimpleTable
             columns={[
               {
-                key: "label",
-                header: "Parameter",
-                render: (row) => (
-                  <span className="font-medium text-foreground">
-                    {row.label}
-                  </span>
-                ),
+                key: "rating",
+                header: "Rating",
+                render: (row) => `${row.rating}/5`,
               },
               {
-                key: "value",
-                header: "Nilai",
-                render: (row) => row.value,
+                key: "target",
+                header: "Target",
+                align: "right",
+                render: (row) => row.target,
               },
               {
-                key: "note",
-                header: "Catatan",
-                render: (row) => row.note,
+                key: "achieved",
+                header: "Terkumpul",
+                align: "right",
+                render: (row) => row.achieved,
               },
             ]}
-            data={mockScrapingSummary.parameters}
-            minWidthClassName="min-w-[600px]"
-            rowKey={(row) => row.id}
+            data={targetRows}
+            emptyMessage={EMPTY_GATEWAY_MESSAGE}
+            minWidthClassName="min-w-[420px]"
+            rowKey={(row) => `rating-${row.rating}`}
           />
         </ChartCard>
       </section>
 
       <ChartCard
-        description="Ringkasan batch memperlihatkan alur koleksi data tanpa memanggil scraper nyata."
+        description="Ringkasan batch memperlihatkan output koleksi data tanpa memanggil scraper runtime."
         title="Ringkasan Batch Pengumpulan"
       >
         <SimpleTable
           columns={[
             {
-              key: "id",
-              header: "Batch",
-              render: (row) => row.id,
+              key: "rating",
+              header: "Rating",
+              render: (row) => `${row.rating}/5`,
             },
             {
-              key: "date",
-              header: "Tanggal",
-              render: (row) => formatDate(row.date),
-            },
-            {
-              key: "requested",
+              key: "target",
               header: "Request",
               align: "right",
-              render: (row) => row.requested,
+              render: (row) => row.target,
             },
             {
-              key: "collected",
+              key: "achieved",
               header: "Terkumpul",
               align: "right",
-              render: (row) => row.collected,
-            },
-            {
-              key: "failed",
-              header: "Gagal",
-              align: "right",
-              render: (row) => row.failed,
-            },
-            {
-              key: "status",
-              header: "Status",
-              render: (row) => (
-                <span className="rounded-md border border-blue-200 bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700">
-                  {row.status}
-                </span>
-              ),
+              render: (row) => row.achieved,
             },
           ]}
-          data={mockScrapingSummary.batches}
-          rowKey={(row) => row.id}
+          data={targetRows}
+          emptyMessage={EMPTY_GATEWAY_MESSAGE}
+          rowKey={(row) => `batch-${row.rating}`}
         />
       </ChartCard>
 
       <ChartCard
-        description="Pratinjau ulasan mentah dari data mock. Kolom ini belum melakukan normalisasi, scraping ulang, atau ekspor nyata."
+        description="Ulasan mentah dari dataset penelitian."
         title="Pratinjau Ulasan Mentah"
       >
         <SimpleTable
@@ -204,13 +221,14 @@ export default function ScrapingPage() {
               key: "status",
               header: "Status",
               render: () => (
-                <span className="rounded-md border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-medium text-slate-700">
-                  Mock
+                <span className="rounded-md border border-blue-200 bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700">
+                  Data tersedia
                 </span>
               ),
             },
           ]}
-          data={mockReviews}
+          data={reviews}
+          emptyMessage={EMPTY_GATEWAY_MESSAGE}
           minWidthClassName="min-w-[760px]"
           rowKey={(row) => row.id}
         />

@@ -1,105 +1,119 @@
+import { ApiGatewayAlert } from "@/components/alerts/ApiGatewayAlert";
 import { ChartCard } from "@/components/cards/ChartCard";
 import { ModelMetricCard } from "@/components/cards/ModelMetricCard";
 import { StatCard } from "@/components/cards/StatCard";
 import { SummaryCard } from "@/components/cards/SummaryCard";
 import { AppShell, PageHeader } from "@/components/layout";
 import { SimpleTable } from "@/components/tables/SimpleTable";
-import { ASPECT_META } from "@/constants/aspect";
-import { SENTIMENT_META } from "@/constants/sentiment";
+import { EMPTY_GATEWAY_MESSAGE, safeGatewayData } from "@/lib/api-status";
 import {
-  mockModelEvaluation,
-  mockModelEvaluationOverview,
-} from "@/lib/mock-data";
-import type { AspectLabel } from "@/types/aspect";
-import type { EvaluationModelSummary, ModelMetric } from "@/types/evaluation";
-import type { ReviewSentimentLabel } from "@/types/sentiment";
+  EMPTY_EVALUATION_SUMMARY,
+  EMPTY_TEXT,
+  formatPercent,
+  recordNumber,
+  selectedRecord,
+} from "@/lib/gateway-display";
+import { getEvaluationSummary } from "@/services/evaluation-service";
 
-function formatPercent(value: number) {
-  return `${Math.round(value * 100)}%`;
-}
+export const dynamic = "force-dynamic";
 
-function formatMetricValue(metric: ModelMetric) {
-  if (metric.format === "percentage") {
-    return formatPercent(metric.value);
-  }
-
-  return metric.value.toLocaleString("id-ID");
-}
-
-function formatMatrixLabel(label: string) {
-  if (label in SENTIMENT_META) {
-    return SENTIMENT_META[label as ReviewSentimentLabel].label;
-  }
-
-  if (label in ASPECT_META) {
-    return ASPECT_META[label as AspectLabel].label;
-  }
-
-  return label;
-}
-
-function ConfusionMatrixTable({ model }: { model: EvaluationModelSummary }) {
-  const labels = model.confusionMatrix.labels;
-
-  return (
-    <div className="overflow-hidden rounded-lg border border-border">
-      <div className="overflow-x-auto">
-        <table className="min-w-[680px] w-full border-collapse bg-card text-sm">
-          <thead className="bg-slate-50 text-xs font-semibold uppercase tracking-normal text-muted-foreground">
-            <tr>
-              <th className="px-4 py-3 text-left">Aktual \ Prediksi</th>
-              {labels.map((label) => (
-                <th className="px-4 py-3 text-right" key={label}>
-                  {formatMatrixLabel(label)}
-                </th>
-              ))}
-              <th className="px-4 py-3 text-right">Support</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-border">
-            {model.confusionMatrix.rows.map((row) => (
-              <tr className="hover:bg-slate-50" key={row.actualLabel}>
-                <th className="px-4 py-4 text-left font-medium text-foreground">
-                  {formatMatrixLabel(row.actualLabel)}
-                </th>
-                {labels.map((label) => (
-                  <td className="px-4 py-4 text-right" key={label}>
-                    {row.predictedCounts[label] ?? 0}
-                  </td>
-                ))}
-                <td className="px-4 py-4 text-right font-medium text-foreground">
-                  {row.support}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
+export default async function ModelEvaluationPage() {
+  const evaluationResult = await safeGatewayData(
+    getEvaluationSummary,
+    EMPTY_EVALUATION_SUMMARY,
   );
-}
+  const evaluation = evaluationResult.data;
+  const selectedIndobert = selectedRecord(
+    evaluation.indobert_run_comparison,
+    evaluation.selected_indobert_model,
+  );
+  const selectedSvm = selectedRecord(
+    evaluation.svm_scenario_comparison,
+    evaluation.selected_svm_model,
+  );
+  const overview = [
+    {
+      id: "indobert-macro-f1",
+      label: "IndoBERT Macro F1",
+      value: recordNumber(selectedIndobert, "f1_macro"),
+      description: evaluation.selected_indobert_model,
+    },
+    {
+      id: "indobert-weighted-f1",
+      label: "IndoBERT Weighted F1",
+      value: recordNumber(selectedIndobert, "f1_weighted"),
+      description: evaluation.selected_indobert_model,
+    },
+    {
+      id: "svm-macro-f1",
+      label: "SVM Macro F1",
+      value: recordNumber(selectedSvm, "f1_macro"),
+      description: evaluation.selected_svm_model,
+    },
+    {
+      id: "svm-weighted-f1",
+      label: "SVM Weighted F1",
+      value: recordNumber(selectedSvm, "f1_weighted"),
+      description: evaluation.selected_svm_model,
+    },
+  ];
+  const modelMetrics = [
+    {
+      id: "indobert-accuracy",
+      label: "Akurasi",
+      modelName: evaluation.selected_indobert_model,
+      value: formatPercent(recordNumber(selectedIndobert, "accuracy")),
+      description: "Akurasi kandidat IndoBERT terpilih.",
+    },
+    {
+      id: "indobert-f1",
+      label: "Macro F1",
+      modelName: evaluation.selected_indobert_model,
+      value: formatPercent(recordNumber(selectedIndobert, "f1_macro")),
+      description: "Macro F1 kandidat IndoBERT terpilih.",
+    },
+    {
+      id: "svm-accuracy",
+      label: "Akurasi",
+      modelName: evaluation.selected_svm_model,
+      value: formatPercent(recordNumber(selectedSvm, "accuracy")),
+      description: "Akurasi kandidat SVM terpilih.",
+    },
+    {
+      id: "svm-f1",
+      label: "Macro F1",
+      modelName: evaluation.selected_svm_model,
+      value: formatPercent(recordNumber(selectedSvm, "f1_macro")),
+      description: "Macro F1 kandidat SVM terpilih.",
+    },
+  ];
+  const comparisonRows = [
+    ...evaluation.indobert_run_comparison.map((record) => ({
+      candidate: String(record.candidate_name ?? "-"),
+      f1Macro: formatPercent(recordNumber(record, "f1_macro")),
+      model: "IndoBERT",
+      status: String(record.status ?? "-"),
+    })),
+    ...evaluation.svm_scenario_comparison.map((record) => ({
+      candidate: String(record.scenario ?? record.candidate_name ?? "-"),
+      f1Macro: formatPercent(recordNumber(record, "f1_macro")),
+      model: "SVM",
+      status: String(record.status ?? "-"),
+    })),
+  ];
 
-const modelMetrics = mockModelEvaluation.models.flatMap((model) =>
-  model.metrics.map((metric) => ({
-    id: `${model.task}-${metric.id}`,
-    modelName: model.modelName,
-    modelVersion: model.modelVersion,
-    sampleCount: model.sampleCount,
-    metric,
-  })),
-);
-
-export default function ModelEvaluationPage() {
   return (
     <AppShell>
       <PageHeader
-        description="Menampilkan bukti evaluasi model untuk IndoBERT dan SVM menggunakan artefak mock yang siap diganti dengan hasil validasi final."
+        description="Menampilkan bukti evaluasi model untuk IndoBERT dan SVM."
         eyebrow="Evaluasi model"
         title="Evaluasi Model"
       />
 
+      <ApiGatewayAlert error={evaluationResult.error} />
+
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        {mockModelEvaluationOverview.map((metric) => (
+        {overview.map((metric) => (
           <StatCard
             description={metric.description}
             key={metric.id}
@@ -110,32 +124,20 @@ export default function ModelEvaluationPage() {
         ))}
       </section>
 
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
-        {modelMetrics.map(({ metric, modelName }) => (
+      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        {modelMetrics.map((metric) => (
           <ModelMetricCard
             description={metric.description}
             key={metric.id}
             label={metric.label}
-            modelName={modelName}
-            value={formatMetricValue(metric)}
+            modelName={metric.modelName}
+            value={metric.value}
           />
         ))}
       </section>
 
-      <section className="grid gap-6 xl:grid-cols-2">
-        {mockModelEvaluation.models.map((model) => (
-          <ChartCard
-            description={`${model.modelName} ${model.modelVersion} dievaluasi pada ${model.sampleCount.toLocaleString("id-ID")} sampel mock.`}
-            key={model.task}
-            title={`Confusion Matrix - ${model.modelName}`}
-          >
-            <ConfusionMatrixTable model={model} />
-          </ChartCard>
-        ))}
-      </section>
-
       <ChartCard
-        description="Tabel ini merangkum metrik model yang tersedia pada mock data FE-07."
+        description="Tabel ini merangkum metrik model yang tersedia."
         title="Laporan Klasifikasi / Ringkasan Evaluasi"
       >
         <SimpleTable
@@ -143,69 +145,52 @@ export default function ModelEvaluationPage() {
             {
               key: "model",
               header: "Model",
-              render: (row) => (
-                <div>
-                  <p className="font-medium text-foreground">
-                    {row.modelName}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {row.modelVersion}
-                  </p>
-                </div>
-              ),
+              render: (row) => row.model,
             },
             {
-              key: "metric",
-              header: "Metrik",
-              render: (row) => row.metric.label,
+              key: "candidate",
+              header: "Kandidat",
+              render: (row) => row.candidate,
             },
             {
-              key: "value",
-              header: "Nilai",
+              key: "f1",
+              header: "Macro F1",
               align: "right",
-              render: (row) => formatMetricValue(row.metric),
+              render: (row) => row.f1Macro,
             },
             {
-              key: "sample",
-              header: "Sampel",
-              align: "right",
-              render: (row) => row.sampleCount.toLocaleString("id-ID"),
-            },
-            {
-              key: "description",
-              header: "Catatan",
-              render: (row) => row.metric.description,
+              key: "status",
+              header: "Status",
+              render: (row) => row.status,
             },
           ]}
-          data={modelMetrics}
-          minWidthClassName="min-w-[920px]"
-          rowKey={(row) => row.id}
+          data={evaluationResult.isAvailable ? comparisonRows : []}
+          emptyMessage={EMPTY_GATEWAY_MESSAGE}
+          minWidthClassName="min-w-[720px]"
+          rowKey={(row) => `${row.model}-${row.candidate}`}
         />
       </ChartCard>
 
       <SummaryCard
-        description="Catatan evaluasi membantu membedakan placeholder UI dari hasil validasi final skripsi."
+        description="Catatan evaluasi membantu membaca batasan hasil model dan prioritisasi."
         title="Catatan Perbandingan Model"
       >
         <div className="grid gap-3 md:grid-cols-2">
-          {mockModelEvaluation.models.map((model) => (
-            <div
-              className="rounded-md border border-border bg-background px-4 py-3"
-              key={model.task}
-            >
-              <p className="text-sm font-semibold text-foreground">
-                {model.modelName}
+          {(evaluationResult.isAvailable ? evaluation.limitations : []).map(
+            (note) => (
+              <p
+                className="rounded-md border border-border bg-background px-4 py-3 text-sm leading-6 text-muted-foreground"
+                key={note}
+              >
+                {note}
               </p>
-              <ul className="mt-2 space-y-2 text-sm leading-6 text-muted-foreground">
-                {model.notes.map((note) => (
-                  <li key={note}>{note}</li>
-                ))}
-              </ul>
-            </div>
-          ))}
+            ),
+          )}
         </div>
         <div className="mt-4 rounded-md border border-blue-100 bg-blue-50 px-4 py-3 text-sm leading-6 text-blue-900">
-          {mockModelEvaluation.overallNotes.join(" ")}
+          {evaluationResult.isAvailable
+            ? evaluation.expert_judgement_note || EMPTY_TEXT
+            : EMPTY_TEXT}
         </div>
       </SummaryCard>
     </AppShell>

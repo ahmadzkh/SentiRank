@@ -1,179 +1,186 @@
-import { AspectBadge } from "@/components/badges/AspectBadge";
-import { SentimentBadge } from "@/components/badges/SentimentBadge";
+import { ApiGatewayAlert } from "@/components/alerts/ApiGatewayAlert";
 import { ChartCard } from "@/components/cards/ChartCard";
 import { StatCard } from "@/components/cards/StatCard";
 import { SummaryCard } from "@/components/cards/SummaryCard";
 import { AspectRankingChart } from "@/components/charts/AspectRankingChart";
-import type { AspectRankingDatum } from "@/components/charts/AspectRankingChart";
 import { AppShell, PageHeader } from "@/components/layout";
 import { SimpleTable } from "@/components/tables/SimpleTable";
-import { ASPECT_LABELS, ASPECT_META } from "@/constants/aspect";
+import { EMPTY_GATEWAY_MESSAGE, safeGatewayData } from "@/lib/api-status";
 import {
-  mockAspectResults,
-  mockAspectSummary,
-  mockReviews,
-} from "@/lib/mock-data";
-import type { AspectLabel } from "@/types/aspect";
+  EMPTY_ASPECT_EVALUATION,
+  EMPTY_ASPECT_SUMMARY,
+  EMPTY_TEXT,
+  aspectRankingData,
+  formatPercent,
+  recordNumber,
+  selectedRecord,
+} from "@/lib/gateway-display";
+import {
+  getAspectEvaluation,
+  getAspectSummary,
+} from "@/services/aspect-service";
 
-function formatPercent(value: number) {
-  return `${Math.round(value * 100)}%`;
-}
+export const dynamic = "force-dynamic";
 
-const aspectRankingData = ASPECT_LABELS.map((aspect) => ({
-  aspect,
-  label: ASPECT_META[aspect].label,
-  count: mockAspectSummary.counts[aspect],
-}))
-  .filter((item) => item.count > 0)
-  .sort((first, second) => second.count - first.count) satisfies AspectRankingDatum[];
+export default async function AspectClassificationPage() {
+  const [summaryResult, evaluationResult] = await Promise.all([
+    safeGatewayData(getAspectSummary, EMPTY_ASPECT_SUMMARY),
+    safeGatewayData(getAspectEvaluation, EMPTY_ASPECT_EVALUATION),
+  ]);
+  const summary = summaryResult.data;
+  const evaluation = evaluationResult.data;
+  const aspectRows = aspectRankingData(
+    Object.keys(summary.negative_aspect_distribution).length
+      ? summary.negative_aspect_distribution
+      : summary.aspect_distribution,
+  );
+  const selectedMetrics = selectedRecord(
+    evaluation.scenario_comparison,
+    evaluation.selected_candidate,
+  );
+  const topAspect = aspectRows[0];
+  const apiError = summaryResult.error ?? evaluationResult.error;
 
-const negativeReviewGroups = ASPECT_LABELS.map((aspect) => ({
-  aspect,
-  label: ASPECT_META[aspect].label,
-  description: ASPECT_META[aspect].description,
-  reviews: mockReviews.filter(
-    (review) => {
-      const aspectLabels = review.aspectLabels as
-        | readonly AspectLabel[]
-        | undefined;
-
-      return (
-        review.sentimentLabel === "negative" && aspectLabels?.includes(aspect)
-      );
-    },
-  ),
-}))
-  .filter((group) => group.reviews.length > 0)
-  .sort((first, second) => second.reviews.length - first.reviews.length);
-
-const topNegativeAspect = mockAspectSummary.topNegativeAspect;
-
-export default function AspectClassificationPage() {
   return (
     <AppShell>
       <PageHeader
-        description="Tampilan mock untuk melihat hasil klasifikasi aspek SVM, ranking frekuensi aspek, pengelompokan ulasan negatif, dan tabel hasil klasifikasi."
+        description="Ringkasan klasifikasi aspek SVM dan distribusi aspek ulasan negatif."
         eyebrow="SVM"
         title="Klasifikasi Aspek"
       />
 
+      <ApiGatewayAlert error={apiError} />
+
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
         <StatCard
-          description="Total ulasan yang sudah memiliki label aspek mock."
+          description="Total count dari distribusi aspek."
           label="Ulasan Diklasifikasi"
-          value={mockAspectSummary.totalClassified}
+          value={aspectRows.reduce((total, row) => total + row.count, 0)}
         />
         <StatCard
-          description="Aspek paling sering muncul pada seluruh data mock."
+          description="Aspek paling sering muncul pada ringkasan klasifikasi."
           label="Aspek Dominan"
           tone="primary"
-          value={ASPECT_META[mockAspectSummary.topAspect].label}
+          value={topAspect?.label ?? "-"}
         />
         <StatCard
-          description="Aspek negatif paling sering pada ulasan bermasalah."
+          description="Aspek negatif dengan jumlah tertinggi."
           label="Aspek Negatif Utama"
           tone="negative"
-          value={ASPECT_META[topNegativeAspect].label}
+          value={topAspect?.label ?? "-"}
         />
         <StatCard
-          description="Ulasan yang memiliki lebih dari satu aspek."
+          description="Data multi-aspek belum tersedia."
           label="Multi-aspek"
-          value={mockAspectSummary.multiAspectReviewCount}
+          value={0}
         />
         <StatCard
-          description="Jumlah label aspek hasil mock SVM."
+          description="Jumlah label final dari taxonomy aspek."
           label="Hasil Aspek"
           tone="primary"
-          value={mockAspectResults.length}
+          value={summary.final_aspect_labels.length}
         />
         <StatCard
-          description={mockAspectSummary.modelVersion}
+          description={summary.model_status}
           label="Model"
-          value={mockAspectSummary.modelName}
+          value={summary.selected_classifier}
         />
       </section>
 
       <section className="grid gap-6 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
         <ChartCard
-          description="Frekuensi aspek dari seluruh ulasan mock. Chart tetap data-driven dan tidak mengunci daftar aspek final."
-          insight={`${ASPECT_META[mockAspectSummary.topAspect].label} menjadi aspek dominan pada dataset mock.`}
+          description="Frekuensi aspek dari hasil klasifikasi."
+          insight={
+            topAspect
+              ? `${topAspect.label} menjadi aspek tertinggi pada ringkasan klasifikasi.`
+              : EMPTY_GATEWAY_MESSAGE
+          }
           title="Frekuensi / Ranking Aspek"
         >
-          <AspectRankingChart data={aspectRankingData} />
+          <AspectRankingChart data={aspectRows} />
         </ChartCard>
 
         <SummaryCard
-          description="Grouping ini membantu menjelaskan tema keluhan sebelum diprioritaskan pada FE-11."
-          title="Pengelompokan Ulasan Negatif"
+          description={
+            summaryResult.isAvailable
+              ? "Taxonomy final dari SVM merged_5class."
+              : EMPTY_GATEWAY_MESSAGE
+          }
+          title="Taxonomy Aspek"
         >
-          <div className="space-y-3">
-            {negativeReviewGroups.map((group) => (
-              <div
-                className="rounded-md border border-border bg-background px-4 py-3"
-                key={group.aspect}
-              >
-                <div className="flex items-center justify-between gap-3">
-                  <AspectBadge aspect={group.aspect} count={group.reviews.length} />
-                  <span className="text-xs font-medium text-muted-foreground">
-                    {group.reviews.length} ulasan negatif
-                  </span>
-                </div>
-                <p className="mt-2 text-xs leading-5 text-muted-foreground">
-                  {group.description}
-                </p>
-              </div>
-            ))}
-          </div>
+          <SimpleTable
+            columns={[
+              {
+                key: "label",
+                header: "Kriteria",
+                render: (row) => row.label,
+              },
+            ]}
+            data={
+              summary.final_aspect_labels.map((label) => ({
+                id: label,
+                label,
+              }))
+            }
+            emptyMessage={EMPTY_GATEWAY_MESSAGE}
+            minWidthClassName="min-w-[420px]"
+            rowKey={(row) => row.id}
+          />
         </SummaryCard>
       </section>
 
       <ChartCard
-        description="Tabel hasil klasifikasi aspek dari data mock. Tidak ada inferensi SVM nyata pada frontend."
+        description="Tabel hasil aspek batch ditampilkan hanya jika endpoint menyediakan data batch."
         title="Tabel Hasil Aspek"
       >
         <SimpleTable
           columns={[
             {
-              key: "review",
-              header: "Ulasan",
-              className: "max-w-[420px]",
-              render: (row) => (
-                <p className="line-clamp-2 font-medium leading-6 text-foreground">
-                  {row.reviewText}
-                </p>
-              ),
+              key: "metric",
+              header: "Metrik",
+              render: (row) => row.metric,
             },
             {
-              key: "aspect",
-              header: "Aspek",
-              render: (row) => <AspectBadge aspect={row.label} />,
-            },
-            {
-              key: "sentiment",
-              header: "Sentimen",
-              render: (row) => <SentimentBadge sentiment={row.sentimentLabel} />,
-            },
-            {
-              key: "confidence",
-              header: "Confidence",
+              key: "value",
+              header: "Nilai",
               align: "right",
-              render: (row) => formatPercent(row.confidence),
-            },
-            {
-              key: "evidence",
-              header: "Evidence",
-              render: (row) => (
-                <span className="text-xs leading-5 text-muted-foreground">
-                  {row.evidenceTerms.join(", ")}
-                </span>
-              ),
+              render: (row) => row.value,
             },
           ]}
-          data={mockAspectResults}
-          minWidthClassName="min-w-[900px]"
-          rowKey={(row) => row.id}
+          data={
+            evaluationResult.isAvailable
+              ? [
+                  {
+                    metric: "Macro F1",
+                    value: formatPercent(recordNumber(selectedMetrics, "f1_macro")),
+                  },
+                  {
+                    metric: "Akurasi",
+                    value: formatPercent(recordNumber(selectedMetrics, "accuracy")),
+                  },
+                  {
+                    metric: "Minimum Class F1",
+                    value: formatPercent(recordNumber(selectedMetrics, "min_class_f1")),
+                  },
+                ]
+              : []
+          }
+          emptyMessage={EMPTY_GATEWAY_MESSAGE}
+          minWidthClassName="min-w-[560px]"
+          rowKey={(row) => row.metric}
         />
       </ChartCard>
+
+      <SummaryCard
+        description="Catatan metodologi klasifikasi aspek."
+        title="Catatan Klasifikasi Aspek"
+      >
+        <p className="rounded-md border border-border bg-background px-4 py-3 text-sm leading-6 text-muted-foreground">
+          {summaryResult.isAvailable
+            ? summary.weak_label_limitation || evaluation.limitations[0] || EMPTY_TEXT
+            : EMPTY_TEXT}
+        </p>
+      </SummaryCard>
     </AppShell>
   );
 }
