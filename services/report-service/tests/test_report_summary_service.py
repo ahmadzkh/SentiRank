@@ -83,10 +83,17 @@ def test_summary_should_read_fixture_outputs_and_detect_sample_status(tmp_path: 
         json.dumps({"is_sample": True}),
         encoding="utf-8",
     )
+    (comparison_dir / "ahp_fuzzy_ranking_comparison_sample_development.csv").write_text(
+        "criterion_id,criterion_name,ahp_weight,fuzzy_ahp_weight,ahp_rank,fuzzy_ahp_rank,weight_delta,rank_delta,run_label,is_sample\n"
+        "C2,App Reliability & Usability,0.52,0.51,1,1,-0.01,0,sample_development_only,True\n"
+        "C1,Features,0.17,0.18,2,2,0.01,0,sample_development_only,True\n",
+        encoding="utf-8",
+    )
 
     service = ReportSummaryService(settings)
     evaluation = service.evaluation_summary()
     report = service.report_summary()
+    ranking = service.ranking_comparison()
 
     assert evaluation.selected_indobert_model == "run_3_weighted_loss_lr_1e-5"
     assert evaluation.selected_svm_model == "merged_5class"
@@ -97,4 +104,7 @@ def test_summary_should_read_fixture_outputs_and_detect_sample_status(tmp_path: 
     assert report.pipeline_status["model_evaluation"] == "available"
     assert report.pipeline_status["ahp_fuzzy_ahp"] == "sample_development_only"
     assert EXPERT_JUDGEMENT_NOTE in report.demo_notes
-
+    assert ranking.is_sample is True
+    assert ranking.summary["total_criteria"] == 2
+    assert ranking.items[0].criterion_name == "App Reliability & Usability"
+    assert ranking.items[0].ahp_rank == 1

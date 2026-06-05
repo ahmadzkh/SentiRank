@@ -18,7 +18,7 @@ def test_get_health_should_return_report_service_status() -> None:
 
 
 def test_report_routes_should_return_standard_envelope() -> None:
-    for path in ["/reports/summary", "/evaluation/summary"]:
+    for path in ["/reports/summary", "/evaluation/summary", "/reports/ranking-comparison"]:
         response = client.get(path)
         assert response.status_code == 200
         payload = response.json()
@@ -34,4 +34,3 @@ def test_report_summary_should_include_selected_models_and_expert_note() -> None
     assert data["selected_models"]["sentiment"] == "run_3_weighted_loss_lr_1e-5"
     assert data["selected_models"]["aspect"] == "merged_5class"
     assert "expert judgement" in data["expert_judgement_note"].lower()
-

@@ -66,6 +66,38 @@ def test_evaluation_summary_route_should_be_proxied(monkeypatch) -> None:
     ]
 
 
+def test_ranking_comparison_route_should_be_proxied(monkeypatch) -> None:
+    calls = []
+
+    async def fake_request_json(
+        self,
+        method,
+        url,
+        json_body=None,
+        query_params=None,
+        service_name="decision-service",
+    ):
+        calls.append({"method": method, "url": url, "service_name": service_name})
+        return 200, {
+            "success": True,
+            "message": "Ranking comparison loaded.",
+            "data": {"items": [], "summary": {}, "warnings": []},
+        }
+
+    monkeypatch.setattr(ServiceClient, "request_json", fake_request_json)
+
+    response = client.get("/reports/ranking-comparison")
+
+    assert response.status_code == 200
+    assert calls == [
+        {
+            "method": "GET",
+            "url": "http://report-service:8005/reports/ranking-comparison",
+            "service_name": "report-service",
+        }
+    ]
+
+
 def test_report_service_unavailable_should_return_error_envelope(monkeypatch) -> None:
     async def fake_request_json(
         self,
@@ -90,4 +122,3 @@ def test_report_service_unavailable_should_return_error_envelope(monkeypatch) ->
     payload = response.json()
     assert payload["success"] is False
     assert payload["error"]["code"] == "REPORT_SERVICE_UNAVAILABLE"
-

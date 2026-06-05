@@ -47,3 +47,7 @@ async def report_summary() -> JSONResponse:
 async def evaluation_summary() -> JSONResponse:
     return await proxy_report_request("/evaluation/summary")
 
+
+@router.get("/reports/ranking-comparison")
+async def ranking_comparison() -> JSONResponse:
+    return await proxy_report_request("/reports/ranking-comparison")

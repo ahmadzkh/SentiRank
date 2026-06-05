@@ -79,6 +79,10 @@ def test_summary_should_read_fixture_json_outputs(tmp_path: Path) -> None:
                     {
                         "name": "Ads Experience",
                         "source_labels": ["Ads Experience"],
+                    },
+                    {
+                        "name": "Features, Content & Audio Experience",
+                        "source_labels": ["Features & Content", "Audio Quality"],
                     }
                 ]
             }
@@ -132,6 +136,14 @@ def test_summary_should_read_fixture_json_outputs(tmp_path: Path) -> None:
         json.dumps({"selected_svm_model": "merged_5class"}),
         encoding="utf-8",
     )
+    (svm_dir / "svm_aspect_by_sentiment_distribution.csv").write_text(
+        "aspect_label,final_sentiment,count\n"
+        "Ads Experience,Negative,3\n"
+        "Features & Content,Negative,2\n"
+        "Audio Quality,Negative,1\n"
+        "Ads Experience,Positive,10\n",
+        encoding="utf-8",
+    )
 
     service = AspectSummaryService(settings)
     summary = service.summary()
@@ -139,6 +151,8 @@ def test_summary_should_read_fixture_json_outputs(tmp_path: Path) -> None:
 
     assert summary.selected_classifier == "merged_5class"
     assert summary.aspect_distribution["Ads Experience"] == 4
+    assert summary.negative_aspect_distribution["Ads Experience"] == 3
+    assert summary.negative_aspect_distribution["Features, Content & Audio Experience"] == 3
     assert summary.merged_5class_taxonomy[0]["name"] == "Ads Experience"
     assert evaluation.selected_candidate == "merged_5class"
     assert evaluation.selected_metrics["f1_macro"] == 0.93
@@ -153,6 +167,7 @@ def test_summary_and_evaluation_should_handle_missing_files(tmp_path: Path) -> N
 
     assert summary.selected_classifier == "merged_5class"
     assert summary.aspect_distribution == {}
+    assert summary.negative_aspect_distribution == {}
     assert summary.warnings
     assert evaluation.scenario_comparison == []
     assert evaluation.warnings

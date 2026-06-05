@@ -58,6 +58,7 @@ def root() -> dict:
                 "POST /ahp/fuzzy-calculate",
                 "POST /ahp/compare",
                 "GET /reviews/random",
+                "GET /reviews/latest-negative",
                 "GET /dataset/summary",
                 "GET /scraping/summary",
                 "GET /preprocessing/summary",
@@ -69,6 +70,7 @@ def root() -> dict:
                 "GET /aspects/evaluation",
                 "GET /reports/summary",
                 "GET /evaluation/summary",
+                "GET /reports/ranking-comparison",
             ],
             "routing": {
                 "decision-service": settings.decision_service_url,

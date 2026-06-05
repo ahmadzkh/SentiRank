@@ -62,3 +62,15 @@ def evaluation_summary():
         )
     return success_response("Evaluation summary loaded.", data)
 
+
+@router.get("/reports/ranking-comparison", response_model=None)
+def ranking_comparison():
+    try:
+        data = _report_service().ranking_comparison()
+    except OSError as error:
+        return error_response(
+            "Ranking comparison could not be loaded.",
+            "RANKING_COMPARISON_ERROR",
+            {"reason": str(error)},
+        )
+    return success_response("Ranking comparison loaded.", data)

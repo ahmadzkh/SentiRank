@@ -84,3 +84,16 @@ def random_reviews(
             {"reason": str(error)},
         )
     return success_response("Random review samples loaded.", data)
+
+
+@router.get("/reviews/latest-negative", response_model=None)
+def latest_negative_reviews(limit: int = Query(default=5, ge=1)):
+    try:
+        data = _service().latest_negative_reviews(limit=limit)
+    except OSError as error:
+        return error_response(
+            "Latest negative reviews could not be loaded.",
+            "LATEST_NEGATIVE_REVIEWS_ERROR",
+            {"reason": str(error)},
+        )
+    return success_response("Latest negative reviews loaded.", data)

@@ -52,6 +52,14 @@ async def random_reviews(request: Request) -> JSONResponse:
     )
 
 
+@router.get("/reviews/latest-negative")
+async def latest_negative_reviews(request: Request) -> JSONResponse:
+    return await proxy_review_request(
+        "/reviews/latest-negative",
+        query_params=dict(request.query_params),
+    )
+
+
 @router.get("/dataset/summary")
 async def dataset_summary() -> JSONResponse:
     return await proxy_review_request("/dataset/summary")

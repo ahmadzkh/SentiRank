@@ -67,6 +67,39 @@ def test_random_reviews_should_forward_query_params(monkeypatch) -> None:
     ]
 
 
+def test_latest_negative_reviews_should_forward_query_params(monkeypatch) -> None:
+    calls: list[dict[str, Any]] = []
+
+    async def fake_request_json(self, method, url, json_body=None, query_params=None, service_name="decision-service"):
+        calls.append(
+            {
+                "method": method,
+                "url": url,
+                "query_params": query_params,
+                "service_name": service_name,
+            }
+        )
+        return 200, {
+            "success": True,
+            "message": "Latest negative reviews loaded.",
+            "data": {"reviews": [], "count": 0, "filters": query_params, "warnings": []},
+        }
+
+    monkeypatch.setattr(ServiceClient, "request_json", fake_request_json)
+
+    response = client.get("/reviews/latest-negative?limit=5")
+
+    assert response.status_code == 200
+    assert calls == [
+        {
+            "method": "GET",
+            "url": "http://review-service:8001/reviews/latest-negative",
+            "query_params": {"limit": "5"},
+            "service_name": "review-service",
+        }
+    ]
+
+
 def test_review_service_unavailable_should_return_error_envelope(monkeypatch) -> None:
     async def fake_request_json(self, method, url, json_body=None, query_params=None, service_name="decision-service"):
         raise ServiceClientError(
@@ -95,8 +128,13 @@ def test_all_review_gateway_routes_should_forward(monkeypatch) -> None:
 
     monkeypatch.setattr(ServiceClient, "request_json", fake_request_json)
 
-    for path in ["/dataset/summary", "/scraping/summary", "/preprocessing/summary"]:
+    for path in ["/dataset/summary", "/scraping/summary", "/preprocessing/summary", "/reviews/latest-negative"]:
         response = client.get(path)
         assert response.status_code == 200
 
-    assert paths == ["/dataset/summary", "/scraping/summary", "/preprocessing/summary"]
+    assert paths == [
+        "/dataset/summary",
+        "/scraping/summary",
+        "/preprocessing/summary",
+        "/reviews/latest-negative",
+    ]

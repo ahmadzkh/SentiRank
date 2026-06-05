@@ -27,3 +27,24 @@ class ReportSummaryData(BaseModel):
     output_source_availability: dict[str, bool]
     warnings: list[str] = Field(default_factory=list)
 
+
+class RankingComparisonItem(BaseModel):
+    criterion_id: str
+    criterion_name: str
+    ahp_weight: float | None = None
+    fuzzy_ahp_weight: float | None = None
+    ahp_rank: int | None = None
+    fuzzy_ahp_rank: int | None = None
+    weight_delta: float | None = None
+    rank_delta: int | None = None
+    final_rank: int | None = None
+    status: str | None = None
+
+
+class RankingComparisonData(BaseModel):
+    run_label: str
+    source_file: str | None = None
+    is_sample: bool = False
+    items: list[RankingComparisonItem] = Field(default_factory=list)
+    summary: dict = Field(default_factory=dict)
+    warnings: list[str] = Field(default_factory=list)

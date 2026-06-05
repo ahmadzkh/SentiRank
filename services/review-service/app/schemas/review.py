@@ -7,6 +7,7 @@ class ReviewSample(BaseModel):
     content: str | None = None
     initial_sentiment: str | None = None
     final_sentiment: str | None = None
+    aspect_label: str | None = None
     reviewed_at: str | None = None
     source: str | None = None
 

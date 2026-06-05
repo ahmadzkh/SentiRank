@@ -42,6 +42,7 @@ class AspectSummaryData(BaseModel):
     original_7class_baseline: dict
     merged_5class_taxonomy: list[dict]
     aspect_distribution: dict[str, int]
+    negative_aspect_distribution: dict[str, int]
     weak_label_limitation: str
     output_source_availability: dict[str, bool]
     warnings: list[str] = Field(default_factory=list)

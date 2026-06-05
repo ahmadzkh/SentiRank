@@ -11,7 +11,7 @@ from app.core.config import (
     FINAL_SENTIMENT_MODEL,
     Settings,
 )
-from app.schemas.report import EvaluationSummaryData, ReportSummaryData
+from app.schemas.report import EvaluationSummaryData, RankingComparisonData, RankingComparisonItem, ReportSummaryData
 
 
 class ReportSummaryService:
@@ -119,6 +119,50 @@ class ReportSummaryService:
             warnings=warnings,
         )
 
+    def ranking_comparison(self) -> RankingComparisonData:
+        warnings: list[str] = []
+        source_path = self._ranking_comparison_source_path()
+        if source_path is None:
+            warnings.append("Ranking comparison CSV is not available.")
+            return RankingComparisonData(
+                run_label="",
+                items=[],
+                summary={
+                    "total_criteria": 0,
+                    "max_absolute_weight_delta": None,
+                    "changed_rank_count": 0,
+                    "identical_top_rank": None,
+                },
+                warnings=warnings,
+            )
+
+        rows = self._read_csv_records(source_path, warnings)
+        items = self._ranking_items(rows, warnings)
+        items.sort(key=self._ranking_sort_key)
+
+        run_label = self._first_text(rows, ("run_label", "run", "scenario", "skenario")) or source_path.stem
+        is_sample = self._first_bool(rows, ("is_sample", "sample", "development_sample")) or (
+            "sample_development" in source_path.parts
+        )
+        weight_deltas = [abs(item.weight_delta) for item in items if item.weight_delta is not None]
+        changed_rank_count = sum(1 for item in items if item.rank_delta not in (None, 0))
+        top_ahp = next((item.criterion_id for item in items if item.ahp_rank == 1), None)
+        top_fuzzy = next((item.criterion_id for item in items if item.fuzzy_ahp_rank == 1), None)
+
+        return RankingComparisonData(
+            run_label=run_label,
+            source_file=self._display_path(source_path),
+            is_sample=is_sample,
+            items=items,
+            summary={
+                "total_criteria": len(items),
+                "max_absolute_weight_delta": max(weight_deltas) if weight_deltas else None,
+                "changed_rank_count": changed_rank_count,
+                "identical_top_rank": bool(top_ahp and top_fuzzy and top_ahp == top_fuzzy),
+            },
+            warnings=warnings,
+        )
+
     def _read_json(self, path: Path, warnings: list[str]) -> Any:
         if not path.exists():
             warnings.append(f"Missing file: {self._display_path(path)}")
@@ -139,6 +183,120 @@ class ReportSummaryService:
         except OSError as error:
             warnings.append(f"Could not read CSV file {self._display_path(path)}: {error}")
             return []
+
+    def _ranking_comparison_source_path(self) -> Path | None:
+        candidates = [
+            self.ranking_comparison_dir / "final" / "08_ranking_comparison.csv",
+            self.ranking_comparison_dir / "08_ranking_comparison.csv",
+            (
+                self.ranking_comparison_dir
+                / "sample_development"
+                / "ahp_fuzzy_ranking_comparison_sample_development.csv"
+            ),
+        ]
+        return next((path for path in candidates if path.exists()), None)
+
+    def _ranking_items(self, rows: list[dict], warnings: list[str]) -> list[RankingComparisonItem]:
+        items: list[RankingComparisonItem] = []
+        for index, row in enumerate(rows, start=1):
+            criterion_name = self._row_text(row, ("criterion_name", "aspect", "criteria", "kriteria", "aspek"))
+            if not criterion_name:
+                warnings.append(f"Ranking row {index} is missing an aspect or criteria column.")
+                continue
+            criterion_id = self._row_text(row, ("criterion_id", "id", "code", "kode")) or f"C{index}"
+            item = RankingComparisonItem(
+                criterion_id=criterion_id,
+                criterion_name=criterion_name,
+                ahp_weight=self._row_float(
+                    row,
+                    ("ahp_score", "ahp_weight", "bobot_ahp", "priority_ahp"),
+                ),
+                fuzzy_ahp_weight=self._row_float(
+                    row,
+                    (
+                        "fuzzy_score",
+                        "fuzzy_weight",
+                        "fuzzy_ahp_score",
+                        "fuzzy_ahp_weight",
+                        "bobot_fuzzy",
+                    ),
+                ),
+                ahp_rank=self._row_int(row, ("rank_ahp", "ahp_rank")),
+                fuzzy_ahp_rank=self._row_int(row, ("rank_fuzzy", "fuzzy_rank", "fuzzy_ahp_rank")),
+                weight_delta=self._row_float(row, ("weight_delta", "delta", "selisih")),
+                rank_delta=self._row_int(row, ("rank_delta", "delta_rank", "selisih_rank")),
+                final_rank=self._row_int(row, ("final_rank", "rank_final", "rank")),
+                status=self._row_text(row, ("status", "recommendation", "final_recommendation")),
+            )
+            items.append(item)
+        return items
+
+    @staticmethod
+    def _ranking_sort_key(item: RankingComparisonItem) -> tuple[int, int, str]:
+        rank = item.final_rank or item.ahp_rank or item.fuzzy_ahp_rank or 9999
+        ahp_rank = item.ahp_rank or 9999
+        return rank, ahp_rank, item.criterion_name
+
+    @staticmethod
+    def _normalise_key(key: str) -> str:
+        return key.strip().lower().replace(" ", "_").replace("-", "_")
+
+    @classmethod
+    def _row_value(cls, row: dict, aliases: tuple[str, ...]) -> Any:
+        normalised = {cls._normalise_key(str(key)): value for key, value in row.items()}
+        for alias in aliases:
+            value = normalised.get(cls._normalise_key(alias))
+            if value not in (None, ""):
+                return value
+        return None
+
+    @classmethod
+    def _row_text(cls, row: dict, aliases: tuple[str, ...]) -> str:
+        value = cls._row_value(row, aliases)
+        return str(value).strip() if value not in (None, "") else ""
+
+    @classmethod
+    def _row_float(cls, row: dict, aliases: tuple[str, ...]) -> float | None:
+        value = cls._row_value(row, aliases)
+        if value in (None, ""):
+            return None
+        try:
+            return float(str(value).replace(",", "."))
+        except ValueError:
+            return None
+
+    @classmethod
+    def _row_int(cls, row: dict, aliases: tuple[str, ...]) -> int | None:
+        value = cls._row_value(row, aliases)
+        if value in (None, ""):
+            return None
+        try:
+            return int(float(str(value).replace(",", ".")))
+        except ValueError:
+            return None
+
+    @classmethod
+    def _first_text(cls, rows: list[dict], aliases: tuple[str, ...]) -> str:
+        for row in rows:
+            value = cls._row_text(row, aliases)
+            if value:
+                return value
+        return ""
+
+    @classmethod
+    def _first_bool(cls, rows: list[dict], aliases: tuple[str, ...]) -> bool | None:
+        for row in rows:
+            value = cls._row_value(row, aliases)
+            if value in (None, ""):
+                continue
+            if isinstance(value, bool):
+                return value
+            text = str(value).strip().lower()
+            if text in {"true", "1", "yes", "y"}:
+                return True
+            if text in {"false", "0", "no", "n"}:
+                return False
+        return None
 
     @staticmethod
     def _string_value(payload: Any, key: str, fallback: str) -> str:
@@ -303,6 +461,17 @@ class ReportSummaryService:
             "ranking_comparison_sample_development": (
                 self.ranking_comparison_dir / "sample_development"
             ).exists(),
+            "ranking_comparison_final_csv": (
+                self.ranking_comparison_dir / "final" / "08_ranking_comparison.csv"
+            ).exists(),
+            "ranking_comparison_csv": (
+                self.ranking_comparison_dir / "08_ranking_comparison.csv"
+            ).exists(),
+            "ranking_comparison_sample_csv": (
+                self.ranking_comparison_dir
+                / "sample_development"
+                / "ahp_fuzzy_ranking_comparison_sample_development.csv"
+            ).exists(),
         }
 
     def _display_path(self, path: Path) -> str:
@@ -310,4 +479,3 @@ class ReportSummaryService:
             return str(path.relative_to(self.datasets_dir.parent))
         except ValueError:
             return str(path)
-

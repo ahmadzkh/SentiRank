@@ -41,6 +41,31 @@ class FakeReviewService:
             warnings=[],
         )
 
+    def latest_negative_reviews(self, limit):
+        return RandomReviewsData(
+            reviews=[
+                ReviewSample(
+                    external_id="fixture-negative-1",
+                    rating=1,
+                    content="fixture negative review",
+                    initial_sentiment="Negative",
+                    final_sentiment="Negative",
+                    aspect_label="Ads Experience",
+                    reviewed_at="2026-05-02T00:00:00",
+                    source="fixture",
+                )
+            ],
+            count=1,
+            filters=RandomReviewFilters(
+                limit=limit,
+                applied_limit=min(limit, 50),
+                sentiment="Negative",
+                rating=None,
+                seed=None,
+            ),
+            warnings=[],
+        )
+
 
 def test_get_health_should_return_review_service_status() -> None:
     response = client.get("/health")
@@ -73,3 +98,16 @@ def test_random_reviews_route_should_pass_query_params(monkeypatch) -> None:
     assert payload["data"]["filters"]["sentiment"] == "Positive"
     assert payload["data"]["filters"]["rating"] == 5
     assert payload["data"]["filters"]["seed"] == 42
+
+
+def test_latest_negative_reviews_route_should_return_aspect_label(monkeypatch) -> None:
+    monkeypatch.setattr("app.routers.review._service", lambda: FakeReviewService())
+
+    response = client.get("/reviews/latest-negative?limit=5")
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["success"] is True
+    assert payload["data"]["count"] == 1
+    assert payload["data"]["reviews"][0]["final_sentiment"] == "Negative"
+    assert payload["data"]["reviews"][0]["aspect_label"] == "Ads Experience"

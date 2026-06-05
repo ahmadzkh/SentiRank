@@ -53,6 +53,7 @@ def root() -> dict:
                 "GET /health",
                 "GET /reports/summary",
                 "GET /evaluation/summary",
+                "GET /reports/ranking-comparison",
             ],
         },
     )
@@ -70,4 +71,3 @@ def health() -> dict:
             "port": SERVICE_PORT,
         },
     )
-

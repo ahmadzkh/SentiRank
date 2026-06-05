@@ -6,7 +6,7 @@ from app.core.config import get_settings
 from app.routers import review
 
 SERVICE_NAME = "review-service"
-SERVICE_ROLE = "Dataset, scraping, preprocessing, random review, and EDA summaries"
+SERVICE_ROLE = "Dataset, scraping, preprocessing, review, and EDA summaries"
 SERVICE_VERSION = "0.1.0"
 
 settings = get_settings()
@@ -47,6 +47,7 @@ def root() -> dict:
                 "GET /",
                 "GET /health",
                 "GET /reviews/random",
+                "GET /reviews/latest-negative",
                 "GET /dataset/summary",
                 "GET /scraping/summary",
                 "GET /preprocessing/summary",

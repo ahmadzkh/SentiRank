@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import csv
 import json
 from pathlib import Path
 from typing import Any
@@ -49,6 +50,7 @@ class AspectSummaryService:
             original_7class_baseline=self._original_baseline(final_selection),
             merged_5class_taxonomy=self._taxonomy_criteria(taxonomy),
             aspect_distribution=self._aspect_distribution(dataset_summary),
+            negative_aspect_distribution=self._negative_aspect_distribution(taxonomy, warnings),
             weak_label_limitation=self._weak_label_limitation(final_selection, dataset_summary),
             output_source_availability=self._source_availability(),
             warnings=warnings,
@@ -113,6 +115,17 @@ class AspectSummaryService:
             warnings.append(f"Could not read JSON file {self._display_path(path)}: {error}")
             return {}
 
+    def _read_csv_records(self, path: Path, warnings: list[str]) -> list[dict]:
+        if not path.exists():
+            warnings.append(f"Missing file: {self._display_path(path)}")
+            return []
+        try:
+            with path.open("r", encoding="utf-8", newline="") as csv_file:
+                return [dict(row) for row in csv.DictReader(csv_file)]
+        except OSError as error:
+            warnings.append(f"Could not read CSV file {self._display_path(path)}: {error}")
+            return []
+
     @staticmethod
     def _selected_classifier(payload: Any) -> str:
         if isinstance(payload, dict) and payload.get("selected_scenario"):
@@ -140,6 +153,50 @@ class AspectSummaryService:
                 if isinstance(count, int)
             }
         return {}
+
+    def _negative_aspect_distribution(self, taxonomy: Any, warnings: list[str]) -> dict[str, int]:
+        rows = self._read_csv_records(
+            self.svm_dir / "svm_aspect_by_sentiment_distribution.csv",
+            warnings,
+        )
+        if not rows:
+            return {}
+
+        label_to_criterion = self._taxonomy_label_map(taxonomy)
+        distribution: dict[str, int] = {}
+        for row in rows:
+            if str(row.get("final_sentiment", "")).strip().lower() != "negative":
+                continue
+            source_label = str(row.get("aspect_label", "")).strip()
+            criterion = label_to_criterion.get(source_label, source_label)
+            if not criterion:
+                continue
+            try:
+                count = int(float(str(row.get("count", 0)).replace(",", ".")))
+            except ValueError:
+                count = 0
+            distribution[criterion] = distribution.get(criterion, 0) + count
+
+        return dict(sorted(distribution.items(), key=lambda item: item[1], reverse=True))
+
+    @staticmethod
+    def _taxonomy_label_map(taxonomy: Any) -> dict[str, str]:
+        if not isinstance(taxonomy, dict) or not isinstance(taxonomy.get("criteria"), list):
+            return {}
+        mapping: dict[str, str] = {}
+        for criterion in taxonomy["criteria"]:
+            if not isinstance(criterion, dict):
+                continue
+            criterion_name = str(criterion.get("name", "")).strip()
+            if not criterion_name:
+                continue
+            mapping[criterion_name] = criterion_name
+            source_labels = criterion.get("source_labels")
+            if isinstance(source_labels, list):
+                for source_label in source_labels:
+                    if source_label:
+                        mapping[str(source_label).strip()] = criterion_name
+        return mapping
 
     @staticmethod
     def _weak_label_limitation(final_selection: Any, dataset_summary: Any) -> str:
@@ -228,6 +285,9 @@ class AspectSummaryService:
             "selected_metrics": (self.svm_dir / "svm_merged_5class_metrics.json").exists(),
             "selected_classification_report": (
                 self.svm_dir / "svm_merged_5class_classification_report.json"
+            ).exists(),
+            "aspect_by_sentiment_distribution": (
+                self.svm_dir / "svm_aspect_by_sentiment_distribution.csv"
             ).exists(),
             "evaluation_summary": self.evaluation_summary_path.exists(),
         }

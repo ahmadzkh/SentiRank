@@ -217,6 +217,36 @@ class ResearchDataService:
             warnings=warnings,
         )
 
+    def latest_negative_reviews(self, limit: int) -> RandomReviewsData:
+        warnings: list[str] = []
+        clamped_limit = max(1, min(limit, self.settings.max_random_review_limit))
+        if clamped_limit != limit:
+            warnings.append(f"Requested limit {limit} was clamped to {clamped_limit}.")
+
+        dataset_path = self._latest_negative_reviews_path(warnings)
+        filters = RandomReviewFilters(
+            limit=limit,
+            applied_limit=clamped_limit,
+            sentiment="Negative",
+            rating=None,
+            seed=None,
+        )
+
+        if dataset_path is None:
+            warnings.append("No latest negative review source CSV is available.")
+            return RandomReviewsData(reviews=[], count=0, filters=filters, warnings=warnings)
+
+        rows = self._read_review_rows(dataset_path, sentiment="Negative", rating=None)
+        rows.sort(key=lambda row: row.get("reviewed_at") or "", reverse=True)
+        reviews = [self._review_sample(row) for row in rows[:clamped_limit]]
+
+        return RandomReviewsData(
+            reviews=reviews,
+            count=len(reviews),
+            filters=filters,
+            warnings=warnings,
+        )
+
     def _read_json(self, path: Path, warnings: list[str]) -> Any:
         if not path.exists():
             warnings.append(f"Missing file: {self._display_path(path)}")
@@ -238,6 +268,12 @@ class ResearchDataService:
             "data_acquisition_summary": (raw_dir / "data_acquisition_summary.json").exists(),
             "scraping_summary": (raw_dir / "scraping_summary.json").exists(),
             "reviews_final": (processed_dir / "reviews_final.csv").exists(),
+            "reviews_with_aspect_labels": (
+                processed_dir / "reviews_with_aspect_labels.csv"
+            ).exists(),
+            "reviews_with_aspect_labels_refined": (
+                processed_dir / "reviews_with_aspect_labels_refined.csv"
+            ).exists(),
             "reviews_raw_labeled": (raw_dir / "reviews_raw_labeled.csv").exists(),
         }
 
@@ -250,6 +286,19 @@ class ResearchDataService:
         if fallback.exists():
             return fallback
         warnings.append(f"Fallback random review source missing: {self._display_path(fallback)}")
+        return None
+
+    def _latest_negative_reviews_path(self, warnings: list[str]) -> Path | None:
+        candidates = [
+            self.datasets_dir / "processed" / "reviews_with_aspect_labels_refined.csv",
+            self.datasets_dir / "processed" / "reviews_with_aspect_labels.csv",
+            self.datasets_dir / "processed" / "reviews_final.csv",
+            self.datasets_dir / "raw" / "reviews_raw_labeled.csv",
+        ]
+        for path in candidates:
+            if path.exists():
+                return path
+        warnings.append("No review CSV source is available for latest negative reviews.")
         return None
 
     def _read_review_rows(
@@ -280,6 +329,7 @@ class ResearchDataService:
             content=row.get("content") or None,
             initial_sentiment=row.get("initial_sentiment") or None,
             final_sentiment=row.get("final_sentiment") or row.get("initial_sentiment") or None,
+            aspect_label=row.get("aspect_label") or None,
             reviewed_at=row.get("reviewed_at") or None,
             source=row.get("source") or None,
         )
