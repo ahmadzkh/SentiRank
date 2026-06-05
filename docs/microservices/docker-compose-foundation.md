@@ -14,7 +14,7 @@ MS-03 provides infrastructure scaffolding only. It creates the deployment topolo
 | `api-gateway-service` | `sentirank-api-gateway-service` | 8000 | Skeleton FastAPI service with root and health endpoints |
 | `review-service` | `sentirank-review-service` | 8001 | Extracted read-only review/data summary service as of MS-06 |
 | `sentiment-service` | `sentirank-sentiment-service` | 8002 | Extracted sentiment prediction and evaluation summary service as of MS-07 |
-| `aspect-service` | `sentirank-aspect-service` | 8003 | Placeholder health-check service only |
+| `aspect-service` | `sentirank-aspect-service` | 8003 | Extracted aspect classification and SVM evaluation summary service as of MS-08 |
 | `decision-service` | `sentirank-decision-service` | 8004 | Extracted AHP/Fuzzy AHP calculation service as of MS-04 |
 | `report-service` | `sentirank-report-service` | 8005 | Placeholder health-check service only |
 | `database-service` | `sentirank-database-service` | 5432 | PostgreSQL container for thesis-stage Compose topology |
@@ -144,13 +144,34 @@ environment:
 
 If no local model artifact is mounted, `sentiment-service` keeps the API usable with explicitly marked fallback demo predictions.
 
+As of MS-08, `aspect-service` additionally exposes:
+
+- `POST /aspects/classify`
+- `GET /aspects/summary`
+- `GET /aspects/evaluation`
+
+`aspect-service` mounts repository research outputs and the optional local SVM artifact directory as read-only Docker volumes:
+
+```yaml
+volumes:
+  - ./datasets:/app/datasets:ro
+  - ./docs:/app/docs:ro
+  - ./ml-service/saved_models/svm:/app/models/svm:ro
+environment:
+  DATASETS_DIR: /app/datasets
+  DOCS_DIR: /app/docs
+  ASPECT_MODEL_DIR: /app/models/svm
+```
+
+If no local SVM artifact is mounted, `aspect-service` keeps the API usable with explicitly marked fallback demo classifications.
+
 ## Transition Notes
 
 `ml-service` remains the legacy modular backend during the transition. Existing research notebooks, scripts, model outputs, and AHP/Fuzzy AHP backend logic remain where they are.
 
 Planned next steps:
 
-1. MS-08 extracts aspect-service responsibilities.
-2. Later phases extract report responsibilities and replace remaining legacy boundaries step by step.
+1. MS-09 extracts report-service responsibilities.
+2. Later phases replace remaining legacy boundaries step by step.
 
 This keeps the refactor controlled and avoids breaking the completed ML and frontend workflows while still establishing a concrete microservice deployment foundation.

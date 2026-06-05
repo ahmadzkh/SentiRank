@@ -41,6 +41,8 @@ As of MS-06, the public review/data routes are implemented in `api-gateway-servi
 
 As of MS-07, the public sentiment routes are implemented in `api-gateway-service` and forwarded to `sentiment-service`. The gateway preserves the sentiment-service response envelope and does not perform IndoBERT inference directly.
 
+As of MS-08, the public aspect routes are implemented in `api-gateway-service` and forwarded to `aspect-service`. The gateway preserves the aspect-service response envelope and does not perform SVM aspect classification directly.
+
 ### AHP and Fuzzy AHP
 
 - `GET /ahp/criteria`
@@ -558,8 +560,45 @@ Request:
 
 ```json
 {
-  "text": "Lagu sering tidak bisa diputar dan kualitas audio jelek."
+  "text": "Iklan terlalu banyak dan mengganggu.",
+  "run_label": "demo"
 }
+```
+
+Fallback response when real SVM artifact loading is not enabled:
+
+```json
+{
+  "success": true,
+  "message": "Aspect classification completed.",
+  "data": {
+    "text": "Iklan terlalu banyak dan mengganggu.",
+    "label": "Ads Experience",
+    "confidence": 0.76,
+    "scores": {
+      "Features, Content & Audio Experience": 0.06,
+      "App Reliability & Usability": 0.06,
+      "Ads Experience": 0.76,
+      "Subscription & Pricing": 0.06,
+      "Account/Login": 0.06
+    },
+    "classifier_name": "merged_5class",
+    "mode": "fallback",
+    "warnings": [
+      "SVM aspect model artifact is not available in this environment. Returning fallback demo classification."
+    ]
+  }
+}
+```
+
+Fallback mode is for service integration and demo behavior only. It must not be interpreted as real SVM inference.
+
+### Aspect Summary
+
+Request:
+
+```http
+GET /aspects/summary
 ```
 
 Response:
@@ -567,11 +606,55 @@ Response:
 ```json
 {
   "success": true,
-  "message": "Aspect classification completed.",
+  "message": "Aspect summary loaded.",
   "data": {
-    "classifier": "merged_5class",
-    "label": "Features, Content & Audio Experience",
-    "confidence": 0.84
+    "selected_classifier": "merged_5class",
+    "final_aspect_labels": [
+      "Features, Content & Audio Experience",
+      "App Reliability & Usability",
+      "Ads Experience",
+      "Subscription & Pricing",
+      "Account/Login"
+    ],
+    "model_status": "available",
+    "aspect_distribution": {
+      "Features & Content": 7767,
+      "Ads Experience": 4691,
+      "Subscription & Pricing": 2840
+    },
+    "weak_label_limitation": "The SVM aspect classifier is trained and evaluated on weak labels derived from keyword-based aspect labeling. Therefore, the evaluation reflects the ability of the model to learn the weak-label aspect patterns, not expert-validated ground truth.",
+    "warnings": []
+  }
+}
+```
+
+### Aspect Evaluation
+
+Request:
+
+```http
+GET /aspects/evaluation
+```
+
+Response:
+
+```json
+{
+  "success": true,
+  "message": "Aspect evaluation loaded.",
+  "data": {
+    "selected_candidate": "merged_5class",
+    "selected_metrics": {
+      "accuracy": 0.9502074689,
+      "f1_macro": 0.9367812077,
+      "f1_weighted": 0.9501424836,
+      "min_class_f1": 0.8898305085
+    },
+    "limitations": [
+      "The SVM aspect classifier is trained and evaluated on weak labels derived from keyword-based aspect labeling. Therefore, the evaluation reflects the ability of the model to learn the weak-label aspect patterns, not expert-validated ground truth.",
+      "Model artifact may not be mounted in the current runtime environment."
+    ],
+    "warnings": []
   }
 }
 ```

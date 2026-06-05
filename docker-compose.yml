@@ -27,6 +27,7 @@ services:
     depends_on:
       - review-service
       - sentiment-service
+      - aspect-service
       - decision-service
     networks:
       - sentirank-network
@@ -69,6 +70,14 @@ services:
     container_name: sentirank-aspect-service
     ports:
       - "${ASPECT_SERVICE_PORT:-8003}:8003"
+    environment:
+      DATASETS_DIR: /app/datasets
+      DOCS_DIR: /app/docs
+      ASPECT_MODEL_DIR: /app/models/svm
+    volumes:
+      - ./datasets:/app/datasets:ro
+      - ./docs:/app/docs:ro
+      - ./ml-service/saved_models/svm:/app/models/svm:ro
     networks:
       - sentirank-network
 

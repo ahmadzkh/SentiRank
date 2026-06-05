@@ -1,16 +1,25 @@
-"""Minimal aspect service skeleton for MS-03."""
+"""Aspect service entrypoint for SentiRank aspect APIs."""
 
 from fastapi import FastAPI
+
+from app.core.config import FINAL_ASPECT_CLASSIFIER, get_settings
+from app.routers import aspect
+from app.services.aspect_classifier_service import AspectClassifierService
 
 SERVICE_NAME = "aspect-service"
 SERVICE_PORT = 8003
 SERVICE_ROLE = "SVM aspect classification and evaluation summaries"
+SERVICE_VERSION = "0.1.0"
+
+settings = get_settings()
 
 app = FastAPI(
     title="SentiRank Aspect Service",
-    version="0.1.0",
-    description="MS-03 placeholder only. SVM logic remains in ml-service.",
+    version=SERVICE_VERSION,
+    description="Independent FastAPI service for SentiRank aspect classification, summaries, and evaluation outputs.",
 )
+
+app.include_router(aspect.router)
 
 
 def response(message: str, data: dict | None = None) -> dict:
@@ -24,14 +33,27 @@ def response(message: str, data: dict | None = None) -> dict:
 
 @app.get("/")
 def root() -> dict:
-    """Return a placeholder root response for the aspect service skeleton."""
+    """Return service metadata and available endpoint information."""
     return response(
-        "SentiRank Aspect Service placeholder is running.",
+        "SentiRank Aspect Service is running.",
         {
             "service": SERVICE_NAME,
             "role": SERVICE_ROLE,
-            "business_logic": "not_implemented_in_ms_03",
-            "final_classifier": "merged_5class",
+            "status": "ready",
+            "version": SERVICE_VERSION,
+            "final_classifier": FINAL_ASPECT_CLASSIFIER,
+            "data_paths": {
+                "datasets_dir": str(settings.datasets_dir),
+                "docs_dir": str(settings.docs_dir),
+                "aspect_model_dir": str(settings.aspect_model_dir),
+            },
+            "available_endpoints": [
+                "GET /",
+                "GET /health",
+                "POST /aspects/classify",
+                "GET /aspects/summary",
+                "GET /aspects/evaluation",
+            ],
         },
     )
 
@@ -39,12 +61,14 @@ def root() -> dict:
 @app.get("/health")
 def health() -> dict:
     """Return health status for Docker Compose checks."""
+    model_status = AspectClassifierService(settings).model_status()
     return response(
-        "Service is healthy.",
+        "Aspect service is healthy.",
         {
             "service": SERVICE_NAME,
             "status": "healthy",
+            "version": SERVICE_VERSION,
             "port": SERVICE_PORT,
-            "stage": "ms_03_placeholder",
+            "model_status": model_status,
         },
     )
