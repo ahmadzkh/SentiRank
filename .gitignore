@@ -56,3 +56,5 @@ ml-service/models/**/*.pickle
 
 openai-api-key.txt
 openrouter-api-key*
+
+.agents
