@@ -24,6 +24,8 @@ interface AhpRankingComparisonChartProps {
   data: readonly AhpRankingComparisonDatum[];
 }
 
+const EMPTY_CHART_MESSAGE =
+  "Data belum tersedia karena API Gateway belum aktif.";
 const SCORE_FORMATTER = new Intl.NumberFormat("id-ID", {
   maximumFractionDigits: 4,
 });
@@ -52,7 +54,7 @@ export function AhpRankingComparisonChart({
   if (data.length === 0) {
     return (
       <div className="flex h-80 items-center justify-center rounded-md border border-dashed border-border bg-background text-sm text-muted-foreground">
-        Data belum tersedia
+        {EMPTY_CHART_MESSAGE}
       </div>
     );
   }

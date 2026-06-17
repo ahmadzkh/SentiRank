@@ -921,7 +921,7 @@ Membersihkan perilaku fallback agar halaman yang sudah memakai API Gateway tidak
 - [x] Ubah Dataset, Scraping, dan Preprocessing ke zero/empty state ketika Gateway gagal.
 - [x] Ubah Sentiment, Aspect, Evaluation, dan Report ke zero/empty state ketika Gateway gagal.
 - [x] Bersihkan halaman AHP/Fuzzy AHP dari output mock aktif.
-- [x] Pertahankan sample-development warning pada hasil demo AHP/Fuzzy AHP.
+- [x] Pertahankan sample-development warning hanya ketika data sample AHP/Fuzzy AHP tersedia.
 - [x] Jalankan `npm run lint`.
 - [x] Jalankan `npm run build`.
 
@@ -935,7 +935,7 @@ Membersihkan perilaku fallback agar halaman yang sudah memakai API Gateway tidak
 
 ### Completion Note
 
-Completed on 2026-06-05. MS-10B changes gateway-backed pages from mock fallback to explicit zero/empty fallback with a red API Gateway unavailable alert. Legacy mock data remains only as design/reference data, not as fallback for dashboard/demo output.
+Completed on 2026-06-05 and revalidated on 2026-06-17. MS-10B changes gateway-backed pages from mock fallback to explicit zero/empty fallback with a red API Gateway unavailable alert. Dashboard and AHP/Fuzzy AHP now carry normalized Gateway errors into the UI; AHP/Fuzzy AHP remains read-only, hides sample warning when Gateway is unavailable, and uses `0`, `-`, empty tables, and empty charts instead of mock output. Legacy mock data remains only as design/reference data, not as fallback for dashboard/demo output.
 
 ---
 

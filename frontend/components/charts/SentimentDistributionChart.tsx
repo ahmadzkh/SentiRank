@@ -16,6 +16,9 @@ interface SentimentDistributionChartProps {
   data: readonly SentimentDistributionDatum[];
 }
 
+const EMPTY_CHART_MESSAGE =
+  "Data belum tersedia karena API Gateway belum aktif.";
+
 function subscribe() {
   return () => {};
 }
@@ -40,7 +43,7 @@ export function SentimentDistributionChart({
   if (data.length === 0) {
     return (
       <div className="flex h-64 items-center justify-center rounded-md border border-dashed border-border bg-background text-sm text-muted-foreground">
-        Data sentimen belum tersedia.
+        {EMPTY_CHART_MESSAGE}
       </div>
     );
   }

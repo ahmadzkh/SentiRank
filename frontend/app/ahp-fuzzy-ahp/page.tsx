@@ -1,7 +1,6 @@
+import { ApiGatewayAlert } from "@/components/alerts/ApiGatewayAlert";
 import { ChartCard } from "@/components/cards/ChartCard";
-import { RecommendationCard } from "@/components/cards/RecommendationCard";
 import { StatCard } from "@/components/cards/StatCard";
-import { SummaryCard } from "@/components/cards/SummaryCard";
 import { AhpRankingComparisonChart } from "@/components/charts/AhpRankingComparisonChart";
 import { AppShell, PageHeader } from "@/components/layout";
 import {
@@ -18,12 +17,12 @@ import {
   type MethodWeightRow,
   type PriorityRow,
 } from "@/services/ahp-overview-service";
+import { EMPTY_GATEWAY_MESSAGE } from "@/lib/api-status";
 import { cn } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
-const EMPTY_MESSAGE =
-  "Maaf, data AHP dan Fuzzy AHP belum dapat ditampilkan saat ini. Silakan coba kembali setelah layanan analisis tersedia.";
+const EMPTY_MESSAGE = EMPTY_GATEWAY_MESSAGE;
 
 const criteriaColumns: readonly SimpleTableColumn<CriteriaOverviewRow>[] = [
   {
@@ -198,12 +197,16 @@ export default async function AhpFuzzyAhpPage() {
 
   return (
     <AppShell>
-      <DataNotice notice={overview.notice} />
-
       <PageHeader
         description="Halaman ini menampilkan prioritas aspek ulasan negatif berdasarkan metode AHP dan Fuzzy AHP. Bobot prioritas digunakan untuk membantu menentukan aspek yang perlu mendapatkan perhatian lebih dalam pengembangan layanan Spotify."
         title="AHP / Fuzzy AHP"
       />
+
+      <ApiGatewayAlert error={overview.apiError} />
+
+      {overview.dataStatus !== "unavailable" ? (
+        <DataNotice notice={overview.notice} />
+      ) : null}
 
       {overview.isServiceUnavailable ? <UnavailableState /> : null}
 
@@ -246,7 +249,7 @@ export default async function AhpFuzzyAhpPage() {
           <SimpleTable
             columns={weightColumns}
             data={overview.ahpRows}
-            emptyMessage="Hasil AHP belum tersedia."
+            emptyMessage={EMPTY_MESSAGE}
             minWidthClassName="min-w-[760px]"
             rowKey={(row) => row.id}
           />
@@ -270,7 +273,7 @@ export default async function AhpFuzzyAhpPage() {
           <SimpleTable
             columns={weightColumns}
             data={overview.fuzzyRows}
-            emptyMessage="Hasil Fuzzy AHP belum tersedia."
+            emptyMessage={EMPTY_MESSAGE}
             minWidthClassName="min-w-[760px]"
             rowKey={(row) => row.id}
           />
@@ -279,7 +282,11 @@ export default async function AhpFuzzyAhpPage() {
 
       <ChartCard
         description="Perbandingan membantu melihat apakah ranking kriteria tetap stabil pada kedua metode."
-        insight="Interpretasi ranking masih perlu dibaca hati-hati jika data berstatus sample."
+        insight={
+          overview.dataStatus === "sample"
+            ? "Interpretasi ranking masih perlu dibaca hati-hati jika data berstatus sample."
+            : null
+        }
         title="Perbandingan AHP vs Fuzzy AHP"
       >
         <AhpRankingComparisonChart data={overview.chartData} />
@@ -287,7 +294,7 @@ export default async function AhpFuzzyAhpPage() {
           <SimpleTable
             columns={comparisonColumns}
             data={overview.comparisonRows}
-            emptyMessage="Perbandingan AHP dan Fuzzy AHP belum tersedia."
+            emptyMessage={EMPTY_MESSAGE}
             minWidthClassName="min-w-[1080px]"
             rowKey={(row) => row.id}
           />
@@ -301,7 +308,7 @@ export default async function AhpFuzzyAhpPage() {
         <SimpleTable
           columns={priorityColumns}
           data={overview.priorityRows}
-          emptyMessage="Ranking prioritas belum tersedia."
+          emptyMessage={EMPTY_MESSAGE}
           minWidthClassName="min-w-[1040px]"
           rowKey={(row) => row.id}
         />
@@ -367,8 +374,7 @@ function UnavailableState() {
         Data belum dapat ditampilkan
       </h3>
       <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
-        Maaf, data AHP dan Fuzzy AHP belum dapat ditampilkan saat ini. Silakan
-        coba kembali setelah layanan analisis tersedia.
+        {EMPTY_GATEWAY_MESSAGE}
       </p>
     </section>
   );

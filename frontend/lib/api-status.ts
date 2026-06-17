@@ -5,7 +5,7 @@ import {
 } from "@/lib/http-client";
 
 export const EMPTY_GATEWAY_MESSAGE =
-  "Data belum tersedia";
+  "Data belum tersedia karena API Gateway belum aktif.";
 
 export interface GatewayDataResult<TData> {
   data: TData;

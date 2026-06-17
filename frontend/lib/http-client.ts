@@ -7,7 +7,7 @@ import type {
 
 const DEFAULT_API_BASE_URL = "http://localhost:8000";
 export const API_GATEWAY_OFFLINE_MESSAGE =
-  "Layanan data belum dapat diakses.";
+  "API Gateway belum aktif. Jalankan microservice backend terlebih dahulu.";
 const API_GATEWAY_ERROR_CODE = "API_GATEWAY_UNAVAILABLE";
 const API_GATEWAY_TIMEOUT_MS = 10_000;
 

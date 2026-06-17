@@ -1,15 +1,18 @@
 import type { AhpRankingComparisonDatum } from "@/components/charts/AhpRankingComparisonChart";
+import { normalizeApiGatewayError } from "@/lib/api-status";
 import { getAhpCriteria } from "@/services/ahp-service";
 import { getEvaluationSummary } from "@/services/evaluation-service";
 import { getRankingComparison as fetchRankingComparison } from "@/services/report-service";
 import type {
+  ApiGatewayFailure,
   GatewayCriterion,
   GatewayEvaluationSummary,
   GatewayRankingComparisonItem,
   GatewayRankingComparisonResponse,
 } from "@/types";
 
-const DATA_UNAVAILABLE = "Belum tersedia";
+const DATA_UNAVAILABLE = "-";
+const ZERO_VALUE = "0";
 
 const COUNT_FORMATTER = new Intl.NumberFormat("id-ID");
 const WEIGHT_FORMATTER = new Intl.NumberFormat("id-ID", {
@@ -88,6 +91,7 @@ export interface PriorityRow {
 }
 
 export interface AhpFuzzyAhpOverview {
+  apiError: ApiGatewayFailure | null;
   notice: AhpFuzzyAhpNotice;
   dataStatus: AhpFuzzyAhpDataStatus;
   dataStatusLabel: string;
@@ -186,6 +190,11 @@ export async function getAhpFuzzyAhpOverview(): Promise<AhpFuzzyAhpOverview> {
   const criteria = settledValue(criteriaResult) ?? [];
   const evaluation = settledValue(evaluationResult);
   const ranking = settledValue(rankingResult);
+  const apiError = firstRejectedGatewayError([
+    criteriaResult,
+    evaluationResult,
+    rankingResult,
+  ]);
   const allSourcesUnavailable =
     criteriaResult.status === "rejected" &&
     evaluationResult.status === "rejected" &&
@@ -203,8 +212,11 @@ export async function getAhpFuzzyAhpOverview(): Promise<AhpFuzzyAhpOverview> {
   const notice = buildNotice(dataStatus);
   const isServiceUnavailable = allSourcesUnavailable;
   const samplePrefix = dataStatus === "sample" ? "sample " : "";
+  const consistencyFallback =
+    dataStatus === "unavailable" ? ZERO_VALUE : DATA_UNAVAILABLE;
 
   return {
+    apiError,
     notice,
     dataStatus,
     dataStatusLabel,
@@ -236,7 +248,7 @@ export async function getAhpFuzzyAhpOverview(): Promise<AhpFuzzyAhpOverview> {
       {
         id: "ahp-consistency",
         label: "Status Konsistensi AHP",
-        value: DATA_UNAVAILABLE,
+        value: consistencyFallback,
         description:
           "Status konsistensi akan ditampilkan jika ringkasan analisis menyediakannya.",
       },
@@ -244,13 +256,13 @@ export async function getAhpFuzzyAhpOverview(): Promise<AhpFuzzyAhpOverview> {
     criteriaRows,
     ahpSummary: {
       topCriterion: ahpTop ?? DATA_UNAVAILABLE,
-      consistencyRatio: DATA_UNAVAILABLE,
+      consistencyRatio: consistencyFallback,
       consistencyStatus: "Menunggu data",
       criteriaCount: formatCount(criteriaCount),
     },
     fuzzySummary: {
       topCriterion: fuzzyTop ?? DATA_UNAVAILABLE,
-      consistencyRatio: DATA_UNAVAILABLE,
+      consistencyRatio: consistencyFallback,
       consistencyStatus: dataStatusLabel,
       criteriaCount: formatCount(criteriaCount),
     },
@@ -284,6 +296,16 @@ export async function getAhpFuzzyAhpOverview(): Promise<AhpFuzzyAhpOverview> {
 
 function settledValue<T>(result: PromiseSettledResult<T>): T | null {
   return result.status === "fulfilled" ? result.value : null;
+}
+
+function firstRejectedGatewayError(
+  results: readonly PromiseSettledResult<unknown>[],
+): ApiGatewayFailure | null {
+  const rejected = results.find(
+    (result): result is PromiseRejectedResult => result.status === "rejected",
+  );
+
+  return rejected ? normalizeApiGatewayError(rejected.reason) : null;
 }
 
 function buildCriteriaRows(
@@ -490,7 +512,14 @@ function buildNotice(dataStatus: AhpFuzzyAhpDataStatus): AhpFuzzyAhpNotice {
   if (dataStatus === "unavailable") {
     return {
       tone: "info",
-      text: "Data AHP dan Fuzzy AHP belum dapat ditampilkan saat ini. Hasil final akan diperbarui setelah seluruh expert judgement terkumpul.",
+      text: "Data AHP dan Fuzzy AHP belum tersedia karena API Gateway belum aktif.",
+    };
+  }
+
+  if (dataStatus === "pending") {
+    return {
+      tone: "info",
+      text: "Data AHP dan Fuzzy AHP belum lengkap. Hasil final akan diperbarui setelah seluruh expert judgement terkumpul.",
     };
   }
 
@@ -508,7 +537,7 @@ function statusLabel(dataStatus: AhpFuzzyAhpDataStatus): string {
     return "Sample";
   }
   if (dataStatus === "unavailable") {
-    return "Belum tersedia";
+    return DATA_UNAVAILABLE;
   }
   return "Menunggu data";
 }
@@ -521,7 +550,7 @@ function statusDescription(dataStatus: AhpFuzzyAhpDataStatus): string {
     return "Belum menjadi hasil akhir penelitian.";
   }
   if (dataStatus === "unavailable") {
-    return "Layanan analisis belum mengembalikan data.";
+    return "Data belum tersedia karena API Gateway belum aktif.";
   }
   return "Menunggu kelengkapan expert judgement.";
 }

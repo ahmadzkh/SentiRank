@@ -7,7 +7,7 @@
 | Project | SentiRank |
 | Module | Frontend |
 | Phase | FE-12 + MS-10B - API Gateway Integration and Failure Fallback |
-| Date | 2026-06-05 |
+| Date | 2026-06-17 |
 | Status | Updated |
 | Strategy | API Gateway-only frontend integration with zero/empty fallback |
 
@@ -39,7 +39,7 @@ Prinsip MS-10:
 - Frontend menggunakan `NEXT_PUBLIC_API_BASE_URL=http://localhost:8000`.
 - Service layer memakai route Gateway, bukan `/api/*` Next.js route placeholder.
 - HTTP client membuka envelope Gateway dan mengembalikan `data`.
-- AHP/Fuzzy AHP demo memanggil `decision-service` hanya melalui Gateway.
+- AHP/Fuzzy AHP page reads criteria, evaluation, and ranking data only through Gateway-backed services.
 - AHP dan Fuzzy AHP tetap dihitung oleh backend/service, bukan frontend.
 - MS-10B menghapus mock sebagai fallback untuk halaman yang sudah memakai API Gateway.
 
@@ -79,7 +79,7 @@ Draft endpoint group FE-12:
 | Preprocessing API | `/preprocessing/summary` | Preprocessing summary and processed data status. |
 | Sentiment API | `/sentiment/*` | Sentiment prediction, summary, and evaluation. |
 | Aspect API | `/aspects/*` | Aspect classification, summary, and evaluation. |
-| AHP/Fuzzy AHP API | `/ahp/*` | AHP, Fuzzy AHP, and comparison calculation through Gateway. |
+| AHP/Fuzzy AHP API | `/ahp/*` | Gateway-owned AHP/Fuzzy AHP criteria and calculation routes; the main frontend page only reads display data. |
 | Model Evaluation API | `/evaluation/summary` | Consolidated model evaluation summary. |
 | Report API | `/reports/summary` | Research report summary. |
 | Health API | `/health`, `/health/services` | Gateway and internal service status. |
@@ -110,8 +110,8 @@ Planned service functions:
 | `preprocessing-service.ts` | `getPreprocessingSummary()` |
 | `sentiment-service.ts` | `predictSentiment(input)`, `getSentimentSummary()` |
 | `aspect-service.ts` | `classifyAspect(input)`, `getAspectSummary()` |
-| `ahp-service.ts` | `calculateAhp(input)` |
-| `fuzzy-ahp-service.ts` | `calculateFuzzyAhp(input)` |
+| `ahp-service.ts` | `getAhpCriteria()`, backend-owned calculation helpers not rendered as main-page triggers |
+| `fuzzy-ahp-service.ts` | Backend-owned Fuzzy AHP calculation helper not rendered as a main-page trigger |
 | `evaluation-service.ts` | `getEvaluationSummary()` |
 | `report-service.ts` | `getReportSummary()` |
 
@@ -145,7 +145,7 @@ Gateway-backed pages must not fall back to legacy mock values because mock value
 MS-10B migration rules:
 
 - Gateway-backed pages use real Gateway responses when available.
-- Gateway failure renders red alert plus `0`, `[]`, `-`, or `Data belum tersedia`.
+- Gateway failure renders red alert plus `0`, `[]`, `-`, or `Data belum tersedia karena API Gateway belum aktif.`.
 - Legacy mock data may remain in `frontend/lib/mock-data.ts` for design/reference only.
 - Mock data must not be shown as production/demo fallback on Dashboard, Dataset, Scraping, Preprocessing, Sentiment, Aspect, Evaluation, Report, or AHP/Fuzzy AHP pages.
 - Keep AHP/Fuzzy AHP calculation outside frontend.
@@ -197,8 +197,8 @@ Backend `warnings` inside successful Gateway responses are treated as active bac
 - [x] `NEXT_PUBLIC_API_BASE_URL` points to `http://localhost:8000`.
 - [x] Frontend endpoint constants use API Gateway public routes.
 - [x] HTTP client can unwrap the Gateway response envelope.
-- [x] AHP/Fuzzy AHP demo panel calls `/ahp/criteria`, `/ahp/calculate`, `/ahp/fuzzy-calculate`, and `/ahp/compare` through the Gateway.
-- [x] AHP/Fuzzy AHP sample warning remains visible.
+- [x] AHP/Fuzzy AHP main page reads `/ahp/criteria`, `/evaluation/summary`, and `/reports/ranking-comparison` through Gateway-backed services.
+- [x] AHP/Fuzzy AHP sample warning remains visible only when sample data is available.
 - [x] Frontend does not call internal service ports directly.
 - [x] Frontend does not calculate AHP/Fuzzy AHP weights locally.
 
@@ -210,7 +210,7 @@ Backend `warnings` inside successful Gateway responses are treated as active bac
 - [x] Gateway-backed pages show the red API Gateway unavailable alert.
 - [x] Dashboard, Dataset, Scraping, Preprocessing, Sentiment, Aspect, Evaluation, Report, and AHP/Fuzzy AHP pages no longer show legacy mock values as fallback.
 - [x] Numeric metrics fall back to `0`; charts and tables fall back to empty data.
-- [x] AHP/Fuzzy AHP sample-development warning remains on successful demo output.
+- [x] AHP/Fuzzy AHP sample-development warning remains on successful sample output and is hidden when Gateway is unavailable.
 - [x] Frontend still calls only the API Gateway and does not calculate AHP/Fuzzy AHP locally.
 
 ---

@@ -1,3 +1,4 @@
+import { ApiGatewayAlert } from "@/components/alerts/ApiGatewayAlert";
 import { AhpRankingComparisonChart } from "@/components/charts/AhpRankingComparisonChart";
 import { AspectRankingChart } from "@/components/charts/AspectRankingChart";
 import { SentimentStageComparisonChart } from "@/components/charts/SentimentStageComparisonChart";
@@ -12,10 +13,11 @@ import {
   getDashboardSummary,
   type DashboardRankingRow,
 } from "@/services/dashboard-service";
+import { EMPTY_GATEWAY_MESSAGE } from "@/lib/api-status";
 
 export const dynamic = "force-dynamic";
 
-const EMPTY_MESSAGE = "Data belum tersedia";
+const EMPTY_MESSAGE = EMPTY_GATEWAY_MESSAGE;
 
 const rankingColumns: readonly SimpleTableColumn<DashboardRankingRow>[] = [
   {
@@ -72,6 +74,8 @@ export default async function DashboardPage() {
         description="Ringkasan hasil penelitian analisis sentimen ulasan Spotify dan prioritas aspek layanan."
         title="Dashboard"
       />
+
+      <ApiGatewayAlert error={dashboard.apiError} />
 
       <section>
         <SectionHeading title="Ringkasan Dataset" />

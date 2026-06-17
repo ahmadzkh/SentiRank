@@ -1386,3 +1386,24 @@ Impact:
 - `AhpGatewayDemoPanel` tidak dipakai lagi pada halaman utama AHP/Fuzzy AHP.
 - Frontend tetap tidak menghitung AHP/Fuzzy AHP dan tidak membaca file lokal output penelitian secara langsung.
 - Struktur kriteria tetap data-driven; saat ini sumber aktif repo menampilkan 5 kriteria merged taxonomy, bukan 6 kriteria terpisah.
+
+---
+
+## 2026-06-17 - Gateway Failure Fallback Revalidation
+
+Decision:
+
+- Normalisasi error Gateway memakai pesan `API Gateway belum aktif. Jalankan microservice backend terlebih dahulu.`.
+- Dashboard dan AHP/Fuzzy AHP membawa error Gateway ke red alert, bukan menelan failure dan menampilkan state yang terlihat aktif.
+- Empty state tabel dan chart gateway-backed memakai pesan `Data belum tersedia karena API Gateway belum aktif.`.
+- Saat Gateway unavailable, AHP/Fuzzy AHP menampilkan `0` untuk nilai konsistensi, `-` untuk prioritas teratas, serta tabel/chart kosong.
+
+Reason:
+
+- Output mock atau pesan generic dapat terlihat seperti data backend valid saat demo skripsi.
+- Failure state harus membedakan masalah infrastruktur Gateway dari hasil penelitian yang memang kosong.
+
+Impact:
+
+- `frontend/lib/http-client.ts`, `frontend/lib/api-status.ts`, dan `ApiGatewayAlert` menjadi sumber perilaku error yang konsisten.
+- Dashboard, shared chart/table empty states, dan halaman AHP/Fuzzy AHP mengikuti kontrak zero/empty fallback MS-10B.

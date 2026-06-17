@@ -1,6 +1,7 @@
 import type { AhpRankingComparisonDatum } from "@/components/charts/AhpRankingComparisonChart";
 import type { AspectRankingDatum } from "@/components/charts/AspectRankingChart";
 import type { SentimentStageComparisonDatum } from "@/components/charts/SentimentStageComparisonChart";
+import { normalizeApiGatewayError } from "@/lib/api-status";
 import { aspectRankingData, reviewSamplesToReviews } from "@/lib/gateway-display";
 import { getAspectSummary } from "@/services/aspect-service";
 import { getDatasetSummary } from "@/services/dataset-service";
@@ -20,6 +21,7 @@ import type {
   GatewayRandomReviewsResponse,
   GatewayScrapingSummary,
   GatewaySentimentSummary,
+  ApiGatewayFailure,
   Review,
 } from "@/types";
 
@@ -73,6 +75,7 @@ export interface DashboardRankingRow {
 }
 
 export interface DashboardData {
+  apiError: ApiGatewayFailure | null;
   datasetCards: DashboardDatasetCard[];
   modelMetrics: DashboardModelMetric[];
   sentimentStages: SentimentStageComparisonDatum[];
@@ -116,6 +119,16 @@ export async function getDashboardSummary(): Promise<DashboardData> {
   };
 
   return {
+    apiError: firstRejectedGatewayError([
+      scrapingResult,
+      datasetResult,
+      preprocessingResult,
+      sentimentResult,
+      aspectResult,
+      evaluationResult,
+      rankingResult,
+      reviewsResult,
+    ]),
     datasetCards: buildDatasetCards(sources),
     modelMetrics: buildEvaluationMetrics(sources.evaluation),
     sentimentStages: buildSentimentStageComparison(sources),
@@ -167,6 +180,16 @@ export async function getRankingComparison(): Promise<{
 
 function settledValue<T>(result: PromiseSettledResult<T>): T | null {
   return result.status === "fulfilled" ? result.value : null;
+}
+
+function firstRejectedGatewayError(
+  results: readonly PromiseSettledResult<unknown>[],
+): ApiGatewayFailure | null {
+  const rejected = results.find(
+    (result): result is PromiseRejectedResult => result.status === "rejected",
+  );
+
+  return rejected ? normalizeApiGatewayError(rejected.reason) : null;
 }
 
 function buildDatasetCards(sources: DashboardSources): DashboardDatasetCard[] {
@@ -472,14 +495,12 @@ function finiteNumber(value: unknown): number | null {
 }
 
 function formatCount(value: number | null | undefined): string {
-  return value === null || value === undefined
-    ? DATA_UNAVAILABLE
-    : COUNT_FORMATTER.format(value);
+  return value === null || value === undefined ? "0" : COUNT_FORMATTER.format(value);
 }
 
 function formatPercent(value: number | null | undefined): string {
   if (value === null || value === undefined) {
-    return DATA_UNAVAILABLE;
+    return "0%";
   }
   const percentValue = value <= 1 ? value * 100 : value;
   return `${PERCENT_FORMATTER.format(percentValue)}%`;
@@ -487,7 +508,7 @@ function formatPercent(value: number | null | undefined): string {
 
 function formatScore(value: number | null | undefined): string {
   return value === null || value === undefined
-    ? DATA_UNAVAILABLE
+    ? "0"
     : SCORE_FORMATTER.format(value);
 }
 

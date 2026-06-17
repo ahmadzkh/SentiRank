@@ -555,6 +555,8 @@ NextJS:
 - Use a dashboard route group for shared sidebar/topbar layout.
 - Keep page components aligned with the IA route plan.
 - API Gateway contracts are active for demo pages; do not use mock data as a production/demo fallback when Gateway requests fail.
+- Gateway unavailable states must render the red API Gateway alert, zero/empty metric values, empty tables/charts, and the message `Data belum tersedia karena API Gateway belum aktif.`.
+- The integrated AHP/Fuzzy AHP page is read-only: it displays Gateway data, hides sample warnings when Gateway is unavailable, and does not expose calculation actions on the main page.
 
 TypeScript:
 

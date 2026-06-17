@@ -30,7 +30,7 @@ export function SimpleTable<TData>({
   columns,
   data,
   rowKey,
-  emptyMessage = "Data belum tersedia.",
+  emptyMessage = "Data belum tersedia karena API Gateway belum aktif.",
   minWidthClassName = "min-w-[720px]",
 }: SimpleTableProps<TData>) {
   if (data.length === 0) {
