@@ -5,17 +5,128 @@ import { StatCard } from "@/components/cards/StatCard";
 import { SummaryCard } from "@/components/cards/SummaryCard";
 import { AppShell, PageHeader } from "@/components/layout";
 import { SimpleTable } from "@/components/tables/SimpleTable";
+import type { SimpleTableColumn } from "@/components/tables/SimpleTable";
 import { EMPTY_GATEWAY_MESSAGE, safeGatewayData } from "@/lib/api-status";
 import {
   EMPTY_EVALUATION_SUMMARY,
+  EMPTY_TABLE_CELL,
   EMPTY_TEXT,
   formatPercent,
   recordNumber,
   selectedRecord,
+  tableCellValue,
 } from "@/lib/gateway-display";
 import { getEvaluationSummary } from "@/services/evaluation-service";
 
 export const dynamic = "force-dynamic";
+
+interface EvaluationMetricRow {
+  id: string;
+  model: string;
+  task: string;
+  accuracy: string;
+  precision: string;
+  recall: string;
+  f1Score: string;
+  rocAuc: string;
+  status: string;
+}
+
+function metricValue(record: Record<string, unknown>, keys: readonly string[]) {
+  const value = keys
+    .map((key) => record[key])
+    .find((candidate): candidate is number =>
+      typeof candidate === "number" && Number.isFinite(candidate),
+    );
+
+  return typeof value === "number" ? formatPercent(value) : EMPTY_TABLE_CELL;
+}
+
+function evaluationRows(evaluation: {
+  indobert_run_comparison: Record<string, unknown>[];
+  svm_scenario_comparison: Record<string, unknown>[];
+}): EvaluationMetricRow[] {
+  return [
+    ...evaluation.indobert_run_comparison.map((record, index) => ({
+      id: `indobert-${String(record.candidate_name ?? index)}`,
+      model: "IndoBERT",
+      task: tableCellValue(record.task, "Sentiment classification"),
+      accuracy: metricValue(record, ["accuracy"]),
+      precision: metricValue(record, ["precision_macro", "precision"]),
+      recall: metricValue(record, ["recall_macro", "recall"]),
+      f1Score: metricValue(record, ["f1_macro", "f1_score", "f1"]),
+      rocAuc: metricValue(record, ["roc_auc", "rocAuc"]),
+      status: tableCellValue(record.status),
+    })),
+    ...evaluation.svm_scenario_comparison.map((record, index) => ({
+      id: `svm-${String(record.scenario ?? record.candidate_name ?? index)}`,
+      model: "SVM",
+      task: tableCellValue(record.task, "Aspect classification"),
+      accuracy: metricValue(record, ["accuracy"]),
+      precision: metricValue(record, ["precision_macro", "precision"]),
+      recall: metricValue(record, ["recall_macro", "recall"]),
+      f1Score: metricValue(record, ["f1_macro", "f1_score", "f1"]),
+      rocAuc: metricValue(record, ["roc_auc", "rocAuc"]),
+      status: tableCellValue(record.status),
+    })),
+  ];
+}
+
+const evaluationColumns = [
+  {
+    key: "no",
+    header: "No",
+    align: "center",
+    className: "w-16",
+    render: (_row, index) => index + 1,
+  },
+  {
+    key: "model",
+    header: "Model",
+    render: (row) => <span className="font-medium text-foreground">{row.model}</span>,
+  },
+  {
+    key: "task",
+    header: "Task",
+    className: "min-w-[180px]",
+    render: (row) => row.task,
+  },
+  {
+    key: "accuracy",
+    header: "Accuracy",
+    align: "right",
+    render: (row) => row.accuracy,
+  },
+  {
+    key: "precision",
+    header: "Precision",
+    align: "right",
+    render: (row) => row.precision,
+  },
+  {
+    key: "recall",
+    header: "Recall",
+    align: "right",
+    render: (row) => row.recall,
+  },
+  {
+    key: "f1Score",
+    header: "F1-Score",
+    align: "right",
+    render: (row) => row.f1Score,
+  },
+  {
+    key: "rocAuc",
+    header: "ROC-AUC",
+    align: "right",
+    render: (row) => row.rocAuc,
+  },
+  {
+    key: "status",
+    header: "Status",
+    render: (row) => row.status,
+  },
+] satisfies SimpleTableColumn<EvaluationMetricRow>[];
 
 export default async function ModelEvaluationPage() {
   const evaluationResult = await safeGatewayData(
@@ -87,20 +198,7 @@ export default async function ModelEvaluationPage() {
       description: "Macro F1 kandidat SVM terpilih.",
     },
   ];
-  const comparisonRows = [
-    ...evaluation.indobert_run_comparison.map((record) => ({
-      candidate: String(record.candidate_name ?? "-"),
-      f1Macro: formatPercent(recordNumber(record, "f1_macro")),
-      model: "IndoBERT",
-      status: String(record.status ?? "-"),
-    })),
-    ...evaluation.svm_scenario_comparison.map((record) => ({
-      candidate: String(record.scenario ?? record.candidate_name ?? "-"),
-      f1Macro: formatPercent(recordNumber(record, "f1_macro")),
-      model: "SVM",
-      status: String(record.status ?? "-"),
-    })),
-  ];
+  const comparisonRows = evaluationRows(evaluation);
 
   return (
     <AppShell>
@@ -141,33 +239,11 @@ export default async function ModelEvaluationPage() {
         title="Laporan Klasifikasi / Ringkasan Evaluasi"
       >
         <SimpleTable
-          columns={[
-            {
-              key: "model",
-              header: "Model",
-              render: (row) => row.model,
-            },
-            {
-              key: "candidate",
-              header: "Kandidat",
-              render: (row) => row.candidate,
-            },
-            {
-              key: "f1",
-              header: "Macro F1",
-              align: "right",
-              render: (row) => row.f1Macro,
-            },
-            {
-              key: "status",
-              header: "Status",
-              render: (row) => row.status,
-            },
-          ]}
+          columns={evaluationColumns}
           data={evaluationResult.isAvailable ? comparisonRows : []}
           emptyMessage={EMPTY_GATEWAY_MESSAGE}
-          minWidthClassName="min-w-[720px]"
-          rowKey={(row) => `${row.model}-${row.candidate}`}
+          minWidthClassName="min-w-[1040px]"
+          rowKey={(row) => row.id}
         />
       </ChartCard>
 

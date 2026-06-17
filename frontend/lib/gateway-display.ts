@@ -20,6 +20,7 @@ import type { AspectLabel } from "@/types/aspect";
 import type { ReviewSentimentLabel } from "@/types/sentiment";
 
 export const EMPTY_TEXT = "Data belum tersedia";
+export const EMPTY_TABLE_CELL = "-";
 
 export const EMPTY_DATASET_SUMMARY: GatewayDatasetSummary = {
   dataset_availability: {},
@@ -160,6 +161,47 @@ export function numberValue(value: unknown, fallback = 0): number {
 
 export function stringValue(value: unknown, fallback = EMPTY_TEXT): string {
   return typeof value === "string" && value.trim() ? value : fallback;
+}
+
+export function tableCellValue(
+  value: unknown,
+  fallback = EMPTY_TABLE_CELL,
+): string {
+  if (typeof value === "number") {
+    return Number.isFinite(value) ? String(value) : fallback;
+  }
+
+  if (typeof value === "boolean") {
+    return value ? "Ya" : "Tidak";
+  }
+
+  return typeof value === "string" && value.trim() ? value : fallback;
+}
+
+export function tableDateValue(value: unknown): string {
+  if (typeof value !== "string" || !value.trim()) {
+    return EMPTY_TABLE_CELL;
+  }
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return value;
+  }
+
+  return new Intl.DateTimeFormat("id-ID", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+  }).format(date);
+}
+
+export function tablePercentValue(value: unknown): string {
+  if (typeof value !== "number" || !Number.isFinite(value)) {
+    return EMPTY_TABLE_CELL;
+  }
+
+  return formatPercent(value);
 }
 
 export function recordNumber(

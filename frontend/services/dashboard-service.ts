@@ -2,7 +2,12 @@ import type { AhpRankingComparisonDatum } from "@/components/charts/AhpRankingCo
 import type { AspectRankingDatum } from "@/components/charts/AspectRankingChart";
 import type { SentimentStageComparisonDatum } from "@/components/charts/SentimentStageComparisonChart";
 import { normalizeApiGatewayError } from "@/lib/api-status";
-import { aspectRankingData, reviewSamplesToReviews } from "@/lib/gateway-display";
+import {
+  EMPTY_TABLE_CELL,
+  aspectRankingData,
+  tableCellValue,
+  tableDateValue,
+} from "@/lib/gateway-display";
 import { getAspectSummary } from "@/services/aspect-service";
 import { getDatasetSummary } from "@/services/dataset-service";
 import { getEvaluationSummary as fetchEvaluationSummary } from "@/services/evaluation-service";
@@ -19,10 +24,10 @@ import type {
   GatewayRankingComparisonItem,
   GatewayRankingComparisonResponse,
   GatewayRandomReviewsResponse,
+  GatewayReviewSample,
   GatewayScrapingSummary,
   GatewaySentimentSummary,
   ApiGatewayFailure,
-  Review,
 } from "@/types";
 
 const DATA_UNAVAILABLE = "Data belum tersedia";
@@ -63,15 +68,29 @@ export interface DashboardModelMetric {
   description: string;
 }
 
-export interface DashboardRankingRow {
+export interface DashboardRecommendationRow {
   id: string;
   rank: string;
-  aspect: string;
-  ahpScore: string;
-  ahpRank: string;
-  fuzzyScore: string;
-  fuzzyRank: string;
-  status: string;
+  criteria: string;
+  ahpWeight: string;
+  fuzzyAhpWeight: string;
+  negativeReviewCount: string;
+  priorityScore: string;
+  recommendation: string;
+  interpretation: string;
+}
+
+export interface DashboardReviewInsightRow {
+  id: string;
+  reviewText: string;
+  cleanedText: string;
+  sentiment: string;
+  aspectCriteria: string;
+  rating: string;
+  appVersion: string;
+  reviewDate: string;
+  source: string;
+  modelVersion: string;
 }
 
 export interface DashboardData {
@@ -81,8 +100,8 @@ export interface DashboardData {
   sentimentStages: SentimentStageComparisonDatum[];
   topAspects: AspectRankingDatum[];
   priorityComparison: AhpRankingComparisonDatum[];
-  priorityRows: DashboardRankingRow[];
-  latestNegativeReviews: Review[];
+  priorityRows: DashboardRecommendationRow[];
+  reviewInsightRows: DashboardReviewInsightRow[];
   rankingCsvAvailable: boolean;
 }
 
@@ -134,8 +153,8 @@ export async function getDashboardSummary(): Promise<DashboardData> {
     sentimentStages: buildSentimentStageComparison(sources),
     topAspects: buildTopAspects(sources.aspect, 5),
     priorityComparison: buildPriorityComparison(sources.ranking),
-    priorityRows: buildPriorityRows(sources.ranking),
-    latestNegativeReviews: reviewSamplesToReviews(sources.reviews?.reviews ?? []),
+    priorityRows: buildPriorityRows(sources.ranking, sources.aspect),
+    reviewInsightRows: buildReviewInsightRows(sources),
     rankingCsvAvailable: Boolean(sources.ranking?.items.length),
   };
 }
@@ -168,13 +187,13 @@ export async function getEvaluationSummary(): Promise<DashboardModelMetric[]> {
 
 export async function getRankingComparison(): Promise<{
   chartData: AhpRankingComparisonDatum[];
-  rows: DashboardRankingRow[];
+  rows: DashboardRecommendationRow[];
 }> {
   const result = await Promise.allSettled([fetchRankingComparison()]);
   const ranking = settledValue(result[0]);
   return {
     chartData: buildPriorityComparison(ranking),
-    rows: buildPriorityRows(ranking),
+    rows: buildPriorityRows(ranking, null),
   };
 }
 
@@ -346,17 +365,99 @@ function buildPriorityComparison(
 
 function buildPriorityRows(
   ranking: GatewayRankingComparisonResponse | null,
-): DashboardRankingRow[] {
+  aspect: GatewayAspectSummary | null,
+): DashboardRecommendationRow[] {
   return sortedRankingItems(ranking?.items).map((item, index) => ({
     id: item.criterion_id || `${item.criterion_name}-${index}`,
     rank: formatRank(item.final_rank ?? item.ahp_rank ?? index + 1),
-    aspect: item.criterion_name,
-    ahpScore: formatScore(item.ahp_weight),
-    ahpRank: formatRank(item.ahp_rank),
-    fuzzyScore: formatScore(item.fuzzy_ahp_weight),
-    fuzzyRank: formatRank(item.fuzzy_ahp_rank),
-    status: statusText(item),
+    criteria: tableCellValue(item.criterion_name),
+    ahpWeight:
+      finiteNumber(item.ahp_weight) === null
+        ? EMPTY_TABLE_CELL
+        : formatScore(item.ahp_weight),
+    fuzzyAhpWeight:
+      finiteNumber(item.fuzzy_ahp_weight) === null
+        ? EMPTY_TABLE_CELL
+        : formatScore(item.fuzzy_ahp_weight),
+    negativeReviewCount: formatCount(
+      finiteNumber(item.negative_review_count) ??
+        negativeReviewCountForCriterion(item.criterion_name, aspect),
+    ),
+    priorityScore:
+      finiteNumber(item.priority_score) === null
+        ? EMPTY_TABLE_CELL
+        : formatScore(item.priority_score),
+    recommendation: tableCellValue(item.recommendation),
+    interpretation: tableCellValue(item.interpretation ?? item.status),
   }));
+}
+
+function buildReviewInsightRows(
+  sources: DashboardSources,
+): DashboardReviewInsightRow[] {
+  const modelVersion = selectedModelVersion(sources.evaluation);
+
+  return (sources.reviews?.reviews ?? []).map((sample, index) => ({
+    id: sample.external_id ?? `gateway-review-${index + 1}`,
+    reviewText: tableCellValue(sample.content),
+    cleanedText: cleanedReviewText(sample),
+    sentiment: tableCellValue(sample.final_sentiment ?? sample.initial_sentiment),
+    aspectCriteria: tableCellValue(sample.aspect_label),
+    rating: sample.rating ? `${sample.rating}/5` : EMPTY_TABLE_CELL,
+    appVersion: tableCellValue(sample.app_version),
+    reviewDate: tableDateValue(sample.reviewed_at),
+    source: tableCellValue(sample.source ?? sample.app_id),
+    modelVersion,
+  }));
+}
+
+function cleanedReviewText(sample: GatewayReviewSample): string {
+  return tableCellValue(
+    sample.cleaned_content ??
+      sample.cleaned_text ??
+      sample.text_indobert ??
+      sample.text_svm,
+  );
+}
+
+function selectedModelVersion(evaluation: GatewayEvaluationSummary | null): string {
+  if (!evaluation) {
+    return EMPTY_TABLE_CELL;
+  }
+
+  const models = [
+    evaluation.selected_indobert_model,
+    evaluation.selected_svm_model,
+  ].filter(Boolean);
+
+  return models.length > 0 ? models.join(" / ") : EMPTY_TABLE_CELL;
+}
+
+function negativeReviewCountForCriterion(
+  criterion: string,
+  aspect: GatewayAspectSummary | null,
+): number | null {
+  const entries = Object.entries(aspect?.negative_aspect_distribution ?? {});
+  const normalizedCriterion = normalizeLabel(criterion);
+  const exactMatch = entries.find(
+    ([label]) => normalizeLabel(label) === normalizedCriterion,
+  );
+
+  if (exactMatch) {
+    return exactMatch[1];
+  }
+
+  return (
+    entries.find(
+      ([label]) =>
+        normalizedCriterion.includes(normalizeLabel(label)) ||
+        normalizeLabel(label).includes(normalizedCriterion),
+    )?.[1] ?? null
+  );
+}
+
+function normalizeLabel(value: string): string {
+  return value.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
 }
 
 function selectedRecord(
@@ -514,22 +615,6 @@ function formatScore(value: number | null | undefined): string {
 
 function formatRank(value: number | null | undefined): string {
   return value === null || value === undefined ? DATA_UNAVAILABLE : COUNT_FORMATTER.format(value);
-}
-
-function statusText(item: GatewayRankingComparisonItem): string {
-  if (item.status) {
-    return item.status;
-  }
-  if (finiteNumber(item.weight_delta) !== null) {
-    return formatScore(item.weight_delta);
-  }
-  if (item.rank_delta === 0) {
-    return "Stabil";
-  }
-  if (finiteNumber(item.rank_delta) !== null) {
-    return `${Number(item.rank_delta) > 0 ? "+" : ""}${COUNT_FORMATTER.format(Number(item.rank_delta))}`;
-  }
-  return DATA_UNAVAILABLE;
 }
 
 function shortAspectLabel(label: string, index: number): string {

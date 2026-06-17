@@ -4,16 +4,20 @@ import { StatCard } from "@/components/cards/StatCard";
 import { SummaryCard } from "@/components/cards/SummaryCard";
 import { AppShell, PageHeader } from "@/components/layout";
 import { SimpleTable } from "@/components/tables/SimpleTable";
+import type { SimpleTableColumn } from "@/components/tables/SimpleTable";
 import { EMPTY_GATEWAY_MESSAGE, safeGatewayData } from "@/lib/api-status";
 import {
   EMPTY_RANDOM_REVIEWS,
   EMPTY_SCRAPING_SUMMARY,
+  EMPTY_TABLE_CELL,
   EMPTY_TEXT,
-  reviewSamplesToReviews,
   stringValue,
+  tableCellValue,
+  tableDateValue,
 } from "@/lib/gateway-display";
 import { getReviews } from "@/services/review-service";
 import { getScrapingSummary } from "@/services/scraping-service";
+import type { GatewayReviewSample, GatewayScrapingSummary } from "@/types";
 
 export const dynamic = "force-dynamic";
 
@@ -29,13 +33,79 @@ function formatDate(value?: string | null) {
   }).format(new Date(value));
 }
 
+function scrapingPreviewRows(
+  reviews: readonly GatewayReviewSample[],
+  scraping: GatewayScrapingSummary,
+) {
+  return reviews.map((review) => ({
+    ...review,
+    sourceAppId: review.app_id ?? scraping.app_id,
+  }));
+}
+
+type ScrapingPreviewRow = ReturnType<typeof scrapingPreviewRows>[number];
+
+const scrapingPreviewColumns = [
+  {
+    key: "no",
+    header: "No",
+    align: "center",
+    className: "w-16",
+    render: (_row, index) => index + 1,
+  },
+  {
+    key: "scrapeRequestId",
+    header: "Scrape Request ID",
+    render: (row) => tableCellValue(row.scrape_request_id),
+  },
+  {
+    key: "appId",
+    header: "App ID",
+    className: "max-w-[180px]",
+    render: (row) => (
+      <span className="break-words">{tableCellValue(row.sourceAppId)}</span>
+    ),
+  },
+  {
+    key: "reviewText",
+    header: "Review Text",
+    className: "min-w-[320px] max-w-[460px]",
+    render: (row) => (
+      <span className="line-clamp-3 break-words font-medium text-foreground">
+        {tableCellValue(row.content)}
+      </span>
+    ),
+  },
+  {
+    key: "rating",
+    header: "Rating",
+    align: "right",
+    render: (row) => (row.rating ? `${row.rating}/5` : EMPTY_TABLE_CELL),
+  },
+  {
+    key: "reviewDate",
+    header: "Review Date",
+    render: (row) => tableDateValue(row.reviewed_at),
+  },
+  {
+    key: "scrapedAt",
+    header: "Scraped At",
+    render: (row) => tableDateValue(row.scraped_at),
+  },
+  {
+    key: "status",
+    header: "Status",
+    render: (row) => tableCellValue(row.scraping_status, "Data tersedia"),
+  },
+] satisfies SimpleTableColumn<ScrapingPreviewRow>[];
+
 export default async function ScrapingPage() {
   const [scrapingResult, reviewsResult] = await Promise.all([
     safeGatewayData(getScrapingSummary, EMPTY_SCRAPING_SUMMARY),
     safeGatewayData(() => getReviews({ limit: 10, seed: 20 }), EMPTY_RANDOM_REVIEWS),
   ]);
   const scraping = scrapingResult.data;
-  const reviews = reviewSamplesToReviews(reviewsResult.data.reviews);
+  const reviews = scrapingPreviewRows(reviewsResult.data.reviews, scraping);
   const apiError = scrapingResult.error ?? reviewsResult.error;
   const targetRows = Object.entries(scraping.target_quota_per_rating).map(
     ([rating, target]) => ({
@@ -186,51 +256,17 @@ export default async function ScrapingPage() {
       </ChartCard>
 
       <ChartCard
-        description="Ulasan mentah dari dataset penelitian."
-        title="Pratinjau Ulasan Mentah"
+        description="Preview hasil pengumpulan data dari API Gateway. Jika Gateway tidak aktif, tabel kosong."
+        title="Pratinjau Hasil Scraping"
       >
         <SimpleTable
-          columns={[
-            {
-              key: "text",
-              header: "Ulasan Mentah",
-              className: "max-w-[420px]",
-              render: (row) => (
-                <div>
-                  <p className="line-clamp-2 font-medium leading-6 text-foreground">
-                    {row.text}
-                  </p>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    {row.userName}
-                  </p>
-                </div>
-              ),
-            },
-            {
-              key: "rating",
-              header: "Rating",
-              align: "right",
-              render: (row) => `${row.rating}/5`,
-            },
-            {
-              key: "date",
-              header: "Tanggal",
-              render: (row) => formatDate(row.reviewDate),
-            },
-            {
-              key: "status",
-              header: "Status",
-              render: () => (
-                <span className="rounded-md border border-blue-200 bg-blue-50 px-2 py-1 text-xs font-medium text-blue-700">
-                  Data tersedia
-                </span>
-              ),
-            },
-          ]}
+          columns={scrapingPreviewColumns}
           data={reviews}
           emptyMessage={EMPTY_GATEWAY_MESSAGE}
-          minWidthClassName="min-w-[760px]"
-          rowKey={(row) => row.id}
+          minWidthClassName="min-w-[1180px]"
+          rowKey={(row, index) =>
+            row.external_id ?? row.scrape_request_id ?? `scraping-review-${index}`
+          }
         />
       </ChartCard>
     </AppShell>

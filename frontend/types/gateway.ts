@@ -101,6 +101,10 @@ export interface GatewayRankingComparisonItem {
   rank_delta?: number | null;
   final_rank?: number | null;
   status?: string | null;
+  negative_review_count?: number | null;
+  priority_score?: number | null;
+  recommendation?: string | null;
+  interpretation?: string | null;
 }
 
 export interface GatewayRankingComparisonResponse {
@@ -145,11 +149,32 @@ export interface GatewayReviewSample {
   user_name?: string | null;
   rating?: number | null;
   content?: string | null;
+  cleaned_content?: string | null;
+  cleaned_text?: string | null;
+  text_indobert?: string | null;
+  text_svm?: string | null;
   word_count?: number | null;
+  text_length_before?: number | null;
+  text_length_after?: number | null;
+  noise_flag?: boolean | string | null;
+  drop_reason?: string | null;
+  preprocessing_status?: string | null;
   initial_sentiment?: string | null;
   final_sentiment?: string | null;
+  predicted_sentiment?: string | null;
+  sentiment_confidence?: number | null;
+  sentiment_prediction_source?: string | null;
   aspect_label?: string | null;
+  predicted_aspect?: string | null;
+  aspect_confidence?: number | string | null;
+  aspect_prediction_source?: string | null;
   reviewed_at?: string | null;
+  scraped_at?: string | null;
+  scrape_request_id?: string | null;
+  scraping_status?: string | null;
+  app_id?: string | null;
+  app_version?: string | null;
+  thumbs_up_count?: number | null;
   source?: string | null;
 }
 

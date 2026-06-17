@@ -5,27 +5,102 @@ import { SummaryCard } from "@/components/cards/SummaryCard";
 import { AspectRankingChart } from "@/components/charts/AspectRankingChart";
 import { AppShell, PageHeader } from "@/components/layout";
 import { SimpleTable } from "@/components/tables/SimpleTable";
+import type { SimpleTableColumn } from "@/components/tables/SimpleTable";
 import { EMPTY_GATEWAY_MESSAGE, safeGatewayData } from "@/lib/api-status";
 import {
   EMPTY_ASPECT_EVALUATION,
   EMPTY_ASPECT_SUMMARY,
+  EMPTY_RANDOM_REVIEWS,
+  EMPTY_TABLE_CELL,
   EMPTY_TEXT,
   aspectRankingData,
   formatPercent,
-  recordNumber,
-  selectedRecord,
+  tableCellValue,
 } from "@/lib/gateway-display";
 import {
   getAspectEvaluation,
   getAspectSummary,
 } from "@/services/aspect-service";
+import { getReviews } from "@/services/review-service";
+import type { GatewayReviewSample } from "@/types";
 
 export const dynamic = "force-dynamic";
 
+function cleanedReviewText(row: GatewayReviewSample) {
+  return tableCellValue(
+    row.cleaned_content ?? row.cleaned_text ?? row.text_indobert ?? row.text_svm,
+  );
+}
+
+function confidenceValue(value: number | string | null | undefined) {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return formatPercent(value);
+  }
+
+  return tableCellValue(value);
+}
+
+function aspectResultColumns(
+  modelVersion: string,
+): readonly SimpleTableColumn<GatewayReviewSample>[] {
+  return [
+    {
+      key: "no",
+      header: "No",
+      align: "center",
+      className: "w-16",
+      render: (_row, index) => index + 1,
+    },
+    {
+      key: "cleanedReview",
+      header: "Cleaned Review",
+      className: "min-w-[320px] max-w-[460px]",
+      render: (row) => (
+        <span className="line-clamp-3 break-words font-medium text-foreground">
+          {cleanedReviewText(row)}
+        </span>
+      ),
+    },
+    {
+      key: "sentiment",
+      header: "Sentimen",
+      render: (row) => tableCellValue(row.final_sentiment ?? row.initial_sentiment),
+    },
+    {
+      key: "predictedAspect",
+      header: "Predicted Aspect",
+      render: (row) => tableCellValue(row.predicted_aspect ?? row.aspect_label),
+    },
+    {
+      key: "confidence",
+      header: "Confidence",
+      align: "right",
+      render: (row) => confidenceValue(row.aspect_confidence),
+    },
+    {
+      key: "model",
+      header: "Model",
+      render: () => "SVM",
+    },
+    {
+      key: "modelVersion",
+      header: "Model Version",
+      className: "min-w-[180px]",
+      render: () => modelVersion,
+    },
+    {
+      key: "predictionSource",
+      header: "Prediction Source",
+      render: (row) => tableCellValue(row.aspect_prediction_source),
+    },
+  ] satisfies SimpleTableColumn<GatewayReviewSample>[];
+}
+
 export default async function AspectClassificationPage() {
-  const [summaryResult, evaluationResult] = await Promise.all([
+  const [summaryResult, evaluationResult, reviewsResult] = await Promise.all([
     safeGatewayData(getAspectSummary, EMPTY_ASPECT_SUMMARY),
     safeGatewayData(getAspectEvaluation, EMPTY_ASPECT_EVALUATION),
+    safeGatewayData(() => getReviews({ limit: 10, seed: 50 }), EMPTY_RANDOM_REVIEWS),
   ]);
   const summary = summaryResult.data;
   const evaluation = evaluationResult.data;
@@ -34,12 +109,9 @@ export default async function AspectClassificationPage() {
       ? summary.negative_aspect_distribution
       : summary.aspect_distribution,
   );
-  const selectedMetrics = selectedRecord(
-    evaluation.scenario_comparison,
-    evaluation.selected_candidate,
-  );
   const topAspect = aspectRows[0];
-  const apiError = summaryResult.error ?? evaluationResult.error;
+  const reviews = reviewsResult.data.reviews;
+  const apiError = summaryResult.error ?? evaluationResult.error ?? reviewsResult.error;
 
   return (
     <AppShell>
@@ -130,44 +202,17 @@ export default async function AspectClassificationPage() {
       </section>
 
       <ChartCard
-        description="Tabel hasil aspek batch ditampilkan hanya jika endpoint menyediakan data batch."
+        description="Tabel ini menampilkan sampel hasil klasifikasi aspek jika field prediksi tersedia dari API Gateway."
         title="Tabel Hasil Aspek"
       >
         <SimpleTable
-          columns={[
-            {
-              key: "metric",
-              header: "Metrik",
-              render: (row) => row.metric,
-            },
-            {
-              key: "value",
-              header: "Nilai",
-              align: "right",
-              render: (row) => row.value,
-            },
-          ]}
-          data={
-            evaluationResult.isAvailable
-              ? [
-                  {
-                    metric: "Macro F1",
-                    value: formatPercent(recordNumber(selectedMetrics, "f1_macro")),
-                  },
-                  {
-                    metric: "Akurasi",
-                    value: formatPercent(recordNumber(selectedMetrics, "accuracy")),
-                  },
-                  {
-                    metric: "Minimum Class F1",
-                    value: formatPercent(recordNumber(selectedMetrics, "min_class_f1")),
-                  },
-                ]
-              : []
-          }
+          columns={aspectResultColumns(
+            summaryResult.isAvailable ? summary.selected_classifier : EMPTY_TABLE_CELL,
+          )}
+          data={reviewsResult.isAvailable ? reviews : []}
           emptyMessage={EMPTY_GATEWAY_MESSAGE}
-          minWidthClassName="min-w-[560px]"
-          rowKey={(row) => row.metric}
+          minWidthClassName="min-w-[1180px]"
+          rowKey={(row, index) => row.external_id ?? `aspect-review-${index}`}
         />
       </ChartCard>
 

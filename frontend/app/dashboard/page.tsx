@@ -6,12 +6,12 @@ import { ChartCard } from "@/components/cards/ChartCard";
 import { ModelMetricCard } from "@/components/cards/ModelMetricCard";
 import { StatCard } from "@/components/cards/StatCard";
 import { AppShell, PageHeader } from "@/components/layout";
-import { ReviewTable } from "@/components/tables/ReviewTable";
 import { SimpleTable } from "@/components/tables/SimpleTable";
 import type { SimpleTableColumn } from "@/components/tables/SimpleTable";
 import {
   getDashboardSummary,
-  type DashboardRankingRow,
+  type DashboardRecommendationRow,
+  type DashboardReviewInsightRow,
 } from "@/services/dashboard-service";
 import { EMPTY_GATEWAY_MESSAGE } from "@/lib/api-status";
 
@@ -19,7 +19,7 @@ export const dynamic = "force-dynamic";
 
 const EMPTY_MESSAGE = EMPTY_GATEWAY_MESSAGE;
 
-const rankingColumns: readonly SimpleTableColumn<DashboardRankingRow>[] = [
+const rankingColumns: readonly SimpleTableColumn<DashboardRecommendationRow>[] = [
   {
     key: "rank",
     header: "Rank",
@@ -27,41 +27,122 @@ const rankingColumns: readonly SimpleTableColumn<DashboardRankingRow>[] = [
     render: (row) => row.rank,
   },
   {
-    key: "aspect",
-    header: "Aspek/Kriteria",
+    key: "criteria",
+    header: "Kriteria",
     render: (row) => (
-      <span className="font-medium text-foreground">{row.aspect}</span>
+      <span className="font-medium text-foreground">{row.criteria}</span>
     ),
   },
   {
-    key: "ahpScore",
-    header: "Skor AHP",
+    key: "ahpWeight",
+    header: "AHP Weight",
     align: "right",
-    render: (row) => row.ahpScore,
+    render: (row) => row.ahpWeight,
   },
   {
-    key: "ahpRank",
-    header: "Rank AHP",
+    key: "fuzzyAhpWeight",
+    header: "Fuzzy AHP Weight",
+    align: "right",
+    render: (row) => row.fuzzyAhpWeight,
+  },
+  {
+    key: "negativeReviewCount",
+    header: "Jumlah Ulasan Negatif",
+    align: "right",
+    render: (row) => row.negativeReviewCount,
+  },
+  {
+    key: "priorityScore",
+    header: "Priority Score",
+    align: "right",
+    render: (row) => row.priorityScore,
+  },
+  {
+    key: "recommendation",
+    header: "Rekomendasi",
+    className: "min-w-[220px]",
+    render: (row) => (
+      <span className="line-clamp-3 text-muted-foreground">
+        {row.recommendation}
+      </span>
+    ),
+  },
+  {
+    key: "interpretation",
+    header: "Interpretasi",
+    className: "min-w-[220px]",
+    render: (row) => (
+      <span className="line-clamp-3 text-muted-foreground">
+        {row.interpretation}
+      </span>
+    ),
+  },
+];
+
+const reviewInsightColumns: readonly SimpleTableColumn<DashboardReviewInsightRow>[] = [
+  {
+    key: "no",
+    header: "No",
     align: "center",
-    render: (row) => row.ahpRank,
+    className: "w-16",
+    render: (_row, index) => index + 1,
   },
   {
-    key: "fuzzyScore",
-    header: "Skor Fuzzy AHP",
+    key: "reviewText",
+    header: "Review Text",
+    className: "min-w-[260px] max-w-[340px]",
+    render: (row) => (
+      <span className="line-clamp-2 break-words font-medium text-foreground">
+        {row.reviewText}
+      </span>
+    ),
+  },
+  {
+    key: "cleanedText",
+    header: "Cleaned Text",
+    className: "min-w-[260px] max-w-[340px]",
+    render: (row) => (
+      <span className="line-clamp-2 break-words text-muted-foreground">
+        {row.cleanedText}
+      </span>
+    ),
+  },
+  {
+    key: "sentiment",
+    header: "Sentimen",
+    render: (row) => row.sentiment,
+  },
+  {
+    key: "aspectCriteria",
+    header: "Aspek/Kriteria",
+    render: (row) => row.aspectCriteria,
+  },
+  {
+    key: "rating",
+    header: "Rating",
     align: "right",
-    render: (row) => row.fuzzyScore,
+    render: (row) => row.rating,
   },
   {
-    key: "fuzzyRank",
-    header: "Rank Fuzzy AHP",
-    align: "center",
-    render: (row) => row.fuzzyRank,
+    key: "appVersion",
+    header: "App Version",
+    render: (row) => row.appVersion,
   },
   {
-    key: "status",
-    header: "Selisih/Status",
-    align: "right",
-    render: (row) => row.status,
+    key: "reviewDate",
+    header: "Review Date",
+    render: (row) => row.reviewDate,
+  },
+  {
+    key: "source",
+    header: "Source",
+    render: (row) => row.source,
+  },
+  {
+    key: "modelVersion",
+    header: "Model Version",
+    className: "min-w-[180px]",
+    render: (row) => row.modelVersion,
   },
 ];
 
@@ -123,28 +204,26 @@ export default async function DashboardPage() {
         <AhpRankingComparisonChart data={dashboard.priorityComparison} />
       </ChartCard>
 
-      <ChartCard className="w-full" title="Ranking Prioritas">
+      <ChartCard className="w-full" title="Rekomendasi Prioritas">
         <SimpleTable
           columns={rankingColumns}
           data={dashboard.priorityRows}
           emptyMessage={EMPTY_MESSAGE}
-          minWidthClassName="min-w-[920px]"
+          minWidthClassName="min-w-[1180px]"
           rowKey={(row) => row.id}
         />
       </ChartCard>
 
       <ChartCard
-        description="Sepuluh ulasan negatif dengan jumlah kata terbanyak dari dataset penelitian."
-        title="Ulasan Negatif Terpanjang"
+        description="Sampel insight review final dari API Gateway. Jika Gateway tidak aktif, tabel tetap kosong."
+        title="Sampel Hasil Review Terproses"
       >
-        <ReviewTable
+        <SimpleTable
+          columns={reviewInsightColumns}
+          data={dashboard.reviewInsightRows}
           emptyMessage={EMPTY_MESSAGE}
-          reviewHeader="Isi Ulasan Negatif"
-          reviewerHeader="Identitas Reviewer"
-          reviews={dashboard.latestNegativeReviews}
-          showReviewerColumn
-          showWordCount
-          wordCountHeader="Jumlah Kata"
+          minWidthClassName="min-w-[1320px]"
+          rowKey={(row) => row.id}
         />
       </ChartCard>
     </AppShell>

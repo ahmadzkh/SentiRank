@@ -4,21 +4,23 @@ import { StatCard } from "@/components/cards/StatCard";
 import { SummaryCard } from "@/components/cards/SummaryCard";
 import { SentimentDistributionChart } from "@/components/charts/SentimentDistributionChart";
 import { AppShell, PageHeader } from "@/components/layout";
-import { ReviewTable } from "@/components/tables/ReviewTable";
 import { SimpleTable } from "@/components/tables/SimpleTable";
 import type { SimpleTableColumn } from "@/components/tables/SimpleTable";
 import { EMPTY_GATEWAY_MESSAGE, safeGatewayData } from "@/lib/api-status";
 import {
   EMPTY_DATASET_SUMMARY,
   EMPTY_RANDOM_REVIEWS,
+  EMPTY_TABLE_CELL,
   EMPTY_TEXT,
   ratingDistributionRows,
-  reviewSamplesToReviews,
   sentimentDistributionData,
   stringValue,
+  tableCellValue,
+  tableDateValue,
 } from "@/lib/gateway-display";
 import { getDatasetSummary } from "@/services/dataset-service";
 import { getReviews } from "@/services/review-service";
+import type { GatewayReviewSample } from "@/types";
 
 export const dynamic = "force-dynamic";
 
@@ -44,6 +46,63 @@ const ratingColumns = [
   },
 ] satisfies SimpleTableColumn<RatingRow>[];
 
+const datasetReviewColumns = [
+  {
+    key: "no",
+    header: "No",
+    align: "center",
+    className: "w-16",
+    render: (_row, index) => index + 1,
+  },
+  {
+    key: "reviewId",
+    header: "Review ID",
+    className: "max-w-[180px]",
+    render: (row) => (
+      <span className="line-clamp-2 break-all text-muted-foreground">
+        {tableCellValue(row.external_id)}
+      </span>
+    ),
+  },
+  {
+    key: "originalReview",
+    header: "Original Review",
+    className: "min-w-[320px] max-w-[420px]",
+    render: (row) => (
+      <span className="line-clamp-3 break-words font-medium text-foreground">
+        {tableCellValue(row.content)}
+      </span>
+    ),
+  },
+  {
+    key: "rating",
+    header: "Rating",
+    align: "right",
+    render: (row) => (row.rating ? `${row.rating}/5` : EMPTY_TABLE_CELL),
+  },
+  {
+    key: "thumbsUp",
+    header: "Thumbs Up",
+    align: "right",
+    render: (row) => tableCellValue(row.thumbs_up_count),
+  },
+  {
+    key: "appVersion",
+    header: "App Version",
+    render: (row) => tableCellValue(row.app_version),
+  },
+  {
+    key: "reviewDate",
+    header: "Review Date",
+    render: (row) => tableDateValue(row.reviewed_at),
+  },
+  {
+    key: "sourceApp",
+    header: "Source App",
+    render: (row) => tableCellValue(row.app_id ?? row.source),
+  },
+] satisfies SimpleTableColumn<GatewayReviewSample>[];
+
 export default async function DatasetPage() {
   const [datasetResult, reviewsResult] = await Promise.all([
     safeGatewayData(getDatasetSummary, EMPTY_DATASET_SUMMARY),
@@ -53,7 +112,7 @@ export default async function DatasetPage() {
   const sourceApplication = dataset.source_application;
   const ratingRows = ratingDistributionRows(dataset.rating_distribution);
   const sentimentRows = sentimentDistributionData(dataset.sentiment_distribution);
-  const reviews = reviewSamplesToReviews(reviewsResult.data.reviews);
+  const reviews = reviewsResult.data.reviews;
   const apiError = datasetResult.error ?? reviewsResult.error;
 
   return (
@@ -219,12 +278,15 @@ export default async function DatasetPage() {
       </section>
 
       <ChartCard
-        description="Tabel ulasan digunakan sebagai permukaan inspeksi utama sebelum preprocessing dan model inference."
-        title="Tabel Ulasan"
+        description="Tabel ini berfokus pada data mentah sebelum preprocessing dan model inference."
+        title="Tabel Dataset Mentah"
       >
-        <ReviewTable
+        <SimpleTable
+          columns={datasetReviewColumns}
+          data={reviews}
           emptyMessage={EMPTY_GATEWAY_MESSAGE}
-          reviews={reviews}
+          minWidthClassName="min-w-[1180px]"
+          rowKey={(row, index) => row.external_id ?? `dataset-review-${index}`}
         />
       </ChartCard>
     </AppShell>

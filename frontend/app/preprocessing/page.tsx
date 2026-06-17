@@ -3,20 +3,22 @@ import { ChartCard } from "@/components/cards/ChartCard";
 import { StatCard } from "@/components/cards/StatCard";
 import { SummaryCard } from "@/components/cards/SummaryCard";
 import { AppShell, PageHeader } from "@/components/layout";
-import { ReviewTable } from "@/components/tables/ReviewTable";
 import { SimpleTable } from "@/components/tables/SimpleTable";
+import type { SimpleTableColumn } from "@/components/tables/SimpleTable";
 import { EMPTY_GATEWAY_MESSAGE, safeGatewayData } from "@/lib/api-status";
 import {
   EMPTY_PREPROCESSING_SUMMARY,
   EMPTY_RANDOM_REVIEWS,
+  EMPTY_TABLE_CELL,
   EMPTY_TEXT,
   numberValue,
   recordNumber,
-  reviewSamplesToReviews,
   stringValue,
+  tableCellValue,
 } from "@/lib/gateway-display";
 import { getPreprocessingSummary } from "@/services/preprocessing-service";
 import { getReviews } from "@/services/review-service";
+import type { GatewayReviewSample } from "@/types";
 
 export const dynamic = "force-dynamic";
 
@@ -31,6 +33,69 @@ function objectRows(record: Record<string, unknown>) {
   }));
 }
 
+function cleanedReviewText(row: GatewayReviewSample) {
+  return tableCellValue(
+    row.cleaned_content ?? row.cleaned_text ?? row.text_indobert ?? row.text_svm,
+  );
+}
+
+const preprocessingReviewColumns = [
+  {
+    key: "no",
+    header: "No",
+    align: "center",
+    className: "w-16",
+    render: (_row, index) => index + 1,
+  },
+  {
+    key: "originalReview",
+    header: "Original Review",
+    className: "min-w-[280px] max-w-[400px]",
+    render: (row) => (
+      <span className="line-clamp-3 break-words font-medium text-foreground">
+        {tableCellValue(row.content)}
+      </span>
+    ),
+  },
+  {
+    key: "cleanedReview",
+    header: "Cleaned Review",
+    className: "min-w-[280px] max-w-[400px]",
+    render: (row) => (
+      <span className="line-clamp-3 break-words text-muted-foreground">
+        {cleanedReviewText(row)}
+      </span>
+    ),
+  },
+  {
+    key: "textLengthBefore",
+    header: "Text Length Before",
+    align: "right",
+    render: (row) => tableCellValue(row.text_length_before),
+  },
+  {
+    key: "textLengthAfter",
+    header: "Text Length After",
+    align: "right",
+    render: (row) => tableCellValue(row.text_length_after),
+  },
+  {
+    key: "noiseFlag",
+    header: "Noise Flag",
+    render: (row) => tableCellValue(row.noise_flag),
+  },
+  {
+    key: "dropReason",
+    header: "Drop Reason",
+    render: (row) => tableCellValue(row.drop_reason),
+  },
+  {
+    key: "preprocessingStatus",
+    header: "Preprocessing Status",
+    render: (row) => tableCellValue(row.preprocessing_status, EMPTY_TABLE_CELL),
+  },
+] satisfies SimpleTableColumn<GatewayReviewSample>[];
+
 export default async function PreprocessingPage() {
   const [preprocessingResult, reviewsResult] = await Promise.all([
     safeGatewayData(getPreprocessingSummary, EMPTY_PREPROCESSING_SUMMARY),
@@ -38,7 +103,7 @@ export default async function PreprocessingPage() {
   ]);
   const preprocessing = preprocessingResult.data;
   const relabeling = preprocessing.relabeling_changes;
-  const reviews = reviewSamplesToReviews(reviewsResult.data.reviews);
+  const reviews = reviewsResult.data.reviews;
   const apiError = preprocessingResult.error ?? reviewsResult.error;
   const pipelineRows = preprocessingResult.isAvailable
     ? [
@@ -208,10 +273,16 @@ export default async function PreprocessingPage() {
       </ChartCard>
 
       <ChartCard
-        description="Tabel ini menampilkan sampel data yang tersedia."
-        title="Ringkasan Data Diproses"
+        description="Tabel ini menunjukkan status before/after cleaning jika metadata tersedia dari API Gateway."
+        title="Tabel Prapemrosesan Review"
       >
-        <ReviewTable emptyMessage={EMPTY_GATEWAY_MESSAGE} reviews={reviews} />
+        <SimpleTable
+          columns={preprocessingReviewColumns}
+          data={reviews}
+          emptyMessage={EMPTY_GATEWAY_MESSAGE}
+          minWidthClassName="min-w-[1280px]"
+          rowKey={(row, index) => row.external_id ?? `preprocessing-review-${index}`}
+        />
       </ChartCard>
     </AppShell>
   );

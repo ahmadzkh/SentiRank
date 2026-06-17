@@ -6,27 +6,102 @@ import { SummaryCard } from "@/components/cards/SummaryCard";
 import { SentimentDistributionChart } from "@/components/charts/SentimentDistributionChart";
 import { AppShell, PageHeader } from "@/components/layout";
 import { SimpleTable } from "@/components/tables/SimpleTable";
+import type { SimpleTableColumn } from "@/components/tables/SimpleTable";
 import { EMPTY_GATEWAY_MESSAGE, safeGatewayData } from "@/lib/api-status";
 import {
+  EMPTY_RANDOM_REVIEWS,
   EMPTY_SENTIMENT_EVALUATION,
   EMPTY_SENTIMENT_SUMMARY,
+  EMPTY_TABLE_CELL,
   EMPTY_TEXT,
   formatPercent,
   recordNumber,
   selectedRecord,
   sentimentDistributionData,
+  tableCellValue,
 } from "@/lib/gateway-display";
+import { getReviews } from "@/services/review-service";
 import {
   getSentimentEvaluation,
   getSentimentSummary,
 } from "@/services/sentiment-service";
+import type { GatewayReviewSample } from "@/types";
 
 export const dynamic = "force-dynamic";
 
+function cleanedReviewText(row: GatewayReviewSample) {
+  return tableCellValue(
+    row.cleaned_content ?? row.cleaned_text ?? row.text_indobert ?? row.text_svm,
+  );
+}
+
+function confidenceValue(value: number | null | undefined) {
+  return typeof value === "number" && Number.isFinite(value)
+    ? formatPercent(value)
+    : EMPTY_TABLE_CELL;
+}
+
+function sentimentResultColumns(
+  modelVersion: string,
+): readonly SimpleTableColumn<GatewayReviewSample>[] {
+  return [
+  {
+    key: "no",
+    header: "No",
+    align: "center",
+    className: "w-16",
+    render: (_row, index) => index + 1,
+  },
+  {
+    key: "cleanedReview",
+    header: "Cleaned Review",
+    className: "min-w-[320px] max-w-[460px]",
+    render: (row) => (
+      <span className="line-clamp-3 break-words font-medium text-foreground">
+        {cleanedReviewText(row)}
+      </span>
+    ),
+  },
+  {
+    key: "actualWeakLabel",
+    header: "Actual/Weak Label",
+    render: (row) => tableCellValue(row.final_sentiment ?? row.initial_sentiment),
+  },
+  {
+    key: "predictedSentiment",
+    header: "Predicted Sentiment",
+    render: (row) => tableCellValue(row.predicted_sentiment),
+  },
+  {
+    key: "confidence",
+    header: "Confidence",
+    align: "right",
+    render: (row) => confidenceValue(row.sentiment_confidence),
+  },
+  {
+    key: "model",
+    header: "Model",
+    render: () => "IndoBERT",
+  },
+  {
+    key: "modelVersion",
+    header: "Model Version",
+    className: "min-w-[180px]",
+    render: () => modelVersion,
+  },
+  {
+    key: "predictionSource",
+    header: "Prediction Source",
+    render: (row) => tableCellValue(row.sentiment_prediction_source),
+  },
+] satisfies SimpleTableColumn<GatewayReviewSample>[];
+}
+
 export default async function SentimentAnalysisPage() {
-  const [summaryResult, evaluationResult] = await Promise.all([
+  const [summaryResult, evaluationResult, reviewsResult] = await Promise.all([
     safeGatewayData(getSentimentSummary, EMPTY_SENTIMENT_SUMMARY),
     safeGatewayData(getSentimentEvaluation, EMPTY_SENTIMENT_EVALUATION),
+    safeGatewayData(() => getReviews({ limit: 10, seed: 40 }), EMPTY_RANDOM_REVIEWS),
   ]);
   const summary = summaryResult.data;
   const evaluation = evaluationResult.data;
@@ -37,7 +112,8 @@ export default async function SentimentAnalysisPage() {
     evaluation.run_comparison,
     evaluation.selected_candidate,
   );
-  const apiError = summaryResult.error ?? evaluationResult.error;
+  const reviews = reviewsResult.data.reviews;
+  const apiError = summaryResult.error ?? evaluationResult.error ?? reviewsResult.error;
 
   return (
     <AppShell>
@@ -159,40 +235,17 @@ export default async function SentimentAnalysisPage() {
       </ChartCard>
 
       <ChartCard
-        description="Tabel hasil batch ditampilkan hanya jika endpoint menyediakan data batch."
+        description="Tabel ini menampilkan sampel hasil sentimen jika field prediksi tersedia dari API Gateway."
         title="Tabel Hasil Sentimen"
       >
         <SimpleTable
-          columns={[
-            {
-              key: "metric",
-              header: "Metrik",
-              render: (row) => row.metric,
-            },
-            {
-              key: "value",
-              header: "Nilai",
-              align: "right",
-              render: (row) => row.value,
-            },
-          ]}
-          data={
-            summaryResult.isAvailable
-              ? [
-                  {
-                    metric: "Macro F1",
-                    value: formatPercent(recordNumber(selectedMetrics, "f1_macro")),
-                  },
-                  {
-                    metric: "Akurasi",
-                    value: formatPercent(recordNumber(selectedMetrics, "accuracy")),
-                  },
-                ]
-              : []
-          }
+          columns={sentimentResultColumns(
+            summaryResult.isAvailable ? summary.selected_model : EMPTY_TABLE_CELL,
+          )}
+          data={reviewsResult.isAvailable ? reviews : []}
           emptyMessage={EMPTY_GATEWAY_MESSAGE}
-          minWidthClassName="min-w-[520px]"
-          rowKey={(row) => row.metric}
+          minWidthClassName="min-w-[1180px]"
+          rowKey={(row, index) => row.external_id ?? `sentiment-review-${index}`}
         />
       </ChartCard>
     </AppShell>

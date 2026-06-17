@@ -974,6 +974,46 @@ Completed on 2026-06-17. MS-10C clarifies the data source policy in `docs/micros
 
 ---
 
+## MS-10D - Frontend Table Alignment by Pipeline Stage
+
+### Objective
+
+Menyelaraskan header, mapping kolom, dan empty state tabel frontend agar setiap halaman gateway-backed merepresentasikan tahap pipeline penelitian yang tepat.
+
+### Task Checklist
+
+- [x] Audit tabel Dashboard, Dataset, Scraping, Prapemrosesan, Analisis Sentimen, Klasifikasi Aspek, Evaluasi Model, dan route rekomendasi yang tersedia.
+- [x] Ubah empty state `SimpleTable` agar pesan kosong tampil di dalam struktur tabel.
+- [x] Selaraskan tabel Dashboard untuk hasil review terproses dan rekomendasi prioritas.
+- [x] Selaraskan tabel Dataset untuk record review mentah.
+- [x] Selaraskan tabel Scraping untuk preview hasil pengumpulan data.
+- [x] Selaraskan tabel Prapemrosesan untuk before/after cleaning dan status kualitas.
+- [x] Selaraskan tabel Analisis Sentimen untuk sampel prediksi/evaluasi sentimen.
+- [x] Selaraskan tabel Klasifikasi Aspek untuk sampel hasil klasifikasi aspek.
+- [x] Selaraskan tabel Evaluasi Model untuk metrik performa model.
+- [x] Pertahankan fallback MS-10B: Gateway unavailable menampilkan red alert, nilai zero/empty, dan tabel kosong.
+- [x] Tidak mengubah backend, API Gateway, Docker Compose, schema database, dataset, training script, preprocessing script, atau kalkulasi AHP/Fuzzy AHP.
+- [x] Jalankan `npm run lint`.
+- [x] Jalankan `npm run build`.
+
+### Acceptance Criteria
+
+- [x] Tabel gateway-backed memakai kolom sesuai tahap pipeline, bukan tabel review generik.
+- [x] Tabel kosong saat API Gateway unavailable dan tidak menampilkan mock/stale rows.
+- [x] Field yang tidak tersedia ditampilkan sebagai `-` atau pesan empty state, bukan `undefined`, `null`, atau `NaN`.
+- [x] Tabel lebar tetap mendukung horizontal scroll.
+- [x] Review text panjang memakai truncation/wrapping agar layout tidak rusak.
+- [x] Frontend tetap hanya memanggil API Gateway melalui service layer.
+- [x] Halaman AHP/Fuzzy AHP tidak dimodifikasi.
+- [x] `npm run lint` berhasil.
+- [x] `npm run build` berhasil.
+
+### Completion Note
+
+Completed on 2026-06-17. MS-10D aligns frontend table columns by research pipeline stage, converts `SimpleTable` empty state into an in-table message row, keeps gateway-backed pages on API Gateway data only, and preserves MS-10B zero/empty fallback behavior when Gateway is unavailable.
+
+---
+
 ## MS-11 — Dashboard Finalisasi Penelitian
 
 ### Objective

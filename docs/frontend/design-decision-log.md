@@ -8,7 +8,7 @@
 | Module           | Frontend UI/UX                     |
 | Document         | Design Decision Log                |
 | Track            | Frontend Track                     |
-| Current Phase    | MS-10C - Data Source Policy |
+| Current Phase    | MS-10D - Frontend Table Alignment |
 | Default Theme    | Light Mode                         |
 | Visual Direction | SentiRank Research Analytics Light |
 | Status           | Draft                              |
@@ -1431,3 +1431,24 @@ Impact:
 - Dokumentasi arsitektur perlu menjelaskan dua jalur data: research artifact path dan runtime database path.
 - Shared `datasets/` mount tetap dapat diterima untuk thesis-stage demo/reporting selama read-only dan ownership jelas.
 - Future work mencakup migrasi selected research summaries ke PostgreSQL bila dibutuhkan, domain ownership yang lebih kuat, database-per-service opsional, seed/migration pipeline demo final, dan inference history endpoint.
+
+---
+
+## 2026-06-17 - MS-10D Frontend Table Alignment
+
+Decision:
+
+- Tabel gateway-backed disejajarkan dengan tahap pipeline: raw dataset, scraping preview, preprocessing before/after, sentiment result, aspect result, model evaluation, processed dashboard insight, dan priority recommendation.
+- Empty state `SimpleTable` tetap menampilkan header tabel serta satu baris pesan `Data belum tersedia karena API Gateway belum aktif.` saat data kosong.
+- Field Gateway yang belum tersedia ditampilkan sebagai `-` atau empty state, bukan nilai mock atau placeholder yang terlihat seperti data final.
+
+Reason:
+
+- Tabel generik membuat halaman terlihat tidak sesuai tahap penelitian dan dapat membingungkan saat demo skripsi.
+- Saat API Gateway offline, tabel harus kosong agar tidak ada data lama/mock yang terbaca sebagai hasil backend valid.
+
+Impact:
+
+- Halaman Dashboard, Dataset, Scraping, Prapemrosesan, Analisis Sentimen, Klasifikasi Aspek, dan Evaluasi Model memakai kolom yang lebih spesifik.
+- Halaman AHP/Fuzzy AHP tidak diubah.
+- Frontend tetap membaca data melalui service layer ke API Gateway saja.
