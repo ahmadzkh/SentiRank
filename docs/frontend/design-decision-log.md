@@ -1363,3 +1363,26 @@ Impact:
 
 - Section Dashboard difokuskan ke 6 card dataset, row metrik model, chart distribusi sentimen per tahap, top 5 aspek negatif, chart/tabel prioritas, dan ulasan negatif terbaru.
 - Menu Laporan dihapus dari navigasi; route lama diarahkan ke Dashboard.
+
+---
+
+## 2026-06-17 - AHP/Fuzzy AHP Read-Only Results Page
+
+Decision:
+
+- Halaman `/ahp-fuzzy-ahp` menjadi halaman hasil analisis prioritas read-only, bukan kalkulator atau panel demo POST calculation.
+- Halaman membaca `GET /ahp/criteria`, `GET /evaluation/summary`, dan `GET /reports/ranking-comparison` melalui service layer frontend.
+- Alert sample ditampilkan sebelum judul selama hasil final expert judgement belum tersedia.
+- Ranking AHP/Fuzzy AHP ditampilkan sebagai tabel dan chart, dengan rekomendasi display-only yang tidak menjalankan kalkulasi baru.
+
+Reason:
+
+- User halaman AHP/Fuzzy AHP adalah pembaca hasil penelitian, bukan operator kalkulasi backend.
+- Tombol kalkulasi di halaman utama membuat UI terlihat developer-oriented dan berisiko disalahpahami sebagai hasil final.
+- Endpoint read-only yang sudah ada cukup untuk menampilkan ranking sample tanpa mengubah engine AHP, engine Fuzzy AHP, dataset, atau service boundary besar.
+
+Impact:
+
+- `AhpGatewayDemoPanel` tidak dipakai lagi pada halaman utama AHP/Fuzzy AHP.
+- Frontend tetap tidak menghitung AHP/Fuzzy AHP dan tidak membaca file lokal output penelitian secara langsung.
+- Struktur kriteria tetap data-driven; saat ini sumber aktif repo menampilkan 5 kriteria merged taxonomy, bukan 6 kriteria terpisah.

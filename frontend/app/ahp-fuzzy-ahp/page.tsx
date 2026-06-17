@@ -1,198 +1,325 @@
-import { AhpGatewayDemoPanel } from "@/components/cards/AhpGatewayDemoPanel";
 import { ChartCard } from "@/components/cards/ChartCard";
-import { RankingCard } from "@/components/cards/RankingCard";
 import { RecommendationCard } from "@/components/cards/RecommendationCard";
 import { StatCard } from "@/components/cards/StatCard";
 import { SummaryCard } from "@/components/cards/SummaryCard";
 import { AhpRankingComparisonChart } from "@/components/charts/AhpRankingComparisonChart";
-import { CriteriaEditor } from "@/components/forms/CriteriaEditor";
-import { PairwiseComparisonInput } from "@/components/forms/PairwiseComparisonInput";
 import { AppShell, PageHeader } from "@/components/layout";
-import { MatrixTable } from "@/components/tables/MatrixTable";
-import { SimpleTable } from "@/components/tables/SimpleTable";
+import {
+  SimpleTable,
+  type SimpleTableColumn,
+} from "@/components/tables/SimpleTable";
+import {
+  getAhpFuzzyAhpOverview,
+  type AhpFuzzyAhpNotice,
+  type AhpFuzzyAhpSummaryCard,
+  type ComparisonRow,
+  type CriteriaOverviewRow,
+  type MethodSummary,
+  type MethodWeightRow,
+  type PriorityRow,
+} from "@/services/ahp-overview-service";
+import { cn } from "@/lib/utils";
 
-interface WeightDetailRow {
-  criterion: string;
-  value: string;
-}
+export const dynamic = "force-dynamic";
 
-const emptyWeightRows: WeightDetailRow[] = [];
+const EMPTY_MESSAGE =
+  "Maaf, data AHP dan Fuzzy AHP belum dapat ditampilkan saat ini. Silakan coba kembali setelah layanan analisis tersedia.";
 
-export default function AhpFuzzyAhpPrototypePage() {
+const criteriaColumns: readonly SimpleTableColumn<CriteriaOverviewRow>[] = [
+  {
+    key: "no",
+    header: "No",
+    align: "center",
+    className: "w-16",
+    render: (row) => row.no,
+  },
+  {
+    key: "criterion",
+    header: "Kriteria",
+    render: (row) => (
+      <span className="font-medium text-foreground">{row.criterion}</span>
+    ),
+  },
+  {
+    key: "description",
+    header: "Deskripsi",
+    className: "min-w-[280px]",
+    render: (row) => (
+      <span className="line-clamp-3 text-muted-foreground">
+        {row.description}
+      </span>
+    ),
+  },
+  {
+    key: "negativeReviewCount",
+    header: "Jumlah Ulasan Negatif",
+    align: "right",
+    render: (row) => row.negativeReviewCount,
+  },
+  {
+    key: "complaintExample",
+    header: "Contoh Keluhan",
+    className: "min-w-[220px]",
+    render: (row) => (
+      <span className="line-clamp-2 text-muted-foreground">
+        {row.complaintExample}
+      </span>
+    ),
+  },
+];
+
+const weightColumns: readonly SimpleTableColumn<MethodWeightRow>[] = [
+  {
+    key: "rank",
+    header: "Rank",
+    align: "center",
+    render: (row) => row.rank,
+  },
+  {
+    key: "criterion",
+    header: "Kriteria",
+    render: (row) => (
+      <span className="font-medium text-foreground">{row.criterion}</span>
+    ),
+  },
+  {
+    key: "weight",
+    header: "Bobot",
+    align: "right",
+    render: (row) => row.weight,
+  },
+  {
+    key: "percent",
+    header: "Persentase Bobot",
+    align: "right",
+    render: (row) => row.percent,
+  },
+  {
+    key: "status",
+    header: "Status",
+    render: (row) => row.status,
+  },
+];
+
+const comparisonColumns: readonly SimpleTableColumn<ComparisonRow>[] = [
+  {
+    key: "criterion",
+    header: "Kriteria",
+    render: (row) => (
+      <span className="font-medium text-foreground">{row.criterion}</span>
+    ),
+  },
+  {
+    key: "ahpRank",
+    header: "Rank AHP",
+    align: "center",
+    render: (row) => row.ahpRank,
+  },
+  {
+    key: "fuzzyRank",
+    header: "Rank Fuzzy AHP",
+    align: "center",
+    render: (row) => row.fuzzyRank,
+  },
+  {
+    key: "ahpWeight",
+    header: "Bobot AHP",
+    align: "right",
+    render: (row) => row.ahpWeight,
+  },
+  {
+    key: "fuzzyWeight",
+    header: "Bobot Fuzzy AHP",
+    align: "right",
+    render: (row) => row.fuzzyWeight,
+  },
+  {
+    key: "rankChange",
+    header: "Perubahan Ranking",
+    render: (row) => row.rankChange,
+  },
+  {
+    key: "interpretation",
+    header: "Interpretasi Singkat",
+    className: "min-w-[220px]",
+    render: (row) => row.interpretation,
+  },
+];
+
+const priorityColumns: readonly SimpleTableColumn<PriorityRow>[] = [
+  {
+    key: "rank",
+    header: "Rank",
+    align: "center",
+    render: (row) => row.rank,
+  },
+  {
+    key: "criterion",
+    header: "Kriteria",
+    render: (row) => (
+      <span className="font-medium text-foreground">{row.criterion}</span>
+    ),
+  },
+  {
+    key: "ahpWeight",
+    header: "Bobot AHP",
+    align: "right",
+    render: (row) => row.ahpWeight,
+  },
+  {
+    key: "fuzzyWeight",
+    header: "Bobot Fuzzy AHP",
+    align: "right",
+    render: (row) => row.fuzzyWeight,
+  },
+  {
+    key: "priority",
+    header: "Prioritas",
+    render: (row) => row.priority,
+  },
+  {
+    key: "recommendation",
+    header: "Rekomendasi Singkat",
+    className: "min-w-[300px]",
+    render: (row) => (
+      <span className="line-clamp-3 text-muted-foreground">
+        {row.recommendation}
+      </span>
+    ),
+  },
+];
+
+export default async function AhpFuzzyAhpPage() {
+  const overview = await getAhpFuzzyAhpOverview();
+  const priorityRankingTitle =
+    overview.dataStatus === "sample"
+      ? "Ranking Prioritas Sample"
+      : "Ranking Prioritas";
+
   return (
     <AppShell>
+      <DataNotice notice={overview.notice} />
+
       <PageHeader
-        description="Ringkasan alur prioritisasi aspek negatif dengan metode AHP dan Fuzzy AHP."
-        eyebrow="Prioritas Aspek"
+        description="Halaman ini menampilkan prioritas aspek ulasan negatif berdasarkan metode AHP dan Fuzzy AHP. Bobot prioritas digunakan untuk membantu menentukan aspek yang perlu mendapatkan perhatian lebih dalam pengembangan layanan Spotify."
         title="AHP / Fuzzy AHP"
       />
 
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
-        <StatCard
-          description="Data kriteria ditampilkan saat tersedia."
-          label="Kriteria"
-          tone="primary"
-          value={0}
-        />
-        <StatCard
-          description="Pairwise judgement ditampilkan saat tersedia."
-          label="Pairwise"
-          value={0}
-        />
-        <StatCard
-          description="Consistency ratio ditampilkan saat tersedia."
-          label="Consistency Ratio"
-          tone="primary"
-          value="0%"
-        />
-        <StatCard
-          description="Prioritas ditampilkan saat hasil tersedia."
-          label="Prioritas AHP"
-          tone="primary"
-          value="-"
-        />
-        <StatCard
-          description="Prioritas ditampilkan saat hasil tersedia."
-          label="Prioritas Fuzzy AHP"
-          tone="primary"
-          value="-"
-        />
-        <StatCard
-          description="Status hasil prioritisasi."
-          label="Status"
-          value="Data belum tersedia"
-        />
-      </section>
+      {overview.isServiceUnavailable ? <UnavailableState /> : null}
 
-      <SummaryCard
-        description="Halaman ini merangkum metodologi dan hasil perhitungan prioritas aspek."
-        items={[
-          {
-            label: "AHP",
-            value: "Perhitungan backend",
-            description: "Perhitungan AHP mengikuti pipeline penelitian.",
-          },
-          {
-            label: "Fuzzy AHP",
-            value: "Perhitungan backend",
-            description: "Perhitungan Fuzzy AHP mengikuti pipeline penelitian.",
-          },
-          {
-            label: "TFN",
-            value: "centroid",
-            description: "Metode defuzzification yang digunakan.",
-          },
-          {
-            label: "Hasil",
-            value: "Data belum tersedia",
-            description: "Hasil mengikuti output penelitian terstruktur.",
-          },
-        ]}
-        title="Ringkasan Metode"
-      />
-
-      <AhpGatewayDemoPanel />
-
-      <section className="grid gap-6 xl:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
-        <ChartCard
-          description="Daftar kriteria aktif untuk perhitungan prioritas aspek."
-          title="Setup Kriteria"
-        >
-          <CriteriaEditor criteria={[]} />
-        </ChartCard>
-
-        <ChartCard
-          description="Pairwise comparison untuk expert judgement."
-          title="Expert Judgement / Pairwise Comparison"
-        >
-          <PairwiseComparisonInput comparisons={[]} criteria={[]} />
-        </ChartCard>
+      <section>
+        <SectionHeading title="Ringkasan Prioritas" />
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          {overview.summaryCards.map((card) => (
+            <SummaryStatCard card={card} key={card.id} />
+          ))}
+        </div>
       </section>
 
       <ChartCard
-        description="Matriks pairwise ditampilkan kosong sampai backend mengembalikan hasil."
-        insight="Matriks mengikuti hasil perhitungan dari pipeline penelitian."
-        title="Matriks Pairwise Comparison AHP"
+        description="Kriteria ditampilkan sesuai data yang diterima dari layanan analisis. Jumlah kriteria tidak dikunci di frontend."
+        title="Criteria Overview"
       >
-        <MatrixTable comparisons={[]} criteria={[]} />
+        <SimpleTable
+          columns={criteriaColumns}
+          data={overview.criteriaRows}
+          emptyMessage={EMPTY_MESSAGE}
+          minWidthClassName="min-w-[980px]"
+          rowKey={(row) => row.id}
+        />
       </ChartCard>
 
-      <section className="grid gap-6 xl:grid-cols-2">
-        <RankingCard
-          description="Ranking AHP ditampilkan saat hasil tersedia."
-          items={[]}
-          title="Hasil Bobot AHP"
+      <ChartCard
+        description="Hasil AHP diringkas sebagai ranking dan bobot prioritas per kriteria."
+        title="Hasil AHP"
+      >
+        <MethodSummaryStrip
+          labels={{
+            top: "Ranking pertama",
+            consistency: "Consistency Ratio",
+            status: "Status konsistensi",
+            count: "Jumlah kriteria",
+          }}
+          summary={overview.ahpSummary}
         />
-
-        <RankingCard
-          description="Ranking Fuzzy AHP ditampilkan saat hasil tersedia."
-          items={[]}
-          title="Hasil Bobot Fuzzy AHP"
-        />
-      </section>
-
-      <section className="grid gap-6 xl:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
-        <ChartCard
-          description="Perbandingan bobot hanya tersedia setelah AHP dan Fuzzy AHP berhasil dihitung oleh backend."
-          insight="Perbandingan mengikuti output perhitungan prioritas."
-          title="Perbandingan Ranking AHP vs Fuzzy AHP"
-        >
-          <AhpRankingComparisonChart data={[]} />
-        </ChartCard>
-
-        <ChartCard
-          description="Tabel numerik ditampilkan saat hasil comparison tersedia."
-          title="Detail Bobot AHP dan Fuzzy AHP"
-        >
+        <div className="mt-5">
           <SimpleTable
-            columns={[
-              {
-                key: "criterion",
-                header: "Kriteria",
-                render: (row) => row.criterion,
-              },
-              {
-                key: "value",
-                header: "Nilai",
-                align: "right",
-                render: (row) => row.value,
-              },
-            ]}
-            data={emptyWeightRows}
-            minWidthClassName="min-w-[520px]"
-            rowKey={(row) => row.criterion}
+            columns={weightColumns}
+            data={overview.ahpRows}
+            emptyMessage="Hasil AHP belum tersedia."
+            minWidthClassName="min-w-[760px]"
+            rowKey={(row) => row.id}
           />
-        </ChartCard>
-      </section>
+        </div>
+      </ChartCard>
 
-      <RecommendationCard
-        basis={[
-          "Prioritas AHP tertinggi: -",
-          "Prioritas Fuzzy AHP tertinggi: -",
-          "Consistency Ratio: 0%",
-          "Jumlah kriteria aktif: 0",
-        ]}
-        note="Rekomendasi final wajib berasal dari backend calculation service dan judgement expert yang tervalidasi."
-        recommendation={
-          <p>
-            Data belum tersedia. Hasil prioritas akan tampil setelah output
-            expert judgement tersedia.
-          </p>
-        }
-        title="Ringkasan Rekomendasi Akhir"
-      />
+      <ChartCard
+        description="Hasil Fuzzy AHP diringkas sebagai bobot yang mempertimbangkan ketidakpastian penilaian expert."
+        title="Hasil Fuzzy AHP"
+      >
+        <MethodSummaryStrip
+          labels={{
+            top: "Ranking pertama",
+            consistency: "Nilai konsistensi",
+            status: "Status data",
+            count: "Jumlah kriteria",
+          }}
+          summary={overview.fuzzySummary}
+        />
+        <div className="mt-5">
+          <SimpleTable
+            columns={weightColumns}
+            data={overview.fuzzyRows}
+            emptyMessage="Hasil Fuzzy AHP belum tersedia."
+            minWidthClassName="min-w-[760px]"
+            rowKey={(row) => row.id}
+          />
+        </div>
+      </ChartCard>
 
-      <SummaryCard
-        description="Catatan batasan metodologi prioritisasi aspek."
-        title="Catatan Batasan Metode"
+      <ChartCard
+        description="Perbandingan membantu melihat apakah ranking kriteria tetap stabil pada kedua metode."
+        insight="Interpretasi ranking masih perlu dibaca hati-hati jika data berstatus sample."
+        title="Perbandingan AHP vs Fuzzy AHP"
+      >
+        <AhpRankingComparisonChart data={overview.chartData} />
+        <div className="mt-6">
+          <SimpleTable
+            columns={comparisonColumns}
+            data={overview.comparisonRows}
+            emptyMessage="Perbandingan AHP dan Fuzzy AHP belum tersedia."
+            minWidthClassName="min-w-[1080px]"
+            rowKey={(row) => row.id}
+          />
+        </div>
+      </ChartCard>
+
+      <ChartCard
+        description="Ranking ini membantu menentukan urutan perhatian terhadap aspek ulasan negatif."
+        title={priorityRankingTitle}
+      >
+        <SimpleTable
+          columns={priorityColumns}
+          data={overview.priorityRows}
+          emptyMessage="Ranking prioritas belum tersedia."
+          minWidthClassName="min-w-[1040px]"
+          rowKey={(row) => row.id}
+        />
+      </ChartCard>
+
+      {/* <RecommendationCard
+        basis={overview.recommendationBasis}
+        note="Rekomendasi ini bersifat display-only dan tidak menjalankan perhitungan baru di frontend."
+        recommendation={<p>{overview.recommendationText}</p>}
+        title={overview.recommendationTitle}
+      /> */}
+
+      {/* <SummaryCard
+        description="Catatan ini menjaga interpretasi halaman tetap sesuai batasan metodologi saat ini."
+        title="Catatan Interpretasi"
       >
         <div className="grid gap-3 md:grid-cols-2">
-          {[
-            "Perhitungan AHP dan Fuzzy AHP diproses oleh pipeline backend.",
-            "Jumlah kriteria, skala expert judgement, dan mapping TFN tetap berasal dari backend/metodologi.",
-            "Jika data belum tersedia, halaman menampilkan empty state singkat.",
-            "Hasil final tetap membutuhkan expert judgement yang tervalidasi.",
-          ].map((note) => (
+          {overview.interpretationNotes.map((note) => (
             <p
               className="rounded-md border border-border bg-background px-4 py-3 text-sm leading-6 text-muted-foreground"
               key={note}
@@ -201,7 +328,95 @@ export default function AhpFuzzyAhpPrototypePage() {
             </p>
           ))}
         </div>
-      </SummaryCard>
+      </SummaryCard> */}
     </AppShell>
+  );
+}
+
+function SummaryStatCard({ card }: { card: AhpFuzzyAhpSummaryCard }) {
+  return (
+    <StatCard
+      description={card.description}
+      label={card.label}
+      tone={card.tone}
+      value={card.value}
+    />
+  );
+}
+
+function DataNotice({ notice }: { notice: AhpFuzzyAhpNotice }) {
+  const className = {
+    final: "border-green-200 bg-green-50 text-green-900",
+    info: "border-slate-200 bg-slate-50 text-slate-700",
+    sample: "border-amber-200 bg-amber-50 text-amber-900",
+  }[notice.tone];
+
+  return (
+    <div
+      className={cn("rounded-lg border px-4 py-3 text-sm leading-6", className)}
+    >
+      {notice.text}
+    </div>
+  );
+}
+
+function UnavailableState() {
+  return (
+    <section className="rounded-lg border border-border bg-card p-6 shadow-sm">
+      <h3 className="text-base font-semibold text-foreground">
+        Data belum dapat ditampilkan
+      </h3>
+      <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
+        Maaf, data AHP dan Fuzzy AHP belum dapat ditampilkan saat ini. Silakan
+        coba kembali setelah layanan analisis tersedia.
+      </p>
+    </section>
+  );
+}
+
+function MethodSummaryStrip({
+  labels,
+  summary,
+}: {
+  labels: {
+    top: string;
+    consistency: string;
+    status: string;
+    count: string;
+  };
+  summary: MethodSummary;
+}) {
+  return (
+    <dl className="grid gap-3 sm:grid-cols-2">
+      <MethodSummaryItem label={labels.top} value={summary.topCriterion} />
+      <MethodSummaryItem
+        label={labels.consistency}
+        value={summary.consistencyRatio}
+      />
+      <MethodSummaryItem
+        label={labels.status}
+        value={summary.consistencyStatus}
+      />
+      <MethodSummaryItem label={labels.count} value={summary.criteriaCount} />
+    </dl>
+  );
+}
+
+function MethodSummaryItem({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="border-l-2 border-blue-200 pl-3">
+      <dt className="text-xs font-medium uppercase tracking-normal text-muted-foreground">
+        {label}
+      </dt>
+      <dd className="mt-1 text-sm font-semibold text-foreground">{value}</dd>
+    </div>
+  );
+}
+
+function SectionHeading({ title }: { title: string }) {
+  return (
+    <div className="mb-4">
+      <h2 className="text-base font-semibold text-foreground">{title}</h2>
+    </div>
   );
 }

@@ -497,6 +497,8 @@ Rules:
 - Final recommendation must be stated in plain language.
 - Use tables for exact values and charts only for comparison.
 - Do not perform final methodology logic in frontend unless a later phase explicitly decides it.
+- On the integrated AHP/Fuzzy AHP page, present read-only results from API Gateway data and do not expose calculation buttons on the main page.
+- If expert judgement data is still sample, show an explicit sample notice before the page title and avoid labeling the ranking as final.
 
 ---
 

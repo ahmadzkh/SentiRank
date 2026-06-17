@@ -975,3 +975,38 @@ Menjadikan Dashboard sebagai ringkasan final penelitian SentiRank yang membaca d
 ### Completion Note
 
 Completed on 2026-06-05. Dashboard finalisasi penelitian selesai dengan backend CSV ranking endpoint, dashboard adapter, layout final data-backed, Reports redirect, UI copy cleanup, dan validasi lint/typecheck/build serta targeted backend tests per service.
+
+---
+
+## MS-12 - AHP/Fuzzy AHP Results Page Cleanup
+
+### Objective
+
+Mengubah halaman `/ahp-fuzzy-ahp` dari panel demo kalkulasi menjadi halaman hasil analisis prioritas yang read-only, user friendly, dan tetap data-backed melalui API Gateway.
+
+### Task Checklist
+
+- [x] Hapus pemakaian panel demo kalkulasi dari halaman utama AHP/Fuzzy AHP.
+- [x] Tambahkan adapter frontend read-only untuk kriteria, status sample, dan ranking comparison.
+- [x] Tampilkan alert sample sebelum judul halaman.
+- [x] Tampilkan ringkasan prioritas, criteria overview, hasil AHP, hasil Fuzzy AHP, comparison, ranking prioritas, dan rekomendasi singkat.
+- [x] Gunakan empty/error state user friendly ketika layanan analisis belum tersedia.
+- [x] Pastikan halaman tidak menampilkan stack trace, path file, endpoint teknis, atau metadata developer-facing.
+- [x] Pastikan tidak ada tombol `Jalankan Perhitungan`, `Run Sample Calculation`, `Hitung AHP`, atau tombol kalkulasi sejenis.
+- [x] Pastikan frontend tetap tidak menghitung AHP/Fuzzy AHP.
+- [x] Catat keputusan desain/integrasi di dokumentasi frontend.
+- [x] Jalankan lint, typecheck, dan build.
+
+### Acceptance Criteria
+
+- [x] `/ahp-fuzzy-ahp` menjadi halaman hasil, bukan kalkulator interaktif.
+- [x] Data AHP/Fuzzy AHP dibaca melalui service layer frontend yang memanggil API Gateway.
+- [x] Jika data berstatus sample, alert sample tampil jelas dan tidak memakai label final.
+- [x] Jika layanan belum tersedia, halaman menampilkan pesan kosong yang mudah dipahami.
+- [x] Tabel tetap responsif dengan horizontal scroll untuk kolom lebar.
+- [x] UI copy menggunakan Bahasa Indonesia natural untuk pengguna non-teknis.
+- [x] Tidak ada perubahan engine AHP, engine Fuzzy AHP, dataset, model, docker-compose, database schema, atau preprocessing.
+
+### Completion Note
+
+Completed on 2026-06-17. Halaman AHP/Fuzzy AHP sekarang memakai adapter `getAhpFuzzyAhpOverview()` untuk membaca `GET /ahp/criteria`, `GET /evaluation/summary`, dan `GET /reports/ranking-comparison` melalui service layer. Halaman tidak lagi menampilkan panel demo kalkulasi, tidak menjalankan POST kalkulasi dari frontend, dan menampilkan status sample serta empty state secara eksplisit.
