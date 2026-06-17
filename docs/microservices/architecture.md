@@ -14,22 +14,73 @@ This is not wrong. A modular monolith is a practical intermediate architecture f
 
 The target architecture below separates SentiRank into independently deployable service boundaries with API-based communication and an API Gateway as the single frontend entry point.
 
+## Data Source Policy
+
+SentiRank uses two separate data paths. This distinction is intentional and must be preserved during the thesis-stage microservice refactor.
+
+### Research Artifact Path
+
+CSV, JSON, model, and report snapshot artifacts are allowed for reproducible research outputs, including:
+
+- scraped review datasets
+- preprocessing batch outputs
+- labeling outputs
+- SVM and IndoBERT evaluation metrics
+- model evaluation summaries
+- AHP outputs
+- Fuzzy AHP outputs
+- ranking comparison outputs
+- dashboard or report snapshots derived from research outputs
+
+These artifacts are read-only for runtime services, reproducible outputs from the thesis experiment pipeline, and versioned as research evidence. They are not interactive user runtime data and do not need to be migrated wholesale into the database for this milestone.
+
+### Runtime Database Path
+
+The database is reserved for user-facing runtime data, especially:
+
+- user-submitted review text
+- sentiment inference result
+- aspect or criteria classification result
+- confidence or probability values when available
+- model version used for inference
+- prediction source
+- `created_at` timestamp
+- inference history
+
+The current Prisma schema already contains an `InferenceHistory` model, but the current extracted FastAPI services do not yet persist inference history through a runtime endpoint. Until that endpoint exists, database-service is an intended runtime persistence boundary, not the source of truth for research CSV/JSON artifacts.
+
+### Frontend Data Access
+
+The frontend must call only `api-gateway-service` through `NEXT_PUBLIC_API_BASE_URL`. Frontend code must not read CSV/JSON artifacts directly, call internal service ports `8001` through `8005`, or calculate AHP/Fuzzy AHP locally. It displays only data returned by gateway-backed services and explicit unavailable or empty states when the gateway is unavailable.
+
+### Acceptable File-Based Runtime Reads
+
+Some backend services may read CSV/JSON artifacts during runtime for demo, report, and thesis-result presentation as long as all of the following remain true:
+
+- files are treated as read-only research artifacts
+- ownership is clear by service domain
+- frontend does not read files directly
+- API Gateway remains the frontend entry point
+- the service does not present static artifact data as live user-generated runtime data
+
+This policy avoids unnecessary database migration while keeping the architecture academically defensible: reproducible research evidence stays artifact-based, while interactive user runtime data belongs in the database.
+
 ## Target Architecture
 
 | Service name | Responsibility | Port | Owner/domain | Current source of logic | Extraction priority |
 | --- | --- | ---: | --- | --- | --- |
 | `frontend-service` | Next.js user interface and dashboard views | 3000 | Presentation | `frontend/` | Existing service, keep separate |
 | `api-gateway-service` | Public API entry point, CORS, response envelope, routing, health aggregation | 8000 | API Gateway | future extraction from frontend/backend integration layer | High |
-| `review-service` | Dataset metadata, scraping summary, preprocessing summary, random review samples, EDA summary | 8001 | Review/data domain | `ml-service` scripts, outputs, and data summary logic | Medium |
-| `sentiment-service` | IndoBERT sentiment inference, sentiment summary, sentiment evaluation | 8002 | Sentiment domain | `ml-service` sentiment router/service and IndoBERT artifacts | Medium |
-| `aspect-service` | SVM aspect classification, aspect summary, aspect evaluation | 8003 | Aspect domain | `ml-service` aspect router/service and SVM artifacts | Medium |
-| `decision-service` | AHP criteria, AHP calculation, Fuzzy AHP calculation, AHP/Fuzzy comparison | 8004 | Decision-support domain | `ml-service/app/routers/ahp.py`, AHP schemas, AHP services | First extraction |
-| `report-service` | Report summary and consolidated evaluation summary aggregation | 8005 | Reporting domain | evaluation outputs and reporting notebooks/scripts | Low |
-| `database-service` | PostgreSQL storage for thesis implementation | 5432 | Persistence | current SQLite/Prisma planning, future PostgreSQL container | Infrastructure |
+| `review-service` | Review dataset metadata, scraping summaries, preprocessing summaries, review samples | 8001 | Review/data domain | `datasets/raw`, `datasets/processed`, `datasets/outputs/eda/01_data_acquisition`, `datasets/outputs/eda/02_preprocessing` | Extracted |
+| `sentiment-service` | Sentiment model metadata, sentiment summaries, sentiment evaluation, sentiment inference behavior | 8002 | Sentiment domain | `datasets/outputs/eda/03_indobert`, `datasets/outputs/eda/05_evaluation`, optional IndoBERT artifact mount | Extracted |
+| `aspect-service` | Aspect classification metadata, aspect summaries, aspect evaluation, aspect inference behavior | 8003 | Aspect domain | `datasets/outputs/eda/04_svm`, `datasets/outputs/eda/05_evaluation`, optional SVM artifact mount | Extracted |
+| `decision-service` | AHP, Fuzzy AHP, criteria, expert judgement processing, weighting, ranking comparison calculations | 8004 | Decision-support domain | service-owned schemas and calculation modules | Extracted |
+| `report-service` | Read-only aggregation for dashboard/report views | 8005 | Reporting domain | research output summaries across `datasets/outputs/eda` | Extracted |
+| `database-service` | Runtime persistence for user inference history | 5432 | Persistence | thesis-stage runtime history storage; not a research artifact warehouse | Infrastructure |
 
 ## Service Dependency Flow
 
-The frontend must call only the API Gateway. The API Gateway routes requests to internal services. Internal services can communicate over HTTP when a domain dependency is required.
+The frontend must call only the API Gateway. The API Gateway routes requests to internal services. Internal services can communicate over HTTP when a domain dependency is required. Research artifacts are mounted or read behind service ownership boundaries; they are not frontend data sources.
 
 ```mermaid
 flowchart LR
@@ -40,11 +91,12 @@ flowchart LR
     Gateway --> Aspect[aspect-service :8003]
     Gateway --> Decision[decision-service :8004]
     Gateway --> Report[report-service :8005]
-    Review --> Database[(database-service<br/>PostgreSQL :5432)]
-    Sentiment --> Database
-    Aspect --> Database
-    Decision --> Database
-    Report --> Database
+    Artifacts[(Read-only CSV/JSON/model artifacts)] --> Review
+    Artifacts --> Sentiment
+    Artifacts --> Aspect
+    Artifacts --> Report
+    Sentiment -. future inference history .-> Database[(database-service<br/>runtime history)]
+    Aspect -. future inference history .-> Database
 ```
 
 ```mermaid
@@ -53,49 +105,48 @@ sequenceDiagram
     participant FE as frontend-service
     participant GW as api-gateway-service
     participant DS as decision-service
-    participant DB as database-service
 
     User->>FE: Open AHP/Fuzzy AHP dashboard
     FE->>GW: GET /ahp/criteria
     GW->>DS: GET /ahp/criteria
     DS-->>GW: Standard response envelope
     GW-->>FE: Standard response envelope
-    FE-->>User: Render criteria and calculation form
+    FE-->>User: Render read-only criteria and result context
 ```
 
 ## Service Responsibility Boundaries
 
 ### frontend-service
 
-Owns user interface rendering, dashboard navigation, client-side state for UI interactions, and presentation components. It does not own ML logic, AHP/Fuzzy AHP calculation, direct internal service URLs, database access, or service orchestration.
+Owns user interface rendering, dashboard navigation, client-side state for UI interactions, and presentation components. It must use `NEXT_PUBLIC_API_BASE_URL` for browser-facing API access and may use `API_GATEWAY_INTERNAL_URL` only for server-side/Docker gateway routing. It does not own ML logic, AHP/Fuzzy AHP calculation, direct internal service URLs, CSV/JSON file reads, database access, or service orchestration.
 
 ### api-gateway-service
 
-Owns the public API boundary. It handles CORS, route forwarding, response envelope standardization, public error mapping, and service health aggregation. It does not own domain calculations, ML inference, dataset transformation, or persistent domain data.
+Owns the public API boundary. It handles CORS, route forwarding, response envelope standardization, public error mapping, and service health aggregation. It does not own domain calculations, ML inference, dataset transformation, research artifact parsing, or persistent domain data.
 
 ### review-service
 
-Owns dataset-facing summaries and review retrieval. It exposes dataset, scraping, preprocessing, and random review sample endpoints. It does not own sentiment prediction, aspect classification, AHP/Fuzzy AHP calculation, or report-level interpretation.
+Owns review dataset metadata, scraping summaries, preprocessing summaries, and review samples. It may read review-domain CSV/JSON artifacts from `datasets/raw`, `datasets/processed`, and early EDA outputs as read-only research evidence. It does not own sentiment prediction, aspect classification, AHP/Fuzzy AHP calculation, or report-level interpretation.
 
 ### sentiment-service
 
-Owns IndoBERT sentiment inference and sentiment evaluation summaries. The final candidate model is `run_3_weighted_loss_lr_1e-5`. It does not own aspect classification, review scraping, AHP/Fuzzy AHP calculation, or frontend rendering.
+Owns sentiment model metadata, sentiment summaries, sentiment evaluation, and sentiment inference behavior. The final candidate model is `run_3_weighted_loss_lr_1e-5`. It may read sentiment evaluation JSON artifacts and optional IndoBERT model artifacts as read-only inputs. It does not own aspect classification, review scraping, AHP/Fuzzy AHP calculation, or frontend rendering.
 
 ### aspect-service
 
-Owns SVM aspect classification and aspect evaluation summaries. The final classifier is `merged_5class`. It does not own sentiment inference, AHP/Fuzzy AHP weighting, report aggregation, or frontend rendering.
+Owns aspect classification metadata, aspect summaries, aspect evaluation, and aspect inference behavior. The final classifier is `merged_5class`. It may read SVM/aspect CSV/JSON artifacts and optional SVM model artifacts as read-only inputs. It does not own sentiment inference, AHP/Fuzzy AHP weighting, report aggregation, or frontend rendering.
 
 ### decision-service
 
-Owns AHP criteria, AHP calculation, Fuzzy AHP calculation, and AHP/Fuzzy AHP comparison. This is the first extraction target because the AHP/Fuzzy AHP endpoints are already stable and FE-13 depends on them. It does not own ML inference, review data acquisition, report generation, or UI rendering.
+Owns AHP, Fuzzy AHP, criteria, expert judgement processing, weighting, and ranking comparison calculation behavior. It should own future validated expert judgement processing endpoints. It does not own ML inference, review data acquisition, report generation, frontend rendering, or direct frontend access.
 
 ### report-service
 
-Owns high-level report and evaluation summary aggregation. It may call review, sentiment, aspect, and decision services through internal APIs. It does not own the underlying model inference or decision calculation implementations.
+Owns read-only aggregation for dashboard and report views. It may read consolidated research output CSV/JSON artifacts and may call review, sentiment, aspect, and decision services through internal APIs when needed. It does not own the underlying model inference, review acquisition, or decision calculation implementations.
 
 ### database-service
 
-Owns database runtime infrastructure. For thesis scope, one PostgreSQL container is sufficient. It does not own domain business logic.
+Owns runtime persistence for user inference history in the thesis-stage implementation. It is not required to store every research CSV/JSON artifact. It does not own domain business logic, static research outputs, or frontend-facing read models.
 
 ## Communication Strategy
 
@@ -129,9 +180,11 @@ The API Gateway is the only backend service exposed to the frontend for API acce
 
 ## Database Strategy
 
-For thesis implementation, a single PostgreSQL container is enough. Domain separation can be handled through schema or table ownership, for example review tables, sentiment tables, aspect tables, decision-support tables, and report tables.
+The database is for runtime user inference history, not for bulk research artifact migration. Acceptable runtime records include user-submitted text, sentiment result, aspect/criteria result, confidence/probability, model version, prediction source, timestamp, and inference history.
 
-This is acceptable for a thesis-stage microservice implementation because the architectural boundary is demonstrated through separate runtime services and API-based communication. Database-per-service can be a future improvement when operational complexity, independent scaling, and strict data ownership become necessary.
+For the thesis-stage implementation, one shared database-service is sufficient if runtime persistence is needed. Domain separation can be handled through schema or table ownership. Database-per-service is future work, not a requirement for MS-10C.
+
+The repository still contains Prisma/SQLite planning artifacts and a Compose PostgreSQL service. Do not interpret either as a requirement to migrate all CSV/JSON research outputs into relational tables during this milestone.
 
 ## Legacy Transition Strategy
 
@@ -144,7 +197,22 @@ Recommended extraction order:
 3. Route FE-13 AHP/Fuzzy AHP calls through the gateway without changing frontend feature behavior.
 4. Extract `review-service`, `sentiment-service`, and `aspect-service` from the existing `ml-service` modules.
 5. Extract `report-service` after evaluation and reporting contracts stabilize.
-6. Introduce `database-service` PostgreSQL after service contracts are stable.
+6. Add or wire runtime inference history persistence after service contracts are stable; do not migrate research CSV/JSON artifacts wholesale.
+
+## Current Runtime Audit
+
+The MS-10C audit found the following current behavior:
+
+- `review-service` reads CSV/JSON artifacts from `datasets/raw`, `datasets/processed`, and `datasets/outputs/eda/01_data_acquisition` plus `02_preprocessing`.
+- `sentiment-service` reads JSON artifacts from `datasets/outputs/eda/03_indobert`, `datasets/outputs/eda/05_evaluation`, and sentiment distribution outputs.
+- `aspect-service` reads JSON and CSV artifacts from `datasets/outputs/eda/04_svm` and `datasets/outputs/eda/05_evaluation`.
+- `report-service` reads JSON and CSV artifacts across `03_indobert`, `04_svm`, `05_evaluation`, `06_ahp`, `07_fuzzy_ahp`, and `08_ranking_comparison`.
+- `decision-service` currently owns calculation behavior and static criteria in code; it does not read research CSV/JSON artifacts.
+- `api-gateway-service` proxies to internal services and does not parse research artifacts directly.
+- `frontend-service` calls gateway routes through `NEXT_PUBLIC_API_BASE_URL`/`API_GATEWAY_INTERNAL_URL` and no direct frontend calls to internal ports `8001` through `8005` were found.
+- Database runtime inference history is planned by schema (`InferenceHistory`) but no active service endpoint currently persists inference history.
+
+Risk note: multiple extracted services currently depend on the shared `datasets/` artifact folder. This is acceptable for the thesis-stage reporting/demo scope because mounts are read-only and ownership is documented, but stronger domain-owned artifact packaging should be considered before claiming production-grade maturity.
 
 ## Why This Qualifies as Microservice Architecture
 
@@ -170,7 +238,11 @@ Future work may include:
 - service discovery
 - distributed tracing
 - message broker or event-driven workflows
+- migrating selected research summaries into PostgreSQL only when query patterns justify it
+- stronger schema/domain ownership for runtime persistence
 - database-per-service
+- migration and seed pipeline for final thesis demo data
+- inference history endpoint for user-submitted reviews
 - centralized logging
 - circuit breakers and retry policies
 - production secret management

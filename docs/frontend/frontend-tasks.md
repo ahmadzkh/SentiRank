@@ -939,6 +939,41 @@ Completed on 2026-06-05 and revalidated on 2026-06-17. MS-10B changes gateway-ba
 
 ---
 
+## MS-10C - Data Source Policy and Service Ownership Documentation
+
+### Objective
+
+Mendokumentasikan batas data source SentiRank pada arsitektur microservice tahap skripsi: artifact CSV/JSON/model tetap sah sebagai output penelitian read-only, sedangkan database digunakan untuk data runtime user inference history.
+
+### Task Checklist
+
+- [x] Audit dokumentasi arsitektur lama yang masih menyiratkan Next.js API + SQLite/Prisma sebagai desain utama.
+- [x] Audit service yang membaca artifact CSV/JSON.
+- [x] Audit apakah frontend hanya memanggil API Gateway.
+- [x] Dokumentasikan research artifact path dan runtime database path.
+- [x] Dokumentasikan service ownership untuk review, sentiment, aspect, decision, report, api-gateway, dan database service.
+- [x] Dokumentasikan acceptable file-based runtime reads.
+- [x] Dokumentasikan future work database dan domain ownership.
+- [x] Update dokumentasi frontend yang relevan.
+- [x] Tidak mengubah schema database, Docker Compose, backend logic, frontend UI, dataset, model, preprocessing, atau AHP/Fuzzy AHP calculation.
+
+### Acceptance Criteria
+
+- [x] Policy menyatakan CSV/JSON/model artifact boleh dipakai sebagai reproducible research outputs.
+- [x] Policy menyatakan artifact runtime service bersifat read-only dan bukan live user runtime data.
+- [x] Policy menyatakan database digunakan untuk user-submitted inference history dan metadata prediksi.
+- [x] Policy menyatakan frontend hanya boleh membaca data dari API Gateway melalui `NEXT_PUBLIC_API_BASE_URL`.
+- [x] Policy menyatakan frontend tidak boleh membaca CSV/JSON langsung, memanggil internal service port, atau menghitung AHP/Fuzzy AHP.
+- [x] Ownership setiap service terdokumentasi.
+- [x] Risiko shared `datasets/` artifact folder tercatat sebagai batasan thesis-stage.
+- [x] Tidak ada build/test runtime yang diperlukan karena perubahan hanya dokumentasi.
+
+### Completion Note
+
+Completed on 2026-06-17. MS-10C clarifies the data source policy in `docs/microservices/architecture.md`, updates project-level architecture notes in `README.md` and `CLAUDE.md`, and records frontend-facing data access constraints in `frontend/DESIGN.md` plus this tracker. Current audit found that `review-service`, `sentiment-service`, `aspect-service`, and `report-service` read CSV/JSON research artifacts behind service boundaries; `decision-service` owns calculation behavior without reading research CSV/JSON; `api-gateway-service` proxies service responses; and frontend service modules call only Gateway routes.
+
+---
+
 ## MS-11 — Dashboard Finalisasi Penelitian
 
 ### Objective

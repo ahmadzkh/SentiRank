@@ -43,6 +43,20 @@ The system focuses on identifying priority areas for application/service improve
 | Analytics platform      | A multi-user system            |
 | Decision support system | An authentication-based system |
 
+### Current Architecture Status
+
+SentiRank is now in a thesis-stage microservice refactor. The active frontend integration boundary is `api-gateway-service`; frontend code must not call internal service ports directly and must not read local CSV/JSON artifacts.
+
+The canonical microservice and data-source policy is documented in `docs/microservices/architecture.md`. If this file conflicts with that architecture document, the microservice architecture document is the source of truth for service ownership and data-source boundaries.
+
+### Data Source Policy
+
+Research CSV/JSON/model artifacts are allowed and expected for reproducible thesis outputs such as scraped datasets, preprocessing output, labeling output, model evaluation metrics, AHP output, Fuzzy AHP output, ranking comparison output, and dashboard/report snapshots derived from research outputs.
+
+Runtime services may read those artifacts only as read-only research evidence under clear service ownership. They must not present artifact data as live user-generated runtime data.
+
+The database is reserved for user-facing runtime inference history: submitted review text, sentiment result, aspect/criteria result, confidence/probability, model version, prediction source, timestamp, and related inference history. Do not migrate all research CSV/JSON artifacts into the database for this milestone.
+
 ---
 
 ## 2. Tech Stack
@@ -59,11 +73,13 @@ The system focuses on identifying priority areas for application/service improve
 
 ### Backend
 
-| Layer    | Technology             |
-| -------- | ---------------------- |
-| API      | Next.js Route Handlers |
-| ORM      | Prisma                 |
-| Database | SQLite                 |
+| Layer | Technology |
+| --- | --- |
+| Public API | FastAPI `api-gateway-service` |
+| Internal services | FastAPI review, sentiment, aspect, decision, and report services |
+| Research artifacts | Versioned CSV/JSON/model outputs, read-only at runtime |
+| Runtime persistence | Database boundary for user inference history only |
+| Legacy schema/tooling | Prisma/SQLite schema artifacts remain in repo; do not expand them without explicit database work |
 
 ### Machine Learning
 
@@ -121,19 +137,20 @@ uv run python [file]  # Run Python script in venv
 ```
 User
   ↓
-Next.js Dashboard (UI Layer)
+Next.js frontend-service (UI Layer)
   ↓
-Next.js API Route Handlers
+api-gateway-service (public API boundary)
   ↓
-ML Processing Service
-  ├── Preprocessing
-  ├── IndoBERT Sentiment Analysis
-  ├── SVM Aspect Classification
-  └── AHP Ranking Calculation
+Domain FastAPI services
+  ├── review-service
+  ├── sentiment-service
+  ├── aspect-service
+  ├── decision-service
+  └── report-service
   ↓
-SQLite Database (via Prisma)
+Read-only research artifacts for thesis outputs
   ↓
-Visualization Dashboard (Recharts)
+Runtime database only for user inference history
 ```
 
 ### ML Pipeline
@@ -168,7 +185,7 @@ Dataset
 
 ## 6. Project Structure
 
-Architecture: **Feature-based modular architecture with strict separation between Next.js frontend, Next.js API Route Handlers, and Python ML service**
+Architecture: **Thesis-stage microservice architecture with strict separation between Next.js frontend, API Gateway, domain FastAPI services, read-only research artifacts, and runtime inference-history persistence**
 
 ```
 SentiRank/
@@ -176,7 +193,7 @@ SentiRank/
 ├── app/                                    # Next.js App Router — routing and pages only
 │   ├── layout.tsx                          # Root layout
 │   ├── page.tsx                            # Landing page
-│   ├── api/                                # Next.js API Route Handlers (backend boundary)
+│   ├── api/                                # Legacy/planned Next.js Route Handlers; not the active microservice boundary
 │   │   ├── dataset/
 │   │   │   └── route.ts                    # Dataset read endpoints
 │   │   ├── sentiment/
@@ -307,7 +324,7 @@ SentiRank/
 │
 ├── tests/                                  # Frontend and API tests (Jest / Vitest)
 │   ├── unit/                               # Unit tests for utilities and feature logic
-│   └── integration/                        # Integration tests for Next.js API Route Handlers
+│   └── integration/                        # Frontend/API integration tests
 │
 ├── public/                                 # Static public assets served by Next.js
 │
@@ -328,15 +345,21 @@ SentiRank/
 | Path | Responsibility |
 | --- | --- |
 | `app/` | Next.js routing only — pages and layouts; no business logic |
-| `app/api/` | Next.js API Route Handlers only — the backend boundary between UI and data |
+| `app/api/` | Legacy Next.js Route Handler boundary only; do not add new frontend integration here for microservice work |
 | `components/` | Reusable UI components only — no ML, AHP, or database logic |
 | `features/` | Feature-specific frontend logic — hooks, types, data transformers per dashboard module |
-| `services/api/` | Frontend HTTP clients — all `fetch()` calls targeting `app/api/` routes |
-| `services/ml/` | Communication layer between Next.js Route Handlers and the Python ML service |
-| `services/database/` | Database access abstractions and repository functions — wraps Prisma queries |
-| `lib/prisma/` | Prisma client singleton only — no query logic here |
+| `frontend/services/` | Frontend service layer; all browser-facing API calls must use API Gateway routes |
+| `frontend/lib/http-client.ts` | Gateway HTTP client using `NEXT_PUBLIC_API_BASE_URL` and server-side `API_GATEWAY_INTERNAL_URL` |
+| `services/api-gateway/` | Public API Gateway boundary; normalizes routing, response envelopes, and frontend-facing errors |
+| `services/review-service/` | Review dataset metadata, scraping summaries, preprocessing summaries, and review samples |
+| `services/sentiment-service/` | Sentiment model metadata, summaries, evaluation, and sentiment inference behavior |
+| `services/aspect-service/` | Aspect classification metadata, summaries, evaluation, and aspect inference behavior |
+| `services/decision-service/` | AHP, Fuzzy AHP, criteria, judgement processing, weighting, and ranking comparison calculations |
+| `services/report-service/` | Read-only dashboard/report aggregation over owned research outputs |
+| `services/database/` | Legacy/optional database access boundary; use only for runtime inference history work |
+| `lib/prisma/` | Prisma client singleton only when runtime database work is explicitly in scope |
 | `prisma/` | Prisma schema, migrations, and seed scripts only |
-| `ml-service/app/` | FastAPI ML service runtime — inference endpoints exposed to `services/ml/` |
+| `ml-service/app/` | Legacy modular FastAPI ML runtime kept for research/transition work; extracted services own frontend-facing runtime APIs |
 | `ml-service/notebooks/` | Research notebooks for documentation and experimentation only — 8 notebooks map 1-to-1 with research stages; never imported by production code |
 | `ml-service/scripts/` | Reproducible, non-interactive Python scripts — one script per pipeline stage; AHP and Fuzzy AHP must remain in separate scripts |
 | `ml-service/models/` | Python model class definitions and configurations — not trained weights |
@@ -359,27 +382,34 @@ These rules define hard boundaries between system layers. No exceptions without 
 ```
 # UI Layer
 - UI components must not contain ML logic, AHP calculation logic, or Prisma queries
-- Next.js pages must call feature hooks or services layers — never call Prisma directly
+- Next.js pages must call frontend service-layer modules that target API Gateway routes
+- Frontend code must not read CSV/JSON artifacts directly
+- Frontend code must not call internal service ports 8001 through 8005 directly
 - Client Components must not import server-only modules
 
 # API Layer
-- app/api/ Route Handlers are the only backend entry point for the frontend
-- Route Handlers delegate to services/database/ or services/ml/ — no inline logic
-- Route Handlers must validate all inputs before delegating
+- api-gateway-service is the only backend API entry point for the frontend
+- API Gateway delegates to domain services over HTTP and normalizes response/error envelopes
+- Domain service routers must validate inputs before delegating
 
-# ML Service Layer
-- ml-service/app/ is a standalone FastAPI service — it must not import Next.js internals
-- ML inference must be exposed through ml-service/app/ API endpoints only
-- services/ml/ is the only Next.js module allowed to call the ML service
+# Domain Service Layer
+- Extracted FastAPI services must not import Next.js internals
+- review-service owns review/dataset artifact summaries and review samples
+- sentiment-service owns IndoBERT sentiment metadata, summaries, evaluation, and inference behavior
+- aspect-service owns SVM aspect metadata, summaries, evaluation, and inference behavior
+- decision-service owns AHP, Fuzzy AHP, criteria, judgement processing, weighting, and ranking comparison calculations
+- report-service owns read-only aggregation for dashboard/report views
 
 # Data and Artifacts
 - datasets/raw/ must never be modified directly — always treat as immutable source
 - datasets/processed/ must be generated only from scripts or notebooks — never edited manually
+- datasets/outputs/ contains reproducible research outputs and may be read by backend services as read-only artifacts under explicit ownership
 - ml-service/saved_models/ must not contain source code — trained artifacts only
 - saved model artifacts must not be mixed with model definition source files
 - AHP and Fuzzy AHP must be implemented in entirely separate notebooks and separate scripts
 - Ranking comparison must be handled in its own dedicated notebook (08) and script (compare_rankings.py)
 - All output files must be written to datasets/outputs/ — never to raw/ or processed/
+- Do not migrate all research CSV/JSON artifacts into the database for this milestone
 
 # Notebooks
 - ml-service/notebooks/ is for research, experimentation, and academic documentation only
@@ -389,8 +419,9 @@ These rules define hard boundaries between system layers. No exceptions without 
 - Figures exported from notebooks must be saved to the corresponding docs/figures/[stage]/ subfolder
 
 # Database
-- All database access must go through Prisma via services/database/ or lib/prisma/
-- Raw SQL queries are not allowed — use Prisma query API only
+- Database usage is reserved for user-submitted runtime inference history unless a later milestone explicitly expands scope
+- Runtime inference history may include submitted text, sentiment/aspect result, confidence/probability, model version, prediction source, and created_at timestamp
+- Research CSV/JSON/model artifacts are not interactive runtime data and do not need to be stored in the database
 - Database credentials must never be exposed to the client side
 ```
 
@@ -599,14 +630,15 @@ uv run python ml-service/[file] # Run a script inside the venv
 
 ## 14. Database Rules
 
-- SQLite is the primary and **only** database for this project
-- Managed exclusively via **Prisma ORM**
-- Never expose the `.db` file path publicly
+- Database work is for runtime inference history, not bulk research artifact storage
+- The current Prisma schema includes runtime-history and analysis-result models, but MS-10C does not change schema or persistence logic
+- Do not migrate CSV/JSON/model research artifacts into the database unless a later milestone explicitly requires it
+- Use the existing database boundary/tooling when runtime persistence work is explicitly in scope
 - Never run destructive queries without confirmation
 - Never create migrations without confirmation
 - Never expose database credentials to the client side
 
-> **Why SQLite?** Lightweight, zero-config setup, sufficient for research-scale data, and fully compatible with Prisma.
+> **Why not migrate all artifacts now?** CSV/JSON/model outputs are reproducible thesis artifacts. Keeping them read-only preserves experiment traceability and avoids unnecessary database migration during the microservice boundary milestone.
 
 ---
 
@@ -760,8 +792,8 @@ If any instruction or prompt is ambiguous, **ask first before coding**. Never as
 - Do not mix business logic inside UI components
 
 # Database
-- Do not use PostgreSQL
 - Do not use MongoDB
+- Do not migrate research CSV/JSON/model artifacts into the database without an explicit milestone
 - Do not run commands that modify or delete production data
 - Do not create database migrations without confirmation
 - Do not expose database credentials to the client
@@ -770,7 +802,7 @@ If any instruction or prompt is ambiguous, **ask first before coding**. Never as
 - Do not expose API keys or any secret to the client
 - Do not bypass user input validation
 - Do not skip error handling in API routes
-- Do not expose the SQLite .db file path publicly
+- Do not expose database file paths, connection strings, or credentials publicly
 - Do not expose sanitized dataset files outside the server
 ```
 

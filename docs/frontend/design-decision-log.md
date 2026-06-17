@@ -8,11 +8,11 @@
 | Module           | Frontend UI/UX                     |
 | Document         | Design Decision Log                |
 | Track            | Frontend Track                     |
-| Current Phase    | FE-12 — API Integration Preparation |
+| Current Phase    | MS-10C - Data Source Policy |
 | Default Theme    | Light Mode                         |
 | Visual Direction | SentiRank Research Analytics Light |
 | Status           | Draft                              |
-| Last Updated     | 2026-06-02                         |
+| Last Updated     | 2026-06-17                         |
 
 ---
 
@@ -1407,3 +1407,27 @@ Impact:
 
 - `frontend/lib/http-client.ts`, `frontend/lib/api-status.ts`, dan `ApiGatewayAlert` menjadi sumber perilaku error yang konsisten.
 - Dashboard, shared chart/table empty states, dan halaman AHP/Fuzzy AHP mengikuti kontrak zero/empty fallback MS-10B.
+
+---
+
+## 2026-06-17 - MS-10C Data Source Policy
+
+Decision:
+
+- Frontend SentiRank hanya boleh membaca data melalui API Gateway, menggunakan `NEXT_PUBLIC_API_BASE_URL` untuk browser-facing requests dan `API_GATEWAY_INTERNAL_URL` hanya untuk server-side/Docker routing ke Gateway yang sama.
+- CSV/JSON/model artifact penelitian tetap sah sebagai reproducible research outputs dan tidak perlu dimigrasikan penuh ke database pada milestone ini.
+- Artifact penelitian adalah read-only bagi runtime service dan tidak boleh dipresentasikan sebagai live user-generated runtime data.
+- Database boundary digunakan untuk user-facing runtime inference history, seperti submitted review text, sentiment/aspect result, confidence/probability, model version, prediction source, dan timestamp.
+- Service ownership mengikuti domain: review-service untuk dataset/scraping/preprocessing/review samples, sentiment-service untuk IndoBERT summaries/evaluation/inference behavior, aspect-service untuk SVM summaries/evaluation/inference behavior, decision-service untuk AHP/Fuzzy AHP criteria/calculation/judgement/ranking comparison, report-service untuk read-only dashboard/report aggregation, api-gateway-service untuk routing/envelope/error normalization, dan database-service untuk runtime inference history.
+
+Reason:
+
+- Memindahkan seluruh artifact CSV/JSON ke database sekarang akan memperbesar scope tanpa manfaat langsung untuk MS-10C.
+- Untuk skripsi, artifact pipeline penelitian perlu tetap traceable dan reproducible.
+- Batas gateway menjaga frontend tetap konsisten dengan arsitektur microservice dan mencegah UI bergantung pada file lokal atau internal service ports.
+
+Impact:
+
+- Dokumentasi arsitektur perlu menjelaskan dua jalur data: research artifact path dan runtime database path.
+- Shared `datasets/` mount tetap dapat diterima untuk thesis-stage demo/reporting selama read-only dan ownership jelas.
+- Future work mencakup migrasi selected research summaries ke PostgreSQL bila dibutuhkan, domain ownership yang lebih kuat, database-per-service opsional, seed/migration pipeline demo final, dan inference history endpoint.

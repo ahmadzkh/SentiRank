@@ -38,6 +38,8 @@ SentiRank should feel clean, academic, analytical, professional, readable, and c
 - Keep navigation predictable across the full analysis workflow.
 - Make AHP/Fuzzy AHP outputs understandable, not only numeric.
 - Historical FE mock data remains available for design reference, but gateway-backed demo pages must use API Gateway data or explicit zero/empty states.
+- Research CSV/JSON artifacts are backend-owned read-only evidence; frontend must never read them directly or present them as live runtime user data.
+- Runtime inference history belongs to the database boundary, not to static frontend data or local artifacts.
 - Use a restrained SaaS analytics style with white surfaces, slate/off-white background, and blue accent.
 
 ---
@@ -578,5 +580,9 @@ shadcn/ui:
 API readiness:
 
 - UI should work with API Gateway data first on integrated pages.
+- Browser-facing data access must use `NEXT_PUBLIC_API_BASE_URL`; server-rendered frontend requests may use `API_GATEWAY_INTERNAL_URL` only to reach the same API Gateway inside Docker.
+- Frontend services must not call `review-service`, `sentiment-service`, `aspect-service`, `decision-service`, or `report-service` ports directly.
+- Frontend must not read `datasets/`, `docs/figures/`, or model artifact files directly.
+- Frontend must not calculate AHP/Fuzzy AHP; calculation and read-only results stay behind gateway-backed services.
 - Data sections must map cleanly to future FastAPI endpoints.
 - Loading, empty, error, and success states should be planned for every data-heavy page.
