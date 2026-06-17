@@ -1,0 +1,26 @@
+[
+  {
+    "stage": "raw_content",
+    "count": 96534,
+    "min": 2,
+    "median": 37.0,
+    "mean": 64.0147202022,
+    "max": 636
+  },
+  {
+    "stage": "text_indobert",
+    "count": 96534,
+    "min": 2,
+    "median": 37.0,
+    "mean": 64.0107837653,
+    "max": 628
+  },
+  {
+    "stage": "text_svm",
+    "count": 96534,
+    "min": 2,
+    "median": 37.0,
+    "mean": 63.0766465701,
+    "max": 737
+  }
+]

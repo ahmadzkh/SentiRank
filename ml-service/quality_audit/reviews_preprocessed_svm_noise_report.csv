@@ -1,0 +1,42 @@
+external_id,rating,final_sentiment,original_text,cleaned_text,text_indobert,text_svm,preprocessing_status,drop_reason,text_length_before,text_length_after,alphabet_char_count,digit_char_count,symbol_char_count,token_count,morse_char_ratio,symbol_char_ratio,digit_char_ratio
+96e6b8f5-f54b-4a60-ae1d-e4d613dfaac7,1,Negative,ʙᴀɴʏᴀᴋ ɪᴋʟᴀɴ ᴍᴇɴᴅᴜᴋᴜɴɢ ɪsʀᴀᴇʟ,s,ʙᴀɴʏᴀᴋ ɪᴋʟᴀɴ ᴍᴇɴᴅᴜᴋᴜɴɢ ɪsʀᴀᴇʟ,s,dropped,too_few_alphabet_chars,29,1,1,0,0,1,0.0,0.0,0.0
+267db84c-7ae8-49a8-aa38-dc8d5cc1221c,1,Negative,ㄒ丨ᗪ卂Ҝ 乃丨丂卂 爪卂丂ㄩҜ Ҝ乇 丂卩ㄖㄒ丨千ㄚ,,ㄒ丨ᗪ卂Ҝ 乃丨丂卂 爪卂丂ㄩҜ Ҝ乇 丂卩ㄖㄒ丨千ㄚ,,dropped,too_short_after_cleaning,27,0,0,0,0,0,0.0,0.0,0.0
+a60a97c3-f400-47e3-9908-535c316dc8c0,1,Negative,لكن هذا هو باي,,لكن هذا هو باي,,dropped,too_short_after_cleaning,14,0,0,0,0,0,0.0,0.0,0.0
+0b5cf907-b6c4-40d0-87fd-9bc83a6ce77b,1,Negative,兔 辣姐姐,,兔 辣姐姐,,dropped,too_short_after_cleaning,5,0,0,0,0,0,0.0,0.0,0.0
+a0bc2c4c-8bb3-4e26-96e7-cb1e1bf2e83d,1,Negative,ʏᴇᴇᴇᴇᴇ,,ʏᴇᴇᴇᴇᴇ,,dropped,too_short_after_cleaning,6,0,0,0,0,0,0.0,0.0,0.0
+b7b90526-c81b-4438-aa3f-92a9edf9f632,1,Negative,( θ ‿ θ ),,( θ ‿ θ ),,dropped,too_short_after_cleaning,9,0,0,0,3,0,0.0,0.6,0.0
+2286a5c4-39dc-48cb-8aa8-a5f6a76a6723,1,Negative,ᅥ너어ᅮ를,,ᅥ너어ᅮ를,,dropped,too_short_after_cleaning,5,0,0,0,0,0,0.0,0.0,0.0
+19756c9a-460e-4ce8-89bc-0eb13d854709,1,Negative,صشءصش,,صشءصش,,dropped,too_short_after_cleaning,5,0,0,0,0,0,0.0,0.0,0.0
+0d69e6cd-f7be-4e9f-a2a8-0df954347e85,1,Negative,ムグダエティギイパプル,,ムグダエティギイパプル,,dropped,too_short_after_cleaning,11,0,0,0,0,0,0.0,0.0,0.0
+57f50ffa-36d7-41a3-8da6-0e13df5a50af,1,Negative,☯️割禁満合祝️祝️祝️祝️満合営合営秘️営営祝️割営割無無営禁禁禁禁無営営営申申申秘️合無祝️🅾️秘️営営営合営祝️秘️営合可満満合営祝️合無営合営営営合営祝️合秘️祝️祝️無営合営祝️秘️満営営満営営満月️祝️営🆑🆎得満満祝️満営満祝️,,☯️割禁満合祝️祝️祝️祝️満合営合営秘️営営祝️割営割無無営禁禁禁禁無営営営申申申秘️合無祝️🅾️秘️営営営合営祝️秘️営合可満満合営祝️合無営合営営営合営祝️合秘️祝️祝️無営合営祝️秘️満営営満営営満月️祝️営🆑🆎得満満祝️満営満祝️,,dropped,too_short_after_cleaning,120,0,0,0,28,0,0.0,0.233333,0.0
+66555aea-aade-417f-9ae9-69ed1fb4f7c5,2,Negative,ǫᴡᴇʀʀʏᴜɪ,,ǫᴡᴇʀʀʏᴜɪ,,dropped,too_short_after_cleaning,8,0,0,0,0,0,0.0,0.0,0.0
+03990e64-2015-478b-9298-1ceab4c4afdd,2,Negative,ßàñĝàþ ɓàĝùß,,ßàñĝàþ ɓàĝùß,,dropped,too_short_after_cleaning,12,0,0,0,0,0,0.0,0.0,0.0
+32d7f068-173a-4958-b99b-017e1e778d18,2,Negative,سانعات مامبانتو,,سانعات مامبانتو,,dropped,too_short_after_cleaning,15,0,0,0,0,0,0.0,0.0,0.0
+7121aaa1-4484-4036-8bfa-89f9edee4d62,2,Negative,ریییییری ییيّقیْيیريیريیيییرر﷽رررییبیبییبب,,ریییییری ییيّقیْيیريیريیيییرر﷽رررییبیبییبب,,dropped,too_short_after_cleaning,42,0,0,0,3,0,0.0,0.073171,0.0
+21122f2b-dc6a-4abc-8383-0c3af531c7b1,2,Negative,佐か南摩 ゎなのえてまわ,,佐か南摩 ゎなのえてまわ,,dropped,too_short_after_cleaning,12,0,0,0,0,0,0.0,0.0,0.0
+c47eaca6-1dde-4f28-81a6-f1bfed0bec24,2,Negative,qà,q,qà,q,dropped,too_few_alphabet_chars,2,1,1,0,0,1,0.0,0.0,0.0
+108de18e-7f5f-4b64-8e16-18c5bcf4b43b,2,Negative,т∂αк мємєвαηтυ,,т∂αк мємєвαηтυ,,dropped,too_short_after_cleaning,14,0,0,0,1,0,0.0,0.076923,0.0
+e8f7fd94-652b-4b76-9bf2-2cf6ce604d97,3,Neutral,.ومن كل,,.ومن كل,,dropped,too_short_after_cleaning,7,0,0,0,1,0,0.166667,0.166667,0.0
+106f432c-9790-4e8f-9013-2c70fc382308,3,Neutral,광고가 너무 멋지네요!!!!,,광고가 너무 멋지네요!!!!,,dropped,too_short_after_cleaning,15,0,0,0,4,0,0.0,0.307692,0.0
+b3a10ded-e592-4a40-9532-95d889bb7cf3,3,Neutral,لا، بؤقيب٤ ى رى ، ٣٤٤ةةقب ،٥ظ ، صؤش رق٥ىوي ثي ،ل، 5ثبير,5,لا، بؤقيب٤ ى رى ، ٣٤٤ةةقب ،٥ظ ، صؤش رق٥ىوي ثي ،ل، 5ثبير,5,dropped,too_few_alphabet_chars,55,1,0,7,6,1,0.0,0.139535,0.162791
+138eeba3-1518-47d3-b775-d32075c7b10e,3,Neutral,میں اُسّی آکھّگا دی ہی جندُ ابْراہم اَے جے ساڑھے آسیآ کِیتے ن جے کِش نیءیں ہوآ اَے جیہْڑی مُسِیبت گی لیءیَے تْری دی کمی اُنینگی کْشما تے اُنے مانُءی,,میں اُسّی آکھّگا دی ہی جندُ ابْراہم اَے جے ساڑھے آسیآ کِیتے ن جے کِش نیءیں ہوآ اَے جیہْڑی مُسِیبت گی لیءیَے تْری دی کمی اُنینگی کْشما تے اُنے مانُءی,,dropped,too_short_after_cleaning,148,0,0,0,18,0,0.0,0.151261,0.0
+01facfa2-cb1c-4a82-8d50-56c044d2cd7e,3,Neutral,ㄩ几ㄒㄩҜ 丂乇爪乇几ㄒ卂尺卂 卂Ҝㄩ Ҝ卂丂|卄 乃|几ㄒ卂几ᘜ 3 卂フ卂 Ҝ卂尺几卂 |Ҝㄥ卂爪 ㄒ乇尺ㄩ丂,3,ㄩ几ㄒㄩҜ 丂乇爪乇几ㄒ卂尺卂 卂Ҝㄩ Ҝ卂丂|卄 乃|几ㄒ卂几ᘜ 3 卂フ卂 Ҝ卂尺几卂 |Ҝㄥ卂爪 ㄒ乇尺ㄩ丂,3,dropped,too_few_alphabet_chars,57,1,0,1,3,1,0.0,0.0625,0.020833
+48109928-28b0-47c7-a3a0-289f3522fc15,3,Neutral,ᑲᥲᥒᥡᥲᥲ іkᥣᥲᥒ,k,ᑲᥲᥒᥡᥲᥲ іkᥣᥲᥒ,k,dropped,too_few_alphabet_chars,12,1,1,0,0,1,0.0,0.0,0.0
+6c0e9f82-ae52-4fbc-99f5-089362ac679f,3,Neutral,A تة٦،تم راغبة ع، ؤعغ٦٥,a,A تة٦،تم راغبة ع، ؤعغ٦٥,a,dropped,too_few_alphabet_chars,23,1,1,3,2,1,0.0,0.105263,0.157895
+e30c3f55-e970-45c4-95d5-1953602800b6,3,Neutral,‘饿点击俄军,,‘饿点击俄军,,dropped,too_short_after_cleaning,6,0,0,0,1,0,0.0,0.166667,0.0
+d0bc2f11-c2ca-487a-9198-a04360e814a2,3,Neutral,"休闲鞋出烦人的,",,"休闲鞋出烦人的,",,dropped,too_short_after_cleaning,8,0,0,0,1,0,0.0,0.125,0.0
+232e8447-2908-4416-8ac8-d301597e7676,3,Neutral,Đ฿ⱨł,,Đ฿ⱨł,,dropped,too_short_after_cleaning,4,0,0,0,1,0,0.0,0.25,0.0
+a67fad0c-8944-492a-b3a2-4a5cef7d91ee,3,Neutral,나쁘지 않은,,나쁘지 않은,,dropped,too_short_after_cleaning,6,0,0,0,0,0,0.0,0.0,0.0
+b84cf004-e122-4f9a-b9b2-de8d3783e7ff,4,Positive,ᴋᴜʀᴀɴɢɪɴ ɪᴋʟᴀɴɴʏᴀ,,ᴋᴜʀᴀɴɢɪɴ ɪᴋʟᴀɴɴʏᴀ,,dropped,too_short_after_cleaning,17,0,0,0,0,0,0.0,0.0,0.0
+4a3a533c-ea1f-4b57-824d-6f8580ac634b,4,Positive,恋愛地獄へようこそ,,恋愛地獄へようこそ,,dropped,too_short_after_cleaning,9,0,0,0,0,0,0.0,0.0,0.0
+4c7d41bf-d99f-4001-b683-8792d05dc7fd,4,Positive,노래 가사가 왜 이렇게 많이 빠졌나요?,,노래 가사가 왜 이렇게 많이 빠졌나요?,,dropped,too_short_after_cleaning,21,0,0,0,1,0,0.0,0.0625,0.0
+3ada2552-4fda-44d8-ad99-5f8de0b40390,4,Positive,Много грозен,,Много грозен,,dropped,too_short_after_cleaning,12,0,0,0,0,0,0.0,0.0,0.0
+7c07debf-562e-41fe-a244-fb974c9f5bbf,5,Positive,التطبيق جيد,,التطبيق جيد,,dropped,too_short_after_cleaning,11,0,0,0,0,0,0.0,0.0,0.0
+88630e6b-b73b-4ec7-bbb8-16f4bbf1cdb7,5,Positive,عجيب,,عجيب,,dropped,too_short_after_cleaning,4,0,0,0,0,0,0.0,0.0,0.0
+9fdef347-b27e-457f-a1f5-a514b534247d,5,Positive,єηαк ∂ι∂єηgαя,g,єηαк ∂ι∂єηgαя,g,dropped,too_few_alphabet_chars,13,1,1,0,2,1,0.0,0.166667,0.0
+09367440-0712-4781-8580-e3137f953369,5,Positive,"这款应用真的很好用,适合在做家务、躺着或运动时听音乐。",,"这款应用真的很好用,适合在做家务、躺着或运动时听音乐。",,dropped,too_short_after_cleaning,27,0,0,0,3,0,0.0,0.111111,0.0
+5f7689f4-8513-4116-9faa-9c3219813381,5,Positive,노래가 아주 많아요,,노래가 아주 많아요,,dropped,too_short_after_cleaning,10,0,0,0,0,0,0.0,0.0,0.0
+7c659ccd-eebc-4d16-a3a5-e1db785c370a,5,Positive,非常好,,非常好,,dropped,too_short_after_cleaning,3,0,0,0,0,0,0.0,0.0,0.0
+e13724c7-1f58-4ec6-acd6-da269c3f2267,5,Positive,ʙᴀɢᴜs ʙᴜᴀᴛ ᴅᴇɴɢᴇʀ ʟᴀɢᴜ,s,ʙᴀɢᴜs ʙᴜᴀᴛ ᴅᴇɴɢᴇʀ ʟᴀɢᴜ,s,dropped,too_few_alphabet_chars,22,1,1,0,0,1,0.0,0.0,0.0
+7903e6ac-6a22-4446-8a43-078d758681c7,5,Positive,ᴀᴋᴜ sᴜᴋᴀ ᴛᴀᴘɪ ʙᴀɴʏᴀᴋ ɪᴋʟᴀɴ,s,ᴀᴋᴜ sᴜᴋᴀ ᴛᴀᴘɪ ʙᴀɴʏᴀᴋ ɪᴋʟᴀɴ,s,dropped,too_few_alphabet_chars,26,1,1,0,0,1,0.0,0.0,0.0
+2f454da4-5f97-41d5-a4e4-9d596847772b,5,Positive,非常に適しており,,非常に適しており,,dropped,too_short_after_cleaning,8,0,0,0,0,0,0.0,0.0,0.0

@@ -95,8 +95,18 @@ def prepare_dataset(
 ) -> tuple[pd.DataFrame, dict[str, int]]:
     validate_columns(dataframe, [text_column, label_column])
     initial_rows = int(len(dataframe))
-    valid_label_mask = dataframe[label_column].isin(LABEL_MAPPING)
-    valid_label_rows = dataframe[valid_label_mask].copy()
+    working = dataframe.copy()
+    preprocessing_status_rows_removed = 0
+
+    if "preprocessing_status" in working.columns:
+        valid_preprocessing_mask = (
+            working["preprocessing_status"].fillna("").astype(str).eq("valid")
+        )
+        preprocessing_status_rows_removed = int((~valid_preprocessing_mask).sum())
+        working = working.loc[valid_preprocessing_mask].copy()
+
+    valid_label_mask = working[label_column].isin(LABEL_MAPPING)
+    valid_label_rows = working[valid_label_mask].copy()
     valid_label_rows[text_column] = valid_label_rows[text_column].fillna("").astype(str)
     non_empty_text_mask = valid_label_rows[text_column].str.strip().ne("")
     prepared = valid_label_rows[non_empty_text_mask].copy()
@@ -104,6 +114,8 @@ def prepare_dataset(
 
     validation_counts = {
         "initial_rows": initial_rows,
+        "preprocessing_status_rows_removed": preprocessing_status_rows_removed,
+        "rows_after_preprocessing_status_filter": int(len(working)),
         "invalid_label_rows_removed": int((~valid_label_mask).sum()),
         "empty_text_rows_removed": int((~non_empty_text_mask).sum()),
         "valid_rows": int(len(prepared)),

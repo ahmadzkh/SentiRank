@@ -100,6 +100,17 @@ def validate_dataframe(dataframe: pd.DataFrame, dataset_name: str) -> None:
     if empty_text_count:
         raise ValueError(f"{dataset_name} contains {empty_text_count} empty text rows")
 
+    if "preprocessing_status" in dataframe.columns:
+        valid_preprocessing_mask = (
+            dataframe["preprocessing_status"].fillna("").astype(str).eq("valid")
+        )
+        dropped_status_count = int((~valid_preprocessing_mask).sum())
+        if dropped_status_count:
+            raise ValueError(
+                f"{dataset_name} contains {dropped_status_count} non-valid "
+                "preprocessing rows"
+            )
+
 
 def load_label_mapping(path: Path) -> dict[str, int]:
     validate_file_exists(path)

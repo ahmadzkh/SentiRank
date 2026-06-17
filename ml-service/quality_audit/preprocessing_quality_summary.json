@@ -1,0 +1,224 @@
+{
+  "drop_reason_distribution": {
+    "too_few_alphabet_chars": 9,
+    "too_short_after_cleaning": 32
+  },
+  "dropped_rows": 41,
+  "empty_text_indobert_count": 0,
+  "empty_text_svm_count": 0,
+  "generated_at": "2026-06-17T08:44:09.328079+00:00",
+  "label_column": "final_sentiment",
+  "label_distribution_final": {
+    "Negative": 39415,
+    "Neutral": 17285,
+    "Positive": 39834
+  },
+  "missing_source_text_count": 0,
+  "sample_dropped_rows": [
+    {
+      "alphabet_char_count": 1,
+      "cleaned_text": "s",
+      "digit_char_count": 0,
+      "drop_reason": "too_few_alphabet_chars",
+      "external_id": "96e6b8f5-f54b-4a60-ae1d-e4d613dfaac7",
+      "original_text": "\u0299\u1d00\u0274\u028f\u1d00\u1d0b \u026a\u1d0b\u029f\u1d00\u0274 \u1d0d\u1d07\u0274\u1d05\u1d1c\u1d0b\u1d1c\u0274\u0262 \u026as\u0280\u1d00\u1d07\u029f",
+      "symbol_char_count": 0,
+      "text_length_after": 1,
+      "text_length_before": 29
+    },
+    {
+      "alphabet_char_count": 0,
+      "cleaned_text": "",
+      "digit_char_count": 0,
+      "drop_reason": "too_short_after_cleaning",
+      "external_id": "267db84c-7ae8-49a8-aa38-dc8d5cc1221c",
+      "original_text": "\u3112\u4e28\u15ea\u5342\u049c \u4e43\u4e28\u4e02\u5342 \u722a\u5342\u4e02\u3129\u049c \u049c\u4e47 \u4e02\u5369\u3116\u3112\u4e28\u5343\u311a",
+      "symbol_char_count": 0,
+      "text_length_after": 0,
+      "text_length_before": 27
+    },
+    {
+      "alphabet_char_count": 0,
+      "cleaned_text": "",
+      "digit_char_count": 0,
+      "drop_reason": "too_short_after_cleaning",
+      "external_id": "a60a97c3-f400-47e3-9908-535c316dc8c0",
+      "original_text": "\u0644\u0643\u0646 \u0647\u0630\u0627 \u0647\u0648 \u0628\u0627\u064a",
+      "symbol_char_count": 0,
+      "text_length_after": 0,
+      "text_length_before": 14
+    },
+    {
+      "alphabet_char_count": 0,
+      "cleaned_text": "",
+      "digit_char_count": 0,
+      "drop_reason": "too_short_after_cleaning",
+      "external_id": "0b5cf907-b6c4-40d0-87fd-9bc83a6ce77b",
+      "original_text": "\u5154 \u8fa3\u59d0\u59d0",
+      "symbol_char_count": 0,
+      "text_length_after": 0,
+      "text_length_before": 5
+    },
+    {
+      "alphabet_char_count": 0,
+      "cleaned_text": "",
+      "digit_char_count": 0,
+      "drop_reason": "too_short_after_cleaning",
+      "external_id": "a0bc2c4c-8bb3-4e26-96e7-cb1e1bf2e83d",
+      "original_text": "\u028f\u1d07\u1d07\u1d07\u1d07\u1d07",
+      "symbol_char_count": 0,
+      "text_length_after": 0,
+      "text_length_before": 6
+    },
+    {
+      "alphabet_char_count": 0,
+      "cleaned_text": "",
+      "digit_char_count": 0,
+      "drop_reason": "too_short_after_cleaning",
+      "external_id": "b7b90526-c81b-4438-aa3f-92a9edf9f632",
+      "original_text": "( \u03b8 \u203f \u03b8 )",
+      "symbol_char_count": 3,
+      "text_length_after": 0,
+      "text_length_before": 9
+    },
+    {
+      "alphabet_char_count": 0,
+      "cleaned_text": "",
+      "digit_char_count": 0,
+      "drop_reason": "too_short_after_cleaning",
+      "external_id": "2286a5c4-39dc-48cb-8aa8-a5f6a76a6723",
+      "original_text": "\u1165\ub108\uc5b4\u116e\ub97c",
+      "symbol_char_count": 0,
+      "text_length_after": 0,
+      "text_length_before": 5
+    },
+    {
+      "alphabet_char_count": 0,
+      "cleaned_text": "",
+      "digit_char_count": 0,
+      "drop_reason": "too_short_after_cleaning",
+      "external_id": "19756c9a-460e-4ce8-89bc-0eb13d854709",
+      "original_text": "\u0635\u0634\u0621\u0635\u0634",
+      "symbol_char_count": 0,
+      "text_length_after": 0,
+      "text_length_before": 5
+    },
+    {
+      "alphabet_char_count": 0,
+      "cleaned_text": "",
+      "digit_char_count": 0,
+      "drop_reason": "too_short_after_cleaning",
+      "external_id": "0d69e6cd-f7be-4e9f-a2a8-0df954347e85",
+      "original_text": "\u30e0\u30b0\u30c0\u30a8\u30c6\u30a3\u30ae\u30a4\u30d1\u30d7\u30eb",
+      "symbol_char_count": 0,
+      "text_length_after": 0,
+      "text_length_before": 11
+    },
+    {
+      "alphabet_char_count": 0,
+      "cleaned_text": "",
+      "digit_char_count": 0,
+      "drop_reason": "too_short_after_cleaning",
+      "external_id": "57f50ffa-36d7-41a3-8da6-0e13df5a50af",
+      "original_text": "\u262f\ufe0f\u5272\u7981\u6e80\u5408\u795d\ufe0f\u795d\ufe0f\u795d\ufe0f\u795d\ufe0f\u6e80\u5408\u55b6\u5408\u55b6\u79d8\ufe0f\u55b6\u55b6\u795d\ufe0f\u5272\u55b6\u5272\u7121\u7121\u55b6\u7981\u7981\u7981\u7981\u7121\u55b6\u55b6\u55b6\u7533\u7533\u7533\u79d8\ufe0f\u5408\u7121\u795d\ufe0f\ud83c\udd7e\ufe0f\u79d8\ufe0f\u55b6\u55b6\u55b6\u5408\u55b6\u795d\ufe0f\u79d8\ufe0f\u55b6\u5408\u53ef\u6e80\u6e80\u5408\u55b6\u795d\ufe0f\u5408\u7121\u55b6\u5408\u55b6\u55b6\u55b6\u5408\u55b6\u795d\ufe0f\u5408\u79d8\ufe0f\u795d\ufe0f\u795d\ufe0f\u7121\u55b6\u5408\u55b6\u795d\ufe0f\u79d8\ufe0f\u6e80\u55b6\u55b6\u6e80\u55b6\u55b6\u6e80\u6708\ufe0f\u795d\ufe0f\u55b6\ud83c\udd91\ud83c\udd8e\u5f97\u6e80\u6e80\u795d\ufe0f\u6e80\u55b6\u6e80\u795d\ufe0f",
+      "symbol_char_count": 28,
+      "text_length_after": 0,
+      "text_length_before": 120
+    }
+  ],
+  "sample_short_valid_rows": [
+    {
+      "cleaned_text": "pelitt",
+      "drop_reason": "valid",
+      "external_id": "6e6d973f-af03-460f-9ff3-b6e319825744",
+      "original_text": "pelitttt",
+      "text_length_after": 6,
+      "text_length_before": 8,
+      "token_count": 1
+    },
+    {
+      "cleaned_text": "iklan kon",
+      "drop_reason": "valid",
+      "external_id": "c05deadd-efc7-4c87-a0f2-fdcc34e99097",
+      "original_text": "iklan kon",
+      "text_length_after": 9,
+      "text_length_before": 9,
+      "token_count": 2
+    },
+    {
+      "cleaned_text": "bayar mulu",
+      "drop_reason": "valid",
+      "external_id": "caa41a5d-ae2d-4ca9-9869-75c4c4b3f383",
+      "original_text": "bayar mulu",
+      "text_length_after": 10,
+      "text_length_before": 10,
+      "token_count": 2
+    },
+    {
+      "cleaned_text": "bagus",
+      "drop_reason": "valid",
+      "external_id": "459d0734-7eae-42cb-b5ae-39ee22fe48f6",
+      "original_text": "bagus",
+      "text_length_after": 5,
+      "text_length_before": 5,
+      "token_count": 1
+    },
+    {
+      "cleaned_text": "keren",
+      "drop_reason": "valid",
+      "external_id": "c337c46f-acfd-4abc-92b0-513c8650f317",
+      "original_text": "keren",
+      "text_length_after": 5,
+      "text_length_before": 5,
+      "token_count": 1
+    },
+    {
+      "cleaned_text": "byk iklan",
+      "drop_reason": "valid",
+      "external_id": "d42db36c-8010-486a-ad63-da5ac2310f33",
+      "original_text": "byk iklan",
+      "text_length_after": 9,
+      "text_length_before": 9,
+      "token_count": 2
+    },
+    {
+      "cleaned_text": "bagus",
+      "drop_reason": "valid",
+      "external_id": "4a87fa90-21a8-4727-8c89-bad91c25e924",
+      "original_text": "bagus",
+      "text_length_after": 5,
+      "text_length_before": 5,
+      "token_count": 1
+    },
+    {
+      "cleaned_text": "boikot",
+      "drop_reason": "valid",
+      "external_id": "db468ec8-130e-44db-8662-fd4feb98e604",
+      "original_text": "boikot",
+      "text_length_after": 6,
+      "text_length_before": 6,
+      "token_count": 1
+    },
+    {
+      "cleaned_text": "kikir",
+      "drop_reason": "valid",
+      "external_id": "61ea0004-0a78-4268-aee4-1cda9529f2ec",
+      "original_text": "kikir",
+      "text_length_after": 5,
+      "text_length_before": 5,
+      "token_count": 1
+    },
+    {
+      "cleaned_text": "jelek banget",
+      "drop_reason": "valid",
+      "external_id": "89899b74-5c85-4541-bf6e-86c51e86aae4",
+      "original_text": "Jelek banget,",
+      "text_length_after": 12,
+      "text_length_before": 13,
+      "token_count": 2
+    }
+  ],
+  "total_rows": 96534,
+  "total_rows_before_quality_filter": 96575,
+  "valid_rows": 96534
+}
