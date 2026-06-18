@@ -61,7 +61,7 @@ def root() -> dict:
 @app.get("/health")
 def health() -> dict:
     """Return health status for Docker Compose checks."""
-    model_status = AspectClassifierService(settings).model_status()
+    runtime_metadata = AspectClassifierService(settings).runtime_metadata()
     return response(
         "Aspect service is healthy.",
         {
@@ -69,6 +69,10 @@ def health() -> dict:
             "status": "healthy",
             "version": SERVICE_VERSION,
             "port": SERVICE_PORT,
-            "model_status": model_status,
+            "model_status": runtime_metadata["model_status"],
+            "model_available": runtime_metadata["model_available"],
+            "model_name": runtime_metadata["model_name"],
+            "model_path_configured": runtime_metadata["model_path_configured"],
+            "prediction_source": runtime_metadata["prediction_source"],
         },
     )

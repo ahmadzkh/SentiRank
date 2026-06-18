@@ -567,7 +567,31 @@ Request:
 }
 ```
 
-Fallback response when real SVM artifact loading is not enabled:
+Model response when the SVM artifact is available:
+
+```json
+{
+  "success": true,
+  "message": "Aspect classification completed.",
+  "data": {
+    "text": "Iklan terlalu banyak dan mengganggu.",
+    "label": "Ads Experience",
+    "confidence": null,
+    "scores": {},
+    "classifier_name": "merged_5class",
+    "mode": "model",
+    "prediction_source": "model",
+    "model_name": "svm_merged_5class",
+    "model_available": true,
+    "is_fallback": false,
+    "warnings": [
+      "SVM aspect model does not expose predict_proba; confidence is not available."
+    ]
+  }
+}
+```
+
+Fallback response when real SVM artifact loading is unavailable or inference fails:
 
 ```json
 {
@@ -586,14 +610,18 @@ Fallback response when real SVM artifact loading is not enabled:
     },
     "classifier_name": "merged_5class",
     "mode": "fallback",
+    "prediction_source": "fallback_keyword",
+    "model_name": null,
+    "model_available": false,
+    "is_fallback": true,
     "warnings": [
-      "SVM aspect model artifact is not available in this environment. Returning fallback demo classification."
+      "SVM aspect model artifact is not available in this environment. Returning fallback keyword classification."
     ]
   }
 }
 ```
 
-Fallback mode is for service integration and demo behavior only. It must not be interpreted as real SVM inference.
+Fallback mode is for service continuity only. It must not be interpreted as real SVM inference.
 
 ### Aspect Summary
 
@@ -619,6 +647,10 @@ Response:
       "Account/Login"
     ],
     "model_status": "available",
+    "model_available": true,
+    "model_name": "svm_merged_5class",
+    "model_path_configured": true,
+    "prediction_source": "model",
     "aspect_distribution": {
       "Features & Content": 7767,
       "Ads Experience": 4691,

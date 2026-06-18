@@ -51,9 +51,22 @@ environment:
 
 Even if the artifact is detected, MS-08 keeps classification fallback-only. Real SVM artifact loading should be implemented in a later explicit model-serving phase.
 
-## Fallback Demo Behavior
+MS-11A implements that later model-serving phase. `aspect-service` now loads the SVM pipeline artifact when available and uses keyword fallback only when the artifact is missing, cannot be loaded, or inference fails.
 
-When real model inference is unavailable, `POST /aspects/classify` returns deterministic fallback demo classification with `mode: "fallback"` and an explicit warning.
+Runtime configuration:
+
+```yaml
+environment:
+  ASPECT_MODEL_DIR: /app/models/svm
+  # Optional direct override:
+  SVM_ASPECT_MODEL_PATH: /app/models/svm/svm_merged_5class_pipeline.joblib
+```
+
+## Model and Fallback Behavior
+
+When the model artifact is available, `POST /aspects/classify` returns `mode: "model"`, `prediction_source: "model"`, `model_name: "svm_merged_5class"`, and `is_fallback: false`.
+
+When real model inference is unavailable, `POST /aspects/classify` returns deterministic fallback keyword classification with `mode: "fallback"`, `prediction_source: "fallback_keyword"`, `model_name: null`, and `is_fallback: true`.
 
 Fallback keyword routing:
 
@@ -64,7 +77,7 @@ Fallback keyword routing:
 - lagu/playlist/audio/lirik/download/podcast -> `Features, Content & Audio Experience`
 - default -> `Features, Content & Audio Experience`
 
-Fallback output is for service integration and frontend demo behavior only; it is not real SVM inference.
+Fallback output is for service continuity only; it is not real SVM inference.
 
 ## Research Output Strategy
 
@@ -100,6 +113,6 @@ The SVM aspect classifier is trained and evaluated on weak labels derived from k
 
 ## Limitations
 
-- The classification endpoint is fallback-only in MS-08.
-- Production model serving can be improved later with explicit artifact loading, vectorizer compatibility checks, and resource controls.
+- The selected `LinearSVC` pipeline does not expose `predict_proba`, so model-based responses may return `confidence: null` and empty `scores`.
+- Production model serving can still be improved later with resource controls and runtime persistence for inference history.
 - Legacy `ml-service` remains available during the migration and is not removed by this extraction.

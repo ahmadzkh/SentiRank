@@ -1,15 +1,35 @@
 import json
 from pathlib import Path
 
-from app.core.config import Settings
-from app.services.aspect_classifier_service import AspectClassifierService
+from app.core.config import (
+    FINAL_ASPECT_LABELS,
+    SVM_ASPECT_MODEL_NAME,
+    Settings,
+)
+from app.services.aspect_classifier_service import AspectClassifierService, ModelState
 from app.services.aspect_summary_service import AspectSummaryService
+
+
+class FakeSvmModel:
+    classes_ = FINAL_ASPECT_LABELS
+
+    def predict(self, values: list[str]) -> list[str]:
+        return ["Ads Experience" for _ in values]
+
+    def predict_proba(self, values: list[str]) -> list[list[float]]:
+        return [[0.04, 0.05, 0.82, 0.06, 0.03] for _ in values]
+
+
+class FakeSvmModelWithoutProba:
+    def predict(self, values: list[str]) -> list[str]:
+        return ["Account/Login" for _ in values]
 
 
 def _settings(tmp_path: Path) -> Settings:
     datasets_dir = tmp_path / "datasets"
     docs_dir = tmp_path / "docs"
     model_dir = tmp_path / "models" / "svm"
+    model_path = model_dir / "svm_merged_5class_pipeline.joblib"
     datasets_dir.mkdir(parents=True)
     docs_dir.mkdir(parents=True)
     model_dir.mkdir(parents=True)
@@ -17,6 +37,7 @@ def _settings(tmp_path: Path) -> Settings:
         datasets_dir=datasets_dir,
         docs_dir=docs_dir,
         aspect_model_dir=model_dir,
+        aspect_model_path=model_path,
     )
 
 
@@ -36,21 +57,84 @@ def test_fallback_classification_should_be_deterministic(tmp_path: Path) -> None
         result = service.classify(text)
         assert result.label == expected_label
         assert result.mode == "fallback"
+        assert result.prediction_source == "fallback_keyword"
+        assert result.model_name is None
+        assert result.is_fallback is True
         assert round(sum(result.scores.values()), 2) == 1.0
 
 
-def test_model_status_should_detect_expected_pipeline_file(tmp_path: Path) -> None:
+def test_model_classification_should_use_loaded_model_when_available(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    AspectClassifierService.clear_model_cache()
     settings = _settings(tmp_path)
-    service = AspectClassifierService(settings)
-    assert service.model_status() == "unavailable"
+    settings.aspect_model_path.write_text("placeholder", encoding="utf-8")
 
-    (settings.aspect_model_dir / "svm_merged_5class_pipeline.joblib").write_text(
-        "placeholder",
-        encoding="utf-8",
-    )
+    def fake_load_model(model_path: Path) -> ModelState:
+        return ModelState(model=FakeSvmModel(), available=True)
+
+    monkeypatch.setattr(AspectClassifierService, "_load_model", staticmethod(fake_load_model))
+    service = AspectClassifierService(settings)
+
+    result = service.classify("iklan terlalu banyak")
 
     assert service.model_status() == "available"
-    assert "MS-08 uses fallback" in service.classify("iklan").warnings[0]
+    assert result.label == "Ads Experience"
+    assert result.mode == "model"
+    assert result.prediction_source == "model"
+    assert result.model_name == SVM_ASPECT_MODEL_NAME
+    assert result.model_available is True
+    assert result.is_fallback is False
+    assert result.confidence == 0.82
+    assert result.scores["Ads Experience"] == 0.82
+
+
+def test_model_load_error_should_use_explicit_fallback(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    AspectClassifierService.clear_model_cache()
+    settings = _settings(tmp_path)
+
+    def fake_load_model(model_path: Path) -> ModelState:
+        return ModelState(model=None, available=False, load_error="load_failed")
+
+    monkeypatch.setattr(AspectClassifierService, "_load_model", staticmethod(fake_load_model))
+    service = AspectClassifierService(settings)
+
+    result = service.classify("iklan terlalu banyak")
+
+    assert service.model_status() == "unavailable"
+    assert result.label == "Ads Experience"
+    assert result.mode == "fallback"
+    assert result.prediction_source == "fallback_keyword"
+    assert result.model_name is None
+    assert result.model_available is False
+    assert result.is_fallback is True
+
+
+def test_model_without_predict_proba_should_return_null_confidence(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    AspectClassifierService.clear_model_cache()
+    settings = _settings(tmp_path)
+    settings.aspect_model_path.write_text("placeholder", encoding="utf-8")
+
+    def fake_load_model(model_path: Path) -> ModelState:
+        return ModelState(model=FakeSvmModelWithoutProba(), available=True)
+
+    monkeypatch.setattr(AspectClassifierService, "_load_model", staticmethod(fake_load_model))
+    service = AspectClassifierService(settings)
+
+    result = service.classify("tidak bisa login akun")
+
+    assert result.mode == "model"
+    assert result.prediction_source == "model"
+    assert result.confidence is None
+    assert result.scores == {}
+    assert "predict_proba" in result.warnings[0]
 
 
 def test_summary_should_read_fixture_json_outputs(tmp_path: Path) -> None:
@@ -150,6 +234,8 @@ def test_summary_should_read_fixture_json_outputs(tmp_path: Path) -> None:
     evaluation = service.evaluation()
 
     assert summary.selected_classifier == "merged_5class"
+    assert summary.model_path_configured is True
+    assert summary.prediction_source in {"model", "fallback_keyword"}
     assert summary.aspect_distribution["Ads Experience"] == 4
     assert summary.negative_aspect_distribution["Ads Experience"] == 3
     assert summary.negative_aspect_distribution["Features, Content & Audio Experience"] == 3

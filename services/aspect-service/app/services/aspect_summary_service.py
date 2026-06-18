@@ -42,11 +42,20 @@ class AspectSummaryService:
             warnings,
         )
         self._read_json(self.evaluation_summary_path, warnings)
+        runtime_metadata = AspectClassifierService(self.settings).runtime_metadata()
 
         return AspectSummaryData(
             selected_classifier=self._selected_classifier(final_selection),
             final_aspect_labels=FINAL_ASPECT_LABELS,
-            model_status=AspectClassifierService(self.settings).model_status(),
+            model_status=str(runtime_metadata["model_status"]),
+            model_available=bool(runtime_metadata["model_available"]),
+            model_name=(
+                str(runtime_metadata["model_name"])
+                if runtime_metadata["model_name"] is not None
+                else None
+            ),
+            model_path_configured=bool(runtime_metadata["model_path_configured"]),
+            prediction_source=str(runtime_metadata["prediction_source"]),
             original_7class_baseline=self._original_baseline(final_selection),
             merged_5class_taxonomy=self._taxonomy_criteria(taxonomy),
             aspect_distribution=self._aspect_distribution(dataset_summary),
@@ -98,8 +107,7 @@ class AspectSummaryService:
             classification_report=classification_report if isinstance(classification_report, dict) else {},
             limitations=[
                 WEAK_LABEL_LIMITATION,
-                "Model artifact may not be mounted in the current runtime environment.",
-                "Prediction endpoint uses fallback demo classification unless a safe local SVM artifact loader is added later.",
+                "If the SVM artifact is not mounted or cannot be loaded, the prediction endpoint returns explicit fallback_keyword metadata.",
             ],
             output_source_availability=self._source_availability(),
             warnings=warnings,
@@ -290,6 +298,8 @@ class AspectSummaryService:
                 self.svm_dir / "svm_aspect_by_sentiment_distribution.csv"
             ).exists(),
             "evaluation_summary": self.evaluation_summary_path.exists(),
+            "model_path_configured": bool(self.settings.aspect_model_path),
+            "model_artifact": self.settings.aspect_model_path.exists(),
         }
 
     def _display_path(self, path: Path) -> str:

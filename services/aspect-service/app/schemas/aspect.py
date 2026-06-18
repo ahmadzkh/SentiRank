@@ -10,6 +10,7 @@ AspectLabel = Literal[
     "Account/Login",
 ]
 ClassificationMode = Literal["model", "fallback"]
+PredictionSource = Literal["model", "fallback_keyword"]
 
 
 class AspectClassifyRequest(BaseModel):
@@ -28,10 +29,14 @@ class AspectClassifyRequest(BaseModel):
 class AspectClassificationData(BaseModel):
     text: str
     label: AspectLabel
-    confidence: float = Field(ge=0.0, le=1.0)
-    scores: dict[str, float]
+    confidence: float | None = Field(default=None, ge=0.0, le=1.0)
+    scores: dict[str, float] = Field(default_factory=dict)
     classifier_name: str
     mode: ClassificationMode
+    prediction_source: PredictionSource
+    model_name: str | None = None
+    model_available: bool
+    is_fallback: bool
     warnings: list[str] = Field(default_factory=list)
 
 
@@ -39,6 +44,10 @@ class AspectSummaryData(BaseModel):
     selected_classifier: str
     final_aspect_labels: list[str]
     model_status: str
+    model_available: bool
+    model_name: str | None = None
+    model_path_configured: bool
+    prediction_source: PredictionSource
     original_7class_baseline: dict
     merged_5class_taxonomy: list[dict]
     aspect_distribution: dict[str, int]
