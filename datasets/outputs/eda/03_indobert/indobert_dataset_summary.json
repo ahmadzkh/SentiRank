@@ -1,0 +1,116 @@
+{
+  "empty_text_rows_removed": 0,
+  "generated_at": "2026-06-18T02:26:31.760291+00:00",
+  "initial_rows": 97782,
+  "invalid_label_rows_removed": 0,
+  "label_column": "final_sentiment",
+  "label_distribution": [
+    {
+      "count": 39686,
+      "label": "Negative",
+      "label_id": 0
+    },
+    {
+      "count": 17629,
+      "label": "Neutral",
+      "label_id": 1
+    },
+    {
+      "count": 40467,
+      "label": "Positive",
+      "label_id": 2
+    }
+  ],
+  "label_mapping": {
+    "Negative": 0,
+    "Neutral": 1,
+    "Positive": 2
+  },
+  "preprocessing_status_rows_removed": 0,
+  "random_state": 42,
+  "rows_after_preprocessing_status_filter": 97782,
+  "split_distribution": [
+    {
+      "count": 27780,
+      "label": "Negative",
+      "label_id": 0,
+      "split": "train"
+    },
+    {
+      "count": 12340,
+      "label": "Neutral",
+      "label_id": 1,
+      "split": "train"
+    },
+    {
+      "count": 28326,
+      "label": "Positive",
+      "label_id": 2,
+      "split": "train"
+    },
+    {
+      "count": 5953,
+      "label": "Negative",
+      "label_id": 0,
+      "split": "validation"
+    },
+    {
+      "count": 2644,
+      "label": "Neutral",
+      "label_id": 1,
+      "split": "validation"
+    },
+    {
+      "count": 6071,
+      "label": "Positive",
+      "label_id": 2,
+      "split": "validation"
+    },
+    {
+      "count": 5953,
+      "label": "Negative",
+      "label_id": 0,
+      "split": "test"
+    },
+    {
+      "count": 2645,
+      "label": "Neutral",
+      "label_id": 1,
+      "split": "test"
+    },
+    {
+      "count": 6070,
+      "label": "Positive",
+      "label_id": 2,
+      "split": "test"
+    }
+  ],
+  "split_sizes": {
+    "test": 14668,
+    "train": 68446,
+    "validation": 14668
+  },
+  "test_size": 0.15,
+  "text_column": "text_indobert",
+  "text_length_summary": {
+    "count": 97782,
+    "max": 628,
+    "mean": 63.36956699597063,
+    "median": 36.0,
+    "min": 1
+  },
+  "train_size": 0.7,
+  "training_config_plan": {
+    "batch_size": 16,
+    "early_stopping": "planned for Phase 8B if feasible",
+    "epochs": 3,
+    "evaluation_strategy": "epoch",
+    "learning_rate": 2e-05,
+    "max_length": 128,
+    "metric_for_best_model": "f1_macro",
+    "model_name": "indobenchmark/indobert-base-p1",
+    "save_strategy": "epoch"
+  },
+  "valid_rows": 97782,
+  "validation_size": 0.15
+}
