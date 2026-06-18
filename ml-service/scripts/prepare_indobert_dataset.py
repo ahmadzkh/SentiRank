@@ -14,18 +14,20 @@ from sklearn.model_selection import train_test_split
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+RUN_NAME = "run_3_weighted_loss_lr_1e-5"
 LABEL_MAPPING = {
     "Negative": 0,
     "Neutral": 1,
     "Positive": 2,
 }
-DEFAULT_INPUT = Path("../datasets/processed/reviews_final.csv")
-DEFAULT_OUTPUT_DIR = Path("../datasets/processed/indobert")
+DEFAULT_INPUT = PROJECT_ROOT / "datasets" / "processed" / "reviews_final.csv"
+DEFAULT_OUTPUT_DIR = PROJECT_ROOT / "datasets" / "processed" / "indobert"
 DEFAULT_SUMMARY_OUTPUT = Path(
-    "../datasets/outputs/eda/03_indobert/indobert_dataset_summary.json"
+    PROJECT_ROOT / "datasets" / "outputs" / "eda" / "03_indobert" / "indobert_dataset_summary.json"
 )
-DEFAULT_METRICS_DIR = Path("../datasets/outputs/eda/03_indobert")
-DEFAULT_FIGURES_DIR = Path("../docs/figures/03_indobert")
+DEFAULT_METRICS_DIR = PROJECT_ROOT / "datasets" / "outputs" / "eda" / "03_indobert"
+DEFAULT_FIGURES_DIR = PROJECT_ROOT / "docs" / "figures" / "03_indobert"
 OUTPUT_COLUMNS = [
     "external_id",
     "rating",
@@ -39,11 +41,14 @@ OUTPUT_COLUMNS = [
     "label_id",
 ]
 TRAINING_CONFIG_PLAN = {
+    "run_name": RUN_NAME,
     "model_name": "indobenchmark/indobert-base-p1",
     "max_length": 128,
     "batch_size": 16,
-    "learning_rate": 2e-5,
+    "learning_rate": 1e-5,
     "epochs": 3,
+    "loss": "weighted_cross_entropy",
+    "weighted_loss_enabled": True,
     "evaluation_strategy": "epoch",
     "save_strategy": "epoch",
     "metric_for_best_model": "f1_macro",

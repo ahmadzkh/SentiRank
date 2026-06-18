@@ -42,6 +42,8 @@ datasets/outputs/*
 ml-service/saved_models/**/*
 !ml-service/saved_models/**/
 !ml-service/saved_models/**/.gitkeep
+ml-service/saved_models/indobert/*/model.safetensors
+ml-service/saved_models/indobert/*/pytorch_model.bin
 
 ml-service/models/**/*.pt
 ml-service/models/**/*.pth
@@ -56,5 +58,8 @@ ml-service/models/**/*.pickle
 
 openai-api-key.txt
 openrouter-api-key*
+hf_token*
+huggingface_token*
+.huggingface/
 
 .agents

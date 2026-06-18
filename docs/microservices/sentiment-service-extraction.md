@@ -26,6 +26,14 @@ The API Gateway exposes the same frontend-facing sentiment routes and forwards t
 
 MS-07 does not train IndoBERT, download model weights, or copy model artifacts into the service folder. Model artifacts remain local runtime files and must not be committed.
 
+MS-11B prepares the export workflow for a Hugging Face-compatible artifact at:
+
+```text
+ml-service/saved_models/indobert/run_3_weighted_loss_lr_1e-5/
+```
+
+That workflow records tokenizer files, label mapping, evaluation metrics, preprocessing metadata, training configuration, and a model card beside the exported model weights. It does not change `sentiment-service` runtime loading behavior yet.
+
 The Docker Compose service can mount a local model directory read-only:
 
 ```yaml
@@ -36,6 +44,8 @@ environment:
 ```
 
 If the model artifact is unavailable, the prediction endpoint returns deterministic fallback demo output with `mode: "fallback"` and an explicit warning. This fallback is for service integration and frontend demo behavior only; it is not real IndoBERT inference.
+
+A later integration milestone can load either the local exported artifact folder or a Hugging Face model ID. Until then, fallback behavior remains expected when no runtime model loader is wired.
 
 ## Research Output Strategy
 
