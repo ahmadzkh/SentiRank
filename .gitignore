@@ -1,18 +1,32 @@
 node_modules/
 .next/
+out/
+dist/
+build/
+coverage/
 .env
 .env.local
+*.env.local
 *.db
 *.sqlite
 *.sqlite3
+runtime_inference_history.db
 
 ml-service/.venv/
+.pytest_cache/
+**/.pytest_cache/
 ml-service/.pytest_cache/
 ml-service/.cache/
 ml-service/.mypy_cache/
 ml-service/.ruff_cache/
+__pycache__/
+**/__pycache__/
 ml-service/**/__pycache__/
+*.py[cod]
 *.pyc
+.pytest_tmp/
+.coverage
+htmlcov/
 
 .ipynb_checkpoints/
 **/.ipynb_checkpoints/
@@ -42,6 +56,11 @@ datasets/outputs/*
 ml-service/saved_models/**/*
 !ml-service/saved_models/**/
 !ml-service/saved_models/**/.gitkeep
+model.safetensors
+pytorch_model.bin
+*.pt
+*.pth
+*.ckpt
 ml-service/saved_models/indobert/*/model.safetensors
 ml-service/saved_models/indobert/*/pytorch_model.bin
 
