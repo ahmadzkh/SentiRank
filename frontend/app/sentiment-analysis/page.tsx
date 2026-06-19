@@ -31,7 +31,10 @@ export const dynamic = "force-dynamic";
 
 function cleanedReviewText(row: GatewayReviewSample) {
   return tableCellValue(
-    row.cleaned_content ?? row.cleaned_text ?? row.text_indobert ?? row.text_svm,
+    row.cleaned_content ??
+      row.cleaned_text ??
+      row.text_indobert ??
+      row.text_svm,
   );
 }
 
@@ -45,63 +48,67 @@ function sentimentResultColumns(
   modelVersion: string,
 ): readonly SimpleTableColumn<GatewayReviewSample>[] {
   return [
-  {
-    key: "no",
-    header: "No",
-    align: "center",
-    className: "w-16",
-    render: (_row, index) => index + 1,
-  },
-  {
-    key: "cleanedReview",
-    header: "Cleaned Review",
-    className: "min-w-[320px] max-w-[460px]",
-    render: (row) => (
-      <span className="line-clamp-3 break-words font-medium text-foreground">
-        {cleanedReviewText(row)}
-      </span>
-    ),
-  },
-  {
-    key: "actualWeakLabel",
-    header: "Actual/Weak Label",
-    render: (row) => tableCellValue(row.final_sentiment ?? row.initial_sentiment),
-  },
-  {
-    key: "predictedSentiment",
-    header: "Predicted Sentiment",
-    render: (row) => tableCellValue(row.predicted_sentiment),
-  },
-  {
-    key: "confidence",
-    header: "Confidence",
-    align: "right",
-    render: (row) => confidenceValue(row.sentiment_confidence),
-  },
-  {
-    key: "model",
-    header: "Model",
-    render: () => "IndoBERT",
-  },
-  {
-    key: "modelVersion",
-    header: "Model Version",
-    className: "min-w-[180px]",
-    render: () => modelVersion,
-  },
-  {
-    key: "predictionSource",
-    header: "Prediction Source",
-    render: (row) => tableCellValue(row.sentiment_prediction_source),
-  },
-] satisfies SimpleTableColumn<GatewayReviewSample>[];
+    {
+      key: "no",
+      header: "No",
+      align: "center",
+      className: "w-16",
+      render: (_row, index) => index + 1,
+    },
+    {
+      key: "cleanedReview",
+      header: "Cleaned Review",
+      className: "min-w-[320px] max-w-[460px]",
+      render: (row) => (
+        <span className="line-clamp-3 break-words font-medium text-foreground">
+          {cleanedReviewText(row)}
+        </span>
+      ),
+    },
+    {
+      key: "actualWeakLabel",
+      header: "Actual/Weak Label",
+      render: (row) =>
+        tableCellValue(row.final_sentiment ?? row.initial_sentiment),
+    },
+    {
+      key: "predictedSentiment",
+      header: "Predicted Sentiment",
+      render: (row) => tableCellValue(row.predicted_sentiment),
+    },
+    {
+      key: "confidence",
+      header: "Confidence",
+      align: "right",
+      render: (row) => confidenceValue(row.sentiment_confidence),
+    },
+    {
+      key: "model",
+      header: "Model",
+      render: () => "IndoBERT",
+    },
+    {
+      key: "modelVersion",
+      header: "Model Version",
+      className: "min-w-[180px]",
+      render: () => modelVersion,
+    },
+    {
+      key: "predictionSource",
+      header: "Prediction Source",
+      render: (row) => tableCellValue(row.sentiment_prediction_source),
+    },
+  ] satisfies SimpleTableColumn<GatewayReviewSample>[];
 }
 
 export default async function SentimentAnalysisPage() {
   const [summaryResult, evaluationResult, reviewsResult] = await Promise.all([
     safeGatewayData(getSentimentSummary, EMPTY_SENTIMENT_SUMMARY),
     safeGatewayData(getSentimentEvaluation, EMPTY_SENTIMENT_EVALUATION),
-    safeGatewayData(() => getReviews({ limit: 10, seed: 40 }), EMPTY_RANDOM_REVIEWS),
+    safeGatewayData(
+      () => getReviews({ limit: 10, seed: 40 }),
+      EMPTY_RANDOM_REVIEWS,
+    ),
   ]);
   const summary = summaryResult.data;
   const evaluation = evaluationResult.data;
@@ -113,7 +120,8 @@ export default async function SentimentAnalysisPage() {
     evaluation.selected_candidate,
   );
   const reviews = reviewsResult.data.reviews;
-  const apiError = summaryResult.error ?? evaluationResult.error ?? reviewsResult.error;
+  const apiError =
+    summaryResult.error ?? evaluationResult.error ?? reviewsResult.error;
 
   return (
     <AppShell>
@@ -135,19 +143,25 @@ export default async function SentimentAnalysisPage() {
           description="Distribusi dari /sentiment/summary."
           label="Positif"
           tone="positive"
-          value={sentimentRows.find((row) => row.label === "positive")?.count ?? 0}
+          value={
+            sentimentRows.find((row) => row.label === "positive")?.count ?? 0
+          }
         />
         <StatCard
           description="Distribusi dari /sentiment/summary."
           label="Netral"
           tone="neutral"
-          value={sentimentRows.find((row) => row.label === "neutral")?.count ?? 0}
+          value={
+            sentimentRows.find((row) => row.label === "neutral")?.count ?? 0
+          }
         />
         <StatCard
           description="Distribusi dari /sentiment/summary."
           label="Negatif"
           tone="negative"
-          value={sentimentRows.find((row) => row.label === "negative")?.count ?? 0}
+          value={
+            sentimentRows.find((row) => row.label === "negative")?.count ?? 0
+          }
         />
         <StatCard
           description="Confidence batch tidak dihitung di frontend."
@@ -158,7 +172,7 @@ export default async function SentimentAnalysisPage() {
         <StatCard
           description={summary.model_status}
           label="Model"
-          value={summary.selected_model}
+          value="IndoBERT"
         />
       </section>
 
@@ -240,12 +254,16 @@ export default async function SentimentAnalysisPage() {
       >
         <SimpleTable
           columns={sentimentResultColumns(
-            summaryResult.isAvailable ? summary.selected_model : EMPTY_TABLE_CELL,
+            summaryResult.isAvailable
+              ? summary.selected_model
+              : EMPTY_TABLE_CELL,
           )}
           data={reviewsResult.isAvailable ? reviews : []}
           emptyMessage={EMPTY_GATEWAY_MESSAGE}
           minWidthClassName="min-w-[1180px]"
-          rowKey={(row, index) => row.external_id ?? `sentiment-review-${index}`}
+          rowKey={(row, index) =>
+            row.external_id ?? `sentiment-review-${index}`
+          }
         />
       </ChartCard>
     </AppShell>
