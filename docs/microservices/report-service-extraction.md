@@ -6,12 +6,15 @@ MS-09 extracts report and consolidated evaluation aggregation into `report-servi
 
 This service does not train models, scrape data, preprocess datasets, run SVM/IndoBERT inference, or calculate final AHP/Fuzzy AHP expert rankings.
 
+MS-13D decision: `report-service` remains active as a Dashboard aggregation service. The service name refers to read-only research-summary aggregation behind the API Gateway, not to the removed frontend Reports page or a printable report feature.
+
 ## Service Responsibility
 
 `report-service` owns:
 
 - `GET /reports/summary`
 - `GET /evaluation/summary`
+- `GET /reports/ranking-comparison`
 - project-level pipeline status aggregation
 - selected model summary for IndoBERT and SVM
 - final candidate AHP/Fuzzy AHP criteria summary
@@ -51,8 +54,11 @@ The frontend calls these routes through `api-gateway-service`:
 
 - `GET /reports/summary`
 - `GET /evaluation/summary`
+- `GET /reports/ranking-comparison`
 
 The gateway forwards those requests to `report-service` and preserves the service response envelope.
+
+Current frontend note: no standalone `/reports` page or Reports menu is active. Dashboard, Model Evaluation, and AHP/Fuzzy AHP still use report-service-backed gateway data, so backend removal would require endpoint ownership migration first.
 
 ## Docker Volumes
 

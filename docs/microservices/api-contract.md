@@ -43,7 +43,7 @@ As of MS-07, the public sentiment routes are implemented in `api-gateway-service
 
 As of MS-08, the public aspect routes are implemented in `api-gateway-service` and forwarded to `aspect-service`. The gateway preserves the aspect-service response envelope and does not perform SVM aspect classification directly.
 
-As of MS-09, the public report/evaluation summary routes are implemented in `api-gateway-service` and forwarded to `report-service`. The gateway preserves the report-service response envelope and does not train models or calculate final AHP/Fuzzy AHP rankings.
+As of MS-09, the public report/evaluation summary routes are implemented in `api-gateway-service` and forwarded to `report-service`. The gateway preserves the report-service response envelope and does not train models or calculate final AHP/Fuzzy AHP rankings. As of MS-13D, `report-service` is kept as a Dashboard/evaluation/ranking aggregation service, not as a frontend printable Reports feature.
 
 As of MS-12A, runtime review inference routes are implemented in `api-gateway-service`. The gateway orchestrates sentiment prediction through `sentiment-service`, aspect classification through `aspect-service`, persists combined user-submitted inference history, and does not calculate sentiment or aspects locally.
 
@@ -77,6 +77,7 @@ As of MS-12A, runtime review inference routes are implemented in `api-gateway-se
 
 - `GET /reports/summary`
 - `GET /evaluation/summary`
+- `GET /reports/ranking-comparison`
 
 ### Runtime Inference
 
@@ -121,6 +122,7 @@ As of MS-12A, runtime review inference routes are implemented in `api-gateway-se
 
 - `GET /reports/summary`
 - `GET /evaluation/summary`
+- `GET /reports/ranking-comparison`
 
 ## Payload Examples
 
@@ -925,6 +927,49 @@ Response:
 }
 ```
 
+### Ranking Comparison
+
+Request:
+
+```http
+GET /reports/ranking-comparison
+```
+
+Response:
+
+```json
+{
+  "success": true,
+  "message": "Ranking comparison loaded.",
+  "data": {
+    "run_label": "ahp_fuzzy_ranking_comparison_sample_development",
+    "source_file": "datasets/outputs/eda/08_ranking_comparison/sample_development/ahp_fuzzy_ranking_comparison_sample_development.csv",
+    "is_sample": true,
+    "items": [
+      {
+        "criterion_id": "C1",
+        "criterion_name": "App Reliability & Usability",
+        "ahp_weight": 0.4,
+        "fuzzy_ahp_weight": 0.38,
+        "ahp_rank": 1,
+        "fuzzy_ahp_rank": 1,
+        "weight_delta": 0.02,
+        "rank_delta": 0,
+        "final_rank": 1,
+        "status": "highest_priority"
+      }
+    ],
+    "summary": {
+      "total_criteria": 5,
+      "max_absolute_weight_delta": 0.02,
+      "changed_rank_count": 0,
+      "identical_top_rank": true
+    },
+    "warnings": []
+  }
+}
+```
+
 ## Service Ownership Table
 
 | Endpoint | Public gateway route | Internal service | Method | Responsibility | Frontend page/module consumer |
@@ -943,8 +988,9 @@ Response:
 | `/aspects/classify` | `/aspects/classify` | `aspect-service` | POST | Classify aspect | Aspect module |
 | `/aspects/summary` | `/aspects/summary` | `aspect-service` | GET | Load aspect summary | Aspect module |
 | `/aspects/evaluation` | `/aspects/evaluation` | `aspect-service` | GET | Load aspect evaluation | Evaluation module |
-| `/reports/summary` | `/reports/summary` | `report-service` | GET | Load report summary | Report module |
-| `/evaluation/summary` | `/evaluation/summary` | `report-service` | GET | Load consolidated evaluation summary | Evaluation module |
+| `/reports/summary` | `/reports/summary` | `report-service` | GET | Load backend aggregation summary | No active frontend page; retained backend aggregation endpoint |
+| `/evaluation/summary` | `/evaluation/summary` | `report-service` | GET | Load consolidated evaluation summary | Dashboard and Evaluation module |
+| `/reports/ranking-comparison` | `/reports/ranking-comparison` | `report-service` | GET | Load AHP/Fuzzy AHP ranking comparison from research outputs | Dashboard and AHP/Fuzzy AHP page |
 | `/inference/review` | `/inference/review` | `api-gateway-service` orchestrates `sentiment-service`, `aspect-service`, and runtime database | POST | Run sentiment/aspect inference for submitted review and persist history | Future runtime inference page |
 | `/inference/history` | `/inference/history` | `api-gateway-service` + runtime database | GET | Load runtime user inference history | Future runtime inference page |
 | `/inference/health` | `/inference/health` | `api-gateway-service` + runtime database | GET | Check runtime persistence and downstream inference readiness | System status |

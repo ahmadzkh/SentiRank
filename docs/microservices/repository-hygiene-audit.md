@@ -20,7 +20,7 @@ The repository is mostly organized around the current microservice direction, bu
 | `services/sentiment-service/` | KEEP | Active sentiment summary/evaluation/inference service. | Keep. |
 | `services/aspect-service/` | KEEP | Active aspect summary/evaluation/inference service. | Keep. |
 | `services/decision-service/` | KEEP | Active AHP/Fuzzy AHP calculation and criteria service. | Keep. |
-| `services/report-service/` | NEEDS DECISION | Still called by API Gateway and frontend-backed views through `/evaluation/summary` and `/reports/ranking-comparison`. Its `/reports/summary` endpoint overlaps with the removed Reports page. | Keep now. Reassess in MS-13D before deprecation/removal. |
+| `services/report-service/` | KEEP | Still called by API Gateway and frontend-backed views through `/evaluation/summary` and `/reports/ranking-comparison`. Its `/reports/summary` endpoint is a backend aggregation endpoint, not an active frontend Reports page dependency. | Keep as Dashboard/evaluation/ranking aggregation service per MS-13D. |
 | `ml-service/scripts/` | KEEP | Active research pipeline scripts. | Keep as research pipeline. |
 | `ml-service/notebooks/` | KEEP | Research notebooks and experiment documentation. | Keep. |
 | `ml-service/app/` | DEPRECATE | Legacy modular FastAPI runtime boundary overlapping extracted services. | Keep for transition; document as legacy, not active frontend runtime. |
@@ -30,7 +30,7 @@ The repository is mostly organized around the current microservice direction, bu
 | `prisma/`, `prisma.config.ts` | DEPRECATE | Prisma schema/migration artifacts exist, but runtime persistence is implemented in `api-gateway` via repository SQL support. | Deprecate first; remove later only after docs and env references are cleaned. |
 | Generated caches and local DB files | CLEAN GENERATED | `.pytest_cache/`, service `.pytest_cache/`, `__pycache__/`, `.pyc`, `frontend/node_modules/`, `frontend/.next/`, and `dev.db` exist. | Clean in MS-13B; update `.gitignore` first where missing. |
 
-The most important constraint is that `report-service` is not safe to remove immediately. The Reports frontend menu is removed and `/reports` redirects to Dashboard, but the service still supplies active gateway routes used by Dashboard, AHP/Fuzzy AHP, and Model Evaluation.
+The most important constraint is that `report-service` is not safe to remove immediately. The Reports frontend menu/page has been removed, but the service still supplies active gateway routes used by Dashboard, AHP/Fuzzy AHP, and Model Evaluation.
 
 ## 2. Current Project Role Map
 
@@ -44,8 +44,8 @@ The most important constraint is that `report-service` is not safe to remove imm
 | `.env.example` | Environment template. | KEEP / TODO | Includes legacy `DATABASE_URL` and active `API_GATEWAY_DATABASE_URL`. | Clarify Prisma vs API Gateway database use in MS-13G. |
 | `prisma/` | Legacy Prisma schema and SQLite migration. | DEPRECATE | No active runtime Prisma client usage found. | Keep until MS-13E decision. |
 | `services/` | Active runtime microservices. | KEEP | Docker builds and API Gateway routes target these services. | Keep service boundaries. |
-| `frontend/app/reports/` | Legacy route redirect to Dashboard. | REMOVE LATER | `page.tsx` only redirects to `/dashboard`. | Remove or keep redirect deliberately in MS-13C. |
-| `frontend/services/report-service.ts` | Frontend adapter for report/ranking endpoints through API Gateway. | NEEDS DECISION | `getRankingComparison()` is actively used; `getReportSummary()` appears unused by pages. | Split/remove unused function only after dependency check. |
+| `frontend/app/reports/` | Removed frontend Reports route. | REMOVE LATER / DONE | Removed in MS-13C after it only redirected to `/dashboard`. | Backend report-service remains separate from this page removal. |
+| `frontend/services/report-service.ts` | Frontend adapter for ranking endpoints through API Gateway. | KEEP | `getRankingComparison()` is actively used by Dashboard and AHP/Fuzzy AHP; `getReportSummary()` was removed in MS-13C. | Keep until endpoint ownership changes. |
 | `ml-service/` | Research pipeline plus legacy runtime. | KEEP / DEPRECATE | Scripts/notebooks/tests remain useful; `app/` duplicates extracted runtime domains. | Clarify role in docs. |
 | `docs/microservices/` | Microservice architecture and contract docs. | KEEP / TODO | Mostly current but some stale statements remain. | Sync in MS-13G. |
 | `docs/frontend/` | Frontend planning and task docs. | KEEP / TODO | Older IA/wireframes still describe Reports page and mock-first behavior. | Sync in MS-13G. |
@@ -87,11 +87,11 @@ The most important constraint is that `report-service` is not safe to remove imm
 | `services/api-gateway/app/core/config.py` | Active | Defines `report_service_url` from `REPORT_SERVICE_URL`. |
 | `services/api-gateway/app/routers/health.py` | Active | Includes `report-service` in service health aggregation. |
 | `docker-compose.yml` | Active | Builds and starts `report-service`; API Gateway depends on it. |
-| `frontend/services/report-service.ts` | Partially active | `getRankingComparison()` is used; `getReportSummary()` appears unused by pages. |
+| `frontend/services/report-service.ts` | Active | `getRankingComparison()` is used by Dashboard and AHP/Fuzzy AHP; `getReportSummary()` was removed in MS-13C. |
 | `frontend/services/evaluation-service.ts` | Active | Calls `/evaluation/summary`, which the API Gateway forwards to `report-service`. |
 | `frontend/services/dashboard-service.ts` | Active | Uses `getRankingComparison()` from `report-service.ts` for Dashboard data. |
 | `frontend/services/ahp-overview-service.ts` | Active | Uses `getRankingComparison()` for AHP/Fuzzy AHP read-only results. |
-| `frontend/app/reports/page.tsx` | Legacy route only | Redirects to `/dashboard`. |
+| `frontend/app/reports/page.tsx` | Removed | Deleted in MS-13C after the route only redirected to `/dashboard`. |
 
 ### Answers
 
@@ -100,11 +100,11 @@ The most important constraint is that `report-service` is not safe to remove imm
 | Is `report-service` still called by API Gateway? | Yes. API Gateway proxies three report/evaluation routes to it. |
 | Is `report-service` still called by frontend through API Gateway? | Yes. Frontend calls `/evaluation/summary` and `/reports/ranking-comparison`; both are backed by `report-service`. |
 | Does Dashboard depend on `/reports/summary`? | No direct dependency found. Dashboard depends on `/reports/ranking-comparison` and `/evaluation/summary`, not `/reports/summary`. |
-| Is frontend `/reports` route still present? | Yes, but it only redirects to `/dashboard`. |
+| Is frontend `/reports` route still present? | No. The route file was removed in MS-13C. |
 | Is the Reports menu removed from navigation? | Yes. `frontend/constants/navigation.ts` has no Reports item. |
 | Does `report-service` only duplicate dashboard summary? | No. It overlaps with dashboard/report aggregation, but it also supplies active evaluation and ranking comparison data used by Dashboard, Model Evaluation, and AHP/Fuzzy AHP. |
 | If removed, what must change? | API Gateway report router/config/health/tests, Docker Compose service and dependency, frontend endpoint ownership for `/evaluation/summary` and `/reports/ranking-comparison`, frontend `report-service.ts` imports, types/empty defaults for report summary if unused, and microservice docs/API contract. |
-| Recommended decision | KEEP for now. Mark as NEEDS DECISION for MS-13D; deprecate only after replacing or relocating active routes. |
+| Recommended decision | KEEP. MS-13D confirmed `report-service` is still needed as Dashboard/evaluation/ranking aggregation; deprecate only after replacing or relocating active routes. |
 
 ### Removal Impact Map
 
@@ -118,12 +118,12 @@ The most important constraint is that `report-service` is not safe to remove imm
 | `services/report-service/` | Remove only after endpoint migration and docs update. |
 | `docker-compose.yml` | Remove `report-service`, `REPORT_SERVICE_URL`, and API Gateway dependency only after migration. |
 | `frontend/lib/api-endpoints.ts` | Remove `/reports/summary` if unused; keep or relocate ranking comparison endpoint. |
-| `frontend/services/report-service.ts` | Remove unused `getReportSummary()`; move `getRankingComparison()` if ownership changes. |
+| `frontend/services/report-service.ts` | `getReportSummary()` was removed in MS-13C; move `getRankingComparison()` only if endpoint ownership changes. |
 | `frontend/services/dashboard-service.ts` | Update import/source if ranking comparison moves. |
 | `frontend/services/ahp-overview-service.ts` | Update import/source if ranking comparison moves. |
 | `frontend/services/evaluation-service.ts` | Update endpoint owner if evaluation summary moves. |
 | `docs/microservices/api-contract.md` | Update ownership table and report endpoint docs. |
-| `docs/microservices/report-service-extraction.md` | Mark deprecated or archive. |
+| `docs/microservices/report-service-extraction.md` | Keep current and clarify MS-13D decision. Mark deprecated only after endpoint migration. |
 
 ## 5. Frontend Reports Audit
 
@@ -131,11 +131,11 @@ The most important constraint is that `report-service` is not safe to remove imm
 
 | Item | Status | Notes |
 | --- | --- | --- |
-| `/reports` route | Present | `frontend/app/reports/page.tsx` redirects to `/dashboard`. |
+| `/reports` route | Removed | `frontend/app/reports/page.tsx` was deleted in MS-13C. |
 | Navigation reachability | Not reachable from nav | `NAVIGATION_ITEMS` does not include Reports. |
-| Route constant | Present | `APP_ROUTES.reports = "/reports"` remains. |
-| API endpoint constants | Present | `/reports/summary` and `/reports/ranking-comparison` remain. |
-| Report adapter | Present | `getReportSummary()` and `getRankingComparison()` exist. |
+| Route constant | Removed | `APP_ROUTES.reports` was removed in MS-13C. |
+| API endpoint constants | Present for active ranking | `/reports/ranking-comparison` remains; the frontend `/reports/summary` constant was removed in MS-13C. |
+| Report adapter | Present for active ranking | `getRankingComparison()` exists; `getReportSummary()` was removed in MS-13C. |
 | Dashboard duplication | Partial | `/reports` UI is gone; Dashboard contains summary/recommendation content. |
 | Print/export report button | Not found in active frontend code | Search found no `Cetak Laporan`, `window.print`, or report export action in active app/components. |
 | "Laporan" label | Present outside Reports page | `frontend/app/model-evaluation/page.tsx` uses `Laporan Klasifikasi / Ringkasan Evaluasi`, which is evaluation terminology, not a Reports route. |
@@ -145,13 +145,13 @@ The most important constraint is that `report-service` is not safe to remove imm
 
 | Question | Answer |
 | --- | --- |
-| Does `/reports` still exist? | Yes, as a redirect-only page. |
+| Does `/reports` still exist? | No frontend route file remains after MS-13C. |
 | Is it reachable from navigation? | No. |
 | Is it duplicated with Dashboard? | Functionally yes: report-style summary content has been folded into Dashboard/AHP/Evaluation flows. The actual `/reports` page no longer renders report UI. |
-| Can it be safely removed in a future milestone? | Probably, but only after checking external links/docs and deciding whether `/reports` should remain as a compatibility redirect. |
-| What files would be affected? | `frontend/app/reports/page.tsx`, `frontend/constants/routes.ts`, `frontend/constants/navigation.ts` only if route labels return, `frontend/lib/api-endpoints.ts`, `frontend/services/report-service.ts`, `frontend/types/gateway.ts`, `frontend/lib/gateway-display.ts`, `frontend/lib/mock-data.ts`, and frontend docs that still describe Reports. |
+| Can it be safely removed in a future milestone? | Already removed in MS-13C. Remaining work is documentation sync for historical frontend docs. |
+| What files would be affected? | Future cleanup is limited to stale docs/mock references such as frontend IA/wireframes/design references and inactive mock metadata. Active Dashboard/AHP/Evaluation adapters must remain. |
 
-Recommended decision: REMOVE LATER for the redirect route and unused `getReportSummary()` path, but KEEP active ranking/evaluation gateway adapters until endpoint ownership is changed.
+Recommended decision: DONE for the frontend redirect route and unused `getReportSummary()` cleanup; KEEP active ranking/evaluation gateway adapters until endpoint ownership is changed.
 
 ## 6. Docker Audit
 
@@ -188,7 +188,7 @@ Recommended decision: REMOVE LATER for the redirect route and unused `getReportS
 | Add optional profiles | NEEDS DECISION | Consider profiles such as `core`, `reports`, `db`, or `full` if demo startup is too heavy. |
 | Keep model mounts read-only | KEEP | Preserve `:ro` mounts for datasets/docs/model artifacts. |
 | Decide PostgreSQL demo policy | NEEDS DECISION | Keep PostgreSQL for full runtime inference demo; document SQLite local fallback separately. |
-| Remove deprecated services later | REMOVE LATER | Only remove `report-service` from Compose after MS-13D endpoint migration. |
+| Remove deprecated services later | REMOVE LATER | Do not remove `report-service` from Compose after MS-13D; remove only after a future endpoint ownership migration. |
 
 ## 7. Generated Files / Cache Audit
 
@@ -264,10 +264,10 @@ Keep existing model-artifact ignore rules. Do not add rules that would hide sour
 | `docs/frontend/wireframes.md` | Dashboard and model pages still link/open Reports, and a full Reports wireframe remains. | High | Mark Reports wireframe as superseded by Dashboard or archive it. |
 | `docs/frontend/design-references.md` | Reports page references and export layout remain as active design guidance. | Medium | Mark Reports references as historical or future-only. |
 | `docs/frontend/component-map.md` | Component usage still includes Reports across many components; topbar mentions export/run mock/open report. | Medium | Update usage matrix to current reachable pages and remove mock-run language where superseded. |
-| `frontend/DESIGN.md` | Sidebar design section still lists Reports, while later rules correctly say no mock fallback and AHP/Fuzzy AHP is read-only. | Medium | Remove Reports from active sidebar list and align page inventory. |
-| `docs/frontend/api-integration-plan.md` | Historical sections still mention Report page fallback and service `getReportSummary()`. | Medium | Mark as historical or add current status that `/reports` redirects and report summary is unused by active pages. |
+| `frontend/DESIGN.md` | MS-13C removed Reports from the active sidebar/page inventory. | Low | Keep aligned if a future Reports feature is intentionally reintroduced. |
+| `docs/frontend/api-integration-plan.md` | Historical sections still mention Report page fallback and service `getReportSummary()`. | Medium | Mark as historical or add current status that frontend `/reports` was removed and report summary is unused by active pages. |
 | `docs/microservices/docker-compose-foundation.md` | Purpose/skeleton sections still describe MS-03 scaffolding and minimal services, while the same doc later includes current extracted services. | Low | Add "historical foundation" note or split current Compose reference from MS-03 history. |
-| `docs/microservices/report-service-extraction.md` | Describes `report-service` as owning report/evaluation aggregation. This is currently accurate, but may drift if MS-13D removes or relocates the service. | Low now / High if removed | Update only after MS-13D decision. |
+| `docs/microservices/report-service-extraction.md` | MS-13D now clarifies `report-service` as active aggregation infrastructure, not a printable Reports page. | Low | Keep aligned if a future endpoint ownership migration removes the service. |
 
 No documentation was updated in MS-13A except this audit report.
 
@@ -276,8 +276,8 @@ No documentation was updated in MS-13A except this audit report.
 | Milestone | Classification | Scope | Must not do |
 | --- | --- | --- | --- |
 | MS-13B | CLEAN GENERATED | Remove `.pytest_cache/`, `services/*/.pytest_cache/`, `__pycache__/`, `.pyc`, `.pytest_tmp/` if present, and local runtime DB files only after confirming no local data is needed. Update `.gitignore` first. | No runtime logic changes. No model artifact changes. |
-| MS-13C | REMOVE LATER | Clean frontend Reports leftovers: redirect route, route constants, unused `getReportSummary()`, report mock/reference leftovers, and docs links. Preserve Dashboard, AHP/Fuzzy AHP, and Model Evaluation behavior. | Do not remove `getRankingComparison()` until endpoint ownership is changed. |
-| MS-13D | NEEDS DECISION | Decide report-service future. Keep it if active `/evaluation/summary` and `/reports/ranking-comparison` remain there. Deprecate/remove only after replacing route ownership. | Do not delete service just because Reports menu is gone. |
+| MS-13C | DONE | Cleaned frontend Reports leftovers: redirect route, route constants, and unused `getReportSummary()`. Preserved Dashboard, AHP/Fuzzy AHP, and Model Evaluation behavior. | Do not remove `getRankingComparison()` until endpoint ownership is changed. |
+| MS-13D | KEEP | Decided report-service future. Active `/evaluation/summary` and `/reports/ranking-comparison` remain backed by `report-service`, so it stays in runtime topology. | Do not delete service just because Reports menu is gone. |
 | MS-13E | DEPRECATE / REMOVE LATER | Decide Prisma future. Deprecate first if unused; remove later after docs/env/commands are stable and persistence migration policy is clear. | Do not delete schema history before documentation is aligned. |
 | MS-13F | TODO | Docker cleanup. Add profiles if needed, remove deprecated services only after dependency audit, document PostgreSQL vs SQLite local mode. | Do not edit Compose before service decisions. |
 | MS-13G | TODO | Documentation sync across README, CLAUDE, architecture docs, API contract, frontend IA/wireframes/design docs, and microservice docs. | Do not rewrite historical docs without marking what is historical vs current. |
@@ -313,21 +313,21 @@ Tasks:
 
 ### MS-13C: Frontend reports cleanup
 
-Classification: REMOVE LATER
+Classification: DONE
 
 Tasks:
 
 | Task | Notes |
 | --- | --- |
-| Remove or intentionally keep `/reports` redirect | If compatibility is needed, keep redirect and document it. If not, remove route. |
-| Remove stale route constants | Remove `APP_ROUTES.reports` only after confirming no imports remain. |
-| Remove unused report summary adapter | `getReportSummary()` appears unused; `getRankingComparison()` is active and must stay or be relocated. |
+| Remove `/reports` redirect | Done in MS-13C. |
+| Remove stale route constants | Done in MS-13C after confirming no imports remained. |
+| Remove unused report summary adapter | Done in MS-13C. `getRankingComparison()` is active and must stay or be relocated only after endpoint ownership changes. |
 | Remove report print/export leftovers if found | No active print/export button was found in current app code. |
 | Preserve Dashboard behavior | Dashboard depends on ranking comparison and evaluation summary. |
 
 ### MS-13D: Report-service deprecation/removal decision
 
-Classification: NEEDS DECISION
+Classification: KEEP
 
 Decision rules:
 
@@ -336,6 +336,8 @@ Decision rules:
 | Dashboard/AHP/Evaluation still use routes backed by `report-service` | KEEP |
 | `/reports/summary` is unused but `/evaluation/summary` and `/reports/ranking-comparison` remain active | DEPRECATE only the unused report-summary surface, not the whole service |
 | All active routes are moved to other service owners and tests/docs/Compose are updated | REMOVE LATER |
+
+MS-13D result: KEEP `report-service` as Dashboard/evaluation/ranking aggregation. The frontend Reports page/menu and print/export feature remain out of scope; backend removal is deferred until active routes have replacement owners.
 
 ### MS-13E: Prisma deprecation/removal decision
 
@@ -360,7 +362,7 @@ Tasks:
 | --- | --- |
 | Add optional Compose profiles if useful | Example candidates: `core`, `reports`, `db`, `full`. |
 | Keep read-only artifact mounts | Preserve `:ro` for datasets/docs/model artifacts. |
-| Remove deprecated services only after audit | Do not remove `report-service` until MS-13D route ownership is resolved. |
+| Remove deprecated services only after audit | Do not remove `report-service`; MS-13D kept it because active route ownership remains there. |
 | Document SQLite local fallback | Keep Docker PostgreSQL path separate from local/test SQLite fallback. |
 
 ### MS-13G: Documentation sync
@@ -377,4 +379,3 @@ Tasks:
 | `docs/microservices/api-contract.md` | Mark AHP/Fuzzy AHP calculation endpoints as backend/manual/future workflow, not read-only page triggers. |
 | `docs/frontend/*` | Remove active Reports page/nav assumptions or mark them historical. |
 | `frontend/DESIGN.md` | Align sidebar/page inventory with removed Reports menu. |
-

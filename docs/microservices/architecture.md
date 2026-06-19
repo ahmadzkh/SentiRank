@@ -75,7 +75,7 @@ This policy avoids unnecessary database migration while keeping the architecture
 | `sentiment-service` | Sentiment model metadata, sentiment summaries, sentiment evaluation, sentiment inference behavior | 8002 | Sentiment domain | `datasets/outputs/eda/03_indobert`, `datasets/outputs/eda/05_evaluation`, optional IndoBERT artifact mount | Extracted |
 | `aspect-service` | Aspect classification metadata, aspect summaries, aspect evaluation, aspect inference behavior | 8003 | Aspect domain | `datasets/outputs/eda/04_svm`, `datasets/outputs/eda/05_evaluation`, optional SVM artifact mount | Extracted |
 | `decision-service` | AHP, Fuzzy AHP, criteria, expert judgement processing, weighting, ranking comparison calculations | 8004 | Decision-support domain | service-owned schemas and calculation modules | Extracted |
-| `report-service` | Read-only aggregation for dashboard/report views | 8005 | Reporting domain | research output summaries across `datasets/outputs/eda` | Extracted |
+| `report-service` | Read-only aggregation for Dashboard, evaluation, and ranking-comparison views | 8005 | Reporting domain | research output summaries across `datasets/outputs/eda` | Extracted / kept in MS-13D |
 | `database-service` | Runtime persistence for user inference history | 5432 | Persistence | thesis-stage runtime history storage; not a research artifact warehouse | Infrastructure |
 
 ## Service Dependency Flow
@@ -142,7 +142,9 @@ Owns AHP, Fuzzy AHP, criteria, expert judgement processing, weighting, and ranki
 
 ### report-service
 
-Owns read-only aggregation for dashboard and report views. It may read consolidated research output CSV/JSON artifacts and may call review, sentiment, aspect, and decision services through internal APIs when needed. It does not own the underlying model inference, review acquisition, or decision calculation implementations.
+Owns read-only aggregation for Dashboard, evaluation, and ranking-comparison views. It may read consolidated research output CSV/JSON artifacts and may call review, sentiment, aspect, and decision services through internal APIs when needed. It does not own the underlying model inference, review acquisition, decision calculation implementations, frontend Reports routing, or printable report/export features.
+
+MS-13D decision: keep `report-service` as an active dashboard aggregation service. The removed frontend Reports page/menu does not make this backend service obsolete because Dashboard, Model Evaluation, and AHP/Fuzzy AHP still consume API Gateway routes backed by `report-service`, especially `GET /evaluation/summary` and `GET /reports/ranking-comparison`.
 
 ### database-service
 

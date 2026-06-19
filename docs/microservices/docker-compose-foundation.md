@@ -16,7 +16,7 @@ MS-03 provides infrastructure scaffolding only. It creates the deployment topolo
 | `sentiment-service` | `sentirank-sentiment-service` | 8002 | Extracted sentiment prediction and evaluation summary service as of MS-07 |
 | `aspect-service` | `sentirank-aspect-service` | 8003 | Extracted aspect classification and SVM evaluation summary service as of MS-08 |
 | `decision-service` | `sentirank-decision-service` | 8004 | Extracted AHP/Fuzzy AHP calculation service as of MS-04 |
-| `report-service` | `sentirank-report-service` | 8005 | Extracted report and consolidated evaluation summary service as of MS-09 |
+| `report-service` | `sentirank-report-service` | 8005 | Active dashboard/evaluation/ranking aggregation service; kept in MS-13D |
 | `database-service` | `sentirank-database-service` | 5432 | PostgreSQL container for thesis-stage Compose topology |
 
 ## Run the Compose Stack
@@ -183,6 +183,7 @@ As of MS-09, `report-service` additionally exposes:
 
 - `GET /reports/summary`
 - `GET /evaluation/summary`
+- `GET /reports/ranking-comparison`
 
 `report-service` mounts repository research outputs as read-only Docker volumes:
 
@@ -195,7 +196,9 @@ environment:
   DOCS_DIR: /app/docs
 ```
 
-`report-service` aggregates existing generated outputs only. It does not train models, run scraping/preprocessing, or calculate final AHP/Fuzzy AHP expert rankings.
+`report-service` aggregates existing generated outputs only. It does not train models, run scraping/preprocessing, calculate final AHP/Fuzzy AHP expert rankings, or provide a frontend printable Reports page.
+
+MS-13D keeps `report-service` in Docker Compose because API Gateway still proxies active Dashboard, Model Evaluation, and AHP/Fuzzy AHP data routes to it. The removed frontend Reports page/menu does not remove this backend aggregation dependency.
 
 ## Transition Notes
 
