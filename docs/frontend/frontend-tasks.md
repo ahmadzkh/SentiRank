@@ -21,6 +21,9 @@
 - [x] FE-10 — Core pages selesai
 - [x] FE-11 — AHP/Fuzzy AHP prototype selesai
 - [x] FE-12 — API integration preparation selesai
+- [x] MS-10/MS-12 — Gateway integration dan read-only AHP/Fuzzy AHP selesai
+- [x] MS-13C — Frontend Reports route cleanup selesai
+- [x] MS-13G — Dokumentasi frontend aktif disinkronkan
 
 ---
 
@@ -903,7 +906,7 @@ Menghubungkan frontend SentiRank ke `api-gateway-service` sebagai satu-satunya e
 
 ### Completion Note
 
-Completed on 2026-06-05. MS-10 updates the frontend API client, endpoint constants, services, and AHP/Fuzzy AHP page integration so browser-facing calls use `api-gateway-service` only. Existing mock UI remains available, while the AHP/Fuzzy AHP page now has a Gateway-backed sample demo panel that does not calculate AHP/Fuzzy AHP in the frontend.
+Completed on 2026-06-05. MS-10 updated the frontend API client, endpoint constants, services, and AHP/Fuzzy AHP integration so browser-facing calls use `api-gateway-service` only. At that milestone the page still had a Gateway-backed sample demo panel; MS-12 later replaced it with the current read-only results page. Historical mock UI is reference-only and is not an active demo fallback.
 
 ---
 
@@ -1043,13 +1046,13 @@ Menjadikan Dashboard sebagai ringkasan final penelitian SentiRank yang membaca d
 - [x] AHP/Fuzzy AHP full width dan membaca ranking comparison dari CSV backend.
 - [x] Ranking Prioritas full width dan berbentuk tabel.
 - [x] Ringkasan Rekomendasi Dashboard sudah hilang.
-- [x] Menu Laporan sudah hilang dan `/reports` redirect ke Dashboard.
+- [x] Menu Laporan sudah hilang. Pada penyelesaian MS-11, `/reports` masih redirect ke Dashboard; route tersebut kemudian dihapus pada MS-13C.
 - [x] Visible UI Dashboard/sidebar/reports tidak menampilkan Preview, Demo, Sample, mock-first, fallback, gateway, atau API Gateway.
 - [x] Validasi lint/typecheck/build/backend tests selesai.
 
 ### Completion Note
 
-Completed on 2026-06-05. Dashboard finalisasi penelitian selesai dengan backend CSV ranking endpoint, dashboard adapter, layout final data-backed, Reports redirect, UI copy cleanup, dan validasi lint/typecheck/build serta targeted backend tests per service.
+Completed on 2026-06-05. Dashboard finalisasi penelitian selesai dengan backend CSV ranking endpoint, dashboard adapter, layout final data-backed, UI copy cleanup, dan validasi lint/typecheck/build serta targeted backend tests per service. Redirect Reports yang masih ada saat itu kemudian dihapus pada MS-13C.
 
 ---
 
@@ -1113,3 +1116,31 @@ Menghapus sisa route frontend Reports yang tidak lagi menjadi bagian scope demo 
 ### Completion Note
 
 Completed on 2026-06-19. Frontend Reports page dihapus karena hanya redirect ke Dashboard dan tidak reachable dari navigasi. Dashboard tetap menjadi permukaan summary/reporting untuk demo skripsi, fitur print report di luar scope saat ini, dan backend report-service/API Gateway report route tetap disisakan untuk audit dependensi terpisah.
+
+---
+
+## MS-13G - Final Documentation Sync
+
+### Objective
+
+Menyelaraskan dokumentasi frontend aktif dengan arsitektur microservice, gateway-only data access, penghapusan Reports page, dan status read-only AHP/Fuzzy AHP tanpa mengubah source frontend.
+
+### Task Checklist
+
+- [x] Perbarui `frontend/README.md` dari status FE-06 menjadi panduan frontend aktif.
+- [x] Pastikan `frontend/DESIGN.md` menyatakan AHP/Fuzzy AHP read-only dan Dashboard sebagai reporting surface.
+- [x] Pastikan mock data historis tidak dijelaskan sebagai fallback demo aktif.
+- [x] Catat bahwa Vercel hanya menjalankan frontend dan backend tetap terpisah.
+- [x] Catat bahwa `report-service` tetap aktif di belakang API Gateway.
+- [x] Tidak mengubah page, component, service adapter, route, atau source frontend.
+
+### Acceptance Criteria
+
+- [x] Dokumentasi aktif tidak menyatakan `/reports` atau print report sebagai fitur frontend saat ini.
+- [x] Dokumentasi aktif tidak menyatakan frontend menghitung AHP/Fuzzy AHP.
+- [x] Dokumentasi aktif menyatakan frontend hanya memanggil API Gateway.
+- [x] Tidak ada source frontend, Docker Compose, env, dataset, atau model yang berubah.
+
+### Completion Note
+
+Completed on 2026-06-19. Dokumentasi frontend aktif sekarang mencerminkan Dashboard sebagai summary/reporting surface, AHP/Fuzzy AHP sebagai hasil read-only dengan status sample/development, dan API Gateway sebagai satu-satunya backend boundary. Dokumen planning lama di luar scope edit MS-13G masih memerlukan keputusan terpisah untuk anotasi historis atau archival.

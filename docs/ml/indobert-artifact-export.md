@@ -4,6 +4,8 @@
 
 MS-11B prepares the SentiRank IndoBERT training/export workflow. It does not train IndoBERT locally and does not change `sentiment-service` runtime behavior.
 
+Current runtime status: MS-11C subsequently connected `sentiment-service` to this artifact format. The service performs real IndoBERT inference when the local artifact or configured Hugging Face model can be loaded and returns explicitly marked fallback output otherwise. This document remains the research/export reference, not a production deployment claim.
+
 The selected configuration remains:
 
 ```text

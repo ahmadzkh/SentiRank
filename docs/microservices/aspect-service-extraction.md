@@ -49,9 +49,7 @@ environment:
   ASPECT_MODEL_DIR: /app/models/svm
 ```
 
-Even if the artifact is detected, MS-08 keeps classification fallback-only. Real SVM artifact loading should be implemented in a later explicit model-serving phase.
-
-MS-11A implements that later model-serving phase. `aspect-service` now loads the SVM pipeline artifact when available and uses keyword fallback only when the artifact is missing, cannot be loaded, or inference fails.
+Historical note: MS-08 initially kept classification fallback-only. MS-11A completed the model-serving phase; `aspect-service` now loads the SVM pipeline artifact when available and uses keyword fallback only when the artifact is missing, cannot be loaded, or inference fails.
 
 Runtime configuration:
 
@@ -114,5 +112,5 @@ The SVM aspect classifier is trained and evaluated on weak labels derived from k
 ## Limitations
 
 - The selected `LinearSVC` pipeline does not expose `predict_proba`, so model-based responses may return `confidence: null` and empty `scores`.
-- Production model serving can still be improved later with resource controls and runtime persistence for inference history.
-- Legacy `ml-service` remains available during the migration and is not removed by this extraction.
+- Production model serving can still be improved with resource controls and observability. Runtime inference history is already owned by API Gateway repository persistence.
+- `ml-service/` remains the research pipeline; `ml-service/app/` is legacy pre-extraction runtime code rather than the active frontend-facing aspect service.

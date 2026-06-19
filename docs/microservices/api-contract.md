@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This document defines the target API contract for the SentiRank API Gateway and internal microservices. It is a planning document for the gradual migration from the current modular backend toward Microservice Architecture.
+This document defines the active thesis-stage API contract for the SentiRank API Gateway and internal microservices. The extraction milestones are complete for the current runtime; endpoint examples still include research/manual interfaces that are not necessarily used by the frontend.
 
 ## Global Response Envelope
 
@@ -975,9 +975,9 @@ Response:
 | Endpoint | Public gateway route | Internal service | Method | Responsibility | Frontend page/module consumer |
 | --- | --- | --- | --- | --- | --- |
 | `/ahp/criteria` | `/ahp/criteria` | `decision-service` | GET | Load final AHP criteria | AHP/Fuzzy AHP page |
-| `/ahp/calculate` | `/ahp/calculate` | `decision-service` | POST | Calculate AHP weights | AHP/Fuzzy AHP page |
-| `/ahp/fuzzy-calculate` | `/ahp/fuzzy-calculate` | `decision-service` | POST | Calculate Fuzzy AHP weights | AHP/Fuzzy AHP page |
-| `/ahp/compare` | `/ahp/compare` | `decision-service` | POST | Compare AHP and Fuzzy AHP | AHP/Fuzzy AHP page |
+| `/ahp/calculate` | `/ahp/calculate` | `decision-service` | POST | Calculate AHP weights | No active frontend consumer; backend/manual research interface |
+| `/ahp/fuzzy-calculate` | `/ahp/fuzzy-calculate` | `decision-service` | POST | Calculate Fuzzy AHP weights | No active frontend consumer; backend/manual research interface |
+| `/ahp/compare` | `/ahp/compare` | `decision-service` | POST | Compare AHP and Fuzzy AHP | No active frontend consumer; backend/manual research interface |
 | `/reviews/random` | `/reviews/random` | `review-service` | GET | Load random review samples | Dataset/review module |
 | `/dataset/summary` | `/dataset/summary` | `review-service` | GET | Load dataset summary | Dataset module |
 | `/scraping/summary` | `/scraping/summary` | `review-service` | GET | Load scraping summary | Dataset module |
@@ -1115,10 +1115,12 @@ The initial thesis implementation may use unversioned routes such as `/ahp/crite
 - Frontend unwraps the Gateway response envelope.
 - Frontend does not call internal service ports.
 - Frontend does not calculate AHP or Fuzzy AHP directly.
-- As of MS-10, the AHP/Fuzzy AHP page may run sample/development calculations through `/ahp/*` Gateway routes, but it must keep the sample-not-final expert judgement warning visible.
+- The current AHP/Fuzzy AHP page is read-only and uses `GET /ahp/criteria`, `GET /evaluation/summary`, and `GET /reports/ranking-comparison`.
+- The frontend exposes no AHP/Fuzzy AHP calculation button. Sample/development status must remain explicit until validated expert judgement replaces the current outputs.
+- Frontend failures must produce an explicit unavailable/empty state; mock data must not appear as live production/demo fallback.
 
 ## Migration Notes
 
-FE-13 currently connects the AHP/Fuzzy AHP page to a backend demo API. During microservice migration, the frontend contract should remain stable by routing the same public AHP/Fuzzy AHP paths through `api-gateway-service`.
+Historical FE-13 work introduced the original gateway-backed AHP/Fuzzy AHP contract. The active frontend now reads result endpoints only; POST calculation routes remain available for backend/manual research workflows and are not page actions.
 
-The gateway will forward those routes to `decision-service`, so frontend code should only need the base API URL to point at `http://localhost:8000`.
+All frontend services continue to use the API Gateway base URL, normally `http://localhost:8000` for local development. Internal service ownership remains hidden from the frontend.

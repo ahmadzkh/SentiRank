@@ -2,17 +2,17 @@
 
 ## Purpose
 
-This document defines the target microservice architecture for SentiRank, a thesis project for Spotify Google Play review analysis using IndoBERT, SVM, AHP, and Fuzzy AHP.
+This document defines the current thesis-stage microservice architecture for SentiRank, a Spotify Google Play review analysis project using IndoBERT, SVM, AHP, and Fuzzy AHP.
 
-The goal is to align the backend architecture with the thesis claim of Microservice Architecture while preserving the current working implementation during an incremental transition.
+It is the canonical reference for active runtime boundaries, data ownership, persistence, local Docker orchestration, and deployment modes. Historical extraction notes remain in milestone-specific documents.
 
 ## Current Architecture Assessment
 
-The current backend is closer to a modular monolith than a full microservice system. Most backend and ML domains still live inside `ml-service`, with routers, services, schemas, scripts, notebooks, and utilities grouped in one runtime boundary.
+The active runtime is split into an API Gateway and five domain services under `services/`. They run as separate FastAPI processes and communicate over HTTP. The Next.js frontend uses the API Gateway as its only backend entry point.
 
-This is not wrong. A modular monolith is a practical intermediate architecture for research systems because it keeps the codebase understandable while the ML and decision-support methods are still evolving. However, it is not sufficient to fully support a thesis claim that the system already uses Microservice Architecture.
+`ml-service/` is no longer the primary runtime layer. Its scripts, notebooks, quality audits, model utilities, and tests remain active for research reproducibility. `ml-service/app/` is legacy pre-extraction experiment runtime code and must not be treated as the frontend-facing backend.
 
-The target architecture below separates SentiRank into independently deployable service boundaries with API-based communication and an API Gateway as the single frontend entry point.
+This is a thesis-stage implementation, not a claim of production-grade distributed-system maturity. Shared read-only research artifact mounts and optional local model files remain deliberate constraints.
 
 ## Data Source Policy
 
@@ -65,18 +65,18 @@ Some backend services may read CSV/JSON artifacts during runtime for demo, repor
 
 This policy avoids unnecessary database migration while keeping the architecture academically defensible: reproducible research evidence stays artifact-based, while interactive user runtime data belongs in the database.
 
-## Target Architecture
+## Current Runtime Topology
 
-| Service name | Responsibility | Port | Owner/domain | Current source of logic | Extraction priority |
+| Service name | Responsibility | Port | Owner/domain | Active source/artifact boundary | Status |
 | --- | --- | ---: | --- | --- | --- |
-| `frontend-service` | Next.js user interface and dashboard views | 3000 | Presentation | `frontend/` | Existing service, keep separate |
-| `api-gateway-service` | Public API entry point, CORS, response envelope, routing, health aggregation | 8000 | API Gateway | future extraction from frontend/backend integration layer | High |
-| `review-service` | Review dataset metadata, scraping summaries, preprocessing summaries, review samples | 8001 | Review/data domain | `datasets/raw`, `datasets/processed`, `datasets/outputs/eda/01_data_acquisition`, `datasets/outputs/eda/02_preprocessing` | Extracted |
-| `sentiment-service` | Sentiment model metadata, sentiment summaries, sentiment evaluation, sentiment inference behavior | 8002 | Sentiment domain | `datasets/outputs/eda/03_indobert`, `datasets/outputs/eda/05_evaluation`, optional IndoBERT artifact mount | Extracted |
-| `aspect-service` | Aspect classification metadata, aspect summaries, aspect evaluation, aspect inference behavior | 8003 | Aspect domain | `datasets/outputs/eda/04_svm`, `datasets/outputs/eda/05_evaluation`, optional SVM artifact mount | Extracted |
-| `decision-service` | AHP, Fuzzy AHP, criteria, expert judgement processing, weighting, ranking comparison calculations | 8004 | Decision-support domain | service-owned schemas and calculation modules | Extracted |
-| `report-service` | Read-only aggregation for Dashboard, evaluation, and ranking-comparison views | 8005 | Reporting domain | research output summaries across `datasets/outputs/eda` | Extracted / kept in MS-13D |
-| `database-service` | Optional PostgreSQL runtime persistence for user inference history | 5432 | Persistence | deployment-like runtime history storage; not a research artifact warehouse | Infrastructure / optional Compose profile |
+| `frontend-service` | Next.js user interface and dashboard views | 3000 | Presentation | `frontend/` | Active; optional Compose profile |
+| `api-gateway-service` | Public API entry point, CORS, routing, health aggregation, runtime inference orchestration, inference-history repository | 8000 | API Gateway | `services/api-gateway/` | Active |
+| `review-service` | Review dataset metadata, scraping summaries, preprocessing summaries, review samples | 8001 | Review/data domain | service code plus read-only review artifacts | Active |
+| `sentiment-service` | IndoBERT inference, sentiment summaries, and evaluation | 8002 | Sentiment domain | service code, evaluation artifacts, local/Hugging Face model | Active |
+| `aspect-service` | SVM inference, aspect summaries, and evaluation | 8003 | Aspect domain | service code, evaluation artifacts, local SVM model | Active |
+| `decision-service` | AHP, Fuzzy AHP, criteria, expert judgement processing, weighting, ranking comparison calculations | 8004 | Decision-support domain | service-owned schemas and calculation modules | Active |
+| `report-service` | Read-only aggregation for Dashboard, evaluation, and ranking-comparison views | 8005 | Reporting domain | research output summaries across `datasets/outputs/eda` | Active; kept in MS-13D |
+| `database-service` | Optional PostgreSQL infrastructure for API Gateway inference-history persistence | 5432 | Persistence infrastructure | deployment-like runtime history storage; not a research artifact warehouse | Optional Compose profile |
 
 ## Service Dependency Flow
 
@@ -91,12 +91,11 @@ flowchart LR
     Gateway --> Aspect[aspect-service :8003]
     Gateway --> Decision[decision-service :8004]
     Gateway --> Report[report-service :8005]
+    Gateway --> RuntimeDB[(SQLite default or optional PostgreSQL<br/>runtime inference history)]
     Artifacts[(Read-only CSV/JSON/model artifacts)] --> Review
     Artifacts --> Sentiment
     Artifacts --> Aspect
     Artifacts --> Report
-    Sentiment -. future inference history .-> Database[(database-service<br/>runtime history)]
-    Aspect -. future inference history .-> Database
 ```
 
 ```mermaid
@@ -130,15 +129,15 @@ Owns review dataset metadata, scraping summaries, preprocessing summaries, and r
 
 ### sentiment-service
 
-Owns sentiment model metadata, sentiment summaries, sentiment evaluation, and sentiment inference behavior. The final candidate model is `run_3_weighted_loss_lr_1e-5`. It may read sentiment evaluation JSON artifacts and optional IndoBERT model artifacts as read-only inputs. It does not own aspect classification, review scraping, AHP/Fuzzy AHP calculation, or frontend rendering.
+Owns sentiment model metadata, summaries, evaluation, and inference. The selected model is IndoBERT `run_3_weighted_loss_lr_1e-5`, loaded from a Git-ignored local artifact or configured Hugging Face model id. If loading fails, responses identify fallback mode explicitly through provenance fields; fallback is not represented as real model inference. It does not own aspect classification, review scraping, AHP/Fuzzy AHP calculation, or frontend rendering.
 
 ### aspect-service
 
-Owns aspect classification metadata, aspect summaries, aspect evaluation, and aspect inference behavior. The final classifier is `merged_5class`. It may read SVM/aspect CSV/JSON artifacts and optional SVM model artifacts as read-only inputs. It does not own sentiment inference, AHP/Fuzzy AHP weighting, report aggregation, or frontend rendering.
+Owns aspect classification metadata, summaries, evaluation, and inference. The selected classifier is the merged five-class SVM. Real model serving is enabled when the local artifact loads; fallback is explicit when it does not. Because the selected pipeline may not expose `predict_proba`, model confidence can be `null`. It does not own sentiment inference, AHP/Fuzzy AHP weighting, report aggregation, or frontend rendering.
 
 ### decision-service
 
-Owns AHP, Fuzzy AHP, criteria, expert judgement processing, weighting, and ranking comparison calculation behavior. It should own future validated expert judgement processing endpoints. It does not own ML inference, review data acquisition, report generation, frontend rendering, or direct frontend access.
+Owns AHP, Fuzzy AHP, criteria, expert judgement processing, weighting, and ranking comparison calculation behavior. The frontend displays read-only results and does not expose a calculation button. Current ranking artifacts remain sample/development outputs until validated expert judgement forms are collected and processed. It does not own ML inference, review data acquisition, report aggregation, frontend rendering, or direct frontend access.
 
 ### report-service
 
@@ -148,7 +147,7 @@ MS-13D decision: keep `report-service` as an active dashboard aggregation servic
 
 ### database-service
 
-Owns runtime persistence for user inference history in the thesis-stage implementation. It is not required to store every research CSV/JSON artifact. It does not own domain business logic, static research outputs, or frontend-facing read models.
+Provides optional PostgreSQL infrastructure only. The API Gateway repository owns runtime persistence behavior and defaults to SQLite for local/demo use. PostgreSQL is optional for deployment; neither mode stores every research CSV/JSON artifact.
 
 ## Communication Strategy
 
@@ -186,7 +185,7 @@ As of MS-13F, the local/demo Docker default is backend-focused:
 - `docker compose --profile frontend up --build` also starts the optional Next.js container.
 - `docker compose --profile postgres up --build` starts the optional PostgreSQL container for deployment-like runs when `API_GATEWAY_DATABASE_URL` points to `database-service`.
 
-Frontend deployment is intentionally separate from backend Compose. Local development can use `npm run dev`; a semi-online demo can use Vercel pointing to a tunneled API Gateway; a full online deployment can use Vercel plus containerized backend services and managed PostgreSQL.
+Frontend deployment is intentionally separate from backend Compose. A local full demo can use local frontend development or the optional frontend profile, SQLite, and local/Hugging Face model sources. A semi-online demo can use Vercel pointing to a tunneled local API Gateway with local SQLite. A full online deployment, if required, can use Vercel plus containerized backend services, managed PostgreSQL, and a private Hugging Face or platform-managed model artifact.
 
 ## Database Strategy
 
@@ -194,20 +193,13 @@ The database is for runtime user inference history, not for bulk research artifa
 
 For the thesis-stage implementation, one shared database-service is sufficient if runtime persistence is needed. Domain separation can be handled through schema or table ownership. Database-per-service is future work, not a requirement for MS-10C.
 
-MS-13E removed the legacy Prisma schema/config artifacts. Runtime inference history remains implemented by `api-gateway-service` repository persistence with SQLite local/demo fallback and optional PostgreSQL deployment. MS-13F makes SQLite the local Docker default and keeps PostgreSQL behind an optional Compose profile. Do not interpret the Compose PostgreSQL service as a requirement to migrate all CSV/JSON research outputs into relational tables.
+MS-13E removed the legacy Prisma schema/config artifacts. Runtime inference history remains implemented by `api-gateway-service` repository persistence with SQLite as the local/demo default and PostgreSQL optional for deployment. MS-13F keeps PostgreSQL behind an optional Compose profile. Do not interpret the Compose PostgreSQL service as a requirement to migrate all CSV/JSON research outputs into relational tables.
 
-## Legacy Transition Strategy
+## Legacy Boundary Status
 
-`ml-service` can remain temporarily as the legacy modular backend while services are extracted incrementally.
+The extraction sequence is complete for the active runtime: decision, gateway, review, sentiment, aspect, and report responsibilities now live under `services/`. MS-12A also added API Gateway runtime inference orchestration and history persistence.
 
-Recommended extraction order:
-
-1. Extract `decision-service` because AHP/Fuzzy AHP endpoints are stable and already used by the frontend demo flow.
-2. Add `api-gateway-service` as the frontend-facing boundary.
-3. Route FE-13 AHP/Fuzzy AHP calls through the gateway without changing frontend feature behavior.
-4. Extract `review-service`, `sentiment-service`, and `aspect-service` from the existing `ml-service` modules.
-5. Extract `report-service` after evaluation and reporting contracts stabilize.
-6. Wire runtime inference history persistence after service contracts are stable; do not migrate research CSV/JSON artifacts wholesale. MS-12A implements this for user-submitted review inference through `api-gateway-service`.
+Keep `ml-service/` for research pipelines, notebooks, quality audits, model export utilities, and tests. Treat `ml-service/app/` as legacy experiment runtime code until a separate removal audit confirms no research or test dependency remains. It must not be wired back into the frontend path.
 
 ## Current Runtime Audit
 
@@ -226,7 +218,7 @@ Risk note: multiple extracted services currently depend on the shared `datasets/
 
 ## Why This Qualifies as Microservice Architecture
 
-The target architecture qualifies as microservice architecture because it defines:
+The current thesis-stage runtime qualifies as a microservice architecture because it has:
 
 - independent deployable service boundaries
 - separate runtime processes per domain
@@ -236,15 +228,14 @@ The target architecture qualifies as microservice architecture because it define
 - Docker-based deployment topology
 - internal services hidden from the frontend
 
-The architecture is intentionally incremental so the current thesis implementation can evolve without breaking completed ML and frontend work.
+These boundaries are implemented, but the repository should not be described as production-ready without the operational controls listed below.
 
 ## Limitations
 
-This is a thesis-stage architecture plan. It does not yet implement all production-grade distributed system concerns.
+This is a thesis-stage implementation. It does not yet implement all production-grade distributed-system concerns, and full online deployment has not been claimed as completed.
 
 Future work may include:
 
-- authentication and authorization
 - service discovery
 - distributed tracing
 - message broker or event-driven workflows
@@ -252,10 +243,10 @@ Future work may include:
 - stronger schema/domain ownership for runtime persistence
 - database-per-service
 - migration and seed pipeline for final thesis demo data
-- inference history endpoint for user-submitted reviews
 - centralized logging
 - circuit breakers and retry policies
 - production secret management
 - horizontal autoscaling
+- validated expert judgement collection and replacement of sample AHP/Fuzzy AHP outputs
 
-These are valid future improvements but are not required for the current thesis-stage microservice refactor.
+These are valid future improvements but are not required for the current thesis demo.

@@ -1,16 +1,28 @@
-# SentiRank Microservice Architecture
+# SentiRank Microservice Documentation
 
-This folder contains documentation for the target SentiRank microservice architecture.
+This folder documents the active thesis-stage runtime architecture and its historical extraction milestones.
 
-- `architecture.md` defines the target service boundaries, migration strategy, deployment topology, and thesis-stage limitations.
-- `api-contract.md` defines the API Gateway and internal service endpoint contracts.
-- `docker-compose-foundation.md` explains the MS-03 Compose topology, skeleton service ports, and health-check workflow.
-- `decision-service-extraction.md` documents the MS-04 extraction of AHP/Fuzzy AHP calculations into `decision-service`.
-- `api-gateway-implementation.md` documents the MS-05 gateway routing layer for frontend-facing AHP/Fuzzy AHP APIs.
-- `review-service-extraction.md` documents the MS-06 extraction of review/data summary endpoints into `review-service`.
-- `sentiment-service-extraction.md` documents the MS-07 extraction of sentiment prediction, summary, and evaluation endpoints into `sentiment-service`.
-- `aspect-service-extraction.md` documents the MS-08 extraction of aspect classification, summary, and SVM evaluation endpoints into `aspect-service`.
-- `report-service-extraction.md` documents the MS-09 extraction of report and consolidated evaluation aggregation endpoints into `report-service`.
-- `runtime-inference-persistence.md` documents the MS-12A runtime review inference flow and database persistence boundary.
+## Current References
 
-MS-01 and MS-02 are documentation-only planning artifacts. MS-03 adds Docker Compose and minimal health-check skeletons. MS-04 extracts decision-support calculations into `decision-service`. MS-05 routes frontend-facing AHP/Fuzzy AHP API paths through `api-gateway-service`. MS-06 extracts review/data summaries into `review-service` and exposes them through the gateway. MS-07 extracts sentiment-domain endpoints into `sentiment-service`. MS-08 extracts aspect-domain endpoints into `aspect-service`. MS-09 extracts report/evaluation aggregation into `report-service`. MS-12A adds backend runtime review inference orchestration and database persistence for user-submitted inference history only.
+- `architecture.md`: canonical runtime topology, service ownership, data-source policy, persistence boundary, and deployment modes.
+- `api-contract.md`: public API Gateway and internal service contracts.
+- `docker-compose-foundation.md`: local/demo Compose commands, optional profiles, healthchecks, and model mounts.
+- `runtime-inference-persistence.md`: API Gateway orchestration and SQLite/PostgreSQL inference-history persistence.
+- `repository-hygiene-audit.md`: MS-13 cleanup decisions and residual risks.
+
+## Service Extraction Records
+
+- `decision-service-extraction.md`: AHP/Fuzzy AHP ownership in `decision-service`.
+- `api-gateway-implementation.md`: API Gateway routing and frontend boundary.
+- `review-service-extraction.md`: review, dataset, scraping, and preprocessing summaries.
+- `sentiment-service-extraction.md`: IndoBERT inference, evaluation, artifact loading, and explicit fallback behavior.
+- `aspect-service-extraction.md`: merged five-class SVM inference, evaluation, and explicit fallback behavior.
+- `report-service-extraction.md`: Dashboard/evaluation/ranking aggregation. This is not a printable Reports frontend feature.
+
+## Current State
+
+The frontend calls the API Gateway only. Active runtime services live under `services/`; `ml-service/` remains the research pipeline and contains legacy experiment runtime utilities that are not the primary frontend-facing backend.
+
+Runtime inference history is persisted by API Gateway repository code. SQLite is the local/demo default and PostgreSQL is optional for deployment. Prisma was removed as unused legacy setup. Research CSV/JSON outputs remain read-only thesis artifacts rather than being migrated wholesale into the runtime database.
+
+The standalone frontend Reports page/menu and print action have been removed from current scope. `report-service` remains active because Dashboard, Model Evaluation, and AHP/Fuzzy AHP views still use its aggregation routes through the API Gateway.

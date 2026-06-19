@@ -9,6 +9,7 @@
 | Phase | FE-03 - DESIGN.md |
 | Status | Approved |
 | Date | 2026-05-30 |
+| Last Runtime Sync | 2026-06-19 (MS-13G) |
 | Visual Direction | SentiRank Research Analytics Light |
 | Default Theme | Light Mode |
 | Product Type | Dashboard-based research analytics application |
@@ -485,13 +486,13 @@ Settings:
 
 ## 20. AHP/Fuzzy AHP Interface Rules
 
-AHP/Fuzzy AHP pages need stronger structure because they combine method, numeric judgement, matrix data, and final ranking.
+AHP/Fuzzy AHP views need stronger structure because they combine method context, criteria, consistency, weights, and ranking results. The current frontend view is read-only; judgement entry and calculation remain backend/research responsibilities.
 
 Rules:
 
 - Do not hardcode the number of criteria in UI assumptions.
-- Matrix cells must be large enough to read and edit.
-- Pairwise comparison labels must show both criteria being compared.
+- Matrix cells, when shown, must be large enough to read. The current main page must not expose matrix editing.
+- Pairwise comparison labels, when shown as research context, must identify both criteria.
 - Consistency ratio must be visually prominent and explained.
 - AHP weights and Fuzzy AHP weights must be comparable side by side.
 - Ranking output must include rank, aspect, score/weight, and interpretation.

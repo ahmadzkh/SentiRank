@@ -2,9 +2,9 @@
 
 ## Purpose
 
-This document describes the Docker Compose foundation for SentiRank's gradual transition from a modular monolith toward a microservice architecture.
+This document is the local/demo Docker Compose runtime reference for SentiRank's thesis-stage microservices.
 
-The file began as the MS-03 infrastructure scaffold. As of MS-13F, it is also the local/demo runtime reference: backend microservices run by default with SQLite inference-history persistence, the frontend container is optional, and PostgreSQL remains available through an opt-in Compose profile.
+The Compose file began as the MS-03 infrastructure scaffold. The extraction work is now active: backend microservices run by default with SQLite inference-history persistence, the frontend container is optional, and PostgreSQL remains available through an opt-in profile.
 
 ## Service List
 
@@ -145,9 +145,9 @@ Each health response follows:
 }
 ```
 
-## Skeleton Scope
+## Service Evolution and Current Capabilities
 
-The backend service folders under `services/` are intentionally minimal:
+The service folders began as minimal MS-03 healthcheck skeletons. They now contain the active API Gateway and domain runtimes:
 
 ```text
 services/<service-name>/
@@ -158,7 +158,7 @@ services/<service-name>/
   requirements.txt
 ```
 
-Most skeleton services expose only:
+Every backend service exposes at least:
 
 - `GET /`
 - `GET /health`
@@ -260,7 +260,7 @@ MS-13D keeps `report-service` in Docker Compose because API Gateway still proxie
 
 ## Transition Notes
 
-`ml-service` remains the legacy modular backend during the transition. Existing research notebooks, scripts, model outputs, and AHP/Fuzzy AHP backend logic remain where they are.
+`ml-service/` remains the research pipeline for notebooks, scripts, quality audits, model outputs, and experiment utilities. Its `app/` folder is legacy pre-extraction runtime code; active frontend-facing services live under `services/`.
 
 The current deployment modes are intentionally separate:
 
@@ -277,9 +277,4 @@ Model binary safety rules:
 - Do not copy model binaries into Docker images when a read-only mount or private model repository is available.
 - Do not commit `model.safetensors`, `pytorch_model.bin`, `*.pt`, `*.pth`, or `*.ckpt`.
 
-Planned next steps:
-
-1. Later phases can replace file-based report aggregation with database-backed persistence if needed.
-2. Later phases replace remaining legacy boundaries step by step.
-
-This keeps the refactor controlled and avoids breaking the completed ML and frontend workflows while still establishing a concrete microservice deployment foundation.
+Future work can improve domain-owned artifact packaging, production observability, resource controls, and managed deployment if those are required. File-based report aggregation should move only when a concrete database query or lifecycle need justifies the migration.

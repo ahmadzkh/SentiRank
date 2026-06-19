@@ -96,5 +96,5 @@ frontend-service -> api-gateway-service -> sentiment-service
 
 - The prediction endpoint uses real IndoBERT inference only when the local artifact or configured Hugging Face model can be loaded.
 - Fallback remains explicit when the artifact is unavailable or cannot be loaded; fallback output must not be interpreted as real IndoBERT inference.
-- Production model serving can be improved later with stricter resource limits, startup policy, and observability.
-- Legacy `ml-service` remains available during the migration and is not removed by this extraction.
+- Production model serving can be improved later with stricter resource limits, startup policy, and observability; current behavior is thesis-demo ready, not a production-readiness claim.
+- `ml-service/` remains the research/export pipeline; `ml-service/app/` is legacy pre-extraction runtime code rather than the active frontend-facing sentiment service.

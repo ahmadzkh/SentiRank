@@ -26,7 +26,7 @@ The repository is mostly organized around the current microservice direction, bu
 | `ml-service/app/` | DEPRECATE | Legacy modular FastAPI runtime boundary overlapping extracted services. | Keep for transition; document as legacy, not active frontend runtime. |
 | `ml-service/saved_models/` | KEEP | Local model artifacts used by active services through read-only Docker mounts. Git ignored. | Keep; do not inspect or commit binaries. |
 | `datasets/` | KEEP | Research datasets and generated outputs used as read-only evidence by services. | Keep. |
-| `docs/` | KEEP | Thesis/project documentation. Some files are stale. | Keep; sync in MS-13G. |
+| `docs/` | KEEP | Thesis/project documentation. Canonical architecture/runtime docs were synchronized in MS-13G; older design-history files may still contain superseded plans. | Keep current references authoritative and label historical plans clearly. |
 | `prisma/`, `prisma.config.ts` | REMOVE LATER / DONE | Prisma schema/migration artifacts were legacy; runtime persistence is implemented in `api-gateway` via repository SQL support. | Removed in MS-13E after final reference audit found no active runtime dependency. |
 | Generated caches and local DB files | CLEAN GENERATED | `.pytest_cache/`, service `.pytest_cache/`, `__pycache__/`, `.pyc`, `frontend/node_modules/`, `frontend/.next/`, and `dev.db` exist. | Clean in MS-13B; update `.gitignore` first where missing. |
 
@@ -36,8 +36,8 @@ The most important constraint is that `report-service` is not safe to remove imm
 
 | Path | Current role | Classification | Evidence | Notes |
 | --- | --- | --- | --- | --- |
-| `README.md` | Short current project overview and data-source policy. | KEEP | Mentions API Gateway-only frontend access and runtime inference database boundary. | Mostly current. |
-| `CLAUDE.md` | Agent/project rules and architecture context. | KEEP / TODO | MS-13E removed active Prisma wording; other old project tree/checklist items still need broader MS-13G sync. | Sync remaining drift in MS-13G. |
+| `README.md` | Current project overview, local run guide, deployment modes, and repository roles. | KEEP | Synchronized in MS-13G with active microservices and persistence policy. | Keep concise. |
+| `CLAUDE.md` | Agent/project rules and architecture context. | KEEP / DONE | MS-13G added the active repository role map, current feature status, model serving, and persistence boundaries. | Historical pre-refactor tree is explicitly labeled. |
 | `AGENTS.md` | Agent instructions and frontend tracking rules. | KEEP | Defines frontend task tracker expectations. | No change in MS-13A. |
 | `docker-compose.yml` | Current multi-service development stack. | KEEP | Defines backend microservices by default, optional frontend container, and optional PostgreSQL profile. | MS-13F made SQLite the local/demo default and kept PostgreSQL for deployment-like runs. |
 | `.gitignore` | Git hygiene rules. | TODO | Covers many artifacts but misses root/service pytest cache and some generic generated dirs. | Update in MS-13B before cleanup. |
@@ -47,8 +47,8 @@ The most important constraint is that `report-service` is not safe to remove imm
 | `frontend/app/reports/` | Removed frontend Reports route. | REMOVE LATER / DONE | Removed in MS-13C after it only redirected to `/dashboard`. | Backend report-service remains separate from this page removal. |
 | `frontend/services/report-service.ts` | Frontend adapter for ranking endpoints through API Gateway. | KEEP | `getRankingComparison()` is actively used by Dashboard and AHP/Fuzzy AHP; `getReportSummary()` was removed in MS-13C. | Keep until endpoint ownership changes. |
 | `ml-service/` | Research pipeline plus legacy runtime. | KEEP / DEPRECATE | Scripts/notebooks/tests remain useful; `app/` duplicates extracted runtime domains. | Clarify role in docs. |
-| `docs/microservices/` | Microservice architecture and contract docs. | KEEP / TODO | Mostly current but some stale statements remain. | Sync in MS-13G. |
-| `docs/frontend/` | Frontend planning and task docs. | KEEP / TODO | Older IA/wireframes still describe Reports page and mock-first behavior. | Sync in MS-13G. |
+| `docs/microservices/` | Microservice architecture and contract docs. | KEEP / DONE | Canonical architecture, API, Compose, persistence, and service status docs synchronized in MS-13G. | Extraction files remain historical records plus current status addenda. |
+| `docs/frontend/` | Frontend planning and task docs. | KEEP / NEEDS DECISION | Active task/design records are current; older IA/wireframe/reference files still contain superseded Reports/mock-first plans. | Preserve as history or schedule a dedicated archival annotation pass. |
 | `docs/methodology/` | AHP/Fuzzy AHP methodology docs. | KEEP | Sample/final expert judgement boundaries are documented. | Keep. |
 
 ## 3. Prisma Audit
@@ -175,7 +175,7 @@ Recommended decision: DONE for the frontend redirect route and unused `getReport
 | Optional/possibly removable services | `frontend-service` is optional for Dockerized frontend demos. `database-service` is optional for PostgreSQL mode. `report-service` is not removable yet because active routes still depend on it. |
 | Is `report-service` required? | Yes for current backend/API Gateway routing. Not required by the removed `/reports` frontend page specifically. |
 | Is PostgreSQL required or optional? | Optional as of MS-13F. Local/demo Compose defaults to SQLite; PostgreSQL remains available through the `postgres` profile and explicit `API_GATEWAY_DATABASE_URL`. |
-| Is SQLite fallback documented? | Yes, in `docs/microservices/runtime-inference-persistence.md`, `docs/microservices/docker-compose-foundation.md`, `.env.example`, and API Gateway code defaults. |
+| Is SQLite local/demo default documented? | Yes, in `docs/microservices/runtime-inference-persistence.md`, `docs/microservices/docker-compose-foundation.md`, `.env.example`, and API Gateway code defaults. |
 | Are model artifacts mounted read-only? | Yes. IndoBERT and SVM saved model folders are mounted with `:ro`. |
 | Is Docker Compose too broad for current demo? | Reduced in MS-13F. Default Compose now starts the backend demo only; frontend and PostgreSQL are opt-in profiles. |
 | Healthchecks | MS-13F added Compose-level lightweight `/health` checks for backend services and `pg_isready` for optional PostgreSQL. |
@@ -255,21 +255,17 @@ Keep existing model-artifact ignore rules. Do not add rules that would hide sour
 
 ## 9. Documentation Drift Audit
 
-| File | Drift topic | Priority | Suggested future update |
-| --- | --- | --- | --- |
-| `CLAUDE.md` | MS-13E removed active Prisma command/tree/checklist wording, but older project tree entries such as `app/api` and `ml-service/app` still need broader sync. | High | Sync remaining project tree, feature checklist, and ml-service role in MS-13G. |
-| `docs/microservices/architecture.md` | Opening assessment says most backend/ML domains still live inside `ml-service`, while later sections correctly state services are extracted and runtime inference is active. | High | Rewrite "Current Architecture Assessment" to distinguish historical transition from current active services. |
-| `docs/microservices/api-contract.md` | Service ownership table still marks `/ahp/calculate`, `/ahp/fuzzy-calculate`, and `/ahp/compare` as AHP/Fuzzy AHP page consumers; frontend rules still say page may run sample calculations through `/ahp/*`. Current page is read-only. | High | Mark calculation endpoints as backend/manual/future workflow, not main-page frontend triggers. |
-| `docs/frontend/information-architecture.md` | Primary nav and route plan still include Reports as a full page. | High | Remove Reports as active nav page or mark it as historical/redirect. |
-| `docs/frontend/wireframes.md` | Dashboard and model pages still link/open Reports, and a full Reports wireframe remains. | High | Mark Reports wireframe as superseded by Dashboard or archive it. |
-| `docs/frontend/design-references.md` | Reports page references and export layout remain as active design guidance. | Medium | Mark Reports references as historical or future-only. |
-| `docs/frontend/component-map.md` | Component usage still includes Reports across many components; topbar mentions export/run mock/open report. | Medium | Update usage matrix to current reachable pages and remove mock-run language where superseded. |
-| `frontend/DESIGN.md` | MS-13C removed Reports from the active sidebar/page inventory. | Low | Keep aligned if a future Reports feature is intentionally reintroduced. |
-| `docs/frontend/api-integration-plan.md` | Historical sections still mention Report page fallback and service `getReportSummary()`. | Medium | Mark as historical or add current status that frontend `/reports` was removed and report summary is unused by active pages. |
-| `docs/microservices/docker-compose-foundation.md` | Purpose/skeleton sections still describe MS-03 scaffolding and minimal services, while the same doc later includes current extracted services. | Low | Add "historical foundation" note or split current Compose reference from MS-03 history. |
-| `docs/microservices/report-service-extraction.md` | MS-13D now clarifies `report-service` as active aggregation infrastructure, not a printable Reports page. | Low | Keep aligned if a future endpoint ownership migration removes the service. |
+| File | MS-13G result | Residual status |
+| --- | --- | --- |
+| `README.md` | Added current architecture, local run commands, deployment modes, repository roles, model artifacts, and database policy. | Resolved. |
+| `CLAUDE.md` | Added active repository roles and feature status; labeled the old planned tree as historical; corrected SQLite, Prisma, model, and test guidance. | Resolved for active guidance. |
+| `docs/microservices/architecture.md` | Replaced modular-monolith/target framing with the active extracted runtime and corrected API Gateway persistence ownership. | Resolved. |
+| `docs/microservices/api-contract.md` | Marked calculation POST routes as backend/manual interfaces and the frontend AHP/Fuzzy AHP page as read-only. | Resolved. |
+| `docs/microservices/docker-compose-foundation.md` | Reframed MS-03 skeleton text as history and documented current service capabilities. | Resolved. |
+| `frontend/README.md`, `frontend/DESIGN.md`, active frontend task/decision records | Aligned with gateway-only data, removed Reports scope, and current read-only AHP/Fuzzy AHP behavior. | Resolved for active frontend guidance. |
+| Older frontend IA, wireframe, design-reference, component-map, API-integration, and API Gateway implementation plans | These historical documents still contain superseded Reports/mock-first/sample-panel plans and were outside the MS-13G edit list. | NEEDS DECISION: annotate as historical or archive in a separately scoped documentation pass. |
 
-No documentation was updated in MS-13A except this audit report.
+MS-13A created this audit; MS-13G synchronized the canonical active documentation while preserving explicitly historical milestone records.
 
 ## 10. Recommended Cleanup Roadmap
 
@@ -278,9 +274,9 @@ No documentation was updated in MS-13A except this audit report.
 | MS-13B | CLEAN GENERATED | Remove `.pytest_cache/`, `services/*/.pytest_cache/`, `__pycache__/`, `.pyc`, `.pytest_tmp/` if present, and local runtime DB files only after confirming no local data is needed. Update `.gitignore` first. | No runtime logic changes. No model artifact changes. |
 | MS-13C | DONE | Cleaned frontend Reports leftovers: redirect route, route constants, and unused `getReportSummary()`. Preserved Dashboard, AHP/Fuzzy AHP, and Model Evaluation behavior. | Do not remove `getRankingComparison()` until endpoint ownership is changed. |
 | MS-13D | KEEP | Decided report-service future. Active `/evaluation/summary` and `/reports/ranking-comparison` remain backed by `report-service`, so it stays in runtime topology. | Do not delete service just because Reports menu is gone. |
-| MS-13E | REMOVE LATER / DONE | Removed unused legacy Prisma setup after final reference audit confirmed no active runtime dependency. | Keep API Gateway repository persistence, SQLite local fallback, and PostgreSQL deployment support. |
+| MS-13E | REMOVE LATER / DONE | Removed unused legacy Prisma setup after final reference audit confirmed no active runtime dependency. | Keep API Gateway repository persistence, SQLite local/demo default, and PostgreSQL deployment support. |
 | MS-13F | DONE | Docker cleanup for local/demo runtime. Backend services now run by default with SQLite; frontend and PostgreSQL are optional profiles; report-service remains active. | Do not remove services until endpoint ownership changes. |
-| MS-13G | TODO | Documentation sync across README, CLAUDE, architecture docs, API contract, frontend IA/wireframes/design docs, and microservice docs. | Do not rewrite historical docs without marking what is historical vs current. |
+| MS-13G | DONE | Synchronized canonical README, CLAUDE, architecture, API, Compose, persistence, service, ML, and active frontend documentation. | Historical planning files outside the edit scope remain explicitly tracked for a later annotation/archive decision. |
 
 ## 11. Risk Register
 
@@ -292,7 +288,7 @@ No documentation was updated in MS-13A except this audit report.
 | Cleaning generated files before `.gitignore` update recreates noisy untracked files. | High | Low | Update ignore rules first in MS-13B. |
 | Broad Docker cleanup makes thesis demo harder to run. | Medium | High | MS-13F added only `frontend` and `postgres` profiles; backend service topology remains intact. |
 | Treating `ml-service/app` as active runtime creates architecture confusion. | High | Medium | Document it as legacy transition code and keep frontend on API Gateway. |
-| Docs continue to reference Reports page after route cleanup. | High | Medium | MS-13G should sync frontend IA, wireframes, component map, and design docs. |
+| Older frontend planning docs continue to reference Reports after route cleanup. | Medium | Medium | Active guidance is corrected; annotate or archive older IA/wireframe/component-map records in a separately scoped documentation pass. |
 | Model binaries accidentally inspected or staged. | Low if rules followed | High | Keep `saved_models` ignored; do not open binary contents; do not stage them. |
 
 ## 12. Proposed MS-13B / MS-13C / MS-13D Sequence
@@ -349,7 +345,7 @@ Tasks:
 | --- | --- |
 | Confirm no `PrismaClient` usage | Done in MS-13E; no active runtime/package dependency found. |
 | Update docs/env | Done in MS-13E; `DATABASE_URL` fallback belongs to API Gateway repository mode, not Prisma. |
-| Preserve persistence support | Done in MS-13E; SQLite local/demo fallback and PostgreSQL deployment support remain. |
+| Preserve persistence support | Done in MS-13E; SQLite local/demo default and PostgreSQL deployment support remain. |
 | Remove legacy files | Done in MS-13E; deleted `prisma/` and `prisma.config.ts`. |
 
 ### MS-13F: Docker cleanup
@@ -363,19 +359,19 @@ Tasks:
 | Add optional Compose profiles if useful | Done. Added `frontend` and `postgres`; backend services remain the default local/demo stack. |
 | Keep read-only artifact mounts | Done. Preserved `:ro` for datasets/docs/model artifacts. |
 | Remove deprecated services only after audit | Done. No service was removed; `report-service` remains active because route ownership remains there. |
-| Document SQLite local fallback | Done. Compose, `.env.example`, and Docker docs now document SQLite local/demo default and PostgreSQL optional mode. |
+| Document SQLite local/demo default | Done. Compose, `.env.example`, and Docker docs now document SQLite local/demo default and PostgreSQL optional mode. |
 
 ### MS-13G: Documentation sync
 
-Classification: TODO
+Classification: DONE
 
 Tasks:
 
-| File group | Update |
+| File group | Result |
 | --- | --- |
-| `README.md` | Keep short current architecture summary. Add pointer to hygiene decisions if needed. |
-| `CLAUDE.md` | Continue broader non-Prisma sync of old project tree/checklist entries. |
-| `docs/microservices/architecture.md` | Rewrite current assessment to match extracted service state. |
-| `docs/microservices/api-contract.md` | Mark AHP/Fuzzy AHP calculation endpoints as backend/manual/future workflow, not read-only page triggers. |
-| `docs/frontend/*` | Remove active Reports page/nav assumptions or mark them historical. |
-| `frontend/DESIGN.md` | Align sidebar/page inventory with removed Reports menu. |
+| `README.md` | Added current architecture, run guide, deployment modes, repository roles, model artifact policy, and database policy. |
+| `CLAUDE.md` | Added active role map/current feature status and labeled old structure details as historical. |
+| `docs/microservices/architecture.md` | Rewritten to describe the extracted active runtime and API Gateway persistence ownership. |
+| `docs/microservices/api-contract.md` | Calculation endpoints are backend/manual interfaces; the current frontend page is read-only. |
+| Active frontend docs | Task tracker, decision log, frontend README, and design specification aligned with current scope. |
+| Historical frontend plans | Not edited outside the approved file list; retained as a documented follow-up decision. |

@@ -1347,6 +1347,15 @@ NextJS, TypeScript, Tailwind CSS, shadcn/ui
 
 Development Strategy:
 Data-backed, service-layer integration, component-based
+
+Runtime Data Boundary:
+API Gateway only; no direct internal service or CSV/JSON access
+
+Reporting Surface:
+Dashboard; standalone Reports page/menu and print action removed
+
+AHP/Fuzzy AHP Frontend Role:
+Read-only result display; no calculation action; sample status remains explicit
 ```
 
 ---
@@ -1418,7 +1427,7 @@ Decision:
 - CSV/JSON/model artifact penelitian tetap sah sebagai reproducible research outputs dan tidak perlu dimigrasikan penuh ke database pada milestone ini.
 - Artifact penelitian adalah read-only bagi runtime service dan tidak boleh dipresentasikan sebagai live user-generated runtime data.
 - Database boundary digunakan untuk user-facing runtime inference history, seperti submitted review text, sentiment/aspect result, confidence/probability, model version, prediction source, dan timestamp.
-- Service ownership mengikuti domain: review-service untuk dataset/scraping/preprocessing/review samples, sentiment-service untuk IndoBERT summaries/evaluation/inference behavior, aspect-service untuk SVM summaries/evaluation/inference behavior, decision-service untuk AHP/Fuzzy AHP criteria/calculation/judgement/ranking comparison, report-service untuk read-only dashboard/report aggregation, api-gateway-service untuk routing/envelope/error normalization, dan database-service untuk runtime inference history.
+- Service ownership mengikuti domain: review-service untuk dataset/scraping/preprocessing/review samples, sentiment-service untuk IndoBERT summaries/evaluation/inference behavior, aspect-service untuk SVM summaries/evaluation/inference behavior, decision-service untuk AHP/Fuzzy AHP criteria/calculation/judgement/ranking comparison, report-service untuk read-only dashboard/report aggregation, dan api-gateway-service untuk routing/envelope/error normalization serta repository persistence runtime inference history. PostgreSQL `database-service` hanya infrastruktur opsional; SQLite adalah default local/demo.
 
 Reason:
 
@@ -1474,4 +1483,27 @@ Impact:
 
 - Sidebar tetap tanpa menu Reports/Laporan.
 - Tidak ada page-level Reports UI atau tombol print report di frontend yang diaudit.
-- Cleanup backend report-service dan Docker ditunda ke milestone deprecation terpisah.
+- Audit MS-13D kemudian memutuskan `report-service` tetap aktif sebagai Dashboard/evaluation/ranking aggregation service; MS-13F mempertahankannya pada backend Compose default.
+
+---
+
+## 2026-06-19 - MS-13G Final Documentation Sync
+
+Decision:
+
+- Dokumentasi frontend aktif menetapkan API Gateway sebagai satu-satunya backend boundary.
+- Dashboard tetap menjadi summary/reporting surface; standalone Reports page/menu dan print report tetap di luar scope.
+- Halaman AHP/Fuzzy AHP hanya menampilkan hasil read-only dan tidak menyediakan calculation action.
+- Data sample/development AHP/Fuzzy AHP tetap diberi status eksplisit sampai expert judgement tervalidasi tersedia.
+- Vercel diposisikan untuk frontend saja; backend Docker/host tetap deployment terpisah.
+
+Reason:
+
+- Dokumentasi FE-06/FE-13 historis tidak lagi cukup menjelaskan frontend yang sudah terintegrasi dengan microservices.
+- Batas data dan service harus konsisten agar mock/reference data, research artifacts, dan runtime inference history tidak tercampur saat demo skripsi.
+
+Impact:
+
+- `frontend/README.md`, `frontend/DESIGN.md`, dan task tracker mencerminkan runtime saat ini.
+- Tidak ada source frontend, route, component, service adapter, Docker Compose, env, model, dataset, atau runtime behavior yang berubah.
+- Planning documents lama di luar scope edit MS-13G tetap menjadi kandidat anotasi historical/archive pada milestone dokumentasi terpisah.
