@@ -25,12 +25,14 @@ services:
       ASPECT_SERVICE_URL: ${ASPECT_SERVICE_URL:-http://aspect-service:8003}
       DECISION_SERVICE_URL: ${DECISION_SERVICE_URL:-http://decision-service:8004}
       REPORT_SERVICE_URL: ${REPORT_SERVICE_URL:-http://report-service:8005}
+      API_GATEWAY_DATABASE_URL: postgresql://${POSTGRES_USER:-sentirank}:${POSTGRES_PASSWORD:-sentirank}@database-service:5432/${POSTGRES_DB:-sentirank}
     depends_on:
       - review-service
       - sentiment-service
       - aspect-service
       - decision-service
       - report-service
+      - database-service
     networks:
       - sentirank-network
 

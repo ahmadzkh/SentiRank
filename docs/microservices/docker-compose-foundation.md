@@ -11,7 +11,7 @@ MS-03 provides infrastructure scaffolding only. It creates the deployment topolo
 | Service | Container name | Port | MS-03 status |
 | --- | --- | ---: | --- |
 | `frontend-service` | `sentirank-frontend-service` | 3000 | Usable development container for the existing Next.js frontend |
-| `api-gateway-service` | `sentirank-api-gateway-service` | 8000 | Skeleton FastAPI service with root and health endpoints |
+| `api-gateway-service` | `sentirank-api-gateway-service` | 8000 | Public API Gateway with service routing and runtime inference persistence as of MS-12A |
 | `review-service` | `sentirank-review-service` | 8001 | Extracted read-only review/data summary service as of MS-06 |
 | `sentiment-service` | `sentirank-sentiment-service` | 8002 | Extracted sentiment prediction and evaluation summary service as of MS-07 |
 | `aspect-service` | `sentirank-aspect-service` | 8003 | Extracted aspect classification and SVM evaluation summary service as of MS-08 |
@@ -34,6 +34,14 @@ NEXT_PUBLIC_API_BASE_URL=http://localhost:8000
 ```
 
 The frontend should call only the API Gateway public port. Internal service URLs are configured for the gateway container through Docker Compose environment variables.
+
+As of MS-12A, the gateway also receives:
+
+```bash
+API_GATEWAY_DATABASE_URL=postgresql://sentirank:sentirank@database-service:5432/sentirank
+```
+
+This database URL is used only for user-submitted runtime inference history. Research CSV/JSON artifacts remain file-based and are not migrated into PostgreSQL.
 
 ## Stop the Compose Stack
 

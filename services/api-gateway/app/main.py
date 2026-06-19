@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.core.config import get_settings
-from app.routers import ahp, aspect, health, report, review, sentiment
+from app.routers import ahp, aspect, health, inference, report, review, sentiment
 
 settings = get_settings()
 
@@ -28,6 +28,7 @@ app.include_router(review.router)
 app.include_router(sentiment.router)
 app.include_router(aspect.router)
 app.include_router(report.router)
+app.include_router(inference.router)
 
 
 def response(message: str, data: dict | None = None) -> dict:
@@ -71,6 +72,9 @@ def root() -> dict:
                 "GET /reports/summary",
                 "GET /evaluation/summary",
                 "GET /reports/ranking-comparison",
+                "POST /inference/review",
+                "GET /inference/history",
+                "GET /inference/health",
             ],
             "routing": {
                 "decision-service": settings.decision_service_url,
@@ -78,6 +82,7 @@ def root() -> dict:
                 "sentiment-service": settings.sentiment_service_url,
                 "aspect-service": settings.aspect_service_url,
                 "report-service": settings.report_service_url,
+                "runtime-database": "configured" if settings.database_url else "not_configured",
             },
         },
     )

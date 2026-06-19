@@ -45,6 +45,8 @@ As of MS-08, the public aspect routes are implemented in `api-gateway-service` a
 
 As of MS-09, the public report/evaluation summary routes are implemented in `api-gateway-service` and forwarded to `report-service`. The gateway preserves the report-service response envelope and does not train models or calculate final AHP/Fuzzy AHP rankings.
 
+As of MS-12A, runtime review inference routes are implemented in `api-gateway-service`. The gateway orchestrates sentiment prediction through `sentiment-service`, aspect classification through `aspect-service`, persists combined user-submitted inference history, and does not calculate sentiment or aspects locally.
+
 ### AHP and Fuzzy AHP
 
 - `GET /ahp/criteria`
@@ -75,6 +77,12 @@ As of MS-09, the public report/evaluation summary routes are implemented in `api
 
 - `GET /reports/summary`
 - `GET /evaluation/summary`
+
+### Runtime Inference
+
+- `POST /inference/review`
+- `GET /inference/history`
+- `GET /inference/health`
 
 ### Health
 
@@ -495,6 +503,115 @@ Model response when the IndoBERT artifact is available:
 }
 ```
 
+### Runtime Review Inference
+
+Request:
+
+```http
+POST /inference/review
+Content-Type: application/json
+```
+
+```json
+{
+  "text": "iklan terlalu banyak dan aplikasi sering lag"
+}
+```
+
+Response:
+
+```json
+{
+  "success": true,
+  "message": "Inference completed and saved.",
+  "data": {
+    "id": "6a2c9a4d-9e3d-4b1f-a6c5-7e3f4c1a1234",
+    "text": "iklan terlalu banyak dan aplikasi sering lag",
+    "sentiment": {
+      "label": "Negative",
+      "confidence": 0.94,
+      "probabilities": {
+        "Negative": 0.94,
+        "Neutral": 0.04,
+        "Positive": 0.02
+      },
+      "model_name": "run_3_weighted_loss_lr_1e-5",
+      "mode": "model",
+      "prediction_source": "model",
+      "model_available": true,
+      "is_fallback": false
+    },
+    "aspect": {
+      "label": "Ads Experience",
+      "confidence": 0.88,
+      "scores": {
+        "Ads Experience": 0.88
+      },
+      "model_name": "svm_merged_5class",
+      "mode": "model",
+      "prediction_source": "model",
+      "model_available": true,
+      "is_fallback": false
+    },
+    "saved": true,
+    "created_at": "2026-06-19T00:00:00+00:00"
+  }
+}
+```
+
+Validation error:
+
+```json
+{
+  "success": false,
+  "message": "Teks ulasan wajib diisi.",
+  "data": null
+}
+```
+
+### Runtime Inference History
+
+Request:
+
+```http
+GET /inference/history?limit=20
+```
+
+Response:
+
+```json
+{
+  "success": true,
+  "message": "Inference history loaded.",
+  "data": {
+    "items": [
+      {
+        "id": "6a2c9a4d-9e3d-4b1f-a6c5-7e3f4c1a1234",
+        "text": "iklan terlalu banyak dan aplikasi sering lag",
+        "sentiment": {
+          "label": "Negative",
+          "confidence": 0.94,
+          "model_name": "run_3_weighted_loss_lr_1e-5",
+          "prediction_source": "model",
+          "is_fallback": false
+        },
+        "aspect": {
+          "label": "Ads Experience",
+          "confidence": 0.88,
+          "model_name": "svm_merged_5class",
+          "prediction_source": "model",
+          "is_fallback": false
+        },
+        "created_at": "2026-06-19T00:00:00+00:00"
+      }
+    ],
+    "total": 1
+  }
+}
+```
+
+The runtime database stores only user-submitted inference history. It does not store all research CSV/JSON artifacts.
+
 Fallback response when the IndoBERT model artifact is not available:
 
 ```json
@@ -828,6 +945,9 @@ Response:
 | `/aspects/evaluation` | `/aspects/evaluation` | `aspect-service` | GET | Load aspect evaluation | Evaluation module |
 | `/reports/summary` | `/reports/summary` | `report-service` | GET | Load report summary | Report module |
 | `/evaluation/summary` | `/evaluation/summary` | `report-service` | GET | Load consolidated evaluation summary | Evaluation module |
+| `/inference/review` | `/inference/review` | `api-gateway-service` orchestrates `sentiment-service`, `aspect-service`, and runtime database | POST | Run sentiment/aspect inference for submitted review and persist history | Future runtime inference page |
+| `/inference/history` | `/inference/history` | `api-gateway-service` + runtime database | GET | Load runtime user inference history | Future runtime inference page |
+| `/inference/health` | `/inference/health` | `api-gateway-service` + runtime database | GET | Check runtime persistence and downstream inference readiness | System status |
 | `/health` | `/health` | `api-gateway-service` | GET | Gateway health | System status |
 | `/health/services` | `/health/services` | `api-gateway-service` | GET | Internal service health aggregation | System status |
 
@@ -849,6 +969,16 @@ Response:
 }
 ```
 
+Runtime review inference input validation uses Bahasa Indonesia messages:
+
+```json
+{
+  "success": false,
+  "message": "Teks ulasan wajib diisi.",
+  "data": null
+}
+```
+
 ### Internal Service Unavailable
 
 ```json
@@ -863,6 +993,8 @@ Response:
   }
 }
 ```
+
+If `sentiment-service` or `aspect-service` fails during `POST /inference/review`, the gateway returns an explicit error envelope. It does not calculate sentiment or aspect locally and does not invent replacement predictions.
 
 ### Gateway Timeout
 

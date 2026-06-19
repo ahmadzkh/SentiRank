@@ -47,7 +47,7 @@ The database is reserved for user-facing runtime data, especially:
 - `created_at` timestamp
 - inference history
 
-The current Prisma schema already contains an `InferenceHistory` model, but the current extracted FastAPI services do not yet persist inference history through a runtime endpoint. Until that endpoint exists, database-service is an intended runtime persistence boundary, not the source of truth for research CSV/JSON artifacts.
+As of MS-12A, `api-gateway-service` exposes runtime review inference endpoints that call `sentiment-service` and `aspect-service`, then persist the combined result to the runtime database. The database remains an inference-history store only, not the source of truth for research CSV/JSON artifacts.
 
 ### Frontend Data Access
 
@@ -122,7 +122,7 @@ Owns user interface rendering, dashboard navigation, client-side state for UI in
 
 ### api-gateway-service
 
-Owns the public API boundary. It handles CORS, route forwarding, response envelope standardization, public error mapping, and service health aggregation. It does not own domain calculations, ML inference, dataset transformation, research artifact parsing, or persistent domain data.
+Owns the public API boundary. It handles CORS, route forwarding, response envelope standardization, public error mapping, service health aggregation, and runtime review inference orchestration. For runtime review inference, it calls `sentiment-service` and `aspect-service`, persists the combined result, and returns the saved history record. It does not own domain model calculations, dataset transformation, research artifact parsing, frontend rendering, or bulk research artifact persistence.
 
 ### review-service
 
@@ -197,7 +197,7 @@ Recommended extraction order:
 3. Route FE-13 AHP/Fuzzy AHP calls through the gateway without changing frontend feature behavior.
 4. Extract `review-service`, `sentiment-service`, and `aspect-service` from the existing `ml-service` modules.
 5. Extract `report-service` after evaluation and reporting contracts stabilize.
-6. Add or wire runtime inference history persistence after service contracts are stable; do not migrate research CSV/JSON artifacts wholesale.
+6. Wire runtime inference history persistence after service contracts are stable; do not migrate research CSV/JSON artifacts wholesale. MS-12A implements this for user-submitted review inference through `api-gateway-service`.
 
 ## Current Runtime Audit
 
@@ -210,7 +210,7 @@ The MS-10C audit found the following current behavior:
 - `decision-service` currently owns calculation behavior and static criteria in code; it does not read research CSV/JSON artifacts.
 - `api-gateway-service` proxies to internal services and does not parse research artifacts directly.
 - `frontend-service` calls gateway routes through `NEXT_PUBLIC_API_BASE_URL`/`API_GATEWAY_INTERNAL_URL` and no direct frontend calls to internal ports `8001` through `8005` were found.
-- Database runtime inference history is planned by schema (`InferenceHistory`) but no active service endpoint currently persists inference history.
+- Database runtime inference history is active for `POST /inference/review` and `GET /inference/history` through `api-gateway-service`; research CSV/JSON artifacts remain file-based.
 
 Risk note: multiple extracted services currently depend on the shared `datasets/` artifact folder. This is acceptable for the thesis-stage reporting/demo scope because mounts are read-only and ownership is documented, but stronger domain-owned artifact packaging should be considered before claiming production-grade maturity.
 

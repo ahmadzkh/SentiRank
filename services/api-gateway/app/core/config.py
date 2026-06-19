@@ -15,6 +15,7 @@ class Settings(BaseModel):
     sentiment_service_url: str = "http://sentiment-service:8002"
     aspect_service_url: str = "http://aspect-service:8003"
     report_service_url: str = "http://report-service:8005"
+    database_url: str = "sqlite:///./runtime_inference_history.db"
     cors_origins: list[str] = [
         "http://localhost:3000",
         "http://127.0.0.1:3000",
@@ -30,4 +31,8 @@ def get_settings() -> Settings:
         sentiment_service_url=getenv("SENTIMENT_SERVICE_URL", "http://sentiment-service:8002"),
         aspect_service_url=getenv("ASPECT_SERVICE_URL", "http://aspect-service:8003"),
         report_service_url=getenv("REPORT_SERVICE_URL", "http://report-service:8005"),
+        database_url=getenv(
+            "API_GATEWAY_DATABASE_URL",
+            getenv("DATABASE_URL", "sqlite:///./runtime_inference_history.db"),
+        ),
     )
