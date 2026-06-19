@@ -2,29 +2,56 @@
 
 ## Purpose
 
-This document describes the MS-03 Docker Compose foundation for SentiRank's gradual transition from a modular monolith toward a microservice architecture.
+This document describes the Docker Compose foundation for SentiRank's gradual transition from a modular monolith toward a microservice architecture.
 
-MS-03 provides infrastructure scaffolding only. It creates the deployment topology, service names, ports, health-check endpoints, and shared Docker network. It does not extract business logic from `ml-service`, does not implement API Gateway routing, and does not replace the existing frontend or ML workflows.
+The file began as the MS-03 infrastructure scaffold. As of MS-13F, it is also the local/demo runtime reference: backend microservices run by default with SQLite inference-history persistence, the frontend container is optional, and PostgreSQL remains available through an opt-in Compose profile.
 
 ## Service List
 
-| Service | Container name | Port | MS-03 status |
+| Service | Container name | Port | MS-13F local/demo status |
 | --- | --- | ---: | --- |
-| `frontend-service` | `sentirank-frontend-service` | 3000 | Usable development container for the existing Next.js frontend |
-| `api-gateway-service` | `sentirank-api-gateway-service` | 8000 | Public API Gateway with service routing and runtime inference persistence as of MS-12A |
-| `review-service` | `sentirank-review-service` | 8001 | Extracted read-only review/data summary service as of MS-06 |
-| `sentiment-service` | `sentirank-sentiment-service` | 8002 | Extracted sentiment prediction and evaluation summary service as of MS-07 |
-| `aspect-service` | `sentirank-aspect-service` | 8003 | Extracted aspect classification and SVM evaluation summary service as of MS-08 |
-| `decision-service` | `sentirank-decision-service` | 8004 | Extracted AHP/Fuzzy AHP calculation service as of MS-04 |
-| `report-service` | `sentirank-report-service` | 8005 | Active dashboard/evaluation/ranking aggregation service; kept in MS-13D |
-| `database-service` | `sentirank-database-service` | 5432 | PostgreSQL container for thesis-stage Compose topology |
+| `api-gateway-service` | `sentirank-api-gateway-service` | 8000 | Required. Public API Gateway, service routing, health aggregation, and runtime inference persistence owner. |
+| `review-service` | `sentirank-review-service` | 8001 | Required for local backend demo. Read-only review/data summary service. |
+| `sentiment-service` | `sentirank-sentiment-service` | 8002 | Required for local backend demo. Sentiment summary/evaluation/inference service with optional IndoBERT artifact mount. |
+| `aspect-service` | `sentirank-aspect-service` | 8003 | Required for local backend demo. Aspect summary/evaluation/inference service with optional SVM artifact mount. |
+| `decision-service` | `sentirank-decision-service` | 8004 | Required for local backend demo. AHP/Fuzzy AHP calculation service. |
+| `report-service` | `sentirank-report-service` | 8005 | Required for current Dashboard/evaluation/ranking aggregation routes; kept in MS-13D. |
+| `frontend-service` | `sentirank-frontend-service` | 3000 | Optional profile `frontend`. Useful for full local Docker demo; local `npm run dev` and future Vercel deployment are also valid. |
+| `database-service` | `sentirank-database-service` | 5432 | Optional profile `postgres`. Use for deployment-like PostgreSQL mode; SQLite is the local/demo default. |
 
 ## Run the Compose Stack
+
+### Local backend demo with SQLite
 
 From the repository root:
 
 ```bash
 docker compose up --build
+```
+
+This starts the backend microservices on the shared Docker network:
+
+- `api-gateway-service`
+- `review-service`
+- `sentiment-service`
+- `aspect-service`
+- `decision-service`
+- `report-service`
+
+The API Gateway receives:
+
+```bash
+API_GATEWAY_DATABASE_URL=sqlite:///./runtime_inference_history.db
+```
+
+This SQLite database is used only for user-submitted runtime inference history. Research CSV/JSON artifacts remain file-based and are not migrated into SQLite or PostgreSQL.
+
+### Optional frontend container
+
+For a full local Docker demo that includes the Next.js container:
+
+```bash
+docker compose --profile frontend up --build
 ```
 
 The frontend container receives:
@@ -33,17 +60,43 @@ The frontend container receives:
 NEXT_PUBLIC_API_BASE_URL=http://localhost:8000
 ```
 
-The frontend should call only the API Gateway public port. Internal service URLs are configured for the gateway container through Docker Compose environment variables.
+The frontend should call only the API Gateway public port. Internal service URLs are configured for the gateway container through Docker Compose environment variables. Local frontend development through `npm run dev` remains valid, and a future Vercel frontend should point `NEXT_PUBLIC_API_BASE_URL` to the API Gateway or tunnel URL.
 
-As of MS-12A, the gateway also receives:
+### Optional PostgreSQL mode
+
+PostgreSQL remains available for deployment-like local runs. Set the gateway database URL to the Compose database service, then start the `postgres` profile:
 
 ```bash
 API_GATEWAY_DATABASE_URL=postgresql://sentirank:sentirank@database-service:5432/sentirank
+docker compose --profile postgres up --build
 ```
 
-This database URL is used only for user-submitted runtime inference history. Research CSV/JSON artifacts remain file-based and are not migrated into PostgreSQL.
+On PowerShell:
+
+```powershell
+$env:API_GATEWAY_DATABASE_URL = "postgresql://sentirank:sentirank@database-service:5432/sentirank"
+docker compose --profile postgres up --build
+```
+
+To run both the optional frontend container and PostgreSQL:
+
+```bash
+docker compose --profile frontend --profile postgres up --build
+```
 
 Prisma is not used in the current Docker topology. MS-13E removed the legacy Prisma schema/config files; API Gateway repository persistence owns runtime inference history for both SQLite local/demo mode and PostgreSQL deployment mode.
+
+### Environment variables
+
+Key variables are documented in `.env.example`:
+
+| Area | Variables | Notes |
+| --- | --- | --- |
+| Frontend | `NEXT_PUBLIC_API_BASE_URL` | Browser-facing API Gateway URL. Use `http://localhost:8000` for local demo or a tunnel/backend URL for semi-online demo. |
+| API Gateway | `API_GATEWAY_DATABASE_URL`, `DATABASE_URL` | SQLite is the local/demo default. PostgreSQL remains optional through the `postgres` profile or managed database URL. |
+| Service URLs | `REVIEW_SERVICE_URL`, `SENTIMENT_SERVICE_URL`, `ASPECT_SERVICE_URL`, `DECISION_SERVICE_URL`, `REPORT_SERVICE_URL` | Internal Docker service names. Frontend code must not call these directly. |
+| Sentiment model | `SENTIMENT_MODEL_SOURCE`, `INDOBERT_MODEL_PATH`, `INDOBERT_MODEL_ID`, `INDOBERT_MODEL_NAME`, `INDOBERT_MAX_LENGTH`, `HF_TOKEN` | Do not commit a real `HF_TOKEN`. Compose mounts local IndoBERT artifacts read-only and can also use a configured Hugging Face model id. |
+| Aspect model | `ASPECT_MODEL_DIR`, `SVM_ASPECT_MODEL_PATH` | Compose mounts the SVM artifact directory read-only. |
 
 ## Stop the Compose Stack
 
@@ -51,13 +104,15 @@ Prisma is not used in the current Docker topology. MS-13E removed the legacy Pri
 docker compose down
 ```
 
-To remove the PostgreSQL development volume, run this only when local database state can be discarded:
+To remove the optional PostgreSQL development volume, run this only when local database state can be discarded:
 
 ```bash
 docker compose down -v
 ```
 
 ## Health Checks
+
+Compose defines lightweight healthchecks for backend services using existing `/health` endpoints. These checks do not run model inference.
 
 After starting the stack, these endpoints should return the standard SentiRank response envelope:
 
@@ -177,6 +232,7 @@ environment:
   DATASETS_DIR: /app/datasets
   DOCS_DIR: /app/docs
   ASPECT_MODEL_DIR: /app/models/svm
+  SVM_ASPECT_MODEL_PATH: /app/models/svm/svm_merged_5class_pipeline.joblib
 ```
 
 If no local SVM artifact is mounted, `aspect-service` keeps the API usable with explicitly marked fallback demo classifications.
@@ -205,6 +261,21 @@ MS-13D keeps `report-service` in Docker Compose because API Gateway still proxie
 ## Transition Notes
 
 `ml-service` remains the legacy modular backend during the transition. Existing research notebooks, scripts, model outputs, and AHP/Fuzzy AHP backend logic remain where they are.
+
+The current deployment modes are intentionally separate:
+
+| Mode | Frontend | Backend | Runtime database |
+| --- | --- | --- | --- |
+| Local demo | Local `npm run dev` or optional `frontend` profile | Docker Compose backend services | SQLite by default |
+| Semi-online demo | Vercel | Local backend exposed through a tunnel | Local SQLite |
+| Full online, if requested | Vercel | Container platform | Managed PostgreSQL |
+
+Model binary safety rules:
+
+- `ml-service/saved_models/` stays ignored by Git.
+- Compose mounts model artifacts read-only.
+- Do not copy model binaries into Docker images when a read-only mount or private model repository is available.
+- Do not commit `model.safetensors`, `pytorch_model.bin`, `*.pt`, `*.pth`, or `*.ckpt`.
 
 Planned next steps:
 

@@ -48,21 +48,28 @@ The API Gateway reads database configuration from:
 - `API_GATEWAY_DATABASE_URL`
 - fallback: `DATABASE_URL`
 
-Docker Compose wires:
+Local/demo Docker Compose defaults to SQLite:
 
 ```text
-API_GATEWAY_DATABASE_URL=postgresql://sentirank:sentirank@database-service:5432/sentirank
+API_GATEWAY_DATABASE_URL=sqlite:///./runtime_inference_history.db
 ```
 
-SQLite URLs are supported for local tests and development, for example:
+SQLite URLs are also supported for local tests and non-Docker development, for example:
 
 ```text
 sqlite:///./runtime_inference_history.db
 ```
 
+PostgreSQL remains available for deployment-like Compose runs through the optional `postgres` profile:
+
+```text
+API_GATEWAY_DATABASE_URL=postgresql://sentirank:sentirank@database-service:5432/sentirank
+docker compose --profile postgres up --build
+```
+
 The gateway creates the runtime inference table if it does not exist. This is intentionally minimal for thesis-stage runtime persistence.
 
-Prisma is not part of this runtime persistence path. MS-13E removed the legacy `prisma/` schema directory and `prisma.config.ts`; inference history remains handled by API Gateway repository code with SQLite for local/demo use and PostgreSQL for deployment.
+Prisma is not part of this runtime persistence path. MS-13E removed the legacy `prisma/` schema directory and `prisma.config.ts`; inference history remains handled by API Gateway repository code with SQLite for local/demo use and PostgreSQL for deployment. MS-13F keeps PostgreSQL support but no longer requires the PostgreSQL container for the ordinary local backend demo.
 
 ## Failure Behavior
 

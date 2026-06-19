@@ -39,7 +39,7 @@ The most important constraint is that `report-service` is not safe to remove imm
 | `README.md` | Short current project overview and data-source policy. | KEEP | Mentions API Gateway-only frontend access and runtime inference database boundary. | Mostly current. |
 | `CLAUDE.md` | Agent/project rules and architecture context. | KEEP / TODO | MS-13E removed active Prisma wording; other old project tree/checklist items still need broader MS-13G sync. | Sync remaining drift in MS-13G. |
 | `AGENTS.md` | Agent instructions and frontend tracking rules. | KEEP | Defines frontend task tracker expectations. | No change in MS-13A. |
-| `docker-compose.yml` | Current multi-service development stack. | KEEP / TODO | Defines frontend, API Gateway, six domain/runtime services, and PostgreSQL. | Cleanup/profiles should wait for MS-13F. |
+| `docker-compose.yml` | Current multi-service development stack. | KEEP | Defines backend microservices by default, optional frontend container, and optional PostgreSQL profile. | MS-13F made SQLite the local/demo default and kept PostgreSQL for deployment-like runs. |
 | `.gitignore` | Git hygiene rules. | TODO | Covers many artifacts but misses root/service pytest cache and some generic generated dirs. | Update in MS-13B before cleanup. |
 | `.env.example` | Environment template. | KEEP | Keeps `DATABASE_URL` and `API_GATEWAY_DATABASE_URL` for API Gateway repository persistence. | MS-13E clarified these are not Prisma variables. |
 | `prisma/` | Removed legacy Prisma schema and SQLite migration. | REMOVE LATER / DONE | No active runtime Prisma client usage found. | Removed in MS-13E. |
@@ -157,37 +157,37 @@ Recommended decision: DONE for the frontend redirect route and unused `getReport
 
 ### Active Docker Services
 
-| Compose service | Image/container | Port | Required now? | Notes |
+| Compose service | Image/container | Port | MS-13F status | Notes |
 | --- | --- | ---: | --- | --- |
-| `frontend-service` | `sentirank-frontend-service` | 3000 | Yes | Next.js dev container. |
-| `api-gateway-service` | `sentirank-api-gateway-service` | 8000 | Yes | Public API boundary; depends on all backend services and database. |
-| `review-service` | `sentirank-review-service` | 8001 | Yes | Mounted `datasets/` and `docs/` read-only. |
-| `sentiment-service` | `sentirank-sentiment-service` | 8002 | Yes | Mounted `datasets/`, `docs/`, and `ml-service/saved_models/indobert` read-only. |
-| `aspect-service` | `sentirank-aspect-service` | 8003 | Yes | Mounted `datasets/`, `docs/`, and `ml-service/saved_models/svm` read-only. |
-| `decision-service` | `sentirank-decision-service` | 8004 | Yes | Calculation service. |
-| `report-service` | `sentirank-report-service` | 8005 | Yes for current Compose | API Gateway depends on it and active frontend flows use routes backed by it. |
-| `database-service` | `postgres:16-alpine` / `sentirank-database-service` | 5432 | Required in current Compose | API Gateway is configured with PostgreSQL URL in Compose. Optional outside Compose because repository supports SQLite fallback. |
+| `api-gateway-service` | `sentirank-api-gateway-service` | 8000 | Required for local backend demo | Public API boundary; depends on active backend domain services. Uses SQLite by default unless `API_GATEWAY_DATABASE_URL` points elsewhere. |
+| `review-service` | `sentirank-review-service` | 8001 | Required for local backend demo | Mounted `datasets/` and `docs/` read-only. |
+| `sentiment-service` | `sentirank-sentiment-service` | 8002 | Required for local backend demo | Mounted `datasets/`, `docs/`, and `ml-service/saved_models/indobert` read-only. |
+| `aspect-service` | `sentirank-aspect-service` | 8003 | Required for local backend demo | Mounted `datasets/`, `docs/`, and `ml-service/saved_models/svm` read-only. |
+| `decision-service` | `sentirank-decision-service` | 8004 | Required for local backend demo | Calculation service. |
+| `report-service` | `sentirank-report-service` | 8005 | Required for current backend demo | API Gateway depends on it and active frontend flows use routes backed by it. |
+| `frontend-service` | `sentirank-frontend-service` | 3000 | Optional profile `frontend` | Next.js dev container; local `npm run dev` and future Vercel frontend remain valid. |
+| `database-service` | `postgres:16-alpine` / `sentirank-database-service` | 5432 | Optional profile `postgres` | Use for deployment-like PostgreSQL mode after setting `API_GATEWAY_DATABASE_URL` to `database-service`. |
 
 ### Docker Answers
 
 | Question | Answer |
 | --- | --- |
-| Optional/possibly removable services | `report-service` is the main candidate, but not removable yet. `database-service` is optional only outside Docker/local test mode; current Compose requires it. |
-| Is `report-service` required? | Required by current Compose and current API Gateway routing. Not required by the removed `/reports` frontend page specifically. |
-| Is PostgreSQL required or optional? | Required for the current Docker Compose path because `API_GATEWAY_DATABASE_URL` points to `database-service` and API Gateway depends on it. Optional for local tests/dev because API Gateway code supports SQLite URLs. |
-| Is SQLite fallback documented? | Yes, in `docs/microservices/runtime-inference-persistence.md` and API Gateway code defaults. |
+| Optional/possibly removable services | `frontend-service` is optional for Dockerized frontend demos. `database-service` is optional for PostgreSQL mode. `report-service` is not removable yet because active routes still depend on it. |
+| Is `report-service` required? | Yes for current backend/API Gateway routing. Not required by the removed `/reports` frontend page specifically. |
+| Is PostgreSQL required or optional? | Optional as of MS-13F. Local/demo Compose defaults to SQLite; PostgreSQL remains available through the `postgres` profile and explicit `API_GATEWAY_DATABASE_URL`. |
+| Is SQLite fallback documented? | Yes, in `docs/microservices/runtime-inference-persistence.md`, `docs/microservices/docker-compose-foundation.md`, `.env.example`, and API Gateway code defaults. |
 | Are model artifacts mounted read-only? | Yes. IndoBERT and SVM saved model folders are mounted with `:ro`. |
-| Is Docker Compose too broad for current demo? | For the full microservice demo, no. For narrower frontend-only or docs-only demos, yes: no optional profiles exist, so Compose always builds the whole stack. |
-| Healthchecks | Services expose `/health`, but `docker-compose.yml` does not define Compose-level `healthcheck` blocks. |
+| Is Docker Compose too broad for current demo? | Reduced in MS-13F. Default Compose now starts the backend demo only; frontend and PostgreSQL are opt-in profiles. |
+| Healthchecks | MS-13F added Compose-level lightweight `/health` checks for backend services and `pg_isready` for optional PostgreSQL. |
 
 ### Recommended Docker Cleanup Plan
 
 | Step | Classification | Action |
 | --- | --- | --- |
-| Inventory dependencies before removal | TODO | Keep current Compose until route/service ownership is resolved. |
-| Add optional profiles | NEEDS DECISION | Consider profiles such as `core`, `reports`, `db`, or `full` if demo startup is too heavy. |
+| Inventory dependencies before removal | DONE | MS-13F kept all active backend services and changed only default/profile behavior. |
+| Add optional profiles | DONE | Added `frontend` and `postgres` profiles. Backend services remain default for `docker compose up --build`. |
 | Keep model mounts read-only | KEEP | Preserve `:ro` mounts for datasets/docs/model artifacts. |
-| Decide PostgreSQL demo policy | NEEDS DECISION | Keep PostgreSQL for full runtime inference demo; document SQLite local fallback separately. |
+| Decide PostgreSQL demo policy | DONE | SQLite is local/demo default; PostgreSQL is optional deployment-like mode. |
 | Remove deprecated services later | REMOVE LATER | Do not remove `report-service` from Compose after MS-13D; remove only after a future endpoint ownership migration. |
 
 ## 7. Generated Files / Cache Audit
@@ -279,7 +279,7 @@ No documentation was updated in MS-13A except this audit report.
 | MS-13C | DONE | Cleaned frontend Reports leftovers: redirect route, route constants, and unused `getReportSummary()`. Preserved Dashboard, AHP/Fuzzy AHP, and Model Evaluation behavior. | Do not remove `getRankingComparison()` until endpoint ownership is changed. |
 | MS-13D | KEEP | Decided report-service future. Active `/evaluation/summary` and `/reports/ranking-comparison` remain backed by `report-service`, so it stays in runtime topology. | Do not delete service just because Reports menu is gone. |
 | MS-13E | REMOVE LATER / DONE | Removed unused legacy Prisma setup after final reference audit confirmed no active runtime dependency. | Keep API Gateway repository persistence, SQLite local fallback, and PostgreSQL deployment support. |
-| MS-13F | TODO | Docker cleanup. Add profiles if needed, remove deprecated services only after dependency audit, document PostgreSQL vs SQLite local mode. | Do not edit Compose before service decisions. |
+| MS-13F | DONE | Docker cleanup for local/demo runtime. Backend services now run by default with SQLite; frontend and PostgreSQL are optional profiles; report-service remains active. | Do not remove services until endpoint ownership changes. |
 | MS-13G | TODO | Documentation sync across README, CLAUDE, architecture docs, API contract, frontend IA/wireframes/design docs, and microservice docs. | Do not rewrite historical docs without marking what is historical vs current. |
 
 ## 11. Risk Register
@@ -290,7 +290,7 @@ No documentation was updated in MS-13A except this audit report.
 | Future docs imply Prisma still exists after MS-13E removal. | Medium | Medium | Keep remaining Prisma references limited to historical/removal notes; verify with search before future database milestones. |
 | Cleaning `dev.db` or future runtime DB deletes local test/demo history. | Medium | Medium | Confirm owner does not need local records before deletion. |
 | Cleaning generated files before `.gitignore` update recreates noisy untracked files. | High | Low | Update ignore rules first in MS-13B. |
-| Broad Docker cleanup makes thesis demo harder to run. | Medium | High | Add profiles only after identifying minimal demo paths. |
+| Broad Docker cleanup makes thesis demo harder to run. | Medium | High | MS-13F added only `frontend` and `postgres` profiles; backend service topology remains intact. |
 | Treating `ml-service/app` as active runtime creates architecture confusion. | High | Medium | Document it as legacy transition code and keep frontend on API Gateway. |
 | Docs continue to reference Reports page after route cleanup. | High | Medium | MS-13G should sync frontend IA, wireframes, component map, and design docs. |
 | Model binaries accidentally inspected or staged. | Low if rules followed | High | Keep `saved_models` ignored; do not open binary contents; do not stage them. |
@@ -354,16 +354,16 @@ Tasks:
 
 ### MS-13F: Docker cleanup
 
-Classification: TODO
+Classification: DONE
 
 Tasks:
 
 | Task | Notes |
 | --- | --- |
-| Add optional Compose profiles if useful | Example candidates: `core`, `reports`, `db`, `full`. |
-| Keep read-only artifact mounts | Preserve `:ro` for datasets/docs/model artifacts. |
-| Remove deprecated services only after audit | Do not remove `report-service`; MS-13D kept it because active route ownership remains there. |
-| Document SQLite local fallback | Keep Docker PostgreSQL path separate from local/test SQLite fallback. |
+| Add optional Compose profiles if useful | Done. Added `frontend` and `postgres`; backend services remain the default local/demo stack. |
+| Keep read-only artifact mounts | Done. Preserved `:ro` for datasets/docs/model artifacts. |
+| Remove deprecated services only after audit | Done. No service was removed; `report-service` remains active because route ownership remains there. |
+| Document SQLite local fallback | Done. Compose, `.env.example`, and Docker docs now document SQLite local/demo default and PostgreSQL optional mode. |
 
 ### MS-13G: Documentation sync
 

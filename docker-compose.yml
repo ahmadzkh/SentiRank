@@ -1,8 +1,16 @@
+x-backend-healthcheck-defaults: &backend-healthcheck-defaults
+  interval: 30s
+  timeout: 5s
+  retries: 3
+  start_period: 10s
+
 services:
   frontend-service:
     build:
       context: ./frontend
     container_name: sentirank-frontend-service
+    profiles:
+      - frontend
     ports:
       - "${FRONTEND_PORT:-3000}:3000"
     environment:
@@ -25,16 +33,22 @@ services:
       ASPECT_SERVICE_URL: ${ASPECT_SERVICE_URL:-http://aspect-service:8003}
       DECISION_SERVICE_URL: ${DECISION_SERVICE_URL:-http://decision-service:8004}
       REPORT_SERVICE_URL: ${REPORT_SERVICE_URL:-http://report-service:8005}
-      API_GATEWAY_DATABASE_URL: postgresql://${POSTGRES_USER:-sentirank}:${POSTGRES_PASSWORD:-sentirank}@database-service:5432/${POSTGRES_DB:-sentirank}
+      API_GATEWAY_DATABASE_URL: ${API_GATEWAY_DATABASE_URL:-sqlite:///./runtime_inference_history.db}
     depends_on:
       - review-service
       - sentiment-service
       - aspect-service
       - decision-service
       - report-service
-      - database-service
     networks:
       - sentirank-network
+    healthcheck:
+      <<: *backend-healthcheck-defaults
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=2)"
 
   review-service:
     build:
@@ -50,6 +64,13 @@ services:
       - ./docs:/app/docs:ro
     networks:
       - sentirank-network
+    healthcheck:
+      <<: *backend-healthcheck-defaults
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8001/health', timeout=2)"
 
   sentiment-service:
     build:
@@ -64,8 +85,8 @@ services:
       SENTIMENT_MODEL_SOURCE: ${SENTIMENT_MODEL_SOURCE:-auto}
       INDOBERT_MODEL_PATH: /app/models/indobert/run_3_weighted_loss_lr_1e-5
       INDOBERT_MODEL_ID: ${INDOBERT_MODEL_ID:-ahmadzkh/sentirank-indobert-run3}
-      INDOBERT_MODEL_NAME: run_3_weighted_loss_lr_1e-5
-      INDOBERT_MAX_LENGTH: 128
+      INDOBERT_MODEL_NAME: ${INDOBERT_MODEL_NAME:-run_3_weighted_loss_lr_1e-5}
+      INDOBERT_MAX_LENGTH: ${INDOBERT_MAX_LENGTH:-128}
       HF_TOKEN: ${HF_TOKEN:-}
     volumes:
       - ./datasets:/app/datasets:ro
@@ -73,6 +94,13 @@ services:
       - ./ml-service/saved_models/indobert:/app/models/indobert:ro
     networks:
       - sentirank-network
+    healthcheck:
+      <<: *backend-healthcheck-defaults
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8002/health', timeout=2)"
 
   aspect-service:
     build:
@@ -84,12 +112,20 @@ services:
       DATASETS_DIR: /app/datasets
       DOCS_DIR: /app/docs
       ASPECT_MODEL_DIR: /app/models/svm
+      SVM_ASPECT_MODEL_PATH: /app/models/svm/svm_merged_5class_pipeline.joblib
     volumes:
       - ./datasets:/app/datasets:ro
       - ./docs:/app/docs:ro
       - ./ml-service/saved_models/svm:/app/models/svm:ro
     networks:
       - sentirank-network
+    healthcheck:
+      <<: *backend-healthcheck-defaults
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8003/health', timeout=2)"
 
   decision-service:
     build:
@@ -99,6 +135,13 @@ services:
       - "${DECISION_SERVICE_PORT:-8004}:8004"
     networks:
       - sentirank-network
+    healthcheck:
+      <<: *backend-healthcheck-defaults
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8004/health', timeout=2)"
 
   report-service:
     build:
@@ -114,10 +157,19 @@ services:
       - ./docs:/app/docs:ro
     networks:
       - sentirank-network
+    healthcheck:
+      <<: *backend-healthcheck-defaults
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8005/health', timeout=2)"
 
   database-service:
     image: postgres:16-alpine
     container_name: sentirank-database-service
+    profiles:
+      - postgres
     ports:
       - "${DATABASE_PORT:-5432}:5432"
     environment:
@@ -128,6 +180,14 @@ services:
       - sentirank-postgres-data:/var/lib/postgresql/data
     networks:
       - sentirank-network
+    healthcheck:
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+      test:
+        - CMD-SHELL
+        - "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"
 
 networks:
   sentirank-network:

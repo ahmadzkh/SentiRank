@@ -76,7 +76,7 @@ This policy avoids unnecessary database migration while keeping the architecture
 | `aspect-service` | Aspect classification metadata, aspect summaries, aspect evaluation, aspect inference behavior | 8003 | Aspect domain | `datasets/outputs/eda/04_svm`, `datasets/outputs/eda/05_evaluation`, optional SVM artifact mount | Extracted |
 | `decision-service` | AHP, Fuzzy AHP, criteria, expert judgement processing, weighting, ranking comparison calculations | 8004 | Decision-support domain | service-owned schemas and calculation modules | Extracted |
 | `report-service` | Read-only aggregation for Dashboard, evaluation, and ranking-comparison views | 8005 | Reporting domain | research output summaries across `datasets/outputs/eda` | Extracted / kept in MS-13D |
-| `database-service` | Runtime persistence for user inference history | 5432 | Persistence | thesis-stage runtime history storage; not a research artifact warehouse | Infrastructure |
+| `database-service` | Optional PostgreSQL runtime persistence for user inference history | 5432 | Persistence | deployment-like runtime history storage; not a research artifact warehouse | Infrastructure / optional Compose profile |
 
 ## Service Dependency Flow
 
@@ -180,13 +180,21 @@ Example internal service URLs:
 
 The API Gateway is the only backend service exposed to the frontend for API access.
 
+As of MS-13F, the local/demo Docker default is backend-focused:
+
+- `docker compose up --build` starts the backend microservices with SQLite runtime inference persistence.
+- `docker compose --profile frontend up --build` also starts the optional Next.js container.
+- `docker compose --profile postgres up --build` starts the optional PostgreSQL container for deployment-like runs when `API_GATEWAY_DATABASE_URL` points to `database-service`.
+
+Frontend deployment is intentionally separate from backend Compose. Local development can use `npm run dev`; a semi-online demo can use Vercel pointing to a tunneled API Gateway; a full online deployment can use Vercel plus containerized backend services and managed PostgreSQL.
+
 ## Database Strategy
 
 The database is for runtime user inference history, not for bulk research artifact migration. Acceptable runtime records include user-submitted text, sentiment result, aspect/criteria result, confidence/probability, model version, prediction source, timestamp, and inference history.
 
 For the thesis-stage implementation, one shared database-service is sufficient if runtime persistence is needed. Domain separation can be handled through schema or table ownership. Database-per-service is future work, not a requirement for MS-10C.
 
-MS-13E removed the legacy Prisma schema/config artifacts. Runtime inference history remains implemented by `api-gateway-service` repository persistence with SQLite local/demo fallback and optional PostgreSQL deployment. Do not interpret the Compose PostgreSQL service as a requirement to migrate all CSV/JSON research outputs into relational tables.
+MS-13E removed the legacy Prisma schema/config artifacts. Runtime inference history remains implemented by `api-gateway-service` repository persistence with SQLite local/demo fallback and optional PostgreSQL deployment. MS-13F makes SQLite the local Docker default and keeps PostgreSQL behind an optional Compose profile. Do not interpret the Compose PostgreSQL service as a requirement to migrate all CSV/JSON research outputs into relational tables.
 
 ## Legacy Transition Strategy
 

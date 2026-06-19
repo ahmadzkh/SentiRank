@@ -692,8 +692,10 @@ docs: update CLAUDE.md with ML pipeline rules
 
 ```bash
 # Database
-DATABASE_URL="sqlite:///./runtime_inference_history.db"
-API_GATEWAY_DATABASE_URL=""
+DATABASE_URL=sqlite:///./runtime_inference_history.db
+API_GATEWAY_DATABASE_URL=sqlite:///./runtime_inference_history.db
+# Optional PostgreSQL Compose profile:
+# API_GATEWAY_DATABASE_URL=postgresql://sentirank:sentirank@database-service:5432/sentirank
 
 # App
 NEXT_PUBLIC_APP_NAME="SentiRank"
@@ -701,7 +703,11 @@ NEXT_PUBLIC_APP_NAME="SentiRank"
 # ML Model Paths — server-only, never expose to client
 ML_MODEL_PATH=""
 SVM_MODEL_PATH=""
-INDOBERT_MODEL_PATH=""
+SENTIMENT_MODEL_SOURCE=auto
+INDOBERT_MODEL_PATH="ml-service/saved_models/indobert/run_3_weighted_loss_lr_1e-5"
+INDOBERT_MODEL_ID="ahmadzkh/sentirank-indobert-run3"
+HF_TOKEN=""
+SVM_ASPECT_MODEL_PATH="ml-service/saved_models/svm/svm_merged_5class_pipeline.joblib"
 ```
 
 > **Rules:**
