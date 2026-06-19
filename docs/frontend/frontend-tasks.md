@@ -1085,3 +1085,31 @@ Mengubah halaman `/ahp-fuzzy-ahp` dari panel demo kalkulasi menjadi halaman hasi
 ### Completion Note
 
 Completed on 2026-06-17. Halaman AHP/Fuzzy AHP sekarang memakai adapter `getAhpFuzzyAhpOverview()` untuk membaca `GET /ahp/criteria`, `GET /evaluation/summary`, dan `GET /reports/ranking-comparison` melalui service layer. Halaman tidak lagi menampilkan panel demo kalkulasi, tidak menjalankan POST kalkulasi dari frontend, dan menampilkan status sample serta empty state secara eksplisit.
+
+---
+
+## MS-13C - Frontend Reports Route Cleanup
+
+### Objective
+
+Menghapus sisa route frontend Reports yang tidak lagi menjadi bagian scope demo skripsi, sambil mempertahankan Dashboard sebagai permukaan ringkasan utama dan menjaga semua akses data tetap melalui API Gateway.
+
+### Task Checklist
+
+- [x] Hapus route frontend `/reports` yang sebelumnya hanya redirect ke Dashboard.
+- [x] Hapus konstanta route Reports yang tidak lagi dipakai navigasi.
+- [x] Hapus adapter `getReportSummary()` yang tidak dipakai halaman aktif.
+- [x] Pertahankan `frontend/services/report-service.ts` untuk `getRankingComparison()` karena Dashboard dan AHP/Fuzzy AHP masih membaca `/reports/ranking-comparison` melalui API Gateway.
+- [x] Pastikan backend `report-service`, API Gateway report routes, Docker Compose, dataset, model, Prisma, dan AHP/Fuzzy AHP tidak diubah.
+
+### Acceptance Criteria
+
+- [x] Sidebar tidak memiliki item Reports/Laporan.
+- [x] Route page-level `/reports` sudah tidak ada di frontend.
+- [x] Tidak ada tombol `Cetak Laporan` atau `Print Report` pada UI yang diaudit.
+- [x] Dashboard tetap memakai service layer API Gateway dan tidak memanggil service internal secara langsung.
+- [x] Backend report-service tidak dihapus pada milestone ini.
+
+### Completion Note
+
+Completed on 2026-06-19. Frontend Reports page dihapus karena hanya redirect ke Dashboard dan tidak reachable dari navigasi. Dashboard tetap menjadi permukaan summary/reporting untuk demo skripsi, fitur print report di luar scope saat ini, dan backend report-service/API Gateway report route tetap disisakan untuk audit dependensi terpisah.

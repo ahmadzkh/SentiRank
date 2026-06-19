@@ -45,7 +45,6 @@ export const API_ENDPOINTS = {
   },
   reports: {
     base: "/reports",
-    summary: "/reports/summary",
     rankingComparison: "/reports/ranking-comparison",
   },
   health: {

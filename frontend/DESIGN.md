@@ -250,7 +250,6 @@ Sentiment Analysis
 Aspect Classification
 AHP / Fuzzy AHP
 Model Evaluation
-Reports
 Settings
 ```
 
@@ -471,10 +470,11 @@ Model Evaluation:
 - Show metrics clearly: accuracy, precision, recall, F1, macro F1, confusion matrix, and classification report.
 - Make weak-class performance visible where relevant.
 
-Reports:
+Reporting surface:
 
-- Summarize dataset, sentiment, aspect, AHP/Fuzzy AHP, and model evaluation results.
-- Write summaries in report-ready language.
+- Dashboard is the current summary/reporting surface for the thesis demo.
+- The standalone Reports page and print report action are out of current frontend scope.
+- Backend report-service dependencies remain behind API Gateway and are not removed by frontend cleanup.
 
 Settings:
 

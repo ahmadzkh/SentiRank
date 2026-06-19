@@ -7,7 +7,6 @@ export const APP_ROUTES = {
   aspectClassification: "/aspect-classification",
   ahpFuzzyAhp: "/ahp-fuzzy-ahp",
   modelEvaluation: "/model-evaluation",
-  reports: "/reports",
   settings: "/settings",
 } as const;
 

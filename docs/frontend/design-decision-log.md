@@ -1452,3 +1452,26 @@ Impact:
 - Halaman Dashboard, Dataset, Scraping, Prapemrosesan, Analisis Sentimen, Klasifikasi Aspek, dan Evaluasi Model memakai kolom yang lebih spesifik.
 - Halaman AHP/Fuzzy AHP tidak diubah.
 - Frontend tetap membaca data melalui service layer ke API Gateway saja.
+
+---
+
+## 2026-06-19 - MS-13C Frontend Reports Route Cleanup
+
+Decision:
+
+- Route frontend `/reports` dihapus karena hanya redirect ke Dashboard dan tidak lagi reachable dari navigasi.
+- Dashboard tetap menjadi permukaan summary/reporting utama untuk demo skripsi.
+- Fitur cetak/print report berada di luar scope demo skripsi saat ini.
+- Backend `report-service`, API Gateway report routes, dan Docker Compose tidak diubah pada milestone ini.
+
+Reason:
+
+- Halaman Reports tidak memiliki konten mandiri yang dibutuhkan setelah Dashboard mengambil peran ringkasan penelitian.
+- Menghapus route frontend mengurangi permukaan UI tanpa mengubah dependency backend yang masih perlu diaudit terpisah.
+- `frontend/services/report-service.ts` masih diperlukan untuk `getRankingComparison()` yang dipakai Dashboard dan AHP/Fuzzy AHP melalui API Gateway.
+
+Impact:
+
+- Sidebar tetap tanpa menu Reports/Laporan.
+- Tidak ada page-level Reports UI atau tombol print report di frontend yang diaudit.
+- Cleanup backend report-service dan Docker ditunda ke milestone deprecation terpisah.
