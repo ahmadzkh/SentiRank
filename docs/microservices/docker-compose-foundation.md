@@ -43,6 +43,8 @@ API_GATEWAY_DATABASE_URL=postgresql://sentirank:sentirank@database-service:5432/
 
 This database URL is used only for user-submitted runtime inference history. Research CSV/JSON artifacts remain file-based and are not migrated into PostgreSQL.
 
+Prisma is not used in the current Docker topology. MS-13E removed the legacy Prisma schema/config files; API Gateway repository persistence owns runtime inference history for both SQLite local/demo mode and PostgreSQL deployment mode.
+
 ## Stop the Compose Stack
 
 ```bash

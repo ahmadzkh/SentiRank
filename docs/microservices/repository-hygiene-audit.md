@@ -27,7 +27,7 @@ The repository is mostly organized around the current microservice direction, bu
 | `ml-service/saved_models/` | KEEP | Local model artifacts used by active services through read-only Docker mounts. Git ignored. | Keep; do not inspect or commit binaries. |
 | `datasets/` | KEEP | Research datasets and generated outputs used as read-only evidence by services. | Keep. |
 | `docs/` | KEEP | Thesis/project documentation. Some files are stale. | Keep; sync in MS-13G. |
-| `prisma/`, `prisma.config.ts` | DEPRECATE | Prisma schema/migration artifacts exist, but runtime persistence is implemented in `api-gateway` via repository SQL support. | Deprecate first; remove later only after docs and env references are cleaned. |
+| `prisma/`, `prisma.config.ts` | REMOVE LATER / DONE | Prisma schema/migration artifacts were legacy; runtime persistence is implemented in `api-gateway` via repository SQL support. | Removed in MS-13E after final reference audit found no active runtime dependency. |
 | Generated caches and local DB files | CLEAN GENERATED | `.pytest_cache/`, service `.pytest_cache/`, `__pycache__/`, `.pyc`, `frontend/node_modules/`, `frontend/.next/`, and `dev.db` exist. | Clean in MS-13B; update `.gitignore` first where missing. |
 
 The most important constraint is that `report-service` is not safe to remove immediately. The Reports frontend menu/page has been removed, but the service still supplies active gateway routes used by Dashboard, AHP/Fuzzy AHP, and Model Evaluation.
@@ -37,12 +37,12 @@ The most important constraint is that `report-service` is not safe to remove imm
 | Path | Current role | Classification | Evidence | Notes |
 | --- | --- | --- | --- | --- |
 | `README.md` | Short current project overview and data-source policy. | KEEP | Mentions API Gateway-only frontend access and runtime inference database boundary. | Mostly current. |
-| `CLAUDE.md` | Agent/project rules and architecture context. | KEEP / TODO | Contains current microservice policy, but also legacy Prisma commands and old feature checklist. | Sync in MS-13G. |
+| `CLAUDE.md` | Agent/project rules and architecture context. | KEEP / TODO | MS-13E removed active Prisma wording; other old project tree/checklist items still need broader MS-13G sync. | Sync remaining drift in MS-13G. |
 | `AGENTS.md` | Agent instructions and frontend tracking rules. | KEEP | Defines frontend task tracker expectations. | No change in MS-13A. |
 | `docker-compose.yml` | Current multi-service development stack. | KEEP / TODO | Defines frontend, API Gateway, six domain/runtime services, and PostgreSQL. | Cleanup/profiles should wait for MS-13F. |
 | `.gitignore` | Git hygiene rules. | TODO | Covers many artifacts but misses root/service pytest cache and some generic generated dirs. | Update in MS-13B before cleanup. |
-| `.env.example` | Environment template. | KEEP / TODO | Includes legacy `DATABASE_URL` and active `API_GATEWAY_DATABASE_URL`. | Clarify Prisma vs API Gateway database use in MS-13G. |
-| `prisma/` | Legacy Prisma schema and SQLite migration. | DEPRECATE | No active runtime Prisma client usage found. | Keep until MS-13E decision. |
+| `.env.example` | Environment template. | KEEP | Keeps `DATABASE_URL` and `API_GATEWAY_DATABASE_URL` for API Gateway repository persistence. | MS-13E clarified these are not Prisma variables. |
+| `prisma/` | Removed legacy Prisma schema and SQLite migration. | REMOVE LATER / DONE | No active runtime Prisma client usage found. | Removed in MS-13E. |
 | `services/` | Active runtime microservices. | KEEP | Docker builds and API Gateway routes target these services. | Keep service boundaries. |
 | `frontend/app/reports/` | Removed frontend Reports route. | REMOVE LATER / DONE | Removed in MS-13C after it only redirected to `/dashboard`. | Backend report-service remains separate from this page removal. |
 | `frontend/services/report-service.ts` | Frontend adapter for ranking endpoints through API Gateway. | KEEP | `getRankingComparison()` is actively used by Dashboard and AHP/Fuzzy AHP; `getReportSummary()` was removed in MS-13C. | Keep until endpoint ownership changes. |
@@ -57,24 +57,24 @@ The most important constraint is that `report-service` is not safe to remove imm
 
 | Evidence | Status | Notes |
 | --- | --- | --- |
-| `prisma/schema.prisma` | Legacy schema present | Uses `provider = "sqlite"` and includes review, evaluation, ranking, and `InferenceHistory` models. |
-| `prisma/migrations/20260513121528_init/migration.sql` | Legacy migration present | SQLite-style migration file exists. |
-| `prisma.config.ts` | Legacy Prisma config present | Points to `prisma/schema.prisma` and reads `DATABASE_URL`. |
+| `prisma/schema.prisma` | Removed in MS-13E | Legacy SQLite Prisma schema was deleted after no active runtime dependency was found. |
+| `prisma/migrations/20260513121528_init/migration.sql` | Removed in MS-13E | Legacy Prisma migration was deleted with `prisma/`. |
+| `prisma.config.ts` | Removed in MS-13E | Legacy Prisma config was deleted after package/code audit found no Prisma tooling dependency. |
 | `frontend/package.json` | No active Prisma dependency | No `prisma` or `@prisma/client` dependency found in frontend package file. |
 | Runtime services | No active Prisma client usage found | Search did not find `PrismaClient` in `frontend/` or `services/`. |
 | `services/api-gateway/app/repositories/inference_history_repository.py` | Active non-Prisma persistence | Implements SQLite/PostgreSQL persistence directly through Python repository code. |
-| `.env.example` | Mixed legacy/current env | `DATABASE_URL="file:./dev.db"` remains, while active Docker persistence uses `API_GATEWAY_DATABASE_URL`. |
-| `CLAUDE.md` | Documentation drift | Still lists Prisma migration commands and Prisma schema work in command/feature sections. |
+| `.env.example` | Current API Gateway env | `DATABASE_URL` is documented as local/demo API Gateway repository fallback; `API_GATEWAY_DATABASE_URL` remains the Docker/deployment PostgreSQL path. |
+| `CLAUDE.md` | Updated in MS-13E | Prisma commands, project-tree entries, and feature checklist wording were removed or replaced with API Gateway repository persistence guidance. |
 
 ### Answers
 
 | Question | Answer |
 | --- | --- |
 | Is Prisma actively used by runtime services? | No active runtime usage was found. Runtime inference persistence is implemented in `api-gateway` with repository-based SQLite/PostgreSQL support. |
-| Is Prisma only legacy? | Yes, based on current inspected code. It is legacy schema/tooling and planning history, not the active persistence implementation. |
-| Is Prisma mentioned in documentation as if active? | Partially. `CLAUDE.md` still lists Prisma commands and old feature checklist items; `docs/microservices/architecture.md` correctly says Prisma/SQLite artifacts remain and should not drive artifact migration. |
-| Is there risk in removing `prisma/` now? | Yes. Removing it now would delete schema history while docs/env still reference `DATABASE_URL` and Prisma commands. It could also confuse future database work if no replacement migration policy is documented. |
-| Recommended decision | DEPRECATE now; REMOVE LATER only after MS-13E verifies no code, docs, commands, or env templates still depend on it. |
+| Is Prisma only legacy? | Yes. It was legacy schema/tooling and planning history, not the active persistence implementation. |
+| Is Prisma mentioned in documentation as if active? | MS-13E updated the primary architecture/persistence docs and `CLAUDE.md` so remaining Prisma references should be historical/removal notes only. |
+| Is there risk in removing `prisma/` now? | Low after MS-13E audit. Active persistence uses API Gateway repository code; database env variables remain. |
+| Recommended decision | REMOVE LATER / DONE. `prisma/` and `prisma.config.ts` were removed in MS-13E. |
 
 ## 4. Report-service Audit
 
@@ -202,7 +202,7 @@ Recommended decision: DONE for the frontend redirect route and unused `getReport
 | `__pycache__/` under services and `ml-service` source/tests/scripts | Yes | Not tracked | `.pyc` covered; service dirs not explicitly covered | CLEAN GENERATED | Add `**/__pycache__/` for clarity. |
 | `*.pyc` | Yes | Not tracked | Covered by `*.pyc` | CLEAN GENERATED | 152 non-venv/source-side `.pyc` paths were found by targeted search. |
 | `.pytest_tmp/` | No | Not applicable | Not covered | TODO | Add ignore before future test runs create it. |
-| `dev.db` | Yes | Ignored | Covered by `*.db` | CLEAN GENERATED | Local SQLite/Prisma-era database file. Do not delete until owner confirms no local data is needed. |
+| `dev.db` | Yes | Ignored | Covered by `*.db` | CLEAN GENERATED | Legacy/local SQLite database file. Do not delete until owner confirms no local data is needed. |
 | `runtime_inference_history.db` | No | Not applicable | Covered by `*.db`; specific name not covered | TODO | Add explicit ignore for readability. |
 | `frontend/node_modules/` | Yes | Ignored | Covered by `node_modules/` | CLEAN GENERATED | Do not commit. |
 | `frontend/.next/` | Yes | Ignored | Covered by `.next/` | CLEAN GENERATED | Do not commit. |
@@ -257,7 +257,7 @@ Keep existing model-artifact ignore rules. Do not add rules that would hide sour
 
 | File | Drift topic | Priority | Suggested future update |
 | --- | --- | --- | --- |
-| `CLAUDE.md` | Still lists Prisma migration commands, old feature checklist items, and old project tree entries such as `app/api`, `lib/prisma`, and `ml-service/app` as "FastAPI runtime (ML inference API)". | High | Sync command section, project tree, feature checklist, and ml-service role with current microservice state. |
+| `CLAUDE.md` | MS-13E removed active Prisma command/tree/checklist wording, but older project tree entries such as `app/api` and `ml-service/app` still need broader sync. | High | Sync remaining project tree, feature checklist, and ml-service role in MS-13G. |
 | `docs/microservices/architecture.md` | Opening assessment says most backend/ML domains still live inside `ml-service`, while later sections correctly state services are extracted and runtime inference is active. | High | Rewrite "Current Architecture Assessment" to distinguish historical transition from current active services. |
 | `docs/microservices/api-contract.md` | Service ownership table still marks `/ahp/calculate`, `/ahp/fuzzy-calculate`, and `/ahp/compare` as AHP/Fuzzy AHP page consumers; frontend rules still say page may run sample calculations through `/ahp/*`. Current page is read-only. | High | Mark calculation endpoints as backend/manual/future workflow, not main-page frontend triggers. |
 | `docs/frontend/information-architecture.md` | Primary nav and route plan still include Reports as a full page. | High | Remove Reports as active nav page or mark it as historical/redirect. |
@@ -278,7 +278,7 @@ No documentation was updated in MS-13A except this audit report.
 | MS-13B | CLEAN GENERATED | Remove `.pytest_cache/`, `services/*/.pytest_cache/`, `__pycache__/`, `.pyc`, `.pytest_tmp/` if present, and local runtime DB files only after confirming no local data is needed. Update `.gitignore` first. | No runtime logic changes. No model artifact changes. |
 | MS-13C | DONE | Cleaned frontend Reports leftovers: redirect route, route constants, and unused `getReportSummary()`. Preserved Dashboard, AHP/Fuzzy AHP, and Model Evaluation behavior. | Do not remove `getRankingComparison()` until endpoint ownership is changed. |
 | MS-13D | KEEP | Decided report-service future. Active `/evaluation/summary` and `/reports/ranking-comparison` remain backed by `report-service`, so it stays in runtime topology. | Do not delete service just because Reports menu is gone. |
-| MS-13E | DEPRECATE / REMOVE LATER | Decide Prisma future. Deprecate first if unused; remove later after docs/env/commands are stable and persistence migration policy is clear. | Do not delete schema history before documentation is aligned. |
+| MS-13E | REMOVE LATER / DONE | Removed unused legacy Prisma setup after final reference audit confirmed no active runtime dependency. | Keep API Gateway repository persistence, SQLite local fallback, and PostgreSQL deployment support. |
 | MS-13F | TODO | Docker cleanup. Add profiles if needed, remove deprecated services only after dependency audit, document PostgreSQL vs SQLite local mode. | Do not edit Compose before service decisions. |
 | MS-13G | TODO | Documentation sync across README, CLAUDE, architecture docs, API contract, frontend IA/wireframes/design docs, and microservice docs. | Do not rewrite historical docs without marking what is historical vs current. |
 
@@ -287,7 +287,7 @@ No documentation was updated in MS-13A except this audit report.
 | Risk | Likelihood | Impact | Mitigation |
 | --- | --- | --- | --- |
 | Removing `report-service` breaks Dashboard/AHP/Evaluation data. | High | High | Move or replace `/evaluation/summary` and `/reports/ranking-comparison` first. |
-| Removing Prisma too early loses database schema history and confuses docs/env commands. | Medium | Medium | Deprecate first, then remove after MS-13E documentation and persistence decision. |
+| Future docs imply Prisma still exists after MS-13E removal. | Medium | Medium | Keep remaining Prisma references limited to historical/removal notes; verify with search before future database milestones. |
 | Cleaning `dev.db` or future runtime DB deletes local test/demo history. | Medium | Medium | Confirm owner does not need local records before deletion. |
 | Cleaning generated files before `.gitignore` update recreates noisy untracked files. | High | Low | Update ignore rules first in MS-13B. |
 | Broad Docker cleanup makes thesis demo harder to run. | Medium | High | Add profiles only after identifying minimal demo paths. |
@@ -339,18 +339,18 @@ Decision rules:
 
 MS-13D result: KEEP `report-service` as Dashboard/evaluation/ranking aggregation. The frontend Reports page/menu and print/export feature remain out of scope; backend removal is deferred until active routes have replacement owners.
 
-### MS-13E: Prisma deprecation/removal decision
+### MS-13E: Prisma legacy removal
 
-Classification: DEPRECATE / REMOVE LATER
+Classification: REMOVE LATER / DONE
 
 Tasks:
 
 | Task | Notes |
 | --- | --- |
-| Confirm no `PrismaClient` usage | Current audit found none. Re-check before deletion. |
-| Update docs/env | Clarify `DATABASE_URL` fallback belongs to API Gateway repository mode, not active Prisma. |
-| Decide migration policy | If future DB schema is raw SQL or Alembic-like, document that before deleting Prisma. |
-| Remove later | Delete `prisma/` and `prisma.config.ts` only after docs and tooling are stable. |
+| Confirm no `PrismaClient` usage | Done in MS-13E; no active runtime/package dependency found. |
+| Update docs/env | Done in MS-13E; `DATABASE_URL` fallback belongs to API Gateway repository mode, not Prisma. |
+| Preserve persistence support | Done in MS-13E; SQLite local/demo fallback and PostgreSQL deployment support remain. |
+| Remove legacy files | Done in MS-13E; deleted `prisma/` and `prisma.config.ts`. |
 
 ### MS-13F: Docker cleanup
 
@@ -374,7 +374,7 @@ Tasks:
 | File group | Update |
 | --- | --- |
 | `README.md` | Keep short current architecture summary. Add pointer to hygiene decisions if needed. |
-| `CLAUDE.md` | Remove stale Prisma command implication, old feature checklist, and ambiguous project tree entries. |
+| `CLAUDE.md` | Continue broader non-Prisma sync of old project tree/checklist entries. |
 | `docs/microservices/architecture.md` | Rewrite current assessment to match extracted service state. |
 | `docs/microservices/api-contract.md` | Mark AHP/Fuzzy AHP calculation endpoints as backend/manual/future workflow, not read-only page triggers. |
 | `docs/frontend/*` | Remove active Reports page/nav assumptions or mark them historical. |

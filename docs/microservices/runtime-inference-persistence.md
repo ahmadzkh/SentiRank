@@ -62,6 +62,8 @@ sqlite:///./runtime_inference_history.db
 
 The gateway creates the runtime inference table if it does not exist. This is intentionally minimal for thesis-stage runtime persistence.
 
+Prisma is not part of this runtime persistence path. MS-13E removed the legacy `prisma/` schema directory and `prisma.config.ts`; inference history remains handled by API Gateway repository code with SQLite for local/demo use and PostgreSQL for deployment.
+
 ## Failure Behavior
 
 If input text is empty or too long, the gateway returns a controlled Bahasa Indonesia validation response.

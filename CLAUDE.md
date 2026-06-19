@@ -78,8 +78,8 @@ The database is reserved for user-facing runtime inference history: submitted re
 | Public API | FastAPI `api-gateway-service` |
 | Internal services | FastAPI review, sentiment, aspect, decision, and report services |
 | Research artifacts | Versioned CSV/JSON/model outputs, read-only at runtime |
-| Runtime persistence | Database boundary for user inference history only |
-| Legacy schema/tooling | Prisma/SQLite schema artifacts remain in repo; do not expand them without explicit database work |
+| Runtime persistence | API Gateway repository persistence for user inference history only |
+| Database modes | SQLite local/demo fallback and optional PostgreSQL deployment via `DATABASE_URL` or `API_GATEWAY_DATABASE_URL` |
 
 ### Machine Learning
 
@@ -119,11 +119,6 @@ npm install [package] # Install a new package
 npm run test          # Run all tests
 npm run test:unit     # Run unit tests only
 npm run test:e2e      # Run e2e tests only
-
-# Database
-npm run db:migrate    # Run Prisma migrations
-npm run db:seed       # Seed initial data
-npm run db:reset      # Reset database
 
 # Python ML Service
 uv sync               # Sync Python dependencies
@@ -241,15 +236,9 @@ SentiRank/
 │   └── database/                           # Database access abstractions and repository functions
 │
 ├── lib/                                    # Shared utilities — no business logic
-│   ├── prisma/                             # Prisma client singleton (client.ts only)
 │   ├── utils/                              # Pure utility functions (formatters, helpers)
 │   ├── constants/                          # App-wide constants and enums
 │   └── validators/                         # Input/output validation schemas (zod)
-│
-├── prisma/                                 # Prisma ORM configuration
-│   ├── schema.prisma                       # Database schema definition
-│   ├── migrations/                         # Auto-generated migration files
-│   └── seed.ts                             # Database seed script
 │
 ├── ml-service/                             # Python ML service — fully independent from Next.js
 │   ├── app/                                # FastAPI runtime (ML inference API)
@@ -357,8 +346,6 @@ SentiRank/
 | `services/decision-service/` | AHP, Fuzzy AHP, criteria, judgement processing, weighting, and ranking comparison calculations |
 | `services/report-service/` | Read-only dashboard/report aggregation over owned research outputs |
 | `services/database/` | Legacy/optional database access boundary; use only for runtime inference history work |
-| `lib/prisma/` | Prisma client singleton only when runtime database work is explicitly in scope |
-| `prisma/` | Prisma schema, migrations, and seed scripts only |
 | `ml-service/app/` | Legacy modular FastAPI ML runtime kept for research/transition work; extracted services own frontend-facing runtime APIs |
 | `ml-service/notebooks/` | Research notebooks for documentation and experimentation only — 8 notebooks map 1-to-1 with research stages; never imported by production code |
 | `ml-service/scripts/` | Reproducible, non-interactive Python scripts — one script per pipeline stage; AHP and Fuzzy AHP must remain in separate scripts |
@@ -381,7 +368,7 @@ These rules define hard boundaries between system layers. No exceptions without 
 
 ```
 # UI Layer
-- UI components must not contain ML logic, AHP calculation logic, or Prisma queries
+- UI components must not contain ML logic, AHP calculation logic, or database queries
 - Next.js pages must call frontend service-layer modules that target API Gateway routes
 - Frontend code must not read CSV/JSON artifacts directly
 - Frontend code must not call internal service ports 8001 through 8005 directly
@@ -631,7 +618,8 @@ uv run python ml-service/[file] # Run a script inside the venv
 ## 14. Database Rules
 
 - Database work is for runtime inference history, not bulk research artifact storage
-- The current Prisma schema includes runtime-history and analysis-result models, but MS-10C does not change schema or persistence logic
+- Prisma legacy schema/config files were removed in MS-13E; runtime persistence is handled by `api-gateway-service` repository code
+- SQLite remains the local/demo fallback; PostgreSQL remains optional for deployment through `DATABASE_URL` or `API_GATEWAY_DATABASE_URL`
 - Do not migrate CSV/JSON/model research artifacts into the database unless a later milestone explicitly requires it
 - Use the existing database boundary/tooling when runtime persistence work is explicitly in scope
 - Never run destructive queries without confirmation
@@ -704,7 +692,8 @@ docs: update CLAUDE.md with ML pipeline rules
 
 ```bash
 # Database
-DATABASE_URL="file:./dev.db"
+DATABASE_URL="sqlite:///./runtime_inference_history.db"
+API_GATEWAY_DATABASE_URL=""
 
 # App
 NEXT_PUBLIC_APP_NAME="SentiRank"
@@ -732,7 +721,6 @@ INDOBERT_MODEL_PATH=""
 
 # In progress — do not modify without confirmation
 - [ ] Project scaffolding and structure setup
-- [ ] Prisma schema definition
 - [ ] ML preprocessing pipeline
 
 # Not yet started

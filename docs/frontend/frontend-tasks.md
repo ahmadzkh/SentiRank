@@ -899,7 +899,7 @@ Menghubungkan frontend SentiRank ke `api-gateway-service` sebagai satu-satunya e
 - [x] Frontend tidak memakai internal service URL atau port `8001` sampai `8005`.
 - [x] AHP/Fuzzy AHP demo memanggil `/ahp/criteria`, `/ahp/calculate`, `/ahp/fuzzy-calculate`, dan `/ahp/compare` melalui Gateway.
 - [x] Jika Gateway offline, UI menampilkan pesan `API Gateway belum aktif. Jalankan microservice backend terlebih dahulu.`
-- [x] Tidak ada perubahan Prisma, model, scraping, preprocessing, raw/processed dataset, atau legacy `ml-service`.
+- [x] Tidak ada perubahan pada setup Prisma legacy, model, scraping, preprocessing, raw/processed dataset, atau legacy `ml-service`. Setup Prisma legacy kemudian dihapus pada MS-13E.
 
 ### Completion Note
 
@@ -947,7 +947,7 @@ Mendokumentasikan batas data source SentiRank pada arsitektur microservice tahap
 
 ### Task Checklist
 
-- [x] Audit dokumentasi arsitektur lama yang masih menyiratkan Next.js API + SQLite/Prisma sebagai desain utama.
+- [x] Audit dokumentasi arsitektur lama yang masih menyiratkan Next.js API + SQLite/Prisma legacy sebagai desain utama. Setup Prisma legacy kemudian dihapus pada MS-13E.
 - [x] Audit service yang membaca artifact CSV/JSON.
 - [x] Audit apakah frontend hanya memanggil API Gateway.
 - [x] Dokumentasikan research artifact path dan runtime database path.
@@ -1100,7 +1100,7 @@ Menghapus sisa route frontend Reports yang tidak lagi menjadi bagian scope demo 
 - [x] Hapus konstanta route Reports yang tidak lagi dipakai navigasi.
 - [x] Hapus adapter `getReportSummary()` yang tidak dipakai halaman aktif.
 - [x] Pertahankan `frontend/services/report-service.ts` untuk `getRankingComparison()` karena Dashboard dan AHP/Fuzzy AHP masih membaca `/reports/ranking-comparison` melalui API Gateway.
-- [x] Pastikan backend `report-service`, API Gateway report routes, Docker Compose, dataset, model, Prisma, dan AHP/Fuzzy AHP tidak diubah.
+- [x] Pastikan backend `report-service`, API Gateway report routes, Docker Compose, dataset, model, setup Prisma legacy, dan AHP/Fuzzy AHP tidak diubah. Setup Prisma legacy kemudian dihapus pada MS-13E.
 
 ### Acceptance Criteria
 

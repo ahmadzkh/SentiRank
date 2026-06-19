@@ -186,7 +186,7 @@ The database is for runtime user inference history, not for bulk research artifa
 
 For the thesis-stage implementation, one shared database-service is sufficient if runtime persistence is needed. Domain separation can be handled through schema or table ownership. Database-per-service is future work, not a requirement for MS-10C.
 
-The repository still contains Prisma/SQLite planning artifacts and a Compose PostgreSQL service. Do not interpret either as a requirement to migrate all CSV/JSON research outputs into relational tables during this milestone.
+MS-13E removed the legacy Prisma schema/config artifacts. Runtime inference history remains implemented by `api-gateway-service` repository persistence with SQLite local/demo fallback and optional PostgreSQL deployment. Do not interpret the Compose PostgreSQL service as a requirement to migrate all CSV/JSON research outputs into relational tables.
 
 ## Legacy Transition Strategy
 
