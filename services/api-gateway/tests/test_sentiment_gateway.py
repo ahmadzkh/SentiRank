@@ -59,7 +59,14 @@ def test_sentiment_predict_should_forward_json_payload(monkeypatch) -> None:
         return 200, {
             "success": True,
             "message": "Sentiment prediction completed.",
-            "data": {"label": "Negative", "mode": "fallback"},
+            "data": {
+                "label": "Negative",
+                "mode": "model",
+                "prediction_source": "model",
+                "model_available": True,
+                "is_fallback": False,
+                "warnings": [],
+            },
         }
 
     monkeypatch.setattr(ServiceClient, "request_json", fake_request_json)
@@ -68,6 +75,8 @@ def test_sentiment_predict_should_forward_json_payload(monkeypatch) -> None:
 
     assert response.status_code == 200
     assert response.json()["data"]["label"] == "Negative"
+    assert response.json()["data"]["prediction_source"] == "model"
+    assert response.json()["data"]["is_fallback"] is False
     assert calls == [
         {
             "method": "POST",

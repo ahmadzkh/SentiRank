@@ -2,7 +2,11 @@ import json
 from pathlib import Path
 
 from app.core.config import Settings
-from app.services.sentiment_inference_service import SentimentInferenceService
+from app.services.sentiment_inference_service import (
+    ModelPrediction,
+    ModelState,
+    SentimentInferenceService,
+)
 from app.services.sentiment_summary_service import SentimentSummaryService
 
 
@@ -17,6 +21,12 @@ def _settings(tmp_path: Path) -> Settings:
         datasets_dir=datasets_dir,
         docs_dir=docs_dir,
         sentiment_model_dir=model_dir,
+        sentiment_model_source="local",
+        indobert_model_path=model_dir / "run_3_weighted_loss_lr_1e-5",
+        indobert_model_id="ahmadzkh/sentirank-indobert-run3",
+        indobert_model_name="run_3_weighted_loss_lr_1e-5",
+        indobert_max_length=128,
+        hf_token="secret-test-token",
     )
 
 
@@ -32,6 +42,56 @@ def test_fallback_prediction_should_be_deterministic(tmp_path: Path) -> None:
     assert neutral.label == "Neutral"
     assert sum(negative.probabilities.values()) == 1.0
     assert negative.mode == "fallback"
+    assert negative.prediction_source == "fallback_rule"
+    assert negative.model_available is False
+    assert negative.is_fallback is True
+    assert "secret-test-token" not in negative.model_dump_json()
+
+
+def test_model_prediction_should_use_model_metadata(monkeypatch, tmp_path: Path) -> None:
+    settings = _settings(tmp_path)
+    service = SentimentInferenceService(settings)
+
+    def fake_model_state(self):
+        return ModelState(
+            available=True,
+            model_source="local",
+            prediction_source="model",
+            model_name="run_3_weighted_loss_lr_1e-5",
+            configured_model_path=str(settings.indobert_model_path),
+            configured_model_id=settings.indobert_model_id,
+            max_length=128,
+            predict=lambda text: ModelPrediction(
+                label="Negative",
+                confidence=0.81,
+                probabilities={
+                    "Negative": 0.81,
+                    "Neutral": 0.10,
+                    "Positive": 0.09,
+                },
+            ),
+        )
+
+    monkeypatch.setattr(SentimentInferenceService, "_model_state", fake_model_state)
+
+    prediction = service.predict("iklan terlalu banyak dan mengganggu")
+
+    assert prediction.label == "Negative"
+    assert prediction.mode == "model"
+    assert prediction.prediction_source == "model"
+    assert prediction.model_available is True
+    assert prediction.is_fallback is False
+    assert prediction.warnings == []
+    assert set(prediction.probabilities) == {"Negative", "Neutral", "Positive"}
+    assert "LABEL_0" not in prediction.model_dump_json()
+
+
+def test_label_mapping_should_normalize_json_string_ids() -> None:
+    mapping = SentimentInferenceService._normalize_id_to_label(
+        {"0": "Negative", "1": "Neutral", "2": "Positive"}
+    )
+
+    assert mapping == {0: "Negative", 1: "Neutral", 2: "Positive"}
 
 
 def test_summary_should_read_fixture_json_outputs(tmp_path: Path) -> None:
@@ -84,6 +144,9 @@ def test_summary_should_read_fixture_json_outputs(tmp_path: Path) -> None:
     evaluation = service.evaluation()
 
     assert summary.selected_model == "run_3_weighted_loss_lr_1e-5"
+    assert summary.model_available is False
+    assert summary.prediction_source == "fallback_rule"
+    assert summary.is_fallback is True
     assert summary.final_sentiment_distribution == {
         "Negative": 20,
         "Neutral": 10,

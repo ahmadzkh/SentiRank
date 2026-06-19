@@ -11,8 +11,6 @@ SERVICE_PORT = 8002
 SERVICE_ROLE = "IndoBERT sentiment inference and evaluation summaries"
 SERVICE_VERSION = "0.1.0"
 
-settings = get_settings()
-
 app = FastAPI(
     title="SentiRank Sentiment Service",
     version=SERVICE_VERSION,
@@ -34,6 +32,8 @@ def response(message: str, data: dict | None = None) -> dict:
 @app.get("/")
 def root() -> dict:
     """Return service metadata and available endpoint information."""
+    settings = get_settings()
+    runtime_metadata = SentimentInferenceService(settings).runtime_metadata()
     return response(
         "SentiRank Sentiment Service is running.",
         {
@@ -46,7 +46,9 @@ def root() -> dict:
                 "datasets_dir": str(settings.datasets_dir),
                 "docs_dir": str(settings.docs_dir),
                 "sentiment_model_dir": str(settings.sentiment_model_dir),
+                "indobert_model_path": str(settings.indobert_model_path),
             },
+            "model_runtime": runtime_metadata,
             "available_endpoints": [
                 "GET /",
                 "GET /health",
@@ -61,7 +63,8 @@ def root() -> dict:
 @app.get("/health")
 def health() -> dict:
     """Return health status for Docker Compose checks."""
-    model_status = SentimentInferenceService(settings).model_status()
+    settings = get_settings()
+    runtime_metadata = SentimentInferenceService(settings).runtime_metadata()
     return response(
         "Sentiment service is healthy.",
         {
@@ -69,6 +72,6 @@ def health() -> dict:
             "status": "healthy",
             "version": SERVICE_VERSION,
             "port": SERVICE_PORT,
-            "model_status": model_status,
+            **runtime_metadata,
         },
     )

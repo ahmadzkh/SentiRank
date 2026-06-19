@@ -28,6 +28,7 @@ class SentimentSummaryService:
 
     def summary(self) -> SentimentSummaryData:
         warnings: list[str] = []
+        runtime_metadata = SentimentInferenceService(self.settings).runtime_metadata()
         evaluation_summary = self._read_json(self.evaluation_summary_path, warnings)
         final_distribution = self._normalise_distribution(
             self._read_json(
@@ -52,11 +53,18 @@ class SentimentSummaryService:
         return SentimentSummaryData(
             selected_model=self._selected_model(evaluation_summary),
             sentiment_labels=SENTIMENT_LABELS,
-            model_status=SentimentInferenceService(self.settings).model_status(),
+            model_status=str(runtime_metadata["model_status"]),
+            model_available=bool(runtime_metadata["model_available"]),
+            model_source=str(runtime_metadata["model_source"]),
+            configured_model_path=str(runtime_metadata["configured_model_path"]),
+            configured_model_id=runtime_metadata["configured_model_id"],
+            max_length=int(runtime_metadata["max_length"]),
+            prediction_source=str(runtime_metadata["prediction_source"]),
+            is_fallback=bool(runtime_metadata["is_fallback"]),
             final_sentiment_distribution=final_distribution,
             raw_sentiment_distribution=raw_distribution,
             output_source_availability=self._source_availability(),
-            warnings=warnings,
+            warnings=warnings + list(runtime_metadata.get("warnings", [])),
         )
 
     def evaluation(self) -> SentimentEvaluationData:
@@ -80,7 +88,8 @@ class SentimentSummaryService:
             selected_metrics=selected_metrics,
             limitations=[
                 "Model artifact may not be mounted in the current runtime environment.",
-                "Prediction endpoint uses fallback demo inference unless a safe local model artifact loader is added later.",
+                "Prediction endpoint uses real IndoBERT inference when the local artifact or configured Hugging Face model can be loaded.",
+                "Prediction endpoint falls back explicitly when the model artifact is unavailable or cannot be loaded.",
                 "Run 4 slang normalization was tested but did not outperform Run 3.",
             ],
             output_source_availability=self._source_availability(),
@@ -234,6 +243,7 @@ class SentimentSummaryService:
                 / FINAL_SENTIMENT_MODEL
                 / "indobert_classification_report.json"
             ).exists(),
+            "configured_model_path": self.settings.indobert_model_path.exists(),
         }
 
     def _display_path(self, path: Path) -> str:

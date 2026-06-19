@@ -118,4 +118,19 @@ The validator checks required files, loads tokenizer and model with Transformers
 
 ## Sentiment-Service Integration Note
 
-This milestone prepares the artifact only. A later milestone can wire `sentiment-service` to either a local artifact folder or a Hugging Face model ID. Until that runtime integration is implemented, `sentiment-service` may still return explicit fallback output when no mounted model artifact is available.
+MS-11C wires `sentiment-service` to use this exported artifact when it is available. The service can load the local folder or the private Hugging Face model repository:
+
+```env
+SENTIMENT_MODEL_SOURCE=auto
+INDOBERT_MODEL_PATH=ml-service/saved_models/indobert/run_3_weighted_loss_lr_1e-5
+INDOBERT_MODEL_ID=ahmadzkh/sentirank-indobert-run3
+INDOBERT_MODEL_NAME=run_3_weighted_loss_lr_1e-5
+INDOBERT_MAX_LENGTH=128
+HF_TOKEN=
+```
+
+`auto` mode tries the local artifact first, then `INDOBERT_MODEL_ID`, then returns explicit fallback output if no model can be loaded. Use `local` or `hf` to require one source. Private Hugging Face repositories require `HF_TOKEN`; keep the token in the runtime environment only.
+
+When the model is available, `/sentiment/predict` returns `mode: "model"`, `prediction_source: "model"`, `model_available: true`, and `is_fallback: false`. When unavailable, it returns `mode: "fallback"`, `prediction_source: "fallback_rule"`, `model_available: false`, `is_fallback: true`, and a clear warning.
+
+Frontend code must continue to call the API Gateway route. The gateway proxies sentiment responses and should not perform local sentiment inference. The `ml-service/saved_models/` tree is ignored by Git; do not commit model binaries, `.env`, or Hugging Face token files.

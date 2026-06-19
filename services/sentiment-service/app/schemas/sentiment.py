@@ -26,6 +26,9 @@ class SentimentPredictionData(BaseModel):
     probabilities: dict[str, float]
     model_name: str
     mode: PredictionMode
+    prediction_source: str
+    model_available: bool
+    is_fallback: bool
     warnings: list[str] = Field(default_factory=list)
 
 
@@ -33,6 +36,13 @@ class SentimentSummaryData(BaseModel):
     selected_model: str
     sentiment_labels: list[str]
     model_status: str
+    model_available: bool
+    model_source: str
+    configured_model_path: str
+    configured_model_id: str | None = None
+    max_length: int
+    prediction_source: str
+    is_fallback: bool
     final_sentiment_distribution: dict[str, int]
     raw_sentiment_distribution: dict[str, int]
     output_source_availability: dict[str, bool]
