@@ -470,7 +470,32 @@ Request:
 }
 ```
 
-Fallback response when the IndoBERT model artifact is not mounted:
+Model response when the IndoBERT artifact is available:
+
+```json
+{
+  "success": true,
+  "message": "Sentiment prediction completed.",
+  "data": {
+    "text": "Aplikasi sering error dan lambat.",
+    "label": "Negative",
+    "confidence": 0.91,
+    "probabilities": {
+      "Negative": 0.91,
+      "Neutral": 0.06,
+      "Positive": 0.03
+    },
+    "model_name": "run_3_weighted_loss_lr_1e-5",
+    "mode": "model",
+    "prediction_source": "model",
+    "model_available": true,
+    "is_fallback": false,
+    "warnings": []
+  }
+}
+```
+
+Fallback response when the IndoBERT model artifact is not available:
 
 ```json
 {
@@ -487,14 +512,17 @@ Fallback response when the IndoBERT model artifact is not mounted:
     },
     "model_name": "run_3_weighted_loss_lr_1e-5",
     "mode": "fallback",
+    "prediction_source": "fallback_rule",
+    "model_available": false,
+    "is_fallback": true,
     "warnings": [
-      "Model artifact is not available in this environment. Returning fallback demo prediction."
+      "Model artifact is not available. Returning explicit fallback prediction."
     ]
   }
 }
 ```
 
-The fallback mode is for service integration and demo behavior only. It must not be interpreted as real IndoBERT inference.
+The fallback mode is for service continuity only. It must not be interpreted as real IndoBERT inference.
 
 ### Sentiment Summary
 
@@ -514,6 +542,13 @@ Response:
     "selected_model": "run_3_weighted_loss_lr_1e-5",
     "sentiment_labels": ["Negative", "Neutral", "Positive"],
     "model_status": "unavailable",
+    "model_available": false,
+    "model_source": "fallback",
+    "configured_model_path": "ml-service/saved_models/indobert/run_3_weighted_loss_lr_1e-5",
+    "configured_model_id": "ahmadzkh/sentirank-indobert-run3",
+    "max_length": 128,
+    "prediction_source": "fallback_rule",
+    "is_fallback": true,
     "final_sentiment_distribution": {
       "Negative": 39686,
       "Neutral": 17629,

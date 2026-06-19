@@ -140,9 +140,15 @@ environment:
   DATASETS_DIR: /app/datasets
   DOCS_DIR: /app/docs
   SENTIMENT_MODEL_DIR: /app/models/indobert
+  SENTIMENT_MODEL_SOURCE: auto
+  INDOBERT_MODEL_PATH: /app/models/indobert/run_3_weighted_loss_lr_1e-5
+  INDOBERT_MODEL_ID: ahmadzkh/sentirank-indobert-run3
+  INDOBERT_MODEL_NAME: run_3_weighted_loss_lr_1e-5
+  INDOBERT_MAX_LENGTH: 128
+  HF_TOKEN: ""
 ```
 
-If no local model artifact is mounted, `sentiment-service` keeps the API usable with explicitly marked fallback demo predictions.
+If the local model artifact is mounted and loadable, `sentiment-service` uses real IndoBERT inference. If no local artifact is available and no configured Hugging Face model can be loaded, it keeps the API usable with explicitly marked fallback predictions.
 
 As of MS-08, `aspect-service` additionally exposes:
 
