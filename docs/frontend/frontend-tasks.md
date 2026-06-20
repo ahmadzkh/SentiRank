@@ -1144,3 +1144,39 @@ Menyelaraskan dokumentasi frontend aktif dengan arsitektur microservice, gateway
 ### Completion Note
 
 Completed on 2026-06-19. Dokumentasi frontend aktif sekarang mencerminkan Dashboard sebagai summary/reporting surface, AHP/Fuzzy AHP sebagai hasil read-only dengan status sample/development, dan API Gateway sebagai satu-satunya backend boundary. Dokumen planning lama di luar scope edit MS-13G masih memerlukan keputusan terpisah untuk anotasi historis atau archival.
+
+---
+
+## MS-12B - Frontend Runtime Review Inference
+
+### Objective
+
+Add a dedicated runtime review inference page that submits one Spotify review through API Gateway and presents the latest anonymous runtime inference history without mixing it with research dataset output.
+
+### Task Checklist
+
+- [x] Add the `/inference` route and `Uji Ulasan` navigation item.
+- [x] Add typed frontend contracts for runtime inference results and history.
+- [x] Add API Gateway service calls for `POST /inference/review` and `GET /inference/history?limit=20`.
+- [x] Add required, trimmed, maximum-length form validation without changing user text beyond trim.
+- [x] Display sentiment, aspect, confidence, model name, prediction source, fallback state, persistence state, and available warnings.
+- [x] Add a full-width latest history table and reload it after successful inference.
+- [x] Preserve the MS-10B red Gateway alert and empty table behavior without mock history.
+- [x] Keep frontend integration limited to API Gateway; do not call internal model service ports.
+- [x] Keep backend, Docker Compose, persistence, model, dataset, AHP/Fuzzy AHP, and report-service files unchanged.
+- [x] Run `npm run lint` and `npm run build`.
+
+### Acceptance Criteria
+
+- [x] `/inference` is separate from research summary pages and uses the existing AppShell layout.
+- [x] Empty input shows `Teks ulasan wajib diisi.` and is not submitted.
+- [x] Successful responses display backend sentiment/aspect output with safe confidence and fallback formatting.
+- [x] History displays the latest API response order, uses horizontal overflow, and reloads after POST.
+- [x] Gateway failure displays the canonical red alert, zero history, an in-table unavailable message, and no mock result.
+- [x] Runtime history is documented as user inference history rather than research dataset content.
+- [x] No auth, `userId`, `sessionId`, batch inference, upload, or frontend model calculation was added.
+- [x] `npm run lint` and `npm run build` succeed.
+
+### Completion Note
+
+Completed on 2026-06-20. MS-12B adds a gateway-only `/inference` workflow with typed single-review submission, explicit model/fallback provenance, persisted history display, and honest offline behavior. Live HTTP QA verified active POST/history data and Gateway-off empty-state behavior; browser automation was unavailable and no new test dependency was installed.

@@ -47,6 +47,12 @@ export const API_ENDPOINTS = {
     base: "/reports",
     rankingComparison: "/reports/ranking-comparison",
   },
+  inference: {
+    base: "/inference",
+    review: "/inference/review",
+    history: "/inference/history",
+    health: "/inference/health",
+  },
   health: {
     base: "/health",
     service: "/health",

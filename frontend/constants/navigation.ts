@@ -12,12 +12,21 @@ export const NAVIGATION_ITEMS = [
     status: "planned",
   },
   {
+    id: "inference",
+    label: "Uji Ulasan",
+    href: APP_ROUTES.inference,
+    description: "Analisis runtime satu ulasan dan riwayat hasil tersimpan.",
+    iconName: "ScanText",
+    order: 2,
+    status: "ready",
+  },
+  {
     id: "dataset",
     label: "Dataset",
     href: APP_ROUTES.dataset,
     description: "Memeriksa data ulasan Spotify dan ringkasan kualitas data.",
     iconName: "Database",
-    order: 2,
+    order: 3,
     status: "planned",
   },
   {
@@ -26,7 +35,7 @@ export const NAVIGATION_ITEMS = [
     href: APP_ROUTES.scraping,
     description: "Status pengumpulan ulasan dan ringkasan batch scraping.",
     iconName: "DownloadCloud",
-    order: 3,
+    order: 4,
     status: "planned",
   },
   {
@@ -35,7 +44,7 @@ export const NAVIGATION_ITEMS = [
     href: APP_ROUTES.preprocessing,
     description: "Pipeline pembersihan teks dan sampel ulasan sebelum-sesudah.",
     iconName: "Sparkles",
-    order: 4,
+    order: 5,
     status: "planned",
   },
   {
@@ -44,7 +53,7 @@ export const NAVIGATION_ITEMS = [
     href: APP_ROUTES.sentimentAnalysis,
     description: "Output sentimen IndoBERT dan ringkasan confidence.",
     iconName: "MessageSquareText",
-    order: 5,
+    order: 6,
     status: "planned",
   },
   {
@@ -53,7 +62,7 @@ export const NAVIGATION_ITEMS = [
     href: APP_ROUTES.aspectClassification,
     description: "Label aspek SVM dan pengelompokan ulasan negatif.",
     iconName: "Tags",
-    order: 6,
+    order: 7,
     status: "planned",
   },
   {
@@ -62,7 +71,7 @@ export const NAVIGATION_ITEMS = [
     href: APP_ROUTES.ahpFuzzyAhp,
     description: "Alur prioritisasi fleksibel untuk aspek negatif ulasan Spotify.",
     iconName: "ListOrdered",
-    order: 7,
+    order: 8,
     status: "planned",
   },
   {
@@ -71,7 +80,7 @@ export const NAVIGATION_ITEMS = [
     href: APP_ROUTES.modelEvaluation,
     description: "Metrik model sentimen dan aspek.",
     iconName: "Gauge",
-    order: 8,
+    order: 9,
     status: "planned",
   },
   {
@@ -80,7 +89,7 @@ export const NAVIGATION_ITEMS = [
     href: APP_ROUTES.settings,
     description: "Metadata aplikasi dan status sistem.",
     iconName: "Settings",
-    order: 9,
+    order: 10,
     status: "planned",
   },
 ] as const satisfies readonly NavigationItem[];

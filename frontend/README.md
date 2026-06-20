@@ -33,6 +33,9 @@ npm run build
 ## Current Scope
 
 - Dashboard is the main summary/reporting surface.
+- `/inference` accepts one user-submitted Spotify review, calls API Gateway runtime inference, and displays the latest persisted runtime history.
+- Runtime inference history is anonymous thesis-stage user input data; it is separate from the research dataset and has no auth, `userId`, or `sessionId` scope.
+- Sentiment and aspect calculations remain in the backend model services. The frontend only submits text and presents API Gateway results with model/fallback provenance.
 - The standalone `/reports` page/menu and print-report feature are removed from current thesis demo scope.
 - Backend `report-service` remains active behind the API Gateway for Dashboard, evaluation, and ranking aggregation.
 - The AHP/Fuzzy AHP page displays read-only result data; it has no calculation action.

@@ -1507,3 +1507,27 @@ Impact:
 - `frontend/README.md`, `frontend/DESIGN.md`, dan task tracker mencerminkan runtime saat ini.
 - Tidak ada source frontend, route, component, service adapter, Docker Compose, env, model, dataset, atau runtime behavior yang berubah.
 - Planning documents lama di luar scope edit MS-13G tetap menjadi kandidat anotasi historical/archive pada milestone dokumentasi terpisah.
+
+---
+
+## 2026-06-20 - MS-12B Runtime Review Inference UI
+
+Decision:
+
+- Add `/inference` as the dedicated single-review runtime workflow, separate from Dashboard, Sentiment Analysis, and Aspect Classification research pages.
+- Keep the page-level data boundary on API Gateway through `POST /inference/review` and `GET /inference/history` only.
+- Fetch initial history in the Server Component and keep form submission, explicit history reload, result state, and offline recovery in a narrow Client Component without `useEffect` data fetching.
+- Display backend model/fallback provenance and nullable confidence honestly; never synthesize model output or history in the frontend.
+- Keep runtime history anonymous and separate from research artifacts; no auth, `userId`, or `sessionId` is introduced.
+
+Reason:
+
+- Runtime user input has a different purpose and lifecycle from read-only research result pages.
+- A dedicated route prevents interactive inference from being confused with thesis dataset summaries.
+- Explicit Gateway-off state and empty history preserve the existing no-mock runtime contract.
+
+Impact:
+
+- Navigation now includes `Uji Ulasan` and both desktop/mobile navigation use the same route constant.
+- The page presents sentiment, aspect, probability/confidence, model source, fallback state, persistence status, and the latest 20 runtime records.
+- Backend services, API Gateway, Docker Compose, database implementation, models, datasets, and AHP/Fuzzy AHP remain unchanged.

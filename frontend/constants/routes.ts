@@ -1,5 +1,6 @@
 export const APP_ROUTES = {
   dashboard: "/dashboard",
+  inference: "/inference",
   dataset: "/dataset",
   scraping: "/scraping",
   preprocessing: "/preprocessing",

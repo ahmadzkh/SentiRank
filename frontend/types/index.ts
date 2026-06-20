@@ -4,6 +4,7 @@ export type { AspectLabel, AspectResult, AspectSummary } from "./aspect";
 export type { EvaluationModelSummary, EvaluationSummary, ConfusionMatrix, ConfusionMatrixRow, MetricFormat, ModelMetric, ModelTask } from "./evaluation";
 export type { FuzzyAhpRankedCriterion, FuzzyAhpResult, FuzzyAhpStatus, FuzzyScaleOption, FuzzyTriangularNumber } from "./fuzzy-ahp";
 export type { GatewayAhpCalculateRequest, GatewayAhpCalculateResponse, GatewayAhpCriterionWeight, GatewayAhpPairwiseComparison, GatewayAspectEvaluation, GatewayAspectSummary, GatewayCriterion, GatewayDatasetSummary, GatewayEvaluationSummary, GatewayFuzzyAhpCalculateRequest, GatewayFuzzyAhpCalculateResponse, GatewayFuzzyAhpCriterionWeight, GatewayFuzzyAhpPairwiseComparison, GatewayFuzzyTriangularNumber, GatewayHealthStatus, GatewayPreprocessingSummary, GatewayRandomReviewFilters, GatewayRandomReviewsResponse, GatewayRankingComparisonItem, GatewayRankingComparisonRequest, GatewayRankingComparisonResponse, GatewayReportSummary, GatewayReviewSample, GatewayScrapingSummary, GatewaySentimentEvaluation, GatewaySentimentSummary, GatewayServicesHealthStatus } from "./gateway";
+export type { AspectInferenceResult, RuntimeInferenceHistoryItem, RuntimeInferenceHistoryQuery, RuntimeInferenceHistoryResponse, RuntimeInferenceRequest, RuntimeInferenceResult, RuntimePredictionBase, SentimentInferenceResult } from "./inference";
 export type { NavigationItem, NavigationItemStatus } from "./navigation";
 export type { ReportSummary } from "./report";
 export type { Review } from "./review";
