@@ -1,22 +1,22 @@
 {
   "empty_text_rows_removed": 0,
-  "generated_at": "2026-06-18T02:26:31.760291+00:00",
-  "initial_rows": 97782,
+  "generated_at": "2026-06-21T08:22:44.778560+00:00",
+  "initial_rows": 96534,
   "invalid_label_rows_removed": 0,
   "label_column": "final_sentiment",
   "label_distribution": [
     {
-      "count": 39686,
+      "count": 39415,
       "label": "Negative",
       "label_id": 0
     },
     {
-      "count": 17629,
+      "count": 17285,
       "label": "Neutral",
       "label_id": 1
     },
     {
-      "count": 40467,
+      "count": 39834,
       "label": "Positive",
       "label_id": 2
     }
@@ -28,76 +28,76 @@
   },
   "preprocessing_status_rows_removed": 0,
   "random_state": 42,
-  "rows_after_preprocessing_status_filter": 97782,
+  "rows_after_preprocessing_status_filter": 96534,
   "split_distribution": [
     {
-      "count": 27780,
+      "count": 27590,
       "label": "Negative",
       "label_id": 0,
       "split": "train"
     },
     {
-      "count": 12340,
+      "count": 12099,
       "label": "Neutral",
       "label_id": 1,
       "split": "train"
     },
     {
-      "count": 28326,
+      "count": 27884,
       "label": "Positive",
       "label_id": 2,
       "split": "train"
     },
     {
-      "count": 5953,
+      "count": 5912,
       "label": "Negative",
       "label_id": 0,
       "split": "validation"
     },
     {
-      "count": 2644,
+      "count": 2593,
       "label": "Neutral",
       "label_id": 1,
       "split": "validation"
     },
     {
-      "count": 6071,
+      "count": 5975,
       "label": "Positive",
       "label_id": 2,
       "split": "validation"
     },
     {
-      "count": 5953,
+      "count": 5913,
       "label": "Negative",
       "label_id": 0,
       "split": "test"
     },
     {
-      "count": 2645,
+      "count": 2593,
       "label": "Neutral",
       "label_id": 1,
       "split": "test"
     },
     {
-      "count": 6070,
+      "count": 5975,
       "label": "Positive",
       "label_id": 2,
       "split": "test"
     }
   ],
   "split_sizes": {
-    "test": 14668,
-    "train": 68446,
-    "validation": 14668
+    "test": 14481,
+    "train": 67573,
+    "validation": 14480
   },
   "test_size": 0.15,
   "text_column": "text_indobert",
   "text_length_summary": {
-    "count": 97782,
+    "count": 96534,
     "max": 628,
-    "mean": 63.36956699597063,
-    "median": 36.0,
-    "min": 1
+    "mean": 64.01078376530549,
+    "median": 37.0,
+    "min": 2
   },
   "train_size": 0.7,
   "training_config_plan": {
@@ -105,12 +105,15 @@
     "early_stopping": "planned for Phase 8B if feasible",
     "epochs": 3,
     "evaluation_strategy": "epoch",
-    "learning_rate": 2e-05,
+    "learning_rate": 1e-05,
+    "loss": "weighted_cross_entropy",
     "max_length": 128,
     "metric_for_best_model": "f1_macro",
     "model_name": "indobenchmark/indobert-base-p1",
-    "save_strategy": "epoch"
+    "run_name": "run_3_weighted_loss_lr_1e-5",
+    "save_strategy": "epoch",
+    "weighted_loss_enabled": true
   },
-  "valid_rows": 97782,
+  "valid_rows": 96534,
   "validation_size": 0.15
 }

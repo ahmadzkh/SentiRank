@@ -6,7 +6,9 @@ MS-15B promotion update: 2026-06-21
 
 MS-15C preprocessing defaults update: 2026-06-21
 
-Scope: read-only inventory and lineage analysis. No dataset, script, notebook, service, frontend, Docker, model, or environment file was modified.
+MS-15D model-dataset regeneration update: 2026-06-21
+
+Original MS-15A scope: read-only inventory and lineage analysis. Later sections record the scoped MS-15B through MS-15D follow-up changes.
 
 ## 1. Executive Summary
 
@@ -19,9 +21,13 @@ MS-15B promoted `ml-service/quality_audit/reviews_final_quality_filtered.csv` in
 
 MS-15C made the preprocessing scripts reproduce those canonical files from project-root-safe defaults. `preprocess_indobert.py` writes a clearly named valid-row stage file and the first-stage noise report; `preprocess_svm.py` owns final canonical CSV/JSON output and merges both noise stages with explicit provenance. Metrics, figures, and summaries are now opt-in secondary diagnostics.
 
-The current `datasets/processed/reviews_final.csv` is not a clean source of truth despite its name. Targeted samples confirm it still contains an emoji-only row and a Morse-like row. The Morse-like row also appears in `datasets/processed/indobert/test.csv`, proving that the current IndoBERT splits were generated from the unfiltered `97,782`-row branch. `datasets/outputs/eda/03_indobert/indobert_dataset_summary.json` confirms `preprocessing_status_rows_removed: 0` and `valid_rows: 97,782`.
+The current `datasets/processed/reviews_final.csv` is not a clean source of truth despite its name. Targeted samples confirm it still contains an emoji-only row and a Morse-like row. Before MS-15D, the Morse-like row also appeared in `datasets/processed/indobert/test.csv`, proving that the old IndoBERT splits were generated from the unfiltered `97,782`-row branch.
 
-No legacy files were deleted. MS-15D should migrate dataset preparation to canonical input and regenerate model-specific datasets before any archive/removal milestone.
+MS-15D changed the IndoBERT preparation default to `dataset_spotify_processed.csv` and regenerated its train, validation, test, label mapping, EDA 03 dataset summaries, and EDA 03 figures from all `96,534` canonical rows. Full validation found no split overlap, empty text, invalid labels, non-valid preprocessing metadata, or rows rejected by the shared Morse/symbol/digit/repeated-garbage quality detector.
+
+SVM regeneration was not safe within the current preparation contract. The canonical dataset has `text_svm` but lacks `aspect_label` and `aspect_label_confidence`; the active refined label source still contains all `97,782` old-branch rows, including `1,248` IDs excluded from canonical data. The current `16,983`-row SVM dataset contains `6` noncanonical IDs. Status: `NEEDS VERIFICATION` until weak aspect labels are regenerated or otherwise verified against canonical input without changing the labeling scheme.
+
+No legacy files were deleted. No model was trained.
 
 ### Decision Summary
 
@@ -29,8 +35,8 @@ No legacy files were deleted. MS-15D should migrate dataset preparation to canon
 | --- | --- | --- |
 | Canonical clean processed dataset | `datasets/processed/dataset_spotify_processed.{csv,json}` sourced from `ml-service/quality_audit/reviews_final_quality_filtered.csv` | Confirmed by MS-15B validation |
 | Misleading noisy `final` file | `datasets/processed/reviews_final.csv` | Confirmed by targeted samples |
-| Current IndoBERT preparation input | `datasets/processed/reviews_final.csv` -> `datasets/processed/indobert/{train,validation,test}.csv` | Confirmed by defaults and generated summary |
-| Current SVM preparation input | `datasets/processed/reviews_with_aspect_labels_refined.csv` -> `datasets/processed/svm/svm_aspect_dataset.csv` | Confirmed by defaults |
+| Current IndoBERT preparation input | `datasets/processed/dataset_spotify_processed.csv` -> `datasets/processed/indobert/{train,validation,test}.csv` | Confirmed by MS-15D default, regeneration, and full split validation |
+| Current SVM preparation input | `datasets/processed/reviews_with_aspect_labels_refined.csv` -> `datasets/processed/svm/svm_aspect_dataset.csv` | `NEEDS VERIFICATION`; active input still belongs to the old aspect-labeled branch |
 | Backend review sample source | Random: `reviews_final.csv`; latest negative: refined aspect labels first | Confirmed by service code |
 | Quality-filtered branch consumer | No committed consumer of the three `*_quality_filtered.csv` files | Confirmed by repository search |
 | Frontend data source | API Gateway only; indirect dependency on backend artifacts | Confirmed by frontend service modules |
@@ -41,16 +47,16 @@ The word `final` currently means several different things:
 
 - `reviews_final.csv` means a compact preprocessing output, not a verified noise-free canonical dataset.
 - `reviews_with_aspect_labels_refined.csv` means refined weak aspect labels, but it inherits rows from `reviews_final.csv`.
-- IndoBERT `run_3_weighted_loss_lr_1e-5` is the selected historical experiment, but its current split lineage still points to the unfiltered processed branch.
+- IndoBERT `run_3_weighted_loss_lr_1e-5` is the selected historical experiment, but its recorded training lineage still points to the pre-MS-15D unfiltered splits.
 - SVM `merged_5class` is the selected taxonomy/model, but its preparation source also descends from the unfiltered branch.
 - AHP/Fuzzy AHP files with `sample_development` are pipeline-validation outputs, not final expert-judgement results.
 
 At MS-15A, the quality-filtering implementation was newer than the active processed-data contract and only produced audit outputs under `ml-service/quality_audit/`. MS-15B promoted the data; MS-15C aligned preprocessing defaults. Remaining drift is downstream:
 
-- split-preparation scripts and notebooks still name `reviews_final.csv` as the main processed input;
+- SVM aspect-label and preparation lineage still depends on `reviews_with_aspect_labels_refined.csv` from the old branch;
 - `review-service` serves samples from the noisy file;
 - backend preprocessing/sentiment summaries report the pre-filter `97,782` rows;
-- current IndoBERT splits include rows identified by the audit as noise;
+- IndoBERT splits are now canonical, but historical trained-model metrics still describe pre-MS-15D data;
 - frontend tables ask review sample APIs for fields that the API schema does not return.
 
 ## 3. Dataset Artifact Inventory
@@ -97,14 +103,14 @@ Rows below group files only when every named file has the same lineage classific
 | `datasets/processed/reviews_preprocessed_indobert.csv` | processed intermediate | Older IndoBERT text-cleaning output | Unfiltered legacy branch; sampled audit-dropped IDs remain present | W `preprocess_indobert.py`; R `preprocess_svm.py`; notebook 02 | LEGACY |
 | `datasets/processed/reviews_preprocessed_indobert.json` | processed duplicate | Large JSON serialization of an older IndoBERT preprocessing result | No committed reader found; duplicates CSV-era content and may contain the same noise | NONE | ARCHIVE LATER |
 | `datasets/processed/reviews_preprocessed_svm.csv` | processed intermediate | Older SVM text-cleaning output | Unfiltered legacy branch; emoji/noise rows remain | W `preprocess_svm.py`; no independent downstream reader found outside notebook lineage | LEGACY |
-| `datasets/processed/reviews_final.csv` | processed output | Compact combined sentiment preprocessing output | Misleading name; confirmed emoji-only and Morse-like rows. No quality metadata columns | Historical W `preprocess_svm.py`; still R by `prepare_indobert_dataset.py`, `train_indobert.py` metadata, notebook 02, `review-service` | LEGACY; NOT SAFE TO DELETE |
+| `datasets/processed/reviews_final.csv` | processed output | Compact combined sentiment preprocessing output | Misleading name; confirmed emoji-only and Morse-like rows. No quality metadata columns | Historical W `preprocess_svm.py`; still R by `train_indobert.py` metadata, notebook 02, `review-service`; no longer the IndoBERT preparation default | LEGACY; NOT SAFE TO DELETE |
 | `datasets/processed/reviews_with_aspect_labels.csv` | processed output | Earlier weak aspect-label output | Derived from noisy `reviews_final.csv`; older than refined output | API fallback for latest negatives; no current writer command found | LEGACY; NOT SAFE TO DELETE |
-| `datasets/processed/reviews_with_aspect_labels_refined.csv` | processed output | Refined weak aspect labels and confidence | Active SVM preparation source, but inherits unfiltered upstream rows | W `label_aspects_by_keywords.py`; R `prepare_svm_aspect_dataset.py`; preferred API latest-negative source | NEEDS DECISION |
-| `datasets/processed/indobert/train.csv` | split | IndoBERT train split | Active derived split; generated from `97,782` unfiltered rows; a quality-audit-dropped ID is present | W `prepare_indobert_dataset.py`; R `train_indobert.py`, Colab notebooks | NEEDS DECISION |
-| `datasets/processed/indobert/validation.csv` | split | IndoBERT validation split | Active derived split; same unfiltered lineage | W `prepare_indobert_dataset.py`; R `train_indobert.py`, Colab notebooks | NEEDS DECISION |
-| `datasets/processed/indobert/test.csv` | split | IndoBERT test split | Active derived split; confirmed to contain the Morse-like ID `1b2b73e6-...` | W `prepare_indobert_dataset.py`; R `train_indobert.py`, Colab notebooks | NEEDS DECISION |
-| `datasets/processed/indobert/label_mapping.json` | split metadata | Sentiment label-to-ID mapping | Valid derived metadata; must be regenerated/versioned with new splits | W `prepare_indobert_dataset.py`; R training/Colab/export | KEEP |
-| `datasets/processed/svm/svm_aspect_dataset.csv` | processed model dataset | Filtered weak-label aspect dataset (`16,983` rows in current summary) | Active derived dataset from old refined labels; noise impact is inherited and needs regeneration | W `prepare_svm_aspect_dataset.py`; R `train_svm_aspect_classifier.py` | NEEDS DECISION |
+| `datasets/processed/reviews_with_aspect_labels_refined.csv` | processed output | Refined weak aspect labels and confidence | Active SVM preparation source, but inherits unfiltered upstream rows | W `label_aspects_by_keywords.py`; R `prepare_svm_aspect_dataset.py`; preferred API latest-negative source | NEEDS VERIFICATION |
+| `datasets/processed/indobert/train.csv` | split | IndoBERT train split (`67,573` rows) | Regenerated in MS-15D from canonical input; unique IDs, valid labels, and no shared-quality-filter rejection | W `prepare_indobert_dataset.py`; R `train_indobert.py`, Colab notebooks | CURRENT; REGENERATED MS-15D |
+| `datasets/processed/indobert/validation.csv` | split | IndoBERT validation split (`14,480` rows) | Regenerated in MS-15D from canonical input; disjoint from train/test | W `prepare_indobert_dataset.py`; R `train_indobert.py`, Colab notebooks | CURRENT; REGENERATED MS-15D |
+| `datasets/processed/indobert/test.csv` | split | IndoBERT test split (`14,481` rows) | Regenerated in MS-15D from canonical input; old Morse-like ID absent | W `prepare_indobert_dataset.py`; R `train_indobert.py`, Colab notebooks | CURRENT; REGENERATED MS-15D |
+| `datasets/processed/indobert/label_mapping.json` | split metadata | Sentiment label-to-ID mapping | Regenerated with the MS-15D splits: Negative `0`, Neutral `1`, Positive `2` | W `prepare_indobert_dataset.py`; R training/Colab/export | CURRENT; REGENERATED MS-15D |
+| `datasets/processed/svm/svm_aspect_dataset.csv` | processed model dataset | Filtered weak-label aspect dataset (`16,983` rows in current summary) | Not regenerated in MS-15D; old refined-label lineage remains and `6` IDs are not canonical | W `prepare_svm_aspect_dataset.py`; R `train_svm_aspect_classifier.py` | NEEDS VERIFICATION |
 
 ### 3.4 Quality-Audit Artifacts
 
@@ -151,7 +157,7 @@ Rows below group files only when every named file has the same lineage classific
 
 | Path(s) | Type | Stage and role | Canonicality / noise | References | Status |
 | --- | --- | --- | --- | --- | --- |
-| `datasets/outputs/eda/03_indobert/indobert_dataset_summary.json`<br>`datasets/outputs/eda/03_indobert/indobert_label_distribution.csv`<br>`datasets/outputs/eda/03_indobert/indobert_label_distribution.json`<br>`datasets/outputs/eda/03_indobert/indobert_split_distribution.csv`<br>`datasets/outputs/eda/03_indobert/indobert_split_distribution.json`<br>`datasets/outputs/eda/03_indobert/indobert_text_length_summary.json` | output / split metadata | Current split-generation summary | Confirms unfiltered `97,782`-row source and zero status filtering | W `prepare_indobert_dataset.py`; service availability/reporting | NEEDS DECISION |
+| `datasets/outputs/eda/03_indobert/indobert_dataset_summary.json`<br>`datasets/outputs/eda/03_indobert/indobert_label_distribution.csv`<br>`datasets/outputs/eda/03_indobert/indobert_label_distribution.json`<br>`datasets/outputs/eda/03_indobert/indobert_split_distribution.csv`<br>`datasets/outputs/eda/03_indobert/indobert_split_distribution.json`<br>`datasets/outputs/eda/03_indobert/indobert_text_length_summary.json` | output / split metadata | Current split-generation summary | Regenerated in MS-15D from all `96,534` canonical valid rows; no row removed during preparation | W `prepare_indobert_dataset.py`; service availability/reporting | CURRENT; REGENERATED MS-15D |
 | `datasets/outputs/eda/03_indobert/run_1_baseline/indobert_dataset_summary.json`<br>`datasets/outputs/eda/03_indobert/run_1_baseline/indobert_label_distribution.csv`<br>`datasets/outputs/eda/03_indobert/run_1_baseline/indobert_label_distribution.json`<br>`datasets/outputs/eda/03_indobert/run_1_baseline/indobert_split_distribution.csv`<br>`datasets/outputs/eda/03_indobert/run_1_baseline/indobert_split_distribution.json`<br>`datasets/outputs/eda/03_indobert/run_1_baseline/indobert_text_length_summary.json` | legacy evaluation metadata | Run 1 dataset snapshot | Historical duplicate; pre-quality-filter lineage | Notebook/report fallback | ARCHIVE LATER |
 | `datasets/outputs/eda/03_indobert/run_1_baseline/indobert_training_metrics.json`<br>`datasets/outputs/eda/03_indobert/run_1_baseline/indobert_classification_report.json`<br>`datasets/outputs/eda/03_indobert/run_1_baseline/indobert_confusion_matrix.csv`<br>`datasets/outputs/eda/03_indobert/run_1_baseline/indobert_test_predictions.csv` | evaluation output | Baseline experiment metrics and predictions | Thesis evidence; metrics inherit historical data quality | API sentiment/report fallback; evaluation docs | KEEP |
 | `datasets/outputs/eda/03_indobert/run_2_weighted_loss/indobert_class_weights.json`<br>`datasets/outputs/eda/03_indobert/run_2_weighted_loss/indobert_classification_report.json`<br>`datasets/outputs/eda/03_indobert/run_2_weighted_loss/indobert_confusion_matrix.csv`<br>`datasets/outputs/eda/03_indobert/run_2_weighted_loss/indobert_error_analysis.csv`<br>`datasets/outputs/eda/03_indobert/run_2_weighted_loss/indobert_run_comparison.csv`<br>`datasets/outputs/eda/03_indobert/run_2_weighted_loss/indobert_run_comparison.json`<br>`datasets/outputs/eda/03_indobert/run_2_weighted_loss/indobert_test_predictions.csv`<br>`datasets/outputs/eda/03_indobert/run_2_weighted_loss/indobert_training_history.csv`<br>`datasets/outputs/eda/03_indobert/run_2_weighted_loss/indobert_training_history.json`<br>`datasets/outputs/eda/03_indobert/run_2_weighted_loss/indobert_training_metrics.json` | evaluation output | Historical weighted-loss experiment | Thesis evidence; not selected; pre-quality-filter metrics | API sentiment/report, notebooks, consolidated evaluation | KEEP; ARCHIVE LATER only after thesis evidence policy |
@@ -162,7 +168,7 @@ Rows below group files only when every named file has the same lineage classific
 
 | Path(s) | Type | Stage and role | Canonicality / noise | References | Status |
 | --- | --- | --- | --- | --- | --- |
-| `datasets/outputs/eda/04_svm/svm_aspect_dataset_summary.json`<br>`datasets/outputs/eda/04_svm/svm_aspect_label_distribution.csv`<br>`datasets/outputs/eda/04_svm/svm_aspect_label_distribution.json`<br>`datasets/outputs/eda/04_svm/svm_aspect_by_sentiment_distribution.csv`<br>`datasets/outputs/eda/04_svm/svm_aspect_by_sentiment_distribution.json`<br>`datasets/outputs/eda/04_svm/svm_aspect_confidence_distribution.csv`<br>`datasets/outputs/eda/04_svm/svm_aspect_confidence_distribution.json` | output / dataset metadata | Current weak-label SVM dataset summary/distributions | Based on `97,782` unfiltered upstream rows before narrowing to `16,983` | W `prepare_svm_aspect_dataset.py`; API `aspect-service` | NEEDS DECISION |
+| `datasets/outputs/eda/04_svm/svm_aspect_dataset_summary.json`<br>`datasets/outputs/eda/04_svm/svm_aspect_label_distribution.csv`<br>`datasets/outputs/eda/04_svm/svm_aspect_label_distribution.json`<br>`datasets/outputs/eda/04_svm/svm_aspect_by_sentiment_distribution.csv`<br>`datasets/outputs/eda/04_svm/svm_aspect_by_sentiment_distribution.json`<br>`datasets/outputs/eda/04_svm/svm_aspect_confidence_distribution.csv`<br>`datasets/outputs/eda/04_svm/svm_aspect_confidence_distribution.json` | output / dataset metadata | Current weak-label SVM dataset summary/distributions | Not regenerated in MS-15D; based on `97,782` old-branch rows before narrowing to `16,983` | W `prepare_svm_aspect_dataset.py`; API `aspect-service` | NEEDS VERIFICATION |
 | `datasets/outputs/eda/04_svm/final_aspect_taxonomy_for_ahp.csv`<br>`datasets/outputs/eda/04_svm/final_aspect_taxonomy_for_ahp.json` | output / evaluation | Five-class merged taxonomy for AHP/Fuzzy AHP | Active criteria evidence; indirectly derived from old weak labels | API `aspect-service`, `report-service` | KEEP; REVALIDATE LATER |
 | `datasets/outputs/eda/04_svm/svm_artifact_manifest.json` | output metadata | SVM artifact manifest | Metadata only; no dataset rows | Service/docs | KEEP |
 | `datasets/outputs/eda/04_svm/svm_final_model_selection.csv`<br>`datasets/outputs/eda/04_svm/svm_final_model_selection.json`<br>`datasets/outputs/eda/04_svm/svm_scenario_comparison.csv`<br>`datasets/outputs/eda/04_svm/svm_scenario_comparison.json`<br>`datasets/outputs/eda/04_svm/svm_training_summary.json` | evaluation output | Original-vs-merged scenario comparison and selected model | Active reporting evidence; metrics should be superseded only after clean-data rerun | API `aspect-service`, `report-service`, evaluation frontend | KEEP |
@@ -192,9 +198,9 @@ Rows below group files only when every named file has the same lineage classific
 | `datasets/raw/reviews_raw_labeled.csv`, `data_acquisition_summary.json`, EDA 01 | `label_by_rating.py` | `relabel_by_keywords.py`; `review-service`; notebooks | Labeled raw dataset is the stable relabeling input. |
 | `reviews_relabelled.csv`, relabeling summaries | `relabel_by_keywords.py` | `preprocess_indobert.py`; notebook 02 | Relabeling is before quality filtering, so noise here is expected. |
 | `dataset_spotify_indobert_stage.csv` and canonical noise reports | `preprocess_indobert.py` | `preprocess_svm.py` | Root-safe MS-15C intermediate; contains only `96,575` IndoBERT-stage-valid rows. |
-| `dataset_spotify_processed.{csv,json}` and canonical noise reports | `preprocess_svm.py` | No migrated downstream reader yet | Root-safe canonical output defaults; valid and dropped rows remain separated. |
+| `dataset_spotify_processed.{csv,json}` and canonical noise reports | `preprocess_svm.py` | `prepare_indobert_dataset.py` reads canonical CSV after MS-15D | Root-safe canonical output defaults; valid and dropped rows remain separated. |
 | `reviews_with_aspect_labels_refined.csv` | `label_aspects_by_keywords.py` | `prepare_svm_aspect_dataset.py`; review API latest-negative endpoint | Active SVM/review dependency blocks deletion. |
-| `datasets/processed/indobert/*` and top-level EDA 03 summaries | `prepare_indobert_dataset.py` | `train_indobert.py`; `prepare_colab_indobert_bundle.py`; Colab notebooks | Current splits were built from unfiltered `reviews_final.csv`. |
+| `datasets/processed/indobert/*` and top-level EDA 03 summaries | `prepare_indobert_dataset.py` | `train_indobert.py`; `prepare_colab_indobert_bundle.py`; Colab notebooks | MS-15D regenerated current splits and summaries from canonical `dataset_spotify_processed.csv`. |
 | IndoBERT run folders | `train_indobert.py` and Colab export workflow | sentiment/report services; model evaluation; notebooks | Metrics are active reporting inputs but should be versioned as historical after a clean-data rerun. |
 | `datasets/processed/svm/svm_aspect_dataset.csv`, EDA 04 dataset summaries | `prepare_svm_aspect_dataset.py` | `train_svm_aspect_classifier.py` | Current SVM dataset descends from unfiltered refined weak labels. |
 | EDA 04 experiment outputs | `train_svm_aspect_classifier.py` | aspect/report services; consolidated evaluation | Selected merged model remains active but data lineage is pre-promotion. |
@@ -255,11 +261,11 @@ The frontend reads no CSV/JSON directly. It depends on API fields derived from a
 | `ml-service/notebooks/02_preprocessing.ipynb` | Documents only the old unfiltered processed chain. |
 | `docs/microservices/review-service-extraction.md` | Calls `reviews_final.csv` the preferred review source without quality caveat. |
 | `docs/microservices/api-contract.md` | Exposes `reviews_final` availability and a ranking `source_file`; does not define canonical processed lineage. |
-| `docs/ml/indobert-artifact-export.md` | Correctly says splits must be regenerated after quality filtering, but current split files remain old. |
+| `docs/ml/indobert-artifact-export.md` | Correctly treats existing run_3 model metrics as historical; MS-15D regenerated the input splits but did not retrain the model. |
 | `docs/microservices/repository-hygiene-audit.md` | Classifies `quality_audit/` as research evidence, not as a candidate source requiring promotion. |
 | `docs/microservices/architecture.md` | Defines artifact policy but not the canonical processed filename or lineage version. |
 
-No audited document currently declares a single canonical processed dataset and its derivation contract.
+At MS-15A, no audited document declared a single canonical processed dataset and its derivation contract. MS-15B through MS-15D updates in this document now record that contract and the current migration status.
 
 ## 5. Current Pipeline Lineage Map
 
@@ -271,23 +277,22 @@ datasets/raw/reviews_rating_{1..5}_raw.csv
   -> datasets/raw/reviews_raw_labeled.csv
   -> relabel_by_keywords.py
   -> datasets/processed/reviews_relabelled.csv                 [noise still expected]
-  -> preprocess_indobert.py / older committed output
-  -> datasets/processed/reviews_preprocessed_indobert.csv      [unfiltered legacy]
-  -> preprocess_svm.py / older committed output
-  -> datasets/processed/reviews_preprocessed_svm.csv
-  -> datasets/processed/reviews_final.csv                      [confirmed noisy]
-     -> prepare_indobert_dataset.py
-     -> datasets/processed/indobert/{train,validation,test}.csv [confirmed noisy lineage]
-     -> train_indobert.py / Colab
-     -> datasets/outputs/eda/03_indobert/run_*/
+  -> preprocess_indobert.py
+  -> datasets/processed/dataset_spotify_indobert_stage.csv
+  -> preprocess_svm.py
+  -> datasets/processed/dataset_spotify_processed.csv          [96,534 canonical valid]
+  -> prepare_indobert_dataset.py
+  -> datasets/processed/indobert/{train,validation,test}.csv   [regenerated MS-15D]
+  -> train_indobert.py / Colab                                 [not run in MS-15D]
+  -> datasets/outputs/eda/03_indobert/run_*/                   [historical model runs]
 
-datasets/processed/reviews_final.csv
+datasets/processed/reviews_final.csv                           [confirmed noisy legacy]
   -> label_aspects_by_keywords.py
-  -> datasets/processed/reviews_with_aspect_labels_refined.csv
+  -> datasets/processed/reviews_with_aspect_labels_refined.csv [old branch; NEEDS VERIFICATION]
   -> prepare_svm_aspect_dataset.py
-  -> datasets/processed/svm/svm_aspect_dataset.csv
+  -> datasets/processed/svm/svm_aspect_dataset.csv             [not regenerated MS-15D]
   -> train_svm_aspect_classifier.py
-  -> datasets/outputs/eda/04_svm/
+  -> datasets/outputs/eda/04_svm/                              [historical/current old lineage]
 
 EDA 01-05 + EDA 08
   -> domain service summary APIs
@@ -307,15 +312,15 @@ datasets/processed/reviews_relabelled.csv
   +  datasets/processed/dataset_spotify_noise_report.{csv,json} [1,248 cumulative dropped]
 ```
 
-The old `ml-service/quality_audit/` files remain lineage evidence, not default final outputs. Downstream preparation and runtime readers are intentionally unchanged until MS-15D/MS-15E.
+The old `ml-service/quality_audit/` files remain lineage evidence, not default final outputs. MS-15D migrated only IndoBERT preparation. SVM aspect-label preparation and runtime readers remain unchanged pending verified follow-up work.
 
 ### 5.3 Expected Versus Actual Gap
 
 | Expected step | Actual repository state | Gap |
 | --- | --- | --- |
 | Quality filtering produces canonical processed data | Scripts now reproduce `dataset_spotify_processed.{csv,json}` and canonical noise reports | Resolved in MS-15B/MS-15C |
-| IndoBERT splits derive from canonical valid data | Splits derive from noisy `reviews_final.csv` | Regeneration missing |
-| SVM labels/dataset derive from canonical valid data | Refined labels and SVM dataset derive from old branch | Regeneration missing |
+| IndoBERT splits derive from canonical valid data | All `96,534` canonical rows are partitioned into regenerated train/validation/test splits | Resolved in MS-15D |
+| SVM labels/dataset derive from canonical valid data | Canonical input lacks weak-label columns; refined labels and SVM dataset still derive from old branch | `NEEDS VERIFICATION` |
 | Backend preprocessing summary reports valid/dropped counts | Backend reads old EDA 02 summary only | API contract missing quality fields |
 | Frontend sample tables receive stage-specific rows | Frontend reuses narrow generic review samples | API sample contracts missing |
 
@@ -330,8 +335,8 @@ The old `ml-service/quality_audit/` files remain lineage evidence, not default f
 | `preprocessing_quality_summary.json` | `96,575` input; `96,534` valid; 41 additional drops |
 | `reviews_final.csv` targeted sample | Emoji-only row `f4a4d23f-...` remains |
 | `reviews_final.csv` targeted sample | Morse-like row `1b2b73e6-...` remains |
-| Current IndoBERT test split | Morse-like row `1b2b73e6-...` remains |
-| Current IndoBERT train split | SVM-stage-dropped stylized-text row `96e6b8f5-...` remains |
+| MS-15D IndoBERT splits | All `96,534` canonical IDs present exactly once; zero overlap, empty text, invalid label mapping, or quality-detector rejection |
+| Old noisy IndoBERT IDs | Morse-like `1b2b73e6-...` and SVM-stage-dropped `96e6b8f5-...` are absent after regeneration |
 | `reviews_final_quality_filtered.csv` | Known dropped IDs absent; sampled rows show `preprocessing_status=valid` and `drop_reason=valid` |
 
 ### 6.2 Interpretation
@@ -415,7 +420,7 @@ The common `"-"` output is usually not a rendering defect. It is produced when p
 | `datasets/processed/svm/test.csv` | Derived model-specific test split. Add validation split only if the training contract requires it. |
 | `datasets/processed/svm/label_mapping.json` | Versioned aspect-label mapping for the derived split. |
 
-All four proposed `dataset_spotify_*` files now exist after MS-15B. The three proposed SVM split/mapping files do not yet exist and remain MS-15D work.
+All four proposed `dataset_spotify_*` files exist after MS-15B, and the IndoBERT files were regenerated in MS-15D. The three proposed SVM split/mapping files do not exist; creating them is deferred until canonical weak-label lineage is verified.
 
 ### 10.2 Naming and Lineage Rules
 
@@ -433,7 +438,7 @@ All four proposed `dataset_spotify_*` files now exist after MS-15B. The three pr
 | --- | --- | --- | --- | --- |
 | MS-15B | Verify and promote the canonical processed dataset plus noise reports. | `datasets/processed/dataset_spotify_*`; quality-audit summaries; optional manifest; docs | Accidental row loss, CSV/JSON divergence, provenance loss | Focused preprocessing tests; schema/count/hash comparison; targeted known-noise/known-valid ID checks; `git diff --stat` |
 | MS-15C | Make preprocessing scripts write canonical paths deterministically and remove ambiguous `final` defaults. | `preprocess_indobert.py`, `preprocess_svm.py`, shared quality utility, notebook 02, tests | Breaking CLI compatibility; silently changing thresholds | `python -m pytest ml-service/tests` with workspace basetemp; script `--help`; dry/small fixture run |
-| MS-15D | Regenerate IndoBERT and SVM derived datasets from the canonical dataset; do not retrain unless separately approved. | `prepare_indobert_dataset.py`, `prepare_svm_aspect_dataset.py`, aspect-label outputs, `datasets/processed/indobert/`, `datasets/processed/svm/`, EDA 03/04 dataset summaries | Split drift, label distribution drift, weak-label changes | Split overlap checks; count/distribution checks; known-noise absence; deterministic seed rerun; dataset prep tests |
+| MS-15D | Regenerate IndoBERT from canonical data; regenerate SVM only if the weak-label lineage is safe without assumption changes. | `prepare_indobert_dataset.py`, `datasets/processed/indobert/`, EDA 03 summaries/figures, lineage audit; SVM files only if verified | Split drift, label distribution drift, weak-label changes | Split overlap checks; count/distribution checks; known-noise absence; deterministic seed rerun; SVM schema/ID audit |
 | MS-15E | Stabilize backend research-artifact API contracts and add stage-specific sample rows. | review/sentiment/aspect/report schemas/services/routers, API contract docs, gateway tests | Frontend contract breakage; leaking internal paths | Service pytest suites; schema snapshots; `rg` for `source_file`, `file_exists`, `dir_exists`; API sample checks |
 | MS-15F | Align frontend tables with stabilized API fields. | frontend services/types/pages for Dashboard, Dataset, Scraping, Preprocessing, Sentiment, Aspect, Evaluation, AHP | Replacing valid empty states with fabricated values | `npm run lint`; `npm run build`; page-level gateway fixtures; browser checks |
 | MS-15G | Merge Uji Ulasan into Analisis Sentimen and Scraping into Dataset if the product-flow decision remains valid. | navigation/routes/pages/components/services and frontend docs | Route regressions; mixing research snapshots with runtime inference | `npm run lint`; `npm run build`; route/navigation checks; manual workflow smoke test |
@@ -447,7 +452,7 @@ All four proposed `dataset_spotify_*` files now exist after MS-15B. The three pr
 | --- | --- | --- | --- |
 | Promoting the wrong quality file as canonical | Medium | High | Verify schema, counts, hashes, known-noise absence, and generation parameters first. |
 | Current model metrics are presented as clean-data metrics | High | High | Label historical metrics and regenerate after canonical split preparation/retraining approval. |
-| Deleting `reviews_final.csv` breaks review APIs and IndoBERT prep | High | High | Migrate readers first; retain compatibility only temporarily. |
+| Deleting `reviews_final.csv` breaks review APIs and the current aspect-label branch | High | High | Migrate remaining readers first; retain compatibility only temporarily. |
 | Regenerated weak aspect labels change SVM class distribution | High | Medium | Version old/new distributions and rerun selection methodology. |
 | JSON canonical file becomes an unnecessary 70+ MB duplicate | Medium | Medium | Define its consumer and serialization contract; if required by thesis, generate deterministically and compress/archive appropriately. |
 | API cleanup leaks or removes fields unexpectedly | Medium | High | Version contracts and add service/gateway schema tests. |
@@ -460,9 +465,9 @@ All four proposed `dataset_spotify_*` files now exist after MS-15B. The three pr
 | File/family | Reason |
 | --- | --- |
 | All `datasets/raw/` artifacts | Immutable acquisition evidence and active summary/fallback inputs. |
-| `datasets/processed/reviews_final.csv` | Active reader for IndoBERT prep and random review API despite being noisy. |
+| `datasets/processed/reviews_final.csv` | Active random-review API and aspect-label lineage input despite being noisy; no longer the IndoBERT preparation default. |
 | `reviews_with_aspect_labels.csv` and `reviews_with_aspect_labels_refined.csv` | Active latest-negative fallback/preferred source; refined file feeds SVM preparation. |
-| `datasets/processed/indobert/*` | Active training/Colab inputs until regenerated. |
+| `datasets/processed/indobert/*` | Regenerated canonical training/Colab inputs; retain as active derived artifacts. |
 | `datasets/processed/svm/svm_aspect_dataset.csv` | Active SVM training input. |
 | `ml-service/quality_audit/*` | Only current evidence of filtering behavior and canonical candidate data. |
 | EDA 01-05 summaries | Active backend/API/frontend dependencies. |
@@ -473,9 +478,9 @@ All four proposed `dataset_spotify_*` files now exist after MS-15B. The three pr
 
 ## 14. Immediate Next Step Recommendation
 
-Proceed with MS-15D only: point model-specific dataset preparation at canonical processed input, regenerate deterministic IndoBERT/SVM datasets, and validate split isolation and noise absence. Do not retrain models unless separately approved.
+Keep the MS-15D IndoBERT splits as current canonical derived inputs. Do not present historical run_3 metrics as clean-data metrics; retraining remains a separate approval.
 
-Current classification: `datasets/processed/dataset_spotify_processed.{csv,json}` is `CANONICAL`; `ml-service/quality_audit/reviews_final_quality_filtered.csv` is `KEEP AS LINEAGE SOURCE`; `datasets/processed/reviews_final.csv` is `LEGACY / NOT SAFE TO DELETE`; current IndoBERT/SVM derived datasets are `NEEDS DECISION / REGENERATE`.
+Before regenerating SVM, establish one reviewed canonical weak-label step that consumes `dataset_spotify_processed.csv`, preserves the existing seven-label weak taxonomy and confidence rules, and produces label/distribution evidence without copying unverified rows from the legacy branch. Current classification: IndoBERT derived dataset is `CURRENT / REGENERATED MS-15D`; SVM derived dataset is `NEEDS VERIFICATION`.
 
 ## 15. MS-15B Canonical Promotion Result
 
@@ -545,4 +550,45 @@ Fresh full-run validation confirmed:
 - deterministic LF normalization for embedded text line endings preserves the MS-15B canonical hashes;
 - legacy files were not renamed, overwritten, or deleted.
 
-Remaining old references are intentional: `prepare_indobert_dataset.py`, aspect-label/SVM preparation, notebooks, and backend services still consume legacy files. Their migration belongs to MS-15D and MS-15E.
+Remaining old references are intentional: aspect-label/SVM preparation, notebooks, and backend services still consume legacy files. IndoBERT preparation migrated in MS-15D; the remaining reader migration belongs to verified SVM follow-up work and MS-15E.
+
+## 17. MS-15D Model Dataset Regeneration Result
+
+### 17.1 IndoBERT Regeneration
+
+`prepare_indobert_dataset.py` now defaults to `datasets/processed/dataset_spotify_processed.csv`. Running it from the repository root regenerated only the dataset-preparation artifacts; no training or model export ran.
+
+| Check | Result |
+| --- | --- |
+| Canonical input rows | `96,534` |
+| Prepared rows | `96,534`; zero status, label, or empty-text removals |
+| Train split | `67,573` rows: Negative `27,590`, Neutral `12,099`, Positive `27,884` |
+| Validation split | `14,480` rows: Negative `5,912`, Neutral `2,593`, Positive `5,975` |
+| Test split | `14,481` rows: Negative `5,913`, Neutral `2,593`, Positive `5,975` |
+| Label mapping | Negative `0`, Neutral `1`, Positive `2` |
+| ID coverage | `96,534` unique IDs; exact canonical ID set; zero cross-split overlap |
+| Text quality | Zero empty `text_indobert`; zero shared-detector rejections, including Morse-like and symbol-heavy text |
+| Metadata | Zero non-`valid` preprocessing statuses or drop reasons |
+
+Regenerated outputs:
+
+- `datasets/processed/indobert/{train,validation,test}.csv`
+- `datasets/processed/indobert/label_mapping.json`
+- top-level `datasets/outputs/eda/03_indobert/indobert_*` dataset summaries/distributions
+- top-level `docs/figures/03_indobert/indobert_*` dataset figures
+
+Historical run folders under EDA 03 and their model figures were not regenerated because MS-15D did not train or evaluate IndoBERT.
+
+### 17.2 SVM Audit and Blocker
+
+Status: `NEEDS VERIFICATION`. SVM preparation was not run and no SVM derived artifact was changed.
+
+Exact blockers:
+
+1. `prepare_svm_aspect_dataset.py` requires `text_svm`, `aspect_label`, and `aspect_label_confidence`. Canonical input contains `text_svm` but not the two weak-label columns, so direct canonical input violates the script contract.
+2. The default input remains `reviews_with_aspect_labels_refined.csv`, which has `97,782` old-branch rows. It contains all canonical IDs plus `1,248` IDs excluded by canonical quality filtering.
+3. The current `16,983`-row SVM dataset contains `6` IDs absent from canonical data.
+4. Shared canonical/refined IDs have matching `text_svm` and `final_sentiment`, but that does not establish a canonical weak-label artifact or prove that copying labels from the old branch is the approved reproducible lineage.
+5. Regenerating the weak-label source would also affect EDA 02 aspect-label outputs and must be reviewed as an explicit canonical label-generation step before EDA 04/SVM regeneration.
+
+No label scheme was changed or inferred. The existing SVM dataset, EDA 04 summaries, and SVM figures remain historical/current old-lineage evidence until this blocker is resolved.

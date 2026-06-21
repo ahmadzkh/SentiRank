@@ -21,7 +21,7 @@ LABEL_MAPPING = {
     "Neutral": 1,
     "Positive": 2,
 }
-DEFAULT_INPUT = PROJECT_ROOT / "datasets" / "processed" / "reviews_final.csv"
+DEFAULT_INPUT = PROJECT_ROOT / "datasets" / "processed" / "dataset_spotify_processed.csv"
 DEFAULT_OUTPUT_DIR = PROJECT_ROOT / "datasets" / "processed" / "indobert"
 DEFAULT_SUMMARY_OUTPUT = Path(
     PROJECT_ROOT / "datasets" / "outputs" / "eda" / "03_indobert" / "indobert_dataset_summary.json"
