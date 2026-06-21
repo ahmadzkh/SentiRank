@@ -4,6 +4,8 @@ Audit date: 2026-06-20
 
 MS-15B promotion update: 2026-06-21
 
+MS-15C preprocessing defaults update: 2026-06-21
+
 Scope: read-only inventory and lineage analysis. No dataset, script, notebook, service, frontend, Docker, model, or environment file was modified.
 
 ## 1. Executive Summary
@@ -15,9 +17,11 @@ SentiRank currently has two competing processed-data branches:
 
 MS-15B promoted `ml-service/quality_audit/reviews_final_quality_filtered.csv` into `datasets/processed/dataset_spotify_processed.csv` and `.json`. Both canonical files contain `96,534` valid rows after `1,207` IndoBERT-stage drops and `41` additional SVM-stage drops. The canonical CSV is byte-identical to its promotion source. Active readers are intentionally unchanged until later milestones.
 
+MS-15C made the preprocessing scripts reproduce those canonical files from project-root-safe defaults. `preprocess_indobert.py` writes a clearly named valid-row stage file and the first-stage noise report; `preprocess_svm.py` owns final canonical CSV/JSON output and merges both noise stages with explicit provenance. Metrics, figures, and summaries are now opt-in secondary diagnostics.
+
 The current `datasets/processed/reviews_final.csv` is not a clean source of truth despite its name. Targeted samples confirm it still contains an emoji-only row and a Morse-like row. The Morse-like row also appears in `datasets/processed/indobert/test.csv`, proving that the current IndoBERT splits were generated from the unfiltered `97,782`-row branch. `datasets/outputs/eda/03_indobert/indobert_dataset_summary.json` confirms `preprocessing_status_rows_removed: 0` and `valid_rows: 97,782`.
 
-No files should be deleted in the next step. MS-15B should promote a verified canonical processed dataset first, preserve row-level provenance, then update readers and regenerate model-specific datasets before any archive/removal milestone.
+No legacy files were deleted. MS-15D should migrate dataset preparation to canonical input and regenerate model-specific datasets before any archive/removal milestone.
 
 ### Decision Summary
 
@@ -41,9 +45,9 @@ The word `final` currently means several different things:
 - SVM `merged_5class` is the selected taxonomy/model, but its preparation source also descends from the unfiltered branch.
 - AHP/Fuzzy AHP files with `sample_development` are pipeline-validation outputs, not final expert-judgement results.
 
-The quality-filtering implementation is newer than the active processed-data contract. It produced a valid-row branch and explicit noise reports under `ml-service/quality_audit/`, but those paths were never promoted into `datasets/processed/`. As a result:
+At MS-15A, the quality-filtering implementation was newer than the active processed-data contract and only produced audit outputs under `ml-service/quality_audit/`. MS-15B promoted the data; MS-15C aligned preprocessing defaults. Remaining drift is downstream:
 
-- scripts and notebooks still name `reviews_final.csv` as the main processed input;
+- split-preparation scripts and notebooks still name `reviews_final.csv` as the main processed input;
 - `review-service` serves samples from the noisy file;
 - backend preprocessing/sentiment summaries report the pre-filter `97,782` rows;
 - current IndoBERT splits include rows identified by the audit as noise;
@@ -93,7 +97,7 @@ Rows below group files only when every named file has the same lineage classific
 | `datasets/processed/reviews_preprocessed_indobert.csv` | processed intermediate | Older IndoBERT text-cleaning output | Unfiltered legacy branch; sampled audit-dropped IDs remain present | W `preprocess_indobert.py`; R `preprocess_svm.py`; notebook 02 | LEGACY |
 | `datasets/processed/reviews_preprocessed_indobert.json` | processed duplicate | Large JSON serialization of an older IndoBERT preprocessing result | No committed reader found; duplicates CSV-era content and may contain the same noise | NONE | ARCHIVE LATER |
 | `datasets/processed/reviews_preprocessed_svm.csv` | processed intermediate | Older SVM text-cleaning output | Unfiltered legacy branch; emoji/noise rows remain | W `preprocess_svm.py`; no independent downstream reader found outside notebook lineage | LEGACY |
-| `datasets/processed/reviews_final.csv` | processed output | Compact combined sentiment preprocessing output | Misleading name; confirmed emoji-only and Morse-like rows. No quality metadata columns | W `preprocess_svm.py`; R `prepare_indobert_dataset.py`, `train_indobert.py` metadata, notebook 02, `review-service` | LEGACY; NOT SAFE TO DELETE |
+| `datasets/processed/reviews_final.csv` | processed output | Compact combined sentiment preprocessing output | Misleading name; confirmed emoji-only and Morse-like rows. No quality metadata columns | Historical W `preprocess_svm.py`; still R by `prepare_indobert_dataset.py`, `train_indobert.py` metadata, notebook 02, `review-service` | LEGACY; NOT SAFE TO DELETE |
 | `datasets/processed/reviews_with_aspect_labels.csv` | processed output | Earlier weak aspect-label output | Derived from noisy `reviews_final.csv`; older than refined output | API fallback for latest negatives; no current writer command found | LEGACY; NOT SAFE TO DELETE |
 | `datasets/processed/reviews_with_aspect_labels_refined.csv` | processed output | Refined weak aspect labels and confidence | Active SVM preparation source, but inherits unfiltered upstream rows | W `label_aspects_by_keywords.py`; R `prepare_svm_aspect_dataset.py`; preferred API latest-negative source | NEEDS DECISION |
 | `datasets/processed/indobert/train.csv` | split | IndoBERT train split | Active derived split; generated from `97,782` unfiltered rows; a quality-audit-dropped ID is present | W `prepare_indobert_dataset.py`; R `train_indobert.py`, Colab notebooks | NEEDS DECISION |
@@ -187,8 +191,8 @@ Rows below group files only when every named file has the same lineage classific
 | `datasets/raw/reviews_rating_*_raw.csv`, `scraping_state_rating_*.json`, `app_info_spotify.json`, `scraping_summary.json` | `scrape_reviews.py` | `scrape_reviews.py`; `label_by_rating.py`; review API summaries | Raw acquisition boundary is clear. |
 | `datasets/raw/reviews_raw_labeled.csv`, `data_acquisition_summary.json`, EDA 01 | `label_by_rating.py` | `relabel_by_keywords.py`; `review-service`; notebooks | Labeled raw dataset is the stable relabeling input. |
 | `reviews_relabelled.csv`, relabeling summaries | `relabel_by_keywords.py` | `preprocess_indobert.py`; notebook 02 | Relabeling is before quality filtering, so noise here is expected. |
-| `reviews_preprocessed_indobert.csv` and default sibling noise reports | `preprocess_indobert.py` | `preprocess_svm.py`; notebook 02 | Current script can filter, but the committed processed CSV is an older unfiltered output without provenance columns. |
-| `reviews_preprocessed_svm.csv`, `reviews_final.csv`, preprocessing summaries | `preprocess_svm.py` | `prepare_indobert_dataset.py`; notebook 02; review API | The filename `reviews_final.csv` creates false canonicality. |
+| `dataset_spotify_indobert_stage.csv` and canonical noise reports | `preprocess_indobert.py` | `preprocess_svm.py` | Root-safe MS-15C intermediate; contains only `96,575` IndoBERT-stage-valid rows. |
+| `dataset_spotify_processed.{csv,json}` and canonical noise reports | `preprocess_svm.py` | No migrated downstream reader yet | Root-safe canonical output defaults; valid and dropped rows remain separated. |
 | `reviews_with_aspect_labels_refined.csv` | `label_aspects_by_keywords.py` | `prepare_svm_aspect_dataset.py`; review API latest-negative endpoint | Active SVM/review dependency blocks deletion. |
 | `datasets/processed/indobert/*` and top-level EDA 03 summaries | `prepare_indobert_dataset.py` | `train_indobert.py`; `prepare_colab_indobert_bundle.py`; Colab notebooks | Current splits were built from unfiltered `reviews_final.csv`. |
 | IndoBERT run folders | `train_indobert.py` and Colab export workflow | sentiment/report services; model evaluation; notebooks | Metrics are active reporting inputs but should be versioned as historical after a clean-data rerun. |
@@ -291,26 +295,25 @@ EDA 01-05 + EDA 08
   -> frontend Dashboard/Dataset/Sentiment/Aspect/Evaluation/AHP pages
 ```
 
-### 5.2 Orphaned Quality-Filtered Branch
+### 5.2 Canonical Preprocessing Defaults After MS-15C
 
 ```text
 datasets/processed/reviews_relabelled.csv
-  -> current preprocess_indobert.py quality logic
-  -> ml-service/quality_audit/reviews_preprocessed_indobert_quality_filtered.csv
-  +  ml-service/quality_audit/reviews_preprocessed_indobert_noise_report.{csv,json}
-  -> current preprocess_svm.py quality logic
-  -> ml-service/quality_audit/reviews_preprocessed_svm_quality_filtered.csv
-  -> ml-service/quality_audit/reviews_final_quality_filtered.csv
-  +  ml-service/quality_audit/reviews_preprocessed_svm_noise_report.{csv,json}
-
-No active prepare script, backend service, or frontend API reads the three quality-filtered CSVs by their current paths.
+  -> preprocess_indobert.py
+  -> datasets/processed/dataset_spotify_indobert_stage.csv      [96,575 valid]
+  +  datasets/processed/dataset_spotify_noise_report.{csv,json} [1,207 dropped]
+  -> preprocess_svm.py
+  -> datasets/processed/dataset_spotify_processed.{csv,json}    [96,534 valid]
+  +  datasets/processed/dataset_spotify_noise_report.{csv,json} [1,248 cumulative dropped]
 ```
+
+The old `ml-service/quality_audit/` files remain lineage evidence, not default final outputs. Downstream preparation and runtime readers are intentionally unchanged until MS-15D/MS-15E.
 
 ### 5.3 Expected Versus Actual Gap
 
 | Expected step | Actual repository state | Gap |
 | --- | --- | --- |
-| Quality filtering produces canonical processed data | Valid data remains under `ml-service/quality_audit/` | Promotion missing |
+| Quality filtering produces canonical processed data | Scripts now reproduce `dataset_spotify_processed.{csv,json}` and canonical noise reports | Resolved in MS-15B/MS-15C |
 | IndoBERT splits derive from canonical valid data | Splits derive from noisy `reviews_final.csv` | Regeneration missing |
 | SVM labels/dataset derive from canonical valid data | Refined labels and SVM dataset derive from old branch | Regeneration missing |
 | Backend preprocessing summary reports valid/dropped counts | Backend reads old EDA 02 summary only | API contract missing quality fields |
@@ -336,7 +339,7 @@ No active prepare script, backend service, or frontend API reads the three quali
 - Noise in raw and relabeled files is not itself a defect; those are pre-filter stages.
 - Noise in `reviews_final.csv` is a contract defect because its name and active consumers imply a clean final dataset.
 - The quality audit is conservative and auditable, but this audit did not re-run it or prove every retained row is semantically valid.
-- `reviews_final_quality_filtered.csv` is therefore a `CANONICAL CANDIDATE`, not a final declaration.
+- `reviews_final_quality_filtered.csv` was the verified promotion source; `dataset_spotify_processed.{csv,json}` is now canonical.
 
 ## 7. Canonical Dataset Candidate
 
@@ -470,7 +473,7 @@ All four proposed `dataset_spotify_*` files now exist after MS-15B. The three pr
 
 ## 14. Immediate Next Step Recommendation
 
-Proceed with MS-15C only: update preprocessing script defaults and outputs to generate canonical paths deterministically. Do not migrate readers, regenerate model splits, or retrain models in MS-15C.
+Proceed with MS-15D only: point model-specific dataset preparation at canonical processed input, regenerate deterministic IndoBERT/SVM datasets, and validate split isolation and noise absence. Do not retrain models unless separately approved.
 
 Current classification: `datasets/processed/dataset_spotify_processed.{csv,json}` is `CANONICAL`; `ml-service/quality_audit/reviews_final_quality_filtered.csv` is `KEEP AS LINEAGE SOURCE`; `datasets/processed/reviews_final.csv` is `LEGACY / NOT SAFE TO DELETE`; current IndoBERT/SVM derived datasets are `NEEDS DECISION / REGENERATE`.
 
@@ -506,4 +509,40 @@ The matching report source is unambiguous. The `1,207` IndoBERT-stage drops, `41
 
 ### 15.3 Scope Boundary
 
-Legacy processed files, model-specific splits, scripts, notebooks, services, frontend, Docker, models, and datasets outside the four canonical targets were left unchanged. Old files remain necessary until reader migration and split regeneration are complete.
+During MS-15B, legacy processed files, model-specific splits, scripts, notebooks, services, frontend, Docker, models, and datasets outside the four canonical targets were left unchanged. MS-15C later changed only the two preprocessing scripts documented below. Old files remain necessary until reader migration and split regeneration are complete.
+
+## 16. MS-15C Preprocessing Script Output Cleanup
+
+### 16.1 Default Ownership
+
+| Script | Default input | Default output ownership |
+| --- | --- | --- |
+| `preprocess_indobert.py` | Legacy intermediate `datasets/processed/reviews_relabelled.csv` | `dataset_spotify_indobert_stage.csv`; first-stage canonical noise CSV/JSON |
+| `preprocess_svm.py` | `dataset_spotify_indobert_stage.csv` | Final `dataset_spotify_processed.csv`, `dataset_spotify_processed.json`, and cumulative canonical noise CSV/JSON |
+
+All defaults resolve from each script's repository location, not the process working directory. Existing CLI option names remain available. `--output` on `preprocess_svm.py` is now an optional secondary stage export; `--metrics-dir`, `--figures-dir`, and `--summary-output` are opt-in diagnostics and never replace canonical output.
+
+### 16.2 Reproduction Commands
+
+From repository root:
+
+```powershell
+ml-service/.venv/Scripts/python.exe ml-service/scripts/preprocess_indobert.py
+ml-service/.venv/Scripts/python.exe ml-service/scripts/preprocess_svm.py
+```
+
+The first command reports `97,782` total, `96,575` valid, and `1,207` dropped rows. The second reports `96,575` total, `96,534` valid, `41` additionally dropped, and `1,248` cumulative noise-report rows.
+
+### 16.3 Validation and Remaining Drift
+
+Fresh full-run validation confirmed:
+
+- canonical CSV and JSON each contain `96,534` unique valid rows;
+- no empty cleaned text, non-valid status, Morse-like text, symbol-heavy text, digit-heavy text, or repeated-garbage rejection remains under the current shared detector;
+- canonical processed CSV remains byte-identical to the MS-15B promotion source;
+- canonical noise CSV/JSON each contain `1,207` IndoBERT-stage and `41` SVM-stage rows;
+- valid and dropped IDs are disjoint and exactly partition all `97,782` relabeled rows;
+- deterministic LF normalization for embedded text line endings preserves the MS-15B canonical hashes;
+- legacy files were not renamed, overwritten, or deleted.
+
+Remaining old references are intentional: `prepare_indobert_dataset.py`, aspect-label/SVM preparation, notebooks, and backend services still consume legacy files. Their migration belongs to MS-15D and MS-15E.

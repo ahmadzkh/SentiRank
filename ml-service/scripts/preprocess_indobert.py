@@ -15,6 +15,19 @@ ML_SERVICE_ROOT = Path(__file__).resolve().parents[1]
 if str(ML_SERVICE_ROOT) not in sys.path:
     sys.path.insert(0, str(ML_SERVICE_ROOT))
 
+PROJECT_ROOT = ML_SERVICE_ROOT.parent
+DEFAULT_INPUT = PROJECT_ROOT / "datasets" / "processed" / "reviews_relabelled.csv"
+DEFAULT_OUTPUT = (
+    PROJECT_ROOT / "datasets" / "processed" / "dataset_spotify_indobert_stage.csv"
+)
+DEFAULT_NOISE_REPORT_OUTPUT = (
+    PROJECT_ROOT / "datasets" / "processed" / "dataset_spotify_noise_report.csv"
+)
+DEFAULT_NOISE_REPORT_JSON_OUTPUT = (
+    PROJECT_ROOT / "datasets" / "processed" / "dataset_spotify_noise_report.json"
+)
+QUALITY_STAGE = "indobert_preprocessing"
+
 from app.utils.text_quality_filtering import (  # noqa: E402
     PREPROCESSING_STATUS_VALID,
     QUALITY_DIAGNOSTIC_COLUMNS,
@@ -29,15 +42,36 @@ def parse_args() -> argparse.Namespace:
         description=(
             "Prepare conservative cleaned text for IndoBERT without tokenizing, "
             "downloading models, or creating train/validation/test splits."
-        )
+        ),
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
-    parser.add_argument("--input", type=Path, required=True)
-    parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument(
+        "--input",
+        type=Path,
+        default=DEFAULT_INPUT,
+        help="Legacy relabeling input; override to process another compatible CSV.",
+    )
+    parser.add_argument(
+        "--output",
+        type=Path,
+        default=DEFAULT_OUTPUT,
+        help="Valid IndoBERT-stage rows consumed by preprocess_svm.py.",
+    )
     parser.add_argument("--text-column", default="content")
     parser.add_argument("--label-column", default="final_sentiment")
     parser.add_argument("--summary-output", type=Path, default=None)
-    parser.add_argument("--noise-report-output", type=Path, default=None)
-    parser.add_argument("--noise-report-json-output", type=Path, default=None)
+    parser.add_argument(
+        "--noise-report-output",
+        type=Path,
+        default=DEFAULT_NOISE_REPORT_OUTPUT,
+        help="First-stage dropped rows; SVM merges its dropped rows into this report.",
+    )
+    parser.add_argument(
+        "--noise-report-json-output",
+        type=Path,
+        default=DEFAULT_NOISE_REPORT_JSON_OUTPUT,
+        help="JSON counterpart of --noise-report-output.",
+    )
 
     return parser.parse_args()
 
@@ -200,6 +234,7 @@ def records_for_json(
 def select_noise_report_columns(dataframe: pd.DataFrame) -> pd.DataFrame:
     preferred_columns = [
         "external_id",
+        "quality_stage",
         "rating",
         "final_sentiment",
         "original_text",
@@ -258,19 +293,14 @@ def main() -> None:
         text_column=args.text_column,
         label_column=args.label_column,
     )
-    noise_report_output = args.noise_report_output or args.output.with_name(
-        f"{args.output.stem}_noise_report.csv"
-    )
-    noise_report_json_output = args.noise_report_json_output or args.output.with_name(
-        f"{args.output.stem}_noise_report.json"
-    )
+    dropped_dataframe = dropped_dataframe.assign(quality_stage=QUALITY_STAGE)
 
     args.output.parent.mkdir(parents=True, exist_ok=True)
     preprocessed_dataframe.to_csv(args.output, index=False)
     noise_reports = save_noise_reports(
         dropped_dataframe=dropped_dataframe,
-        csv_output=noise_report_output,
-        json_output=noise_report_json_output,
+        csv_output=args.noise_report_output,
+        json_output=args.noise_report_json_output,
     )
 
     if args.summary_output is not None:
@@ -279,12 +309,17 @@ def main() -> None:
     print(
         json.dumps(
             {
-                "output": str(args.output),
-                "noise_reports": [str(path) for path in noise_reports],
+                "input_path": str(args.input),
+                "processed_output_path": str(args.output),
+                "noise_report_path": str(noise_reports[0]),
+                "noise_report_json_path": str(noise_reports[1]),
                 "summary_output": str(args.summary_output)
                 if args.summary_output is not None
                 else None,
-                "summary": summary,
+                "total_rows": summary["total_rows_before_quality_filter"],
+                "valid_rows": summary["valid_rows"],
+                "dropped_rows": summary["dropped_rows"],
+                "drop_reason_distribution": summary["drop_reason_distribution"],
             },
             indent=2,
             sort_keys=True,
