@@ -1,64 +1,98 @@
-### Agent Instructions — SentiRank
+# Agent Instructions — SentiRank
 
-### Default Installed Skills
+## Required First Step
 
-Apply these installed Codex skills by default for all SentiRank tasks:
+Before starting any task, read:
 
-1. **`caveman` / `caveman-compress`**
-   - Applies to Codex chat responses only.
-   - Keep final progress reports short, dense, and direct.
-   - Avoid conversational filler, repeated explanations, and long summaries.
-   - Do not shorten source code, documentation, audit reports, or academic content when the task requires completeness.
-   - Still report required items: changed files, verification results, blockers, TODO, suggested git add, and commit message.
+- `AGENTS.md`
+- `CLAUDE.md`
+- relevant Markdown documentation for the touched area
 
-2. **`ponytail`**
-   - Applies to code implementation only.
-   - Prefer minimal, targeted, senior-level code changes.
-   - Avoid broad rewrites, unnecessary abstractions, and boilerplate.
-   - Preserve existing project structure unless the milestone explicitly asks for refactor.
-   - Use modern built-in features and simple patterns where appropriate.
-   - Never write placeholder text such as `// ... rest of code ...` into actual source files.
+Examples:
 
-### Code Editing Rules
+- Frontend task: read `docs/frontend/*` and `frontend/DESIGN.md`
+- Microservice task: read `docs/microservices/*`
+- ML/data task: read `docs/methodology/*`, `docs/ml/*`, and relevant `ml-service/scripts/*`
+- Docker/deployment task: read `docs/microservices/docker-compose-foundation.md`
 
-- Change only files required by the current milestone.
-- Do not rewrite whole files when a targeted patch is enough.
-- Preserve unchanged code.
-- Do not add dependencies unless clearly necessary.
-- Do not change runtime behavior outside the requested scope.
-- Do not commit, push, or delete files unless explicitly instructed.
+Do not start editing before understanding the current project state.
 
-### Project Context
+## Default Skills
 
-SentiRank is a thesis project for Spotify review sentiment analysis and insight prioritization using IndoBERT, SVM aspect classification, AHP, and Fuzzy AHP.
+Apply these installed skills by default:
+
+- `caveman`
+- `caveman-compress`
+- `ponytail`
+
+Skill intent:
+
+- `caveman` / `caveman-compress`: applies to Codex chat responses only. Keep reports short, dense, direct. No fluff. Do not compress documentation, audit reports, or academic content when completeness is required.
+- `ponytail`: applies to code implementation. Write small, sharp, maintainable changes. Avoid boilerplate, broad rewrites, and unnecessary abstractions.
+
+## Work Rules
+
+- Change only files required by the current task.
+- Prefer targeted patches over whole-file rewrites.
+- Preserve existing structure unless the task explicitly asks for refactor.
+- Do not add dependencies unless clearly required.
+- Do not change runtime behavior outside the task scope.
+- Do not write placeholders such as `// ... rest of code ...` into real source files.
+- Do not commit or push.
+- Do not delete files unless explicitly requested.
+- Do not touch model binaries, saved model artifacts, secrets, or `.env` files.
+
+## Project Context
+
+SentiRank is a thesis project for Spotify review sentiment analysis and insight prioritization using:
+
+- IndoBERT for sentiment classification
+- SVM for aspect/criteria classification
+- AHP and Fuzzy AHP for improvement priority ranking
+- Next.js frontend
+- FastAPI microservices
+- Docker Compose for local/demo backend orchestration
 
 Current architecture:
 
-- `frontend/` is the Next.js UI and must call API Gateway only.
-- `services/` contains active runtime microservices.
-- `ml-service/` contains research pipeline scripts, notebooks, quality audit, and model preparation utilities.
-- `datasets/` contains research artifacts.
-- Runtime inference history is persisted by API Gateway repository code.
-- SQLite is the local/demo default database.
-- PostgreSQL remains optional for deployment.
+- `frontend/`: Next.js UI. Must call API Gateway only.
+- `services/`: active runtime microservices.
+- `ml-service/`: research pipeline, notebooks, scripts, quality audit, and model preparation utilities.
+- `datasets/`: research artifacts and derived datasets.
+- `docs/`: project, thesis, architecture, methodology, and frontend documentation.
+- `saved_models/`: ignored by Git. Never commit model binaries.
+
+Current persistence:
+
+- API Gateway owns runtime inference history persistence.
+- SQLite is local/demo default.
+- PostgreSQL is optional for full online deployment.
 - Prisma has been removed as unused legacy setup.
-- `saved_models/` is ignored by Git; never commit model binaries.
 
-### Frontend Task Tracking
+## Data Rules
 
-The frontend task tracker is located at:
+- CSV/JSON research artifacts are valid for research pipeline outputs.
+- Runtime user inference history belongs in the API Gateway persistence layer.
+- Frontend must not read CSV/JSON directly.
+- Frontend must not call internal services directly.
+- Frontend must not calculate AHP/Fuzzy AHP.
+- Do not expose internal file names, paths, or developer diagnostics in user-facing UI unless the task is explicitly about diagnostics.
+
+## Frontend Rules
+
+Frontend task tracker:
 
 `docs/frontend/frontend-tasks.md`
 
-Whenever completing a frontend-related task:
+For frontend-related tasks:
 
-1. Update the relevant checklist item.
-2. Add or update subtasks if needed.
-3. Verify acceptance criteria before marking a task as done.
-4. Never mark a task as done if implementation or documentation is incomplete.
-5. Add a short note to the relevant documentation file.
+- Update relevant checklist item.
+- Add subtasks when needed.
+- Verify acceptance criteria before marking done.
+- Never mark done if implementation or documentation is incomplete.
+- Add a short note to the relevant frontend documentation.
 
-### Frontend Documentation Files
+Frontend documentation:
 
 - `docs/frontend/frontend-tasks.md`
 - `docs/frontend/design-references.md`
@@ -68,33 +102,41 @@ Whenever completing a frontend-related task:
 - `docs/frontend/wireframes.md`
 - `frontend/DESIGN.md`
 
-### Completion Rule
+Task status format:
 
-Use:
+- `[ ]` not started
+- `[~]` in progress
+- `[x]` done
+- `[!]` blocked
 
-- `[ ]` for not started
-- `[~]` for in progress
-- `[x]` for done
-- `[!]` for blocked
+## Verification Rules
 
-A task can only be marked `[x]` when all acceptance criteria are satisfied.
-
-### Verification Rule
-
-Before reporting completion, run only checks relevant to the milestone.
+Run only checks relevant to the task.
 
 Common checks:
 
-- Frontend changes: `npm run lint`, `npm run build`
-- Python service changes: `python -m compileall ...`, relevant `pytest`
+- Frontend source changes: `npm run lint`, `npm run build`
+- Python service/script changes: `python -m compileall ...`, relevant `pytest`
 - Docker changes: `docker compose config`
 - Documentation-only changes: no build/test required unless source files changed
+- Data pipeline changes: run safe validation scripts; do not train models unless explicitly requested
 
-Always report:
+Always clean generated cache before finishing:
+
+- `__pycache__/`
+- `.pytest_cache/`
+- `.pytest_tmp/`
+- `*.pyc`
+
+## Response Rules
+
+Final Codex response must be compact.
+
+Include only:
 
 - changed files
-- verification commands and results
+- verification result
+- blockers or TODO
 - skipped checks with reason
-- remaining risks/TODO
-- suggested git add command
-- suggested commit message
+
+Do not include long explanations, repeated context, or verbose summaries.
