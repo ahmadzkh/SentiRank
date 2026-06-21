@@ -32,12 +32,10 @@ class SentimentSummaryService:
         evaluation_summary = self._read_json(self.evaluation_summary_path, warnings)
         final_distribution = self._normalise_distribution(
             self._read_json(
-                self.eda_dir
-                / "02_preprocessing"
-                / "label_distribution_after_relabeling.json",
+                self.indobert_dir / "indobert_label_distribution.json",
                 warnings,
             ),
-            label_keys=("sentiment_label", "label", "final_sentiment"),
+            label_keys=("label", "sentiment_label", "final_sentiment"),
         )
         raw_distribution = self._normalise_distribution(
             self._read_json(
@@ -51,20 +49,18 @@ class SentimentSummaryService:
             final_distribution = self._distribution_from_evaluation(evaluation_summary)
 
         return SentimentSummaryData(
+            data_status="canonical_processed" if final_distribution else "unavailable",
             selected_model=self._selected_model(evaluation_summary),
             sentiment_labels=SENTIMENT_LABELS,
             model_status=str(runtime_metadata["model_status"]),
             model_available=bool(runtime_metadata["model_available"]),
             model_source=str(runtime_metadata["model_source"]),
-            configured_model_path=str(runtime_metadata["configured_model_path"]),
             configured_model_id=runtime_metadata["configured_model_id"],
-            max_length=int(runtime_metadata["max_length"]),
             prediction_source=str(runtime_metadata["prediction_source"]),
             is_fallback=bool(runtime_metadata["is_fallback"]),
             final_sentiment_distribution=final_distribution,
             raw_sentiment_distribution=raw_distribution,
-            output_source_availability=self._source_availability(),
-            warnings=warnings + list(runtime_metadata.get("warnings", [])),
+            warnings=self._summary_warnings(warnings, runtime_metadata),
         )
 
     def evaluation(self) -> SentimentEvaluationData:
@@ -76,13 +72,16 @@ class SentimentSummaryService:
             evaluation_summary.get("indobert_run_comparison"),
             list,
         ):
-            run_comparison = evaluation_summary["indobert_run_comparison"]
+            run_comparison = self._sanitise_records(
+                evaluation_summary["indobert_run_comparison"]
+            )
         else:
             run_comparison = self._run_comparison_from_run_files(warnings)
 
         selected_metrics = self._selected_metrics(run_comparison)
 
         return SentimentEvaluationData(
+            data_status="historical_pre_canonical_retraining_required",
             selected_candidate=FINAL_SENTIMENT_MODEL,
             run_comparison=run_comparison,
             selected_metrics=selected_metrics,
@@ -90,20 +89,20 @@ class SentimentSummaryService:
                 "Model artifact may not be mounted in the current runtime environment.",
                 "Prediction endpoint uses real IndoBERT inference when the local artifact or configured Hugging Face model can be loaded.",
                 "Prediction endpoint falls back explicitly when the model artifact is unavailable or cannot be loaded.",
+                "Published evaluation metrics predate the canonical dataset regeneration and require retraining before they represent the canonical split.",
                 "Run 4 slang normalization was tested but did not outperform Run 3.",
             ],
-            output_source_availability=self._source_availability(),
             warnings=warnings,
         )
 
     def _read_json(self, path: Path, warnings: list[str]) -> Any:
         if not path.exists():
-            warnings.append(f"Missing file: {self._display_path(path)}")
+            self._append_warning(warnings, "Some sentiment research data is unavailable.")
             return {}
         try:
             return json.loads(path.read_text(encoding="utf-8"))
-        except (OSError, json.JSONDecodeError) as error:
-            warnings.append(f"Could not read JSON file {self._display_path(path)}: {error}")
+        except (OSError, json.JSONDecodeError):
+            self._append_warning(warnings, "Some sentiment research data could not be read.")
             return {}
 
     def _run_comparison_from_run_files(self, warnings: list[str]) -> list[dict[str, Any]]:
@@ -227,27 +226,36 @@ class SentimentSummaryService:
         support = selected.get("support") if isinstance(selected, dict) else None
         return support if isinstance(support, dict) else {}
 
-    def _source_availability(self) -> dict[str, bool]:
-        return {
-            "datasets_dir": self.datasets_dir.exists(),
-            "docs_dir": self.settings.docs_dir.exists(),
-            "evaluation_summary": self.evaluation_summary_path.exists(),
-            "indobert_output_dir": self.indobert_dir.exists(),
-            "selected_run_metrics": (
-                self.indobert_dir
-                / FINAL_SENTIMENT_MODEL
-                / "indobert_training_metrics.json"
-            ).exists(),
-            "selected_run_classification_report": (
-                self.indobert_dir
-                / FINAL_SENTIMENT_MODEL
-                / "indobert_classification_report.json"
-            ).exists(),
-            "configured_model_path": self.settings.indobert_model_path.exists(),
+    @staticmethod
+    def _sanitise_records(records: list[Any]) -> list[dict[str, Any]]:
+        hidden_keys = {
+            "artifact_path",
+            "classification_report_path",
+            "metrics_path",
+            "output_path",
+            "source_file",
         }
+        return [
+            {key: value for key, value in record.items() if key not in hidden_keys}
+            for record in records
+            if isinstance(record, dict)
+        ]
 
-    def _display_path(self, path: Path) -> str:
-        try:
-            return str(path.relative_to(self.datasets_dir.parent))
-        except ValueError:
-            return str(path)
+    @classmethod
+    def _summary_warnings(
+        cls,
+        warnings: list[str],
+        runtime_metadata: dict[str, Any],
+    ) -> list[str]:
+        result = list(warnings)
+        if runtime_metadata.get("warnings"):
+            cls._append_warning(
+                result,
+                "Sentiment model is unavailable or incomplete; fallback status remains explicit.",
+            )
+        return result
+
+    @staticmethod
+    def _append_warning(warnings: list[str], message: str) -> None:
+        if message not in warnings:
+            warnings.append(message)

@@ -47,11 +47,10 @@ def error_response(message: str, code: str, details: dict[str, Any] | None = Non
 def classify_aspect(request: AspectClassifyRequest):
     try:
         data = _classifier_service().classify(request.text)
-    except OSError as error:
+    except OSError:
         return error_response(
             "Aspect classification could not be completed.",
             "ASPECT_CLASSIFICATION_ERROR",
-            {"reason": str(error)},
         )
     return success_response("Aspect classification completed.", data)
 
@@ -60,11 +59,10 @@ def classify_aspect(request: AspectClassifyRequest):
 def aspect_summary():
     try:
         data = _summary_service().summary()
-    except OSError as error:
+    except OSError:
         return error_response(
             "Aspect summary could not be loaded.",
             "ASPECT_SUMMARY_ERROR",
-            {"reason": str(error)},
         )
     return success_response("Aspect summary loaded.", data)
 
@@ -73,10 +71,9 @@ def aspect_summary():
 def aspect_evaluation():
     try:
         data = _summary_service().evaluation()
-    except OSError as error:
+    except OSError:
         return error_response(
             "Aspect evaluation could not be loaded.",
             "ASPECT_EVALUATION_ERROR",
-            {"reason": str(error)},
         )
     return success_response("Aspect evaluation loaded.", data)

@@ -47,11 +47,10 @@ def error_response(message: str, code: str, details: dict[str, Any] | None = Non
 def predict_sentiment(request: SentimentPredictRequest):
     try:
         data = _inference_service().predict(request.text)
-    except OSError as error:
+    except OSError:
         return error_response(
             "Sentiment prediction could not be completed.",
             "SENTIMENT_PREDICTION_ERROR",
-            {"reason": str(error)},
         )
     return success_response("Sentiment prediction completed.", data)
 
@@ -60,11 +59,10 @@ def predict_sentiment(request: SentimentPredictRequest):
 def sentiment_summary():
     try:
         data = _summary_service().summary()
-    except OSError as error:
+    except OSError:
         return error_response(
             "Sentiment summary could not be loaded.",
             "SENTIMENT_SUMMARY_ERROR",
-            {"reason": str(error)},
         )
     return success_response("Sentiment summary loaded.", data)
 
@@ -73,10 +71,9 @@ def sentiment_summary():
 def sentiment_evaluation():
     try:
         data = _summary_service().evaluation()
-    except OSError as error:
+    except OSError:
         return error_response(
             "Sentiment evaluation could not be loaded.",
             "SENTIMENT_EVALUATION_ERROR",
-            {"reason": str(error)},
         )
     return success_response("Sentiment evaluation loaded.", data)

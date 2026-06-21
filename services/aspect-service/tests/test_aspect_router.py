@@ -45,3 +45,21 @@ def test_summary_routes_should_return_standard_envelope() -> None:
         payload = response.json()
         assert payload["success"] is True
         assert "warnings" in payload["data"]
+
+
+def test_summary_error_should_not_expose_internal_path(monkeypatch) -> None:
+    class BrokenSummaryService:
+        def summary(self):
+            raise OSError("C:/internal/datasets/private.json")
+
+    monkeypatch.setattr(
+        "app.routers.aspect._summary_service",
+        lambda: BrokenSummaryService(),
+    )
+
+    response = client.get("/aspects/summary")
+
+    assert response.status_code == 500
+    assert response.json()["error"]["details"] == {}
+    assert "internal" not in response.text
+    assert "private.json" not in response.text

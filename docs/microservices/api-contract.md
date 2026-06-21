@@ -47,6 +47,8 @@ As of MS-09, the public report/evaluation summary routes are implemented in `api
 
 As of MS-12A, runtime review inference routes are implemented in `api-gateway-service`. The gateway orchestrates sentiment prediction through `sentiment-service`, aspect classification through `aspect-service`, persists combined user-submitted inference history, and does not calculate sentiment or aspects locally.
 
+As of MS-15E, public research summaries and samples use the canonical processed dataset contract. Public payloads expose semantic status and report data only; repository paths, artifact filenames, `*_exists` flags, and upstream connection details are restricted to health/settings-style diagnostics. Missing research fields remain `null`, `{}`, or `[]` with a generic warning and are never replaced with dummy values.
+
 ### AHP and Fuzzy AHP
 
 - `GET /ahp/criteria`
@@ -333,10 +335,23 @@ Response:
     "reviews": [
       {
         "external_id": "review_001",
+        "user_id": "review_001",
+        "user_name": null,
         "rating": 1,
         "content": "Akun saya tidak bisa login.",
+        "word_count": 5,
         "initial_sentiment": "Negative",
         "final_sentiment": "Negative",
+        "aspect_label": "Account/Login",
+        "aspect_label_confidence": "medium",
+        "aspect_data_status": "needs_verification",
+        "cleaned_text": "akun saya tidak bisa login",
+        "text_indobert": "akun saya tidak bisa login",
+        "text_svm": "akun saya tidak bisa login",
+        "preprocessing_status": "valid",
+        "drop_reason": "valid",
+        "text_length_before": 28,
+        "text_length_after": 27,
         "reviewed_at": "2026-05-13T02:16:04",
         "source": "google_play_spotify_id"
       }
@@ -369,23 +384,25 @@ Response:
   "success": true,
   "message": "Dataset summary loaded.",
   "data": {
-    "dataset_availability": {
-      "data_acquisition_summary": true,
-      "scraping_summary": true,
-      "reviews_final": true
-    },
-    "total_review_count": 97782,
+    "data_status": "canonical_processed",
+    "total_review_count": 96534,
+    "raw_review_count": 97782,
+    "dropped_review_count": 1248,
     "rating_distribution": {
-      "1": 20000,
-      "2": 15000,
-      "3": 27782,
-      "4": 15000,
-      "5": 20000
+      "1": 19873,
+      "2": 14858,
+      "3": 27421,
+      "4": 14769,
+      "5": 19613
     },
     "sentiment_distribution": {
-      "Negative": 35000,
-      "Neutral": 27782,
-      "Positive": 35000
+      "Negative": 39415,
+      "Neutral": 17285,
+      "Positive": 39834
+    },
+    "review_period": {
+      "reviewed_at_min": "2014-07-06T20:34:44",
+      "reviewed_at_max": "2026-05-13T02:16:04"
     },
     "warnings": []
   }
@@ -445,7 +462,23 @@ Response:
   "success": true,
   "message": "Preprocessing summary loaded.",
   "data": {
-    "total_rows": 97782,
+    "data_status": "canonical_processed",
+    "total_rows": 96534,
+    "input_review_count": 97782,
+    "valid_review_count": 96534,
+    "dropped_review_count": 1248,
+    "drop_reason_distribution": {
+      "too_short_after_cleaning": 937,
+      "high_symbol_ratio": 203,
+      "too_few_alphabet_chars": 54,
+      "repeated_garbage_pattern": 39,
+      "high_digit_ratio": 13,
+      "morse_like_text": 2
+    },
+    "quality_stage_distribution": {
+      "indobert_preprocessing": 1207,
+      "svm_preprocessing": 41
+    },
     "relabeling_changes": {
       "changed_label_count": 10153,
       "changed_label_percentage": 10.3833,
@@ -457,10 +490,11 @@ Response:
       "Positive": 35000
     },
     "sentiment_distribution_after": {
-      "Negative": 39686,
-      "Neutral": 17629,
-      "Positive": 40467
+      "Negative": 39415,
+      "Neutral": 17285,
+      "Positive": 39834
     },
+    "aspect_data_status": "needs_verification",
     "general_fallback_limitation": {
       "note": "General fallback labels are weak-label coverage gaps and are not final AHP/Fuzzy AHP criteria."
     },
@@ -658,22 +692,23 @@ Response:
   "success": true,
   "message": "Sentiment summary loaded.",
   "data": {
+    "data_status": "canonical_processed",
     "selected_model": "run_3_weighted_loss_lr_1e-5",
     "sentiment_labels": ["Negative", "Neutral", "Positive"],
     "model_status": "unavailable",
     "model_available": false,
     "model_source": "fallback",
-    "configured_model_path": "ml-service/saved_models/indobert/run_3_weighted_loss_lr_1e-5",
     "configured_model_id": "ahmadzkh/sentirank-indobert-run3",
-    "max_length": 128,
     "prediction_source": "fallback_rule",
     "is_fallback": true,
     "final_sentiment_distribution": {
-      "Negative": 39686,
-      "Neutral": 17629,
-      "Positive": 40467
+      "Negative": 39415,
+      "Neutral": 17285,
+      "Positive": 39834
     },
-    "warnings": []
+    "warnings": [
+      "Sentiment model is unavailable or incomplete; fallback status remains explicit."
+    ]
   }
 }
 ```
@@ -693,6 +728,7 @@ Response:
   "success": true,
   "message": "Sentiment evaluation loaded.",
   "data": {
+    "data_status": "historical_pre_canonical_retraining_required",
     "selected_candidate": "run_3_weighted_loss_lr_1e-5",
     "selected_metrics": {
       "accuracy": 0.7362285247,
@@ -703,6 +739,7 @@ Response:
     },
     "limitations": [
       "Model artifact may not be mounted in the current runtime environment.",
+      "Published evaluation metrics predate the canonical dataset regeneration and require retraining before they represent the canonical split.",
       "Run 4 slang normalization was tested but did not outperform Run 3."
     ],
     "warnings": []
@@ -792,6 +829,7 @@ Response:
   "success": true,
   "message": "Aspect summary loaded.",
   "data": {
+    "data_status": "needs_verification",
     "selected_classifier": "merged_5class",
     "final_aspect_labels": [
       "Features, Content & Audio Experience",
@@ -803,7 +841,6 @@ Response:
     "model_status": "available",
     "model_available": true,
     "model_name": "svm_merged_5class",
-    "model_path_configured": true,
     "prediction_source": "model",
     "aspect_distribution": {
       "Features & Content": 7767,
@@ -831,6 +868,7 @@ Response:
   "success": true,
   "message": "Aspect evaluation loaded.",
   "data": {
+    "data_status": "needs_verification",
     "selected_candidate": "merged_5class",
     "selected_metrics": {
       "accuracy": 0.9502074689,
@@ -840,7 +878,7 @@ Response:
     },
     "limitations": [
       "The SVM aspect classifier is trained and evaluated on weak labels derived from keyword-based aspect labeling. Therefore, the evaluation reflects the ability of the model to learn the weak-label aspect patterns, not expert-validated ground truth.",
-      "Model artifact may not be mounted in the current runtime environment."
+      "SVM derived datasets still depend on the historical aspect-labeled branch and need lineage verification before canonical regeneration."
     ],
     "warnings": []
   }
@@ -876,6 +914,10 @@ Response:
       "sentiment": "run_3_weighted_loss_lr_1e-5",
       "aspect": "merged_5class"
     },
+    "model_data_status": {
+      "indobert": "historical_pre_canonical_retraining_required",
+      "svm": "needs_verification"
+    },
     "final_criteria": [
       {
         "name": "App Reliability & Usability",
@@ -906,6 +948,10 @@ Response:
   "success": true,
   "message": "Evaluation summary loaded.",
   "data": {
+    "model_data_status": {
+      "indobert": "historical_pre_canonical_retraining_required",
+      "svm": "needs_verification"
+    },
     "selected_indobert_model": "run_3_weighted_loss_lr_1e-5",
     "selected_svm_model": "merged_5class",
     "indobert_run_comparison": [],
@@ -942,8 +988,7 @@ Response:
   "success": true,
   "message": "Ranking comparison loaded.",
   "data": {
-    "run_label": "ahp_fuzzy_ranking_comparison_sample_development",
-    "source_file": "datasets/outputs/eda/08_ranking_comparison/sample_development/ahp_fuzzy_ranking_comparison_sample_development.csv",
+    "run_label": "sample_development_only",
     "is_sample": true,
     "items": [
       {

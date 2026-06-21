@@ -98,7 +98,7 @@ def test_summary_should_read_fixture_json_outputs(tmp_path: Path) -> None:
     settings = _settings(tmp_path)
     eda_dir = settings.datasets_dir / "outputs" / "eda"
     (eda_dir / "05_evaluation").mkdir(parents=True)
-    (eda_dir / "02_preprocessing").mkdir(parents=True)
+    (eda_dir / "03_indobert").mkdir(parents=True)
     (eda_dir / "01_data_acquisition").mkdir(parents=True)
 
     (eda_dir / "05_evaluation" / "model_evaluation_summary.json").write_text(
@@ -112,13 +112,14 @@ def test_summary_should_read_fixture_json_outputs(tmp_path: Path) -> None:
                         "accuracy": 0.7362,
                         "f1_macro": 0.7093,
                         "neutral_recall": 0.6669,
+                        "metrics_path": "datasets/outputs/eda/private_metrics.json",
                     }
                 ],
             }
         ),
         encoding="utf-8",
     )
-    (eda_dir / "02_preprocessing" / "label_distribution_after_relabeling.json").write_text(
+    (eda_dir / "03_indobert" / "indobert_label_distribution.json").write_text(
         json.dumps(
             [
                 {"sentiment_label": "Negative", "count": 20},
@@ -147,13 +148,21 @@ def test_summary_should_read_fixture_json_outputs(tmp_path: Path) -> None:
     assert summary.model_available is False
     assert summary.prediction_source == "fallback_rule"
     assert summary.is_fallback is True
+    assert summary.data_status == "canonical_processed"
     assert summary.final_sentiment_distribution == {
         "Negative": 20,
         "Neutral": 10,
         "Positive": 30,
     }
     assert evaluation.selected_candidate == "run_3_weighted_loss_lr_1e-5"
+    assert evaluation.data_status == "historical_pre_canonical_retraining_required"
     assert evaluation.selected_metrics["neutral_recall"] == 0.6669
+    assert "metrics_path" not in evaluation.run_comparison[0]
+    summary_payload = summary.model_dump()
+    evaluation_payload = evaluation.model_dump()
+    assert "configured_model_path" not in summary_payload
+    assert "output_source_availability" not in summary_payload
+    assert "output_source_availability" not in evaluation_payload
 
 
 def test_summary_and_evaluation_should_handle_missing_files(tmp_path: Path) -> None:
@@ -165,5 +174,7 @@ def test_summary_and_evaluation_should_handle_missing_files(tmp_path: Path) -> N
     assert summary.selected_model == "run_3_weighted_loss_lr_1e-5"
     assert summary.final_sentiment_distribution == {}
     assert summary.warnings
+    assert all(".json" not in warning and "datasets" not in warning for warning in summary.warnings)
     assert evaluation.run_comparison == []
     assert evaluation.warnings
+    assert all(".json" not in warning and "datasets" not in warning for warning in evaluation.warnings)

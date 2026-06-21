@@ -8,7 +8,9 @@ MS-15C preprocessing defaults update: 2026-06-21
 
 MS-15D model-dataset regeneration update: 2026-06-21
 
-Original MS-15A scope: read-only inventory and lineage analysis. Later sections record the scoped MS-15B through MS-15D follow-up changes.
+MS-15E backend API contract stabilization update: 2026-06-21
+
+Original MS-15A scope: read-only inventory and lineage analysis. Later sections record the scoped MS-15B through MS-15E follow-up changes.
 
 ## 1. Executive Summary
 
@@ -27,6 +29,8 @@ MS-15D changed the IndoBERT preparation default to `dataset_spotify_processed.cs
 
 SVM regeneration was not safe within the current preparation contract. The canonical dataset has `text_svm` but lacks `aspect_label` and `aspect_label_confidence`; the active refined label source still contains all `97,782` old-branch rows, including `1,248` IDs excluded from canonical data. The current `16,983`-row SVM dataset contains `6` noncanonical IDs. Status: `NEEDS VERIFICATION` until weak aspect labels are regenerated or otherwise verified against canonical input without changing the labeling scheme.
 
+MS-15E migrated review samples and dataset/preprocessing summaries to the canonical processed dataset and canonical noise report. Sentiment distribution summaries now use the regenerated EDA 03 distribution. Public research contracts no longer expose repository paths, artifact filenames, or artifact-presence maps; missing data returns semantic empty states and generic warnings. Historical IndoBERT evaluation is labeled `historical_pre_canonical_retraining_required`, while SVM summaries and evaluation remain `needs_verification`.
+
 No legacy files were deleted. No model was trained.
 
 ### Decision Summary
@@ -37,7 +41,7 @@ No legacy files were deleted. No model was trained.
 | Misleading noisy `final` file | `datasets/processed/reviews_final.csv` | Confirmed by targeted samples |
 | Current IndoBERT preparation input | `datasets/processed/dataset_spotify_processed.csv` -> `datasets/processed/indobert/{train,validation,test}.csv` | Confirmed by MS-15D default, regeneration, and full split validation |
 | Current SVM preparation input | `datasets/processed/reviews_with_aspect_labels_refined.csv` -> `datasets/processed/svm/svm_aspect_dataset.csv` | `NEEDS VERIFICATION`; active input still belongs to the old aspect-labeled branch |
-| Backend review sample source | Random: `reviews_final.csv`; latest negative: refined aspect labels first | Confirmed by service code |
+| Backend review sample source | Canonical processed rows; optional aspect enrichment remains historical weak-label data marked `needs_verification` | Confirmed by MS-15E service code and tests |
 | Quality-filtered branch consumer | No committed consumer of the three `*_quality_filtered.csv` files | Confirmed by repository search |
 | Frontend data source | API Gateway only; indirect dependency on backend artifacts | Confirmed by frontend service modules |
 
@@ -54,10 +58,9 @@ The word `final` currently means several different things:
 At MS-15A, the quality-filtering implementation was newer than the active processed-data contract and only produced audit outputs under `ml-service/quality_audit/`. MS-15B promoted the data; MS-15C aligned preprocessing defaults. Remaining drift is downstream:
 
 - SVM aspect-label and preparation lineage still depends on `reviews_with_aspect_labels_refined.csv` from the old branch;
-- `review-service` serves samples from the noisy file;
-- backend preprocessing/sentiment summaries report the pre-filter `97,782` rows;
-- IndoBERT splits are now canonical, but historical trained-model metrics still describe pre-MS-15D data;
-- frontend tables ask review sample APIs for fields that the API schema does not return.
+- backend review and sentiment contracts are canonical after MS-15E, but historical trained-model metrics still describe pre-MS-15D data;
+- SVM summary/evaluation artifacts still describe the unverified old aspect-label lineage;
+- frontend mapping still expects removed diagnostics or fields outside the stabilized API and is deferred to MS-15F.
 
 ## 3. Dataset Artifact Inventory
 
@@ -225,17 +228,17 @@ Rows below group files only when every named file has the same lineage classific
 
 | Service/API | Direct artifact reads | Dependency consequence |
 | --- | --- | --- |
-| `api-gateway-service` | No dataset CSV/JSON reads found. It proxies services and persists runtime inference history separately. | Correct boundary; no artifact path change needed until downstream contracts change. |
-| `review-service GET /dataset/summary` | Raw summaries, EDA 01 JSON, EDA 05 availability, and file-existence checks | Reports raw `97,782` count, not canonical valid-row count. Exposes developer-oriented availability flags. |
+| `api-gateway-service` | No dataset CSV/JSON reads. It proxies services and persists runtime inference history separately. | Correct boundary retained; upstream connection details are redacted from public proxy errors. |
+| `review-service GET /dataset/summary` | Canonical processed CSV, canonical noise report, raw acquisition/app metadata, EDA 01 missing-values, EDA 03 text summary | Reports `96,534` canonical valid, `97,782` input, and `1,248` dropped rows without artifact-presence fields. |
 | `review-service GET /scraping/summary` | Raw scraping/data-acquisition summaries and quota JSON | Summary-only; no actual scraping sample rows. |
-| `review-service GET /preprocessing/summary` | EDA 02 relabeling/preprocessing/aspect/taxonomy/general-fallback JSON | Reads stale pre-quality `preprocessing_summary.json`; does not read quality-audit summaries. |
-| `review-service GET /reviews/random` | Preferred `datasets/processed/reviews_final.csv`, fallback raw labeled CSV | Currently serves noisy rows and a narrow schema. |
-| `review-service GET /reviews/latest-negative` | Refined aspect labels, then old aspect labels, then `reviews_final`, then raw | Active dependency on unfiltered weak-label files. |
-| `sentiment-service GET /sentiment/summary` | EDA 02 post-relabel distribution and EDA 01 raw distribution | Final distribution is pre-quality-filter and sums to `97,782`. |
-| `sentiment-service GET /sentiment/evaluation` | EDA 05 and EDA 03 run metrics/reports | Active historical evaluation evidence. |
-| `aspect-service GET /aspects/summary` | EDA 04 SVM dataset summary, taxonomy, final selection, aspect/sentiment CSV | Active weak-label/model summary; pre-promotion lineage. |
-| `aspect-service GET /aspects/evaluation` | EDA 04 scenario metrics/reports and EDA 05 | Active evaluation evidence. |
-| `report-service` | EDA 03-08 summaries, selected model/taxonomy, ranking CSV | Feeds Dashboard/Evaluation/AHP; exposes source availability and ranking source path. |
+| `review-service GET /preprocessing/summary` | Canonical processed CSV/noise report plus EDA 02 relabeling, historical aspect, and general-fallback summaries | Exposes canonical valid/drop distributions; historical aspect evidence is explicitly `needs_verification`. |
+| `review-service GET /reviews/random` | Canonical processed CSV; raw labeled CSV only as explicit fallback; optional historical aspect enrichment | Returns report fields for text, rating, date, sentiment, cleaned/model text, quality status, and qualified aspect labels. |
+| `review-service GET /reviews/latest-negative` | Canonical processed rows plus optional refined/old aspect label lookup and raw author-name lookup | Text/quality lineage is canonical; aspect enrichment remains marked `needs_verification`. |
+| `sentiment-service GET /sentiment/summary` | Regenerated EDA 03 canonical label distribution and EDA 01 raw distribution | Final distribution sums to `96,534` canonical rows. |
+| `sentiment-service GET /sentiment/evaluation` | EDA 05 and EDA 03 historical run metrics/reports | Reported as `historical_pre_canonical_retraining_required`; artifact path fields are removed. |
+| `aspect-service GET /aspects/summary` | EDA 04 SVM dataset summary, taxonomy, final selection, aspect/sentiment CSV | Active weak-label/model summary with `needs_verification` lineage status. |
+| `aspect-service GET /aspects/evaluation` | EDA 04 scenario metrics/reports and EDA 05 | Historical old-lineage evaluation with `needs_verification` status. |
+| `report-service` | EDA 03-08 summaries, selected model/taxonomy, ranking CSV | Feeds Dashboard/Evaluation/AHP with semantic lineage/sample status; internal paths and availability maps are not public. |
 | `decision-service` | No review dataset artifact read found in service calculations. | AHP/Fuzzy AHP calculation code is separate from review artifact lineage. |
 
 ### 4.4 Frontend Indirect Dependencies
@@ -244,11 +247,11 @@ The frontend reads no CSV/JSON directly. It depends on API fields derived from a
 
 | Frontend service/page | API dependency | Underlying artifact family |
 | --- | --- | --- |
-| Dataset | `/dataset/summary`, `/reviews/random` | Raw/EDA 01 plus noisy `reviews_final.csv` |
+| Dataset | `/dataset/summary`, `/reviews/random` | Canonical processed dataset/noise report plus raw acquisition and EDA 01 metadata |
 | Scraping | `/scraping/summary`, `/reviews/random` | Raw acquisition summaries plus generic review samples |
-| Preprocessing | `/preprocessing/summary`, `/reviews/random` | EDA 02 aggregate JSON plus generic samples from `reviews_final.csv` |
-| Sentiment Analysis | `/sentiment/summary`, `/sentiment/evaluation`, `/reviews/random` | EDA 01/02/03/05 plus generic review samples |
-| Aspect Classification | `/aspects/summary`, `/aspects/evaluation`, `/reviews/random` | EDA 04/05 plus generic samples |
+| Preprocessing | `/preprocessing/summary`, `/reviews/random` | Canonical valid/drop metadata, EDA 02 lineage summaries, and canonical samples |
+| Sentiment Analysis | `/sentiment/summary`, `/sentiment/evaluation`, `/reviews/random` | Canonical EDA 03 distribution, historical EDA 05 metrics, and canonical samples |
+| Aspect Classification | `/aspects/summary`, `/aspects/evaluation`, `/reviews/random` | Historical EDA 04/05 marked `needs_verification`; optional weak-label sample enrichment |
 | Model Evaluation | `/evaluation/summary` | EDA 05 through report-service |
 | Dashboard | All summary APIs, latest negative reviews, ranking comparison | Raw, EDA 01-05/08, refined aspect labels |
 | AHP/Fuzzy AHP | `/ahp/criteria`, `/evaluation/summary`, `/reports/ranking-comparison` | Decision-service criteria and EDA 04/05/08 |
@@ -260,12 +263,12 @@ The frontend reads no CSV/JSON directly. It depends on API fields derived from a
 | --- | --- |
 | `ml-service/notebooks/02_preprocessing.ipynb` | Documents only the old unfiltered processed chain. |
 | `docs/microservices/review-service-extraction.md` | Calls `reviews_final.csv` the preferred review source without quality caveat. |
-| `docs/microservices/api-contract.md` | Exposes `reviews_final` availability and a ranking `source_file`; does not define canonical processed lineage. |
+| `docs/microservices/api-contract.md` | Resolved in MS-15E: defines canonical semantic contracts and excludes internal artifact diagnostics. |
 | `docs/ml/indobert-artifact-export.md` | Correctly treats existing run_3 model metrics as historical; MS-15D regenerated the input splits but did not retrain the model. |
 | `docs/microservices/repository-hygiene-audit.md` | Classifies `quality_audit/` as research evidence, not as a candidate source requiring promotion. |
 | `docs/microservices/architecture.md` | Defines artifact policy but not the canonical processed filename or lineage version. |
 
-At MS-15A, no audited document declared a single canonical processed dataset and its derivation contract. MS-15B through MS-15D updates in this document now record that contract and the current migration status.
+At MS-15A, no audited document declared a single canonical processed dataset and its derivation contract. MS-15B through MS-15E updates in this document now record that contract and the current migration status.
 
 ## 5. Current Pipeline Lineage Map
 
@@ -312,7 +315,7 @@ datasets/processed/reviews_relabelled.csv
   +  datasets/processed/dataset_spotify_noise_report.{csv,json} [1,248 cumulative dropped]
 ```
 
-The old `ml-service/quality_audit/` files remain lineage evidence, not default final outputs. MS-15D migrated only IndoBERT preparation. SVM aspect-label preparation and runtime readers remain unchanged pending verified follow-up work.
+The old `ml-service/quality_audit/` files remain lineage evidence, not default final outputs. MS-15D migrated IndoBERT preparation. MS-15E migrated backend review and sentiment readers; SVM aspect-label preparation remains unchanged pending verified follow-up work.
 
 ### 5.3 Expected Versus Actual Gap
 
@@ -321,8 +324,8 @@ The old `ml-service/quality_audit/` files remain lineage evidence, not default f
 | Quality filtering produces canonical processed data | Scripts now reproduce `dataset_spotify_processed.{csv,json}` and canonical noise reports | Resolved in MS-15B/MS-15C |
 | IndoBERT splits derive from canonical valid data | All `96,534` canonical rows are partitioned into regenerated train/validation/test splits | Resolved in MS-15D |
 | SVM labels/dataset derive from canonical valid data | Canonical input lacks weak-label columns; refined labels and SVM dataset still derive from old branch | `NEEDS VERIFICATION` |
-| Backend preprocessing summary reports valid/dropped counts | Backend reads old EDA 02 summary only | API contract missing quality fields |
-| Frontend sample tables receive stage-specific rows | Frontend reuses narrow generic review samples | API sample contracts missing |
+| Backend preprocessing summary reports valid/dropped counts | Canonical processed/noise reports provide `96,534` valid and `1,248` dropped rows with reason/stage distributions | Resolved in MS-15E |
+| Backend review samples expose canonical preprocessing fields | Sample schema now includes cleaned/model text, quality status/reason, lengths, and qualified aspect fields | Backend resolved in MS-15E; frontend mapping deferred to MS-15F |
 
 ## 6. Noise/Gibberish Finding
 
@@ -365,7 +368,7 @@ MS-15B promotion status:
 - canonical CSV and JSON counterparts now exist under `datasets/processed/`;
 - the canonical CSV is byte-identical to this source and retains all `16` source columns;
 - the exact source and output hashes are recorded in Section 15;
-- no committed active consumer reads the canonical path yet by design;
+- no committed active consumer read the canonical path at MS-15B; preparation and backend readers migrated in MS-15D/MS-15E;
 - aspect labels must be regenerated from it rather than copied from the old branch;
 - model-specific splits and evaluation outputs must be regenerated.
 
@@ -375,29 +378,28 @@ MS-15B decision: promoted. The audit source remains in place as lineage evidence
 
 | Finding | Impact | Priority |
 | --- | --- | --- |
-| `review-service` prefers noisy `reviews_final.csv` for random samples. | Noise can appear directly on Dataset, Scraping, Preprocessing, and Sentiment pages. | High |
-| Latest-negative reviews prefer `reviews_with_aspect_labels_refined.csv`. | Dashboard/Aspect samples inherit old upstream data and weak labels. | High |
-| Preprocessing API ignores quality-audit summaries. | Dashboard processed count remains `97,782` instead of `96,534`; dropped reasons are unavailable. | High |
-| Sentiment summary uses post-relabel distribution before quality filtering. | “Final” sentiment counts do not describe the valid canonical candidate. | High |
-| IndoBERT split summary confirms zero quality-status removals. | Current training/evaluation lineage conflicts with quality-filtering claims. | High |
-| SVM summaries derive from the old refined weak-label dataset. | Selected metrics need regeneration after canonical promotion. | High |
-| Public summary schemas expose `dataset_availability` and `output_source_availability`. | Frontend receives developer-oriented `*_exists` and artifact-presence fields. | Medium |
-| Ranking response exposes `source_file`; warnings can include repository paths. | Internal filenames/paths leak into public API contracts. | Medium |
-| Summary endpoints provide aggregates but no stage-specific sample rows. | Frontend reuses generic review samples for unrelated tables. | High |
+| Random and latest-negative review text now comes from the canonical processed dataset. | Known noisy legacy rows are excluded from public sample text. | Resolved MS-15E |
+| Optional aspect enrichment still reads historical refined/old weak labels by canonical ID. | Aspect values remain useful but cannot be presented as canonical SVM truth. | `NEEDS VERIFICATION` |
+| Preprocessing API reads canonical processed/noise reports. | Valid/drop totals, drop reasons, stages, cleaned text, and quality status are report-ready. | Resolved MS-15E |
+| Sentiment summary uses regenerated canonical EDA 03 distribution. | Final counts describe all `96,534` canonical rows. | Resolved MS-15E |
+| IndoBERT evaluation artifacts still predate the canonical split regeneration. | Metrics cannot be represented as canonical-trained results. | `historical_pre_canonical_retraining_required` |
+| SVM summaries derive from the old refined weak-label dataset. | Selected metrics need regeneration after canonical weak-label lineage is approved. | `NEEDS VERIFICATION` |
+| Public research summaries previously exposed artifact availability and paths. | Internal repository diagnostics leaked through API/Gateway responses. | Resolved MS-15E |
+| Review samples now expose reusable preprocessing and aspect fields. | Backend supports later frontend mapping without dummy data. | Resolved MS-15E |
 | API Gateway does not read datasets directly. | Correct architecture boundary; fixes belong in domain APIs, not gateway file parsing. | KEEP |
 
 ## 9. Frontend Mismatch Findings
 
-The common `"-"` output is usually not a rendering defect. It is produced when pages request fields that `ReviewSample` does not provide. The backend schema currently returns only `external_id`, user identifiers, rating, content, word count, initial/final sentiment, aspect label, reviewed date, and source.
+MS-15E stabilized backend fields, but did not modify frontend consumers. Remaining `"-"` values therefore require an MS-15F mapping audit: some fields are now available under semantic API names, while other requested values have no source and must remain honest empty states.
 
 | Page | Likely mismatch | Result |
 | --- | --- | --- |
-| Dashboard | Requests cleaned text and app version from latest-negative samples; ranking CSV lacks negative count, priority score, recommendation, and interpretation fields. | Several columns become `-`; recommendation data is partly frontend-generated. |
-| Dataset | Requests thumbs-up count and app version; directly renders raw `dataset_availability` keys such as `datasets_dir_exists`. | `-` cells plus developer-oriented field names in UI. |
+| Dashboard | Cleaned text is now available; app version and several ranking interpretation fields are not. | Map cleaned text in MS-15F; retain empty states for unsupported fields. |
+| Dataset | Frontend expects thumbs-up/app-version and removed artifact-availability diagnostics. | Replace diagnostic rendering with canonical counts/status; unsupported sample fields remain empty. |
 | Scraping | Uses `/reviews/random` as a scraping preview but requests `scrape_request_id`, `scraped_at`, and `scraping_status`. | Most scraping-specific columns are unavailable or synthesized. |
-| Preprocessing | Requests cleaned text, before/after lengths, noise flag, drop reason, and status from generic review samples. | Quality columns are `-` because API returns no preprocessing sample rows. |
+| Preprocessing | Cleaned text, before/after lengths, drop reason, and status now exist in review samples; canonical drop aggregates exist in summary. | Frontend mapping remains MS-15F; canonical valid samples correctly have `preprocessing_status=valid`. |
 | Sentiment Analysis | Requests cleaned text, predicted sentiment, confidence, and prediction source from historical review samples. | Final weak/relabel sentiment may appear, but runtime-model columns are `-`. |
-| Aspect Classification | Requests cleaned text, aspect confidence, and prediction source; API samples usually expose only weak `aspect_label`. | Model-specific columns are `-` or represent weak labels rather than SVM predictions. |
+| Aspect Classification | Cleaned text and weak-label confidence/status are available, but historical samples are not runtime SVM predictions. | Map with visible `needs_verification` provenance; do not fabricate prediction source. |
 | Evaluation Model | Requests ROC-AUC, but consolidated metrics provide accuracy/precision/recall/F1 only. | ROC-AUC is always `-` for current records. |
 | AHP/Fuzzy AHP | Criteria/ranking APIs do not provide complaint examples, negative-review counts, or consistency values used by the page. | Several read-only result fields remain `-`; sample status itself is handled correctly. |
 | Uji Ulasan | Uses runtime inference/history, not research CSV samples. | No direct data-artifact mismatch; keep separate until MS-15G product-flow decision. |
@@ -465,8 +467,8 @@ All four proposed `dataset_spotify_*` files exist after MS-15B, and the IndoBERT
 | File/family | Reason |
 | --- | --- |
 | All `datasets/raw/` artifacts | Immutable acquisition evidence and active summary/fallback inputs. |
-| `datasets/processed/reviews_final.csv` | Active random-review API and aspect-label lineage input despite being noisy; no longer the IndoBERT preparation default. |
-| `reviews_with_aspect_labels.csv` and `reviews_with_aspect_labels_refined.csv` | Active latest-negative fallback/preferred source; refined file feeds SVM preparation. |
+| `datasets/processed/reviews_final.csv` | Legacy evidence and upstream input to the unresolved aspect-label lineage; no longer a public review API or IndoBERT preparation default. |
+| `reviews_with_aspect_labels.csv` and `reviews_with_aspect_labels_refined.csv` | Optional aspect enrichment and active SVM preparation lineage; values remain `needs_verification`. |
 | `datasets/processed/indobert/*` | Regenerated canonical training/Colab inputs; retain as active derived artifacts. |
 | `datasets/processed/svm/svm_aspect_dataset.csv` | Active SVM training input. |
 | `ml-service/quality_audit/*` | Only current evidence of filtering behavior and canonical candidate data. |
@@ -481,6 +483,8 @@ All four proposed `dataset_spotify_*` files exist after MS-15B, and the IndoBERT
 Keep the MS-15D IndoBERT splits as current canonical derived inputs. Do not present historical run_3 metrics as clean-data metrics; retraining remains a separate approval.
 
 Before regenerating SVM, establish one reviewed canonical weak-label step that consumes `dataset_spotify_processed.csv`, preserves the existing seven-label weak taxonomy and confidence rules, and produces label/distribution evidence without copying unverified rows from the legacy branch. Current classification: IndoBERT derived dataset is `CURRENT / REGENERATED MS-15D`; SVM derived dataset is `NEEDS VERIFICATION`.
+
+For application delivery, proceed with MS-15F frontend mapping against the stabilized semantic fields. Do not reintroduce artifact-presence flags or substitute dummy values for unsupported fields.
 
 ## 15. MS-15B Canonical Promotion Result
 
@@ -550,7 +554,7 @@ Fresh full-run validation confirmed:
 - deterministic LF normalization for embedded text line endings preserves the MS-15B canonical hashes;
 - legacy files were not renamed, overwritten, or deleted.
 
-Remaining old references are intentional: aspect-label/SVM preparation, notebooks, and backend services still consume legacy files. IndoBERT preparation migrated in MS-15D; the remaining reader migration belongs to verified SVM follow-up work and MS-15E.
+Remaining old references are intentional: aspect-label/SVM preparation, notebooks, and historical aspect/report summaries still consume old-lineage artifacts. IndoBERT preparation migrated in MS-15D; backend review/sentiment readers migrated in MS-15E; canonical SVM migration remains blocked on verified weak-label lineage.
 
 ## 17. MS-15D Model Dataset Regeneration Result
 
@@ -592,3 +596,33 @@ Exact blockers:
 5. Regenerating the weak-label source would also affect EDA 02 aspect-label outputs and must be reviewed as an explicit canonical label-generation step before EDA 04/SVM regeneration.
 
 No label scheme was changed or inferred. The existing SVM dataset, EDA 04 summaries, and SVM figures remain historical/current old-lineage evidence until this blocker is resolved.
+
+## 18. MS-15E Backend Research Artifact API Result
+
+### 18.1 Canonical Public Readers
+
+| Contract | MS-15E result |
+| --- | --- |
+| Dataset summary | `96,534` canonical valid rows, `97,782` acquisition rows, `1,248` dropped rows, canonical rating/sentiment distributions, and canonical review period |
+| Preprocessing summary | Canonical valid/drop totals plus drop-reason and quality-stage distributions; historical aspect summary marked `needs_verification` |
+| Random/latest-negative samples | Canonical review text, rating, date, sentiment, cleaned/model text, preprocessing status/reason, and lengths; optional weak aspect labels carry `aspect_data_status=needs_verification` |
+| Sentiment summary | Canonical regenerated EDA 03 distribution: Negative `39,415`, Neutral `17,285`, Positive `39,834` |
+| Sentiment evaluation | Existing run metrics retained as thesis evidence and marked `historical_pre_canonical_retraining_required` |
+| Aspect summary/evaluation | Existing SVM outputs retained without regeneration and marked `needs_verification` |
+| Consolidated report/evaluation | Includes explicit IndoBERT/SVM lineage status and semantic AHP/Fuzzy AHP sample/final status |
+
+Raw acquisition data remains valid for scraping/acquisition context and as an explicitly warned review-sample fallback only when canonical data is unavailable. The noisy `reviews_final.csv` is not a default public reporting source.
+
+### 18.2 Public Contract Boundary
+
+Research summary, sample, evaluation, and ranking responses no longer expose artifact paths, internal filenames, file/directory existence maps, configured model paths, or upstream service URLs. File-read failures return generic warnings and empty semantic values. Domain router and API Gateway failures retain stable codes/messages with empty public `details`; operational path/configuration diagnostics remain limited to existing health/settings-style endpoints.
+
+The API Gateway remains the only frontend-facing entry and does not read research CSV/JSON artifacts directly.
+
+### 18.3 Remaining Status
+
+- IndoBERT datasets: `CURRENT / REGENERATED MS-15D`.
+- IndoBERT trained-model evaluation: `historical_pre_canonical_retraining_required`; no training occurred.
+- SVM datasets/evaluation: `NEEDS VERIFICATION`; no regeneration or training occurred.
+- Frontend field mapping: deferred to MS-15F; no frontend file changed in MS-15E.
+- Legacy datasets, generated outputs, saved models, Docker, and notebooks were not modified by MS-15E.

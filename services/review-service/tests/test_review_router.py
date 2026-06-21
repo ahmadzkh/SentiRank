@@ -118,3 +118,19 @@ def test_latest_negative_reviews_route_should_return_aspect_label(monkeypatch) -
     assert payload["data"]["reviews"][0]["user_name"] == "Fixture Reviewer"
     assert payload["data"]["reviews"][0]["word_count"] == 3
     assert payload["data"]["filters"]["sort"] == "word_count_desc"
+
+
+def test_summary_error_should_not_expose_internal_path(monkeypatch) -> None:
+    class BrokenReviewService:
+        def dataset_summary(self):
+            raise OSError("C:/internal/datasets/private.csv")
+
+    monkeypatch.setattr("app.routers.review._service", lambda: BrokenReviewService())
+
+    response = client.get("/dataset/summary")
+
+    assert response.status_code == 500
+    payload = response.json()
+    assert payload["error"]["details"] == {}
+    assert "internal" not in response.text
+    assert "private.csv" not in response.text

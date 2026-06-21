@@ -21,11 +21,18 @@ def test_summary_should_handle_missing_files_gracefully(tmp_path: Path) -> None:
 
     assert evaluation.selected_indobert_model == "run_3_weighted_loss_lr_1e-5"
     assert evaluation.selected_svm_model == "merged_5class"
+    assert evaluation.model_data_status == {
+        "indobert": "historical_pre_canonical_retraining_required",
+        "svm": "needs_verification",
+    }
     assert evaluation.ahp_fuzzy_ahp_sample_status["status"] == "pending_expert_judgement"
     assert evaluation.warnings
+    assert all(".json" not in warning and "datasets" not in warning for warning in evaluation.warnings)
+    assert "output_source_availability" not in evaluation.model_dump()
     assert report.selected_models["sentiment"] == "run_3_weighted_loss_lr_1e-5"
     assert report.pipeline_status["ahp_fuzzy_ahp"] == "pending_expert_judgement"
     assert EXPERT_JUDGEMENT_NOTE in report.expert_judgement_note
+    assert "output_source_availability" not in report.model_dump()
 
 
 def test_summary_should_read_fixture_outputs_and_detect_sample_status(tmp_path: Path) -> None:
@@ -45,10 +52,18 @@ def test_summary_should_read_fixture_outputs_and_detect_sample_status(tmp_path: 
                 "selected_indobert_model": "run_3_weighted_loss_lr_1e-5",
                 "selected_svm_model": "merged_5class",
                 "indobert_run_comparison": [
-                    {"candidate_name": "run_3_weighted_loss_lr_1e-5", "status": "selected"}
+                    {
+                        "candidate_name": "run_3_weighted_loss_lr_1e-5",
+                        "status": "selected",
+                        "metrics_path": "datasets/outputs/eda/private_metrics.json",
+                    }
                 ],
                 "svm_scenario_comparison": [
-                    {"candidate_name": "merged_5class", "status": "selected"}
+                    {
+                        "candidate_name": "merged_5class",
+                        "status": "selected",
+                        "classification_report_path": "datasets/outputs/eda/private_report.json",
+                    }
                 ],
                 "final_aspect_criteria": [
                     {"name": "App Reliability & Usability", "use_in_ahp": True}
@@ -97,10 +112,16 @@ def test_summary_should_read_fixture_outputs_and_detect_sample_status(tmp_path: 
 
     assert evaluation.selected_indobert_model == "run_3_weighted_loss_lr_1e-5"
     assert evaluation.selected_svm_model == "merged_5class"
+    assert "metrics_path" not in evaluation.indobert_run_comparison[0]
+    assert "classification_report_path" not in evaluation.svm_scenario_comparison[0]
     assert evaluation.final_aspect_criteria[0]["name"] == "App Reliability & Usability"
     assert evaluation.model_evaluation_records[0]["candidate_name"] == "run_3_weighted_loss_lr_1e-5"
     assert evaluation.ahp_fuzzy_ahp_sample_status["status"] == "sample_development_only"
     assert evaluation.ahp_fuzzy_ahp_sample_status["not_final_expert_judgement"] is True
+    assert not any(
+        key.endswith("_available")
+        for key in evaluation.ahp_fuzzy_ahp_sample_status
+    )
     assert report.pipeline_status["model_evaluation"] == "available"
     assert report.pipeline_status["ahp_fuzzy_ahp"] == "sample_development_only"
     assert EXPERT_JUDGEMENT_NOTE in report.demo_notes
@@ -108,3 +129,4 @@ def test_summary_should_read_fixture_outputs_and_detect_sample_status(tmp_path: 
     assert ranking.summary["total_criteria"] == 2
     assert ranking.items[0].criterion_name == "App Reliability & Usability"
     assert ranking.items[0].ahp_rank == 1
+    assert "source_file" not in ranking.model_dump()

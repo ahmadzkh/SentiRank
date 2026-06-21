@@ -70,3 +70,21 @@ def test_predict_should_reject_blank_text() -> None:
     response = client.post("/sentiment/predict", json={"text": "   "})
 
     assert response.status_code == 422
+
+
+def test_summary_error_should_not_expose_internal_path(monkeypatch) -> None:
+    class BrokenSummaryService:
+        def summary(self):
+            raise OSError("C:/internal/datasets/private.json")
+
+    monkeypatch.setattr(
+        "app.routers.sentiment._summary_service",
+        lambda: BrokenSummaryService(),
+    )
+
+    response = client.get("/sentiment/summary")
+
+    assert response.status_code == 500
+    assert response.json()["error"]["details"] == {}
+    assert "internal" not in response.text
+    assert "private.json" not in response.text

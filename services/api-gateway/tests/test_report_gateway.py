@@ -122,3 +122,5 @@ def test_report_service_unavailable_should_return_error_envelope(monkeypatch) ->
     payload = response.json()
     assert payload["success"] is False
     assert payload["error"]["code"] == "REPORT_SERVICE_UNAVAILABLE"
+    assert payload["error"]["details"] == {}
+    assert "http://report-service" not in response.text

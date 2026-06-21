@@ -125,3 +125,5 @@ def test_aspect_service_unavailable_should_return_error_envelope(monkeypatch) ->
     payload = response.json()
     assert payload["success"] is False
     assert payload["error"]["code"] == "ASPECT_SERVICE_UNAVAILABLE"
+    assert payload["error"]["details"] == {}
+    assert "http://aspect-service" not in response.text

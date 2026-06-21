@@ -41,8 +41,8 @@ def error_response(message: str, code: str, details: dict[str, Any] | None = Non
 def dataset_summary():
     try:
         data = _service().dataset_summary()
-    except OSError as error:
-        return error_response("Dataset summary could not be loaded.", "DATASET_SUMMARY_ERROR", {"reason": str(error)})
+    except OSError:
+        return error_response("Dataset summary could not be loaded.", "DATASET_SUMMARY_ERROR")
     return success_response("Dataset summary loaded.", data)
 
 
@@ -50,8 +50,8 @@ def dataset_summary():
 def scraping_summary():
     try:
         data = _service().scraping_summary()
-    except OSError as error:
-        return error_response("Scraping summary could not be loaded.", "SCRAPING_SUMMARY_ERROR", {"reason": str(error)})
+    except OSError:
+        return error_response("Scraping summary could not be loaded.", "SCRAPING_SUMMARY_ERROR")
     return success_response("Scraping summary loaded.", data)
 
 
@@ -59,11 +59,10 @@ def scraping_summary():
 def preprocessing_summary():
     try:
         data = _service().preprocessing_summary()
-    except OSError as error:
+    except OSError:
         return error_response(
             "Preprocessing summary could not be loaded.",
             "PREPROCESSING_SUMMARY_ERROR",
-            {"reason": str(error)},
         )
     return success_response("Preprocessing summary loaded.", data)
 
@@ -77,11 +76,10 @@ def random_reviews(
 ):
     try:
         data = _service().random_reviews(limit=limit, sentiment=sentiment, rating=rating, seed=seed)
-    except OSError as error:
+    except OSError:
         return error_response(
             "Random review samples could not be loaded.",
             "RANDOM_REVIEWS_ERROR",
-            {"reason": str(error)},
         )
     return success_response("Random review samples loaded.", data)
 
@@ -93,10 +91,9 @@ def latest_negative_reviews(
 ):
     try:
         data = _service().latest_negative_reviews(limit=limit, sort=sort)
-    except OSError as error:
+    except OSError:
         return error_response(
             "Latest negative reviews could not be loaded.",
             "LATEST_NEGATIVE_REVIEWS_ERROR",
-            {"reason": str(error)},
         )
     return success_response("Latest negative reviews loaded.", data)

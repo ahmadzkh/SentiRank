@@ -17,7 +17,7 @@ def error_response(error: ServiceClientError) -> JSONResponse:
             "message": error.message,
             "error": {
                 "code": error.code,
-                "details": error.details,
+                "details": {},
             },
         },
     )

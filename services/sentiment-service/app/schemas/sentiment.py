@@ -33,26 +33,24 @@ class SentimentPredictionData(BaseModel):
 
 
 class SentimentSummaryData(BaseModel):
+    data_status: str
     selected_model: str
     sentiment_labels: list[str]
     model_status: str
     model_available: bool
     model_source: str
-    configured_model_path: str
     configured_model_id: str | None = None
-    max_length: int
     prediction_source: str
     is_fallback: bool
     final_sentiment_distribution: dict[str, int]
     raw_sentiment_distribution: dict[str, int]
-    output_source_availability: dict[str, bool]
     warnings: list[str] = Field(default_factory=list)
 
 
 class SentimentEvaluationData(BaseModel):
+    data_status: str
     selected_candidate: str
     run_comparison: list[dict]
     selected_metrics: dict
     limitations: list[str]
-    output_source_availability: dict[str, bool]
     warnings: list[str] = Field(default_factory=list)

@@ -41,11 +41,10 @@ def error_response(message: str, code: str, details: dict[str, Any] | None = Non
 def report_summary():
     try:
         data = _report_service().report_summary()
-    except OSError as error:
+    except OSError:
         return error_response(
             "Report summary could not be loaded.",
             "REPORT_SUMMARY_ERROR",
-            {"reason": str(error)},
         )
     return success_response("Report summary loaded.", data)
 
@@ -54,11 +53,10 @@ def report_summary():
 def evaluation_summary():
     try:
         data = _report_service().evaluation_summary()
-    except OSError as error:
+    except OSError:
         return error_response(
             "Evaluation summary could not be loaded.",
             "EVALUATION_SUMMARY_ERROR",
-            {"reason": str(error)},
         )
     return success_response("Evaluation summary loaded.", data)
 
@@ -67,10 +65,9 @@ def evaluation_summary():
 def ranking_comparison():
     try:
         data = _report_service().ranking_comparison()
-    except OSError as error:
+    except OSError:
         return error_response(
             "Ranking comparison could not be loaded.",
             "RANKING_COMPARISON_ERROR",
-            {"reason": str(error)},
         )
     return success_response("Ranking comparison loaded.", data)

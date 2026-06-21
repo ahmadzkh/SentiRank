@@ -45,6 +45,7 @@ class AspectSummaryService:
         runtime_metadata = AspectClassifierService(self.settings).runtime_metadata()
 
         return AspectSummaryData(
+            data_status="needs_verification",
             selected_classifier=self._selected_classifier(final_selection),
             final_aspect_labels=FINAL_ASPECT_LABELS,
             model_status=str(runtime_metadata["model_status"]),
@@ -54,14 +55,12 @@ class AspectSummaryService:
                 if runtime_metadata["model_name"] is not None
                 else None
             ),
-            model_path_configured=bool(runtime_metadata["model_path_configured"]),
             prediction_source=str(runtime_metadata["prediction_source"]),
             original_7class_baseline=self._original_baseline(final_selection),
             merged_5class_taxonomy=self._taxonomy_criteria(taxonomy),
             aspect_distribution=self._aspect_distribution(dataset_summary),
             negative_aspect_distribution=self._negative_aspect_distribution(taxonomy, warnings),
             weak_label_limitation=self._weak_label_limitation(final_selection, dataset_summary),
-            output_source_availability=self._source_availability(),
             warnings=warnings,
         )
 
@@ -101,37 +100,38 @@ class AspectSummaryService:
         )
 
         return AspectEvaluationData(
+            data_status="needs_verification",
             selected_candidate=FINAL_ASPECT_CLASSIFIER,
             scenario_comparison=comparison,
             selected_metrics=self._selected_metrics(final_selection, merged_metrics, comparison),
             classification_report=classification_report if isinstance(classification_report, dict) else {},
             limitations=[
                 WEAK_LABEL_LIMITATION,
+                "SVM derived datasets still depend on the historical aspect-labeled branch and need lineage verification before canonical regeneration.",
                 "If the SVM artifact is not mounted or cannot be loaded, the prediction endpoint returns explicit fallback_keyword metadata.",
             ],
-            output_source_availability=self._source_availability(),
             warnings=warnings,
         )
 
     def _read_json(self, path: Path, warnings: list[str]) -> Any:
         if not path.exists():
-            warnings.append(f"Missing file: {self._display_path(path)}")
+            self._append_warning(warnings, "Some aspect research data is unavailable.")
             return {}
         try:
             return json.loads(path.read_text(encoding="utf-8"))
-        except (OSError, json.JSONDecodeError) as error:
-            warnings.append(f"Could not read JSON file {self._display_path(path)}: {error}")
+        except (OSError, json.JSONDecodeError):
+            self._append_warning(warnings, "Some aspect research data could not be read.")
             return {}
 
     def _read_csv_records(self, path: Path, warnings: list[str]) -> list[dict]:
         if not path.exists():
-            warnings.append(f"Missing file: {self._display_path(path)}")
+            self._append_warning(warnings, "Some aspect research data is unavailable.")
             return []
         try:
             with path.open("r", encoding="utf-8", newline="") as csv_file:
                 return [dict(row) for row in csv.DictReader(csv_file)]
-        except OSError as error:
-            warnings.append(f"Could not read CSV file {self._display_path(path)}: {error}")
+        except OSError:
+            self._append_warning(warnings, "Some aspect research data could not be read.")
             return []
 
     @staticmethod
@@ -281,29 +281,7 @@ class AspectSummaryService:
         }
         return {key: value for key, value in record.items() if value is not None}
 
-    def _source_availability(self) -> dict[str, bool]:
-        return {
-            "datasets_dir": self.datasets_dir.exists(),
-            "docs_dir": self.docs_dir.exists(),
-            "svm_output_dir": self.svm_dir.exists(),
-            "aspect_dataset_summary": (self.svm_dir / "svm_aspect_dataset_summary.json").exists(),
-            "final_taxonomy": (self.svm_dir / "final_aspect_taxonomy_for_ahp.json").exists(),
-            "final_model_selection": (self.svm_dir / "svm_final_model_selection.json").exists(),
-            "scenario_comparison": (self.svm_dir / "svm_scenario_comparison.json").exists(),
-            "selected_metrics": (self.svm_dir / "svm_merged_5class_metrics.json").exists(),
-            "selected_classification_report": (
-                self.svm_dir / "svm_merged_5class_classification_report.json"
-            ).exists(),
-            "aspect_by_sentiment_distribution": (
-                self.svm_dir / "svm_aspect_by_sentiment_distribution.csv"
-            ).exists(),
-            "evaluation_summary": self.evaluation_summary_path.exists(),
-            "model_path_configured": bool(self.settings.aspect_model_path),
-            "model_artifact": self.settings.aspect_model_path.exists(),
-        }
-
-    def _display_path(self, path: Path) -> str:
-        try:
-            return str(path.relative_to(self.datasets_dir.parent))
-        except ValueError:
-            return str(path)
+    @staticmethod
+    def _append_warning(warnings: list[str], message: str) -> None:
+        if message not in warnings:
+            warnings.append(message)

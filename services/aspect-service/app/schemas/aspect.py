@@ -41,27 +41,26 @@ class AspectClassificationData(BaseModel):
 
 
 class AspectSummaryData(BaseModel):
+    data_status: str
     selected_classifier: str
     final_aspect_labels: list[str]
     model_status: str
     model_available: bool
     model_name: str | None = None
-    model_path_configured: bool
     prediction_source: PredictionSource
     original_7class_baseline: dict
     merged_5class_taxonomy: list[dict]
     aspect_distribution: dict[str, int]
     negative_aspect_distribution: dict[str, int]
     weak_label_limitation: str
-    output_source_availability: dict[str, bool]
     warnings: list[str] = Field(default_factory=list)
 
 
 class AspectEvaluationData(BaseModel):
+    data_status: str
     selected_candidate: str
     scenario_comparison: list[dict]
     selected_metrics: dict
     classification_report: dict
     limitations: list[str]
-    output_source_availability: dict[str, bool]
     warnings: list[str] = Field(default_factory=list)

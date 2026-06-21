@@ -234,15 +234,19 @@ def test_summary_should_read_fixture_json_outputs(tmp_path: Path) -> None:
     evaluation = service.evaluation()
 
     assert summary.selected_classifier == "merged_5class"
-    assert summary.model_path_configured is True
+    assert summary.data_status == "needs_verification"
     assert summary.prediction_source in {"model", "fallback_keyword"}
     assert summary.aspect_distribution["Ads Experience"] == 4
     assert summary.negative_aspect_distribution["Ads Experience"] == 3
     assert summary.negative_aspect_distribution["Features, Content & Audio Experience"] == 3
     assert summary.merged_5class_taxonomy[0]["name"] == "Ads Experience"
     assert evaluation.selected_candidate == "merged_5class"
+    assert evaluation.data_status == "needs_verification"
     assert evaluation.selected_metrics["f1_macro"] == 0.93
     assert evaluation.classification_report["Ads Experience"]["f1-score"] == 0.9
+    assert "model_path_configured" not in summary.model_dump()
+    assert "output_source_availability" not in summary.model_dump()
+    assert "output_source_availability" not in evaluation.model_dump()
 
 
 def test_summary_and_evaluation_should_handle_missing_files(tmp_path: Path) -> None:
@@ -255,5 +259,7 @@ def test_summary_and_evaluation_should_handle_missing_files(tmp_path: Path) -> N
     assert summary.aspect_distribution == {}
     assert summary.negative_aspect_distribution == {}
     assert summary.warnings
+    assert all(".json" not in warning and "datasets" not in warning for warning in summary.warnings)
     assert evaluation.scenario_comparison == []
     assert evaluation.warnings
+    assert all(".json" not in warning and "datasets" not in warning for warning in evaluation.warnings)

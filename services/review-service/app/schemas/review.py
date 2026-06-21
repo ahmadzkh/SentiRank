@@ -11,6 +11,15 @@ class ReviewSample(BaseModel):
     initial_sentiment: str | None = None
     final_sentiment: str | None = None
     aspect_label: str | None = None
+    aspect_label_confidence: str | None = None
+    aspect_data_status: str | None = None
+    cleaned_text: str | None = None
+    text_indobert: str | None = None
+    text_svm: str | None = None
+    preprocessing_status: str | None = None
+    drop_reason: str | None = None
+    text_length_before: int | None = None
+    text_length_after: int | None = None
     reviewed_at: str | None = None
     source: str | None = None
 

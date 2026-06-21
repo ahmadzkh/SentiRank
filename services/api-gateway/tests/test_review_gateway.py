@@ -117,6 +117,8 @@ def test_review_service_unavailable_should_return_error_envelope(monkeypatch) ->
     payload = response.json()
     assert payload["success"] is False
     assert payload["error"]["code"] == "REVIEW_SERVICE_UNAVAILABLE"
+    assert payload["error"]["details"] == {}
+    assert "http://review-service" not in response.text
 
 
 def test_all_review_gateway_routes_should_forward(monkeypatch) -> None:

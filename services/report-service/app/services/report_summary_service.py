@@ -33,9 +33,11 @@ class ReportSummaryService:
             self.evaluation_dir / "model_evaluation_summary.json",
             warnings,
         )
-        evaluation_records = self._read_csv_records(
-            self.evaluation_dir / "model_evaluation_summary.csv",
-            warnings,
+        evaluation_records = self._sanitise_records(
+            self._read_csv_records(
+                self.evaluation_dir / "model_evaluation_summary.csv",
+                warnings,
+            )
         )
         final_selection = self._read_json(
             self.svm_dir / "svm_final_model_selection.json",
@@ -54,6 +56,10 @@ class ReportSummaryService:
             limitations.append(EXPERT_JUDGEMENT_NOTE)
 
         return EvaluationSummaryData(
+            model_data_status={
+                "indobert": "historical_pre_canonical_retraining_required",
+                "svm": "needs_verification",
+            },
             selected_indobert_model=self._string_value(
                 evaluation_json,
                 "selected_indobert_model",
@@ -64,22 +70,25 @@ class ReportSummaryService:
                 "selected_svm_model",
                 self._string_value(final_selection, "selected_scenario", FINAL_ASPECT_CLASSIFIER),
             ),
-            indobert_run_comparison=self._list_value(
-                evaluation_json,
-                "indobert_run_comparison",
-                self._indobert_fallback_comparison(warnings),
+            indobert_run_comparison=self._sanitise_records(
+                self._list_value(
+                    evaluation_json,
+                    "indobert_run_comparison",
+                    self._indobert_fallback_comparison(warnings),
+                )
             ),
-            svm_scenario_comparison=self._list_value(
-                evaluation_json,
-                "svm_scenario_comparison",
-                self._svm_fallback_comparison(final_selection),
+            svm_scenario_comparison=self._sanitise_records(
+                self._list_value(
+                    evaluation_json,
+                    "svm_scenario_comparison",
+                    self._svm_fallback_comparison(final_selection),
+                )
             ),
             model_evaluation_records=evaluation_records,
             final_aspect_criteria=final_criteria,
             ahp_fuzzy_ahp_sample_status=ahp_status,
             limitations=limitations,
             expert_judgement_note=EXPERT_JUDGEMENT_NOTE,
-            output_source_availability=self._source_availability(),
             warnings=warnings,
         )
 
@@ -96,7 +105,7 @@ class ReportSummaryService:
             demo_notes.append(EXPERT_JUDGEMENT_NOTE)
 
         limitations = [
-            "File-based research outputs must be mounted or present locally for complete summaries.",
+            "Some report sections may be empty when validated research results are unavailable.",
             "AHP/Fuzzy AHP final ranking is not available until validated real expert judgement is provided.",
         ]
         for limitation in evaluation.limitations:
@@ -111,11 +120,11 @@ class ReportSummaryService:
                 "sentiment": evaluation.selected_indobert_model,
                 "aspect": evaluation.selected_svm_model,
             },
+            model_data_status=evaluation.model_data_status,
             final_criteria=evaluation.final_aspect_criteria,
             demo_notes=demo_notes,
             limitations=limitations,
             expert_judgement_note=EXPERT_JUDGEMENT_NOTE,
-            output_source_availability=self._source_availability(),
             warnings=warnings,
         )
 
@@ -140,7 +149,7 @@ class ReportSummaryService:
         items = self._ranking_items(rows, warnings)
         items.sort(key=self._ranking_sort_key)
 
-        run_label = self._first_text(rows, ("run_label", "run", "scenario", "skenario")) or source_path.stem
+        run_label = self._first_text(rows, ("run_label", "run", "scenario", "skenario"))
         is_sample = self._first_bool(rows, ("is_sample", "sample", "development_sample")) or (
             "sample_development" in source_path.parts
         )
@@ -151,7 +160,6 @@ class ReportSummaryService:
 
         return RankingComparisonData(
             run_label=run_label,
-            source_file=self._display_path(source_path),
             is_sample=is_sample,
             items=items,
             summary={
@@ -165,23 +173,23 @@ class ReportSummaryService:
 
     def _read_json(self, path: Path, warnings: list[str]) -> Any:
         if not path.exists():
-            warnings.append(f"Missing file: {self._display_path(path)}")
+            self._append_warning(warnings, "Some report research data is unavailable.")
             return {}
         try:
             return json.loads(path.read_text(encoding="utf-8"))
-        except (OSError, json.JSONDecodeError) as error:
-            warnings.append(f"Could not read JSON file {self._display_path(path)}: {error}")
+        except (OSError, json.JSONDecodeError):
+            self._append_warning(warnings, "Some report research data could not be read.")
             return {}
 
     def _read_csv_records(self, path: Path, warnings: list[str]) -> list[dict]:
         if not path.exists():
-            warnings.append(f"Missing file: {self._display_path(path)}")
+            self._append_warning(warnings, "Some report research data is unavailable.")
             return []
         try:
             with path.open("r", encoding="utf-8", newline="") as csv_file:
                 return [dict(row) for row in csv.DictReader(csv_file)]
-        except OSError as error:
-            warnings.append(f"Could not read CSV file {self._display_path(path)}: {error}")
+        except OSError:
+            self._append_warning(warnings, "Some report research data could not be read.")
             return []
 
     def _ranking_comparison_source_path(self) -> Path | None:
@@ -311,6 +319,20 @@ class ReportSummaryService:
         return fallback
 
     @staticmethod
+    def _sanitise_records(records: list[dict]) -> list[dict]:
+        hidden_keys = {
+            "artifact_path",
+            "classification_report_path",
+            "metrics_path",
+            "output_path",
+            "source_file",
+        }
+        return [
+            {key: value for key, value in record.items() if key not in hidden_keys}
+            for record in records
+        ]
+
+    @staticmethod
     def _limitations(payload: Any) -> list[str]:
         if isinstance(payload, dict) and isinstance(payload.get("limitations"), list):
             return [str(item) for item in payload["limitations"]]
@@ -336,7 +358,7 @@ class ReportSummaryService:
 
     def _indobert_fallback_comparison(self, warnings: list[str]) -> list[dict]:
         if not self.indobert_dir.exists():
-            warnings.append(f"Missing directory: {self._display_path(self.indobert_dir)}")
+            self._append_warning(warnings, "IndoBERT evaluation data is unavailable.")
             return []
 
         records = []
@@ -413,10 +435,6 @@ class ReportSummaryService:
             "status": status,
             "is_sample": is_sample,
             "not_final_expert_judgement": not_final,
-            "ahp_sample_available": ahp_sample.exists(),
-            "fuzzy_ahp_sample_available": fuzzy_sample.exists(),
-            "ranking_comparison_sample_available": comparison_sample.exists(),
-            "final_outputs_available": final_available,
             "note": note,
         }
 
@@ -436,46 +454,7 @@ class ReportSummaryService:
             return "available"
         return "missing"
 
-    def _source_availability(self) -> dict[str, bool]:
-        return {
-            "datasets_dir": self.datasets_dir.exists(),
-            "docs_dir": self.docs_dir.exists(),
-            "eda_dir": self.eda_dir.exists(),
-            "model_evaluation_summary_json": (
-                self.evaluation_dir / "model_evaluation_summary.json"
-            ).exists(),
-            "model_evaluation_summary_csv": (
-                self.evaluation_dir / "model_evaluation_summary.csv"
-            ).exists(),
-            "indobert_outputs": self.indobert_dir.exists(),
-            "svm_final_selection": (
-                self.svm_dir / "svm_final_model_selection.json"
-            ).exists(),
-            "final_aspect_taxonomy": (
-                self.svm_dir / "final_aspect_taxonomy_for_ahp.json"
-            ).exists(),
-            "ahp_sample_development": (self.ahp_dir / "sample_development").exists(),
-            "fuzzy_ahp_sample_development": (
-                self.fuzzy_ahp_dir / "sample_development"
-            ).exists(),
-            "ranking_comparison_sample_development": (
-                self.ranking_comparison_dir / "sample_development"
-            ).exists(),
-            "ranking_comparison_final_csv": (
-                self.ranking_comparison_dir / "final" / "08_ranking_comparison.csv"
-            ).exists(),
-            "ranking_comparison_csv": (
-                self.ranking_comparison_dir / "08_ranking_comparison.csv"
-            ).exists(),
-            "ranking_comparison_sample_csv": (
-                self.ranking_comparison_dir
-                / "sample_development"
-                / "ahp_fuzzy_ranking_comparison_sample_development.csv"
-            ).exists(),
-        }
-
-    def _display_path(self, path: Path) -> str:
-        try:
-            return str(path.relative_to(self.datasets_dir.parent))
-        except ValueError:
-            return str(path)
+    @staticmethod
+    def _append_warning(warnings: list[str], message: str) -> None:
+        if message not in warnings:
+            warnings.append(message)

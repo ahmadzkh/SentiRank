@@ -2,6 +2,7 @@ from pydantic import BaseModel, Field
 
 
 class EvaluationSummaryData(BaseModel):
+    model_data_status: dict[str, str]
     selected_indobert_model: str
     selected_svm_model: str
     indobert_run_comparison: list[dict] = Field(default_factory=list)
@@ -11,7 +12,6 @@ class EvaluationSummaryData(BaseModel):
     ahp_fuzzy_ahp_sample_status: dict
     limitations: list[str] = Field(default_factory=list)
     expert_judgement_note: str
-    output_source_availability: dict[str, bool]
     warnings: list[str] = Field(default_factory=list)
 
 
@@ -20,11 +20,11 @@ class ReportSummaryData(BaseModel):
     application: str
     pipeline_status: dict[str, str]
     selected_models: dict[str, str]
+    model_data_status: dict[str, str]
     final_criteria: list[dict] = Field(default_factory=list)
     demo_notes: list[str] = Field(default_factory=list)
     limitations: list[str] = Field(default_factory=list)
     expert_judgement_note: str
-    output_source_availability: dict[str, bool]
     warnings: list[str] = Field(default_factory=list)
 
 
@@ -43,7 +43,6 @@ class RankingComparisonItem(BaseModel):
 
 class RankingComparisonData(BaseModel):
     run_label: str
-    source_file: str | None = None
     is_sample: bool = False
     items: list[RankingComparisonItem] = Field(default_factory=list)
     summary: dict = Field(default_factory=dict)

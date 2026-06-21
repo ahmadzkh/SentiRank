@@ -21,50 +21,32 @@ class ResearchDataService:
         raw_dir = self.datasets_dir / "raw"
         eda_dir = self.datasets_dir / "outputs" / "eda"
         acquisition_dir = eda_dir / "01_data_acquisition"
-        evaluation_summary_path = eda_dir / "05_evaluation" / "model_evaluation_summary.json"
+        canonical = self._canonical_dataset_stats(warnings)
+        noise = self._noise_report_stats(warnings)
 
         acquisition_summary = self._read_json(raw_dir / "data_acquisition_summary.json", warnings)
         scraping_summary = self._read_json(raw_dir / "scraping_summary.json", warnings)
         app_info = self._read_json(raw_dir / "app_info_spotify.json", warnings)
-        rating_distribution = self._read_json(acquisition_dir / "rating_distribution_raw.json", warnings)
-        sentiment_distribution = self._read_json(acquisition_dir / "sentiment_distribution_raw.json", warnings)
         missing_values = self._read_json(acquisition_dir / "missing_value_summary.json", warnings)
-        text_length_summary = self._read_json(acquisition_dir / "text_length_summary_raw.json", warnings)
-        evaluation_summary = self._read_json(evaluation_summary_path, warnings)
+        text_length_summary = self._read_json(
+            eda_dir / "03_indobert" / "indobert_text_length_summary.json",
+            warnings,
+        )
 
         return {
-            "dataset_availability": self._dataset_availability(),
-            "total_review_count": self._first_value(
-                acquisition_summary,
-                "total_rows",
-                self._sum_distribution_counts(rating_distribution),
-            ),
-            "rating_distribution": self._normalise_distribution(
-                acquisition_summary.get("rows_per_rating")
-                if isinstance(acquisition_summary, dict)
-                else None,
-                rating_distribution,
-                key_field="rating",
-            ),
-            "sentiment_distribution": self._normalise_distribution(
-                acquisition_summary.get("rows_per_initial_sentiment")
-                if isinstance(acquisition_summary, dict)
-                else None,
-                sentiment_distribution,
-                key_field="sentiment",
-            ),
+            "data_status": "canonical_processed" if canonical["available"] else "unavailable",
+            "total_review_count": canonical["row_count"],
+            "raw_review_count": self._first_value(acquisition_summary, "total_rows", None),
+            "dropped_review_count": noise["row_count"],
+            "rating_distribution": canonical["rating_distribution"],
+            "sentiment_distribution": canonical["sentiment_distribution"],
             "source_application": self._app_metadata(app_info, scraping_summary),
             "review_period": {
-                "reviewed_at_min": acquisition_summary.get("reviewed_at_min")
-                if isinstance(acquisition_summary, dict)
-                else None,
-                "reviewed_at_max": acquisition_summary.get("reviewed_at_max")
-                if isinstance(acquisition_summary, dict)
-                else None,
+                "reviewed_at_min": canonical["reviewed_at_min"],
+                "reviewed_at_max": canonical["reviewed_at_max"],
             },
             "missing_value_summary": missing_values,
             "text_length_summary": text_length_summary,
-            "evaluation_summary_available": bool(evaluation_summary),
             "warnings": warnings,
         }
 
@@ -88,8 +70,8 @@ class ResearchDataService:
             achieved_by_rating = acquisition_summary.get("rows_per_rating", {})
 
         return {
-            "app_id": self._first_value(scraping_summary, "app_id", "com.spotify.music"),
-            "source_name": self._first_value(scraping_summary, "source_name", "google_play_spotify_id"),
+            "app_id": self._first_value(scraping_summary, "app_id", None),
+            "source_name": self._first_value(scraping_summary, "source_name", None),
             "app_title": scraping_summary.get("app_title") if isinstance(scraping_summary, dict) else None,
             "country": scraping_summary.get("country") if isinstance(scraping_summary, dict) else None,
             "lang": scraping_summary.get("lang") if isinstance(scraping_summary, dict) else None,
@@ -98,7 +80,11 @@ class ResearchDataService:
             "total_achieved_rows": self._first_value(
                 acquisition_summary,
                 "total_rows",
-                sum(value for value in achieved_by_rating.values() if isinstance(value, int)),
+                (
+                    sum(value for value in achieved_by_rating.values() if isinstance(value, int))
+                    if achieved_by_rating
+                    else None
+                ),
             ),
             "rating_results": rating_results,
             "rating_3_limitation_note": acquisition_summary.get("rating_3_limitation_note")
@@ -111,15 +97,12 @@ class ResearchDataService:
     def preprocessing_summary(self) -> dict[str, Any]:
         warnings: list[str] = []
         preprocessing_dir = self.datasets_dir / "outputs" / "eda" / "02_preprocessing"
+        canonical = self._canonical_dataset_stats(warnings)
+        noise = self._noise_report_stats(warnings)
 
-        preprocessing_summary = self._read_json(preprocessing_dir / "preprocessing_summary.json", warnings)
         relabeling_summary = self._read_json(preprocessing_dir / "relabeling_summary.json", warnings)
         before_distribution = self._read_json(
             preprocessing_dir / "label_distribution_before_relabeling.json",
-            warnings,
-        )
-        after_distribution = self._read_json(
-            preprocessing_dir / "label_distribution_after_relabeling.json",
             warnings,
         )
         aspect_summary = self._read_json(preprocessing_dir / "aspect_labeling_summary.json", warnings)
@@ -127,21 +110,31 @@ class ResearchDataService:
             preprocessing_dir / "aspect_labeling_refined_summary.json",
             warnings,
         )
-        taxonomy_summary = self._read_json(
-            preprocessing_dir / "aspect_taxonomy_derivation_summary.json",
-            warnings,
-        )
         general_fallback = self._read_json(
             preprocessing_dir / "general_fallback_analysis.json",
             warnings,
         )
         text_cleaning = self._read_json(
-            preprocessing_dir / "text_length_before_after_cleaning.json",
+            self.datasets_dir
+            / "outputs"
+            / "eda"
+            / "03_indobert"
+            / "indobert_text_length_summary.json",
             warnings,
         )
 
+        input_review_count = None
+        if canonical["row_count"] is not None and noise["row_count"] is not None:
+            input_review_count = canonical["row_count"] + noise["row_count"]
+
         return {
-            "total_rows": self._first_value(preprocessing_summary, "total_rows", None),
+            "data_status": "canonical_processed" if canonical["available"] else "unavailable",
+            "total_rows": canonical["row_count"],
+            "input_review_count": input_review_count,
+            "valid_review_count": canonical["row_count"],
+            "dropped_review_count": noise["row_count"],
+            "drop_reason_distribution": noise["drop_reason_distribution"],
+            "quality_stage_distribution": noise["quality_stage_distribution"],
             "relabeling_changes": {
                 "changed_label_count": relabeling_summary.get("changed_label_count")
                 if isinstance(relabeling_summary, dict)
@@ -160,16 +153,10 @@ class ResearchDataService:
                 before_distribution,
                 key_field="label",
             ),
-            "sentiment_distribution_after": self._normalise_distribution(
-                relabeling_summary.get("label_distribution_after")
-                if isinstance(relabeling_summary, dict)
-                else None,
-                after_distribution,
-                key_field="label",
-            ),
+            "sentiment_distribution_after": canonical["sentiment_distribution"],
             "text_cleaning_summary": text_cleaning,
             "aspect_weak_label_summary": refined_aspect_summary or aspect_summary,
-            "aspect_taxonomy_summary_available": bool(taxonomy_summary),
+            "aspect_data_status": "needs_verification",
             "general_fallback_limitation": self._general_fallback_limitation(general_fallback),
             "warnings": warnings,
         }
@@ -206,6 +193,12 @@ class ResearchDataService:
             warnings.append("No reviews matched the requested filters.")
             return RandomReviewsData(reviews=[], count=0, filters=filters, warnings=warnings)
 
+        aspect_labels = self._aspect_labels_by_external_id(warnings)
+        rows = [
+            {**row, **aspect_labels.get(str(row.get("external_id") or ""), {})}
+            for row in rows
+        ]
+
         rng = random.Random(seed)
         selected = rows if len(rows) <= clamped_limit else rng.sample(rows, clamped_limit)
         reviews = [self._review_sample(row) for row in selected]
@@ -230,7 +223,7 @@ class ResearchDataService:
             warnings.append(f"Unsupported sort '{sort}' was replaced with reviewed_at_desc.")
             sort = "reviewed_at_desc"
 
-        dataset_path = self._latest_negative_reviews_path(warnings)
+        dataset_path = self._random_reviews_path(warnings)
         filters = RandomReviewFilters(
             limit=limit,
             applied_limit=clamped_limit,
@@ -245,6 +238,11 @@ class ResearchDataService:
             return RandomReviewsData(reviews=[], count=0, filters=filters, warnings=warnings)
 
         rows = self._read_review_rows(dataset_path, sentiment="Negative", rating=None)
+        aspect_labels = self._aspect_labels_by_external_id(warnings)
+        rows = [
+            {**row, **aspect_labels.get(str(row.get("external_id") or ""), {})}
+            for row in rows
+        ]
         if sort == "word_count_desc":
             rows.sort(
                 key=lambda row: (
@@ -272,57 +270,58 @@ class ResearchDataService:
 
     def _read_json(self, path: Path, warnings: list[str]) -> Any:
         if not path.exists():
-            warnings.append(f"Missing file: {self._display_path(path)}")
+            self._append_warning(warnings, "Some research summary data is unavailable.")
             return {} if path.suffix.lower() == ".json" else None
         try:
             return json.loads(path.read_text(encoding="utf-8"))
-        except (OSError, json.JSONDecodeError) as error:
-            warnings.append(f"Could not read JSON file {self._display_path(path)}: {error}")
+        except (OSError, json.JSONDecodeError):
+            self._append_warning(warnings, "Some research summary data could not be read.")
             return {}
 
-    def _dataset_availability(self) -> dict[str, bool]:
-        raw_dir = self.datasets_dir / "raw"
-        processed_dir = self.datasets_dir / "processed"
-        return {
-            "datasets_dir_exists": self.datasets_dir.exists(),
-            "docs_dir_exists": self.docs_dir.exists(),
-            "raw_dir_exists": raw_dir.exists(),
-            "processed_dir_exists": processed_dir.exists(),
-            "data_acquisition_summary": (raw_dir / "data_acquisition_summary.json").exists(),
-            "scraping_summary": (raw_dir / "scraping_summary.json").exists(),
-            "reviews_final": (processed_dir / "reviews_final.csv").exists(),
-            "reviews_with_aspect_labels": (
-                processed_dir / "reviews_with_aspect_labels.csv"
-            ).exists(),
-            "reviews_with_aspect_labels_refined": (
-                processed_dir / "reviews_with_aspect_labels_refined.csv"
-            ).exists(),
-            "reviews_raw_labeled": (raw_dir / "reviews_raw_labeled.csv").exists(),
-        }
-
     def _random_reviews_path(self, warnings: list[str]) -> Path | None:
-        preferred = self.datasets_dir / "processed" / "reviews_final.csv"
+        preferred = self.datasets_dir / "processed" / "dataset_spotify_processed.csv"
         fallback = self.datasets_dir / "raw" / "reviews_raw_labeled.csv"
         if preferred.exists():
             return preferred
-        warnings.append(f"Preferred random review source missing: {self._display_path(preferred)}")
         if fallback.exists():
+            self._append_warning(
+                warnings,
+                "Canonical processed reviews are unavailable; raw review fallback is used.",
+            )
             return fallback
-        warnings.append(f"Fallback random review source missing: {self._display_path(fallback)}")
+        self._append_warning(warnings, "Review samples are unavailable.")
         return None
 
-    def _latest_negative_reviews_path(self, warnings: list[str]) -> Path | None:
+    def _aspect_labels_by_external_id(
+        self,
+        warnings: list[str],
+    ) -> dict[str, dict[str, str]]:
         candidates = [
             self.datasets_dir / "processed" / "reviews_with_aspect_labels_refined.csv",
             self.datasets_dir / "processed" / "reviews_with_aspect_labels.csv",
-            self.datasets_dir / "processed" / "reviews_final.csv",
-            self.datasets_dir / "raw" / "reviews_raw_labeled.csv",
         ]
         for path in candidates:
-            if path.exists():
-                return path
-        warnings.append("No review CSV source is available for latest negative reviews.")
-        return None
+            if not path.exists():
+                continue
+            labels: dict[str, dict[str, str]] = {}
+            with path.open("r", encoding="utf-8-sig", newline="") as handle:
+                for row in csv.DictReader(handle):
+                    external_id = row.get("external_id")
+                    aspect_label = row.get("aspect_label")
+                    if not external_id or not aspect_label:
+                        continue
+                    labels[external_id] = {
+                        "aspect_label": aspect_label,
+                        "aspect_label_confidence": row.get("aspect_label_confidence") or "",
+                    }
+            if labels:
+                self._append_warning(
+                    warnings,
+                    "Aspect labels use historical weak-label data and need verification.",
+                )
+            return labels
+        self._append_warning(warnings, "Aspect labels are unavailable for review samples.")
+        return {}
 
     def _read_review_rows(
         self,
@@ -366,6 +365,15 @@ class ResearchDataService:
             initial_sentiment=row.get("initial_sentiment") or None,
             final_sentiment=row.get("final_sentiment") or row.get("initial_sentiment") or None,
             aspect_label=row.get("aspect_label") or None,
+            aspect_label_confidence=row.get("aspect_label_confidence") or None,
+            aspect_data_status="needs_verification" if row.get("aspect_label") else None,
+            cleaned_text=row.get("cleaned_text") or None,
+            text_indobert=row.get("text_indobert") or None,
+            text_svm=row.get("text_svm") or None,
+            preprocessing_status=row.get("preprocessing_status") or None,
+            drop_reason=row.get("drop_reason") or None,
+            text_length_before=self._safe_int(row.get("text_length_before")),
+            text_length_after=self._safe_int(row.get("text_length_after")),
             reviewed_at=row.get("reviewed_at") or None,
             source=row.get("source") or None,
         )
@@ -397,12 +405,6 @@ class ResearchDataService:
             return row
         return {**row, "author_name": author_name}
 
-    def _display_path(self, path: Path) -> str:
-        try:
-            return str(path.relative_to(self.datasets_dir.parent))
-        except ValueError:
-            return str(path)
-
     @staticmethod
     def _safe_int(value: Any) -> int | None:
         try:
@@ -432,15 +434,92 @@ class ResearchDataService:
             return payload[key]
         return fallback
 
+    def _canonical_dataset_stats(self, warnings: list[str]) -> dict[str, Any]:
+        path = self.datasets_dir / "processed" / "dataset_spotify_processed.csv"
+        empty = {
+            "available": False,
+            "row_count": None,
+            "rating_distribution": {},
+            "sentiment_distribution": {},
+            "reviewed_at_min": None,
+            "reviewed_at_max": None,
+        }
+        if not path.exists():
+            self._append_warning(warnings, "Canonical processed dataset is unavailable.")
+            return empty
+
+        row_count = 0
+        rating_distribution: dict[str, int] = {}
+        sentiment_distribution: dict[str, int] = {}
+        reviewed_at_min: str | None = None
+        reviewed_at_max: str | None = None
+        try:
+            with path.open("r", encoding="utf-8-sig", newline="") as handle:
+                for row in csv.DictReader(handle):
+                    row_count += 1
+                    rating = str(row.get("rating") or "").strip()
+                    sentiment = str(
+                        row.get("final_sentiment") or row.get("initial_sentiment") or ""
+                    ).strip()
+                    reviewed_at = str(row.get("reviewed_at") or "").strip()
+                    if rating:
+                        rating_distribution[rating] = rating_distribution.get(rating, 0) + 1
+                    if sentiment:
+                        sentiment_distribution[sentiment] = (
+                            sentiment_distribution.get(sentiment, 0) + 1
+                        )
+                    if reviewed_at:
+                        reviewed_at_min = min(reviewed_at_min, reviewed_at) if reviewed_at_min else reviewed_at
+                        reviewed_at_max = max(reviewed_at_max, reviewed_at) if reviewed_at_max else reviewed_at
+        except OSError:
+            self._append_warning(warnings, "Canonical processed dataset could not be read.")
+            return empty
+
+        return {
+            "available": True,
+            "row_count": row_count,
+            "rating_distribution": rating_distribution,
+            "sentiment_distribution": sentiment_distribution,
+            "reviewed_at_min": reviewed_at_min,
+            "reviewed_at_max": reviewed_at_max,
+        }
+
+    def _noise_report_stats(self, warnings: list[str]) -> dict[str, Any]:
+        path = self.datasets_dir / "processed" / "dataset_spotify_noise_report.csv"
+        empty = {
+            "row_count": None,
+            "drop_reason_distribution": {},
+            "quality_stage_distribution": {},
+        }
+        if not path.exists():
+            self._append_warning(warnings, "Dataset quality report is unavailable.")
+            return empty
+
+        row_count = 0
+        drop_reasons: dict[str, int] = {}
+        quality_stages: dict[str, int] = {}
+        try:
+            with path.open("r", encoding="utf-8-sig", newline="") as handle:
+                for row in csv.DictReader(handle):
+                    row_count += 1
+                    drop_reason = str(row.get("drop_reason") or "unknown").strip()
+                    quality_stage = str(row.get("quality_stage") or "unknown").strip()
+                    drop_reasons[drop_reason] = drop_reasons.get(drop_reason, 0) + 1
+                    quality_stages[quality_stage] = quality_stages.get(quality_stage, 0) + 1
+        except OSError:
+            self._append_warning(warnings, "Dataset quality report could not be read.")
+            return empty
+
+        return {
+            "row_count": row_count,
+            "drop_reason_distribution": drop_reasons,
+            "quality_stage_distribution": quality_stages,
+        }
+
     @staticmethod
-    def _sum_distribution_counts(payload: Any) -> int | None:
-        if not isinstance(payload, list):
-            return None
-        total = 0
-        for item in payload:
-            if isinstance(item, dict) and isinstance(item.get("count"), int):
-                total += item["count"]
-        return total or None
+    def _append_warning(warnings: list[str], message: str) -> None:
+        if message not in warnings:
+            warnings.append(message)
 
     @staticmethod
     def _normalise_distribution(primary: Any, fallback: Any, key_field: str) -> dict[str, int]:
