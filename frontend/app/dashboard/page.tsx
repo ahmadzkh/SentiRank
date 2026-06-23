@@ -124,11 +124,6 @@ const reviewInsightColumns: readonly SimpleTableColumn<DashboardReviewInsightRow
     render: (row) => row.rating,
   },
   {
-    key: "appVersion",
-    header: "App Version",
-    render: (row) => row.appVersion,
-  },
-  {
     key: "reviewDate",
     header: "Review Date",
     render: (row) => row.reviewDate,
@@ -137,12 +132,6 @@ const reviewInsightColumns: readonly SimpleTableColumn<DashboardReviewInsightRow
     key: "source",
     header: "Source",
     render: (row) => row.source,
-  },
-  {
-    key: "modelVersion",
-    header: "Model Version",
-    className: "min-w-[180px]",
-    render: (row) => row.modelVersion,
   },
 ];
 

@@ -195,102 +195,127 @@ export interface GatewayRandomReviewsResponse {
 }
 
 export interface GatewayDatasetSummary {
-  dataset_availability: Record<string, boolean>;
+  data_status?: string | null;
   total_review_count?: number | null;
+  raw_review_count?: number | null;
+  dropped_review_count?: number | null;
   rating_distribution: Record<string, number>;
   sentiment_distribution: Record<string, number>;
-  source_application: Record<string, unknown>;
   review_period: Record<string, string | null>;
-  missing_value_summary: unknown;
-  text_length_summary: unknown;
-  evaluation_summary_available: boolean;
+  dataset_availability?: Record<string, boolean>;
+  source_application?: Record<string, unknown>;
+  missing_value_summary?: unknown;
+  text_length_summary?: unknown;
+  evaluation_summary_available?: boolean;
   warnings: string[];
 }
 
 export interface GatewayScrapingSummary {
   app_id?: string | null;
   source_name?: string | null;
+  data_status?: string | null;
   app_title?: string | null;
   country?: string | null;
   lang?: string | null;
   target_quota_per_rating: Record<string, number>;
   achieved_count_per_rating: Record<string, number>;
   total_achieved_rows?: number | null;
-  rating_results: Record<string, unknown>;
+  rating_results?: Record<string, unknown>;
   rating_3_limitation_note?: string | null;
   generated_at?: string | null;
   warnings: string[];
 }
 
 export interface GatewayPreprocessingSummary {
+  data_status?: string | null;
   total_rows?: number | null;
+  input_review_count?: number | null;
+  valid_review_count?: number | null;
+  dropped_review_count?: number | null;
+  drop_reason_distribution?: Record<string, number>;
+  quality_stage_distribution?: Record<string, number>;
   relabeling_changes: Record<string, number | null>;
   sentiment_distribution_before: Record<string, number>;
   sentiment_distribution_after: Record<string, number>;
-  text_cleaning_summary: unknown;
-  aspect_weak_label_summary: unknown;
-  aspect_taxonomy_summary_available: boolean;
+  aspect_data_status?: string | null;
+  text_cleaning_summary?: unknown;
+  aspect_weak_label_summary?: unknown;
+  aspect_taxonomy_summary_available?: boolean;
   general_fallback_limitation: Record<string, unknown>;
   warnings: string[];
 }
 
 export interface GatewaySentimentSummary {
+  data_status?: string | null;
   selected_model: string;
   sentiment_labels: string[];
   model_status: string;
+  model_available?: boolean;
+  model_source?: string | null;
+  configured_model_id?: string | null;
+  prediction_source?: string | null;
+  is_fallback?: boolean;
   final_sentiment_distribution: Record<string, number>;
-  raw_sentiment_distribution: Record<string, number>;
-  output_source_availability: Record<string, boolean>;
+  raw_sentiment_distribution?: Record<string, number>;
+  output_source_availability?: Record<string, boolean>;
   warnings: string[];
 }
 
 export interface GatewaySentimentEvaluation {
+  data_status?: string | null;
   selected_candidate: string;
-  run_comparison: Record<string, unknown>[];
+  run_comparison?: Record<string, unknown>[];
   selected_metrics: Record<string, unknown>;
   limitations: string[];
-  output_source_availability: Record<string, boolean>;
+  output_source_availability?: Record<string, boolean>;
   warnings: string[];
 }
 
 export interface GatewayAspectSummary {
+  data_status?: string | null;
   selected_classifier: string;
   final_aspect_labels: string[];
   model_status: string;
-  original_7class_baseline: Record<string, unknown>;
-  merged_5class_taxonomy: Record<string, unknown>[];
+  model_available?: boolean;
+  model_name?: string | null;
+  prediction_source?: string | null;
+  original_7class_baseline?: Record<string, unknown>;
+  merged_5class_taxonomy?: Record<string, unknown>[];
   aspect_distribution: Record<string, number>;
-  negative_aspect_distribution: Record<string, number>;
+  negative_aspect_distribution?: Record<string, number>;
   weak_label_limitation: string;
-  output_source_availability: Record<string, boolean>;
+  output_source_availability?: Record<string, boolean>;
   warnings: string[];
 }
 
 export interface GatewayAspectEvaluation {
+  data_status?: string | null;
   selected_candidate: string;
-  scenario_comparison: Record<string, unknown>[];
+  scenario_comparison?: Record<string, unknown>[];
   selected_metrics: Record<string, unknown>;
-  classification_report: Record<string, unknown>;
+  classification_report?: Record<string, unknown>;
   limitations: string[];
-  output_source_availability: Record<string, boolean>;
+  output_source_availability?: Record<string, boolean>;
   warnings: string[];
 }
 
 export interface GatewayEvaluationSummary {
+  model_data_status?: Record<string, string> | null;
   selected_indobert_model: string;
   selected_svm_model: string;
   indobert_run_comparison: Record<string, unknown>[];
   svm_scenario_comparison: Record<string, unknown>[];
-  model_evaluation_records: Record<string, unknown>[];
+  model_evaluation_records?: Record<string, unknown>[];
   final_aspect_criteria: Record<string, unknown>[];
   ahp_fuzzy_ahp_sample_status: Record<string, unknown>;
   limitations: string[];
   expert_judgement_note: string;
-  output_source_availability: Record<string, boolean>;
+  output_source_availability?: Record<string, boolean>;
   warnings: string[];
 }
 
 export interface GatewayReportSummary {
+  model_data_status?: Record<string, string> | null;
   project_name: string;
   application: string;
   pipeline_status: Record<string, string>;
@@ -299,6 +324,6 @@ export interface GatewayReportSummary {
   demo_notes: string[];
   limitations: string[];
   expert_judgement_note: string;
-  output_source_availability: Record<string, boolean>;
+  output_source_availability?: Record<string, boolean>;
   warnings: string[];
 }

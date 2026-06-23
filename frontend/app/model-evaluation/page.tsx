@@ -28,7 +28,6 @@ interface EvaluationMetricRow {
   precision: string;
   recall: string;
   f1Score: string;
-  rocAuc: string;
   status: string;
 }
 
@@ -55,7 +54,6 @@ function evaluationRows(evaluation: {
       precision: metricValue(record, ["precision_macro", "precision"]),
       recall: metricValue(record, ["recall_macro", "recall"]),
       f1Score: metricValue(record, ["f1_macro", "f1_score", "f1"]),
-      rocAuc: metricValue(record, ["roc_auc", "rocAuc"]),
       status: tableCellValue(record.status),
     })),
     ...evaluation.svm_scenario_comparison.map((record, index) => ({
@@ -66,7 +64,6 @@ function evaluationRows(evaluation: {
       precision: metricValue(record, ["precision_macro", "precision"]),
       recall: metricValue(record, ["recall_macro", "recall"]),
       f1Score: metricValue(record, ["f1_macro", "f1_score", "f1"]),
-      rocAuc: metricValue(record, ["roc_auc", "rocAuc"]),
       status: tableCellValue(record.status),
     })),
   ];
@@ -114,12 +111,6 @@ const evaluationColumns = [
     header: "F1-Score",
     align: "right",
     render: (row) => row.f1Score,
-  },
-  {
-    key: "rocAuc",
-    header: "ROC-AUC",
-    align: "right",
-    render: (row) => row.rocAuc,
   },
   {
     key: "status",

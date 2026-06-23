@@ -21,18 +21,6 @@ import type { GatewayReviewSample, GatewayScrapingSummary } from "@/types";
 
 export const dynamic = "force-dynamic";
 
-function formatDate(value?: string | null) {
-  if (!value) {
-    return EMPTY_TEXT;
-  }
-
-  return new Intl.DateTimeFormat("id-ID", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  }).format(new Date(value));
-}
-
 function scrapingPreviewRows(
   reviews: readonly GatewayReviewSample[],
   scraping: GatewayScrapingSummary,
@@ -54,19 +42,6 @@ const scrapingPreviewColumns = [
     render: (_row, index) => index + 1,
   },
   {
-    key: "scrapeRequestId",
-    header: "Scrape Request ID",
-    render: (row) => tableCellValue(row.scrape_request_id),
-  },
-  {
-    key: "appId",
-    header: "App ID",
-    className: "max-w-[180px]",
-    render: (row) => (
-      <span className="break-words">{tableCellValue(row.sourceAppId)}</span>
-    ),
-  },
-  {
     key: "reviewText",
     header: "Review Text",
     className: "min-w-[320px] max-w-[460px]",
@@ -83,19 +58,15 @@ const scrapingPreviewColumns = [
     render: (row) => (row.rating ? `${row.rating}/5` : EMPTY_TABLE_CELL),
   },
   {
+    key: "sentiment",
+    header: "Sentimen",
+    render: (row) =>
+      tableCellValue(row.final_sentiment ?? row.initial_sentiment),
+  },
+  {
     key: "reviewDate",
     header: "Review Date",
     render: (row) => tableDateValue(row.reviewed_at),
-  },
-  {
-    key: "scrapedAt",
-    header: "Scraped At",
-    render: (row) => tableDateValue(row.scraped_at),
-  },
-  {
-    key: "status",
-    header: "Status",
-    render: (row) => tableCellValue(row.scraping_status, "Data tersedia"),
   },
 ] satisfies SimpleTableColumn<ScrapingPreviewRow>[];
 
@@ -125,7 +96,7 @@ export default async function ScrapingPage() {
 
       <ApiGatewayAlert error={apiError} />
 
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
+      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <StatCard
           description="Total target dari ringkasan quota scraping."
           label="Request Ulasan"
@@ -138,25 +109,14 @@ export default async function ScrapingPage() {
           value={scraping.total_achieved_rows ?? 0}
         />
         <StatCard
-          description="Kegagalan scraping tidak dihitung di frontend."
-          label="Gagal"
-          tone="positive"
-          value={0}
-        />
-        <StatCard
           description="Sumber aplikasi Spotify."
           label="Package"
           value={stringValue(scraping.app_id, EMPTY_TEXT)}
         />
         <StatCard
-          description="Negara/bahasa dari ringkasan scraping."
-          label="Region"
-          value={stringValue(scraping.country, EMPTY_TEXT)}
-        />
-        <StatCard
           description="Status data scraping."
-          label="Status Batch"
-          tone="primary"
+          label="Status"
+          tone={scrapingResult.isAvailable ? "positive" : "neutral"}
           value={scrapingResult.isAvailable ? "Data tersedia" : EMPTY_TEXT}
         />
       </section>
@@ -172,17 +132,17 @@ export default async function ScrapingPage() {
             {
               label: "Source",
               value: stringValue(scraping.source_name, EMPTY_TEXT),
-              description: stringValue(scraping.app_title, EMPTY_TEXT),
+              description: stringValue(scraping.app_id, EMPTY_TEXT),
             },
             {
-              label: "Tanggal generate",
-              value: formatDate(scraping.generated_at),
-              description: "Timestamp dari ringkasan scraping jika tersedia.",
+              label: "Total Terkumpul",
+              value: scraping.total_achieved_rows ?? 0,
+              description: "Jumlah ulasan yang berhasil dikumpulkan.",
             },
             {
-              label: "Bahasa",
-              value: stringValue(scraping.lang, EMPTY_TEXT),
-              description: "Bahasa target scraping.",
+              label: "Catatan Rating 3",
+              value: stringValue(scraping.rating_3_limitation_note, "Tidak ada catatan"),
+              description: "Keterbatasan pengumpulan rating 3.",
             },
             {
               label: "Mode",

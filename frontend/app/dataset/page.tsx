@@ -81,15 +81,15 @@ const datasetReviewColumns = [
     render: (row) => (row.rating ? `${row.rating}/5` : EMPTY_TABLE_CELL),
   },
   {
-    key: "thumbsUp",
-    header: "Thumbs Up",
-    align: "right",
-    render: (row) => tableCellValue(row.thumbs_up_count),
+    key: "sentiment",
+    header: "Sentimen",
+    render: (row) =>
+      tableCellValue(row.final_sentiment ?? row.initial_sentiment),
   },
   {
-    key: "appVersion",
-    header: "App Version",
-    render: (row) => tableCellValue(row.app_version),
+    key: "aspect",
+    header: "Aspek",
+    render: (row) => tableCellValue(row.aspect_label),
   },
   {
     key: "reviewDate",
@@ -97,9 +97,9 @@ const datasetReviewColumns = [
     render: (row) => tableDateValue(row.reviewed_at),
   },
   {
-    key: "sourceApp",
-    header: "Source App",
-    render: (row) => tableCellValue(row.app_id ?? row.source),
+    key: "source",
+    header: "Source",
+    render: (row) => tableCellValue(row.source),
   },
 ] satisfies SimpleTableColumn<GatewayReviewSample>[];
 
@@ -109,7 +109,6 @@ export default async function DatasetPage() {
     safeGatewayData(() => getReviews({ limit: 10, seed: 10 }), EMPTY_RANDOM_REVIEWS),
   ]);
   const dataset = datasetResult.data;
-  const sourceApplication = dataset.source_application;
   const ratingRows = ratingDistributionRows(dataset.rating_distribution);
   const sentimentRows = sentimentDistributionData(dataset.sentiment_distribution);
   const reviews = reviewsResult.data.reviews;
@@ -125,39 +124,28 @@ export default async function DatasetPage() {
 
       <ApiGatewayAlert error={apiError} />
 
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
+      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <StatCard
-          description={stringValue(sourceApplication.title, EMPTY_TEXT)}
-          label="Total Baris"
+          description={dataset.data_status ? `Status: ${dataset.data_status}` : "Menunggu data dari API."}
+          label="Total Ulasan Bersih"
           value={dataset.total_review_count ?? 0}
         />
         <StatCard
-          description="Nilai berasal dari ringkasan dataset."
-          label="Ulasan Unik"
-          tone="positive"
-          value={0}
+          description="Jumlah ulasan sebelum filtering kualitas."
+          label="Ulasan Mentah"
+          value={dataset.raw_review_count ?? 0}
         />
         <StatCard
-          description="Data duplikasi belum tersedia."
-          label="Duplikasi"
-          value={0}
-        />
-        <StatCard
-          description="Ringkasan missing value ditampilkan pada tabel kualitas."
-          label="Nilai Kosong"
-          tone="positive"
-          value={0}
+          description="Ulasan yang dihapus saat tahap filtering kualitas."
+          label="Ulasan Dihapus"
+          tone="negative"
+          value={dataset.dropped_review_count ?? 0}
         />
         <StatCard
           description="Cakupan label ditentukan dari distribusi sentimen."
           label="Cakupan Label"
           tone="primary"
           value={sentimentRows.length > 0 ? "100%" : "0%"}
-        />
-        <StatCard
-          description="Rating rata-rata tidak dihitung di frontend."
-          label="Rating Rata-rata"
-          value="0/5"
         />
       </section>
 
@@ -170,9 +158,9 @@ export default async function DatasetPage() {
           }
           items={[
             {
-              label: "Status import",
-              value: datasetResult.isAvailable ? "Data tersedia" : EMPTY_TEXT,
-              description: "Data mengikuti sumber penelitian terstruktur.",
+              label: "Status Dataset",
+              value: stringValue(dataset.data_status, "Tidak diketahui"),
+              description: "Status kanonik dataset yang digunakan.",
             },
             {
               label: "Rentang tanggal",
@@ -184,68 +172,29 @@ export default async function DatasetPage() {
               description: "Rentang ulasan dari artefak data acquisition.",
             },
             {
-              label: "Baris diproses",
+              label: "Total ulasan bersih",
               value: dataset.total_review_count ?? 0,
-              description: "Mengikuti total baris pada ringkasan dataset.",
+              description: `${dataset.raw_review_count ?? 0} mentah, ${dataset.dropped_review_count ?? 0} dihapus.`,
             },
             {
               label: "Sumber",
-              value: stringValue(sourceApplication.source_name, EMPTY_TEXT),
-              description: stringValue(sourceApplication.app_id, EMPTY_TEXT),
+              value: "Google Play Store - Spotify",
+              description: "com.spotify.music",
             },
           ]}
           title="Ringkasan Dataset"
         />
 
         <ChartCard
-          description="Validasi kualitas data penting sebelum preprocessing dan pemodelan."
-          title="Kualitas Data"
+          description="Distribusi rating ulasan Spotify dari dataset penelitian."
+          title="Distribusi Rating"
         >
           <SimpleTable
-            columns={[
-              {
-                key: "label",
-                header: "Pemeriksaan",
-                render: (row) => (
-                  <span className="font-medium text-foreground">
-                    {row.label}
-                  </span>
-                ),
-              },
-              {
-                key: "value",
-                header: "Nilai",
-                render: (row) => row.value,
-              },
-              {
-                key: "status",
-                header: "Status",
-                render: (row) => (
-                  <span className="rounded-md border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-medium text-slate-700">
-                    {row.status}
-                  </span>
-                ),
-              },
-              {
-                key: "note",
-                header: "Catatan",
-                render: (row) => row.note,
-              },
-            ]}
-            data={
-              datasetResult.isAvailable
-                ? Object.entries(dataset.dataset_availability).map(([key, value]) => ({
-                    id: key,
-                    label: key,
-                    note: value ? "Tersedia" : "Tidak tersedia",
-                    status: value ? "available" : "missing",
-                    value: value ? "Ya" : "Tidak",
-                  }))
-                : []
-            }
+            columns={ratingColumns}
+            data={ratingRows}
             emptyMessage={EMPTY_GATEWAY_MESSAGE}
-            minWidthClassName="min-w-[680px]"
-            rowKey={(row) => row.id}
+            minWidthClassName="min-w-[420px]"
+            rowKey={(row) => `rating-${row.rating}`}
           />
         </ChartCard>
       </section>

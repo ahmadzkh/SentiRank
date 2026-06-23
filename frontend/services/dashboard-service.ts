@@ -87,10 +87,8 @@ export interface DashboardReviewInsightRow {
   sentiment: string;
   aspectCriteria: string;
   rating: string;
-  appVersion: string;
   reviewDate: string;
   source: string;
-  modelVersion: string;
 }
 
 export interface DashboardData {
@@ -395,8 +393,6 @@ function buildPriorityRows(
 function buildReviewInsightRows(
   sources: DashboardSources,
 ): DashboardReviewInsightRow[] {
-  const modelVersion = selectedModelVersion(sources.evaluation);
-
   return (sources.reviews?.reviews ?? []).map((sample, index) => ({
     id: sample.external_id ?? `gateway-review-${index + 1}`,
     reviewText: tableCellValue(sample.content),
@@ -404,10 +400,8 @@ function buildReviewInsightRows(
     sentiment: tableCellValue(sample.final_sentiment ?? sample.initial_sentiment),
     aspectCriteria: tableCellValue(sample.aspect_label),
     rating: sample.rating ? `${sample.rating}/5` : EMPTY_TABLE_CELL,
-    appVersion: tableCellValue(sample.app_version),
     reviewDate: tableDateValue(sample.reviewed_at),
     source: tableCellValue(sample.source ?? sample.app_id),
-    modelVersion,
   }));
 }
 
@@ -420,18 +414,6 @@ function cleanedReviewText(sample: GatewayReviewSample): string {
   );
 }
 
-function selectedModelVersion(evaluation: GatewayEvaluationSummary | null): string {
-  if (!evaluation) {
-    return EMPTY_TABLE_CELL;
-  }
-
-  const models = [
-    evaluation.selected_indobert_model,
-    evaluation.selected_svm_model,
-  ].filter(Boolean);
-
-  return models.length > 0 ? models.join(" / ") : EMPTY_TABLE_CELL;
-}
 
 function negativeReviewCountForCriterion(
   criterion: string,

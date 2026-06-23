@@ -136,40 +136,28 @@ export default async function PreprocessingPage() {
 
       <ApiGatewayAlert error={apiError} />
 
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
+      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <StatCard
-          description="Jumlah baris dari ringkasan preprocessing."
-          label="Ulasan Mentah"
-          value={preprocessing.total_rows ?? 0}
+          description={preprocessing.data_status ? `Status: ${preprocessing.data_status}` : "Menunggu data."}
+          label="Total Ulasan Bersih"
+          value={preprocessing.valid_review_count ?? preprocessing.total_rows ?? 0}
         />
         <StatCard
-          description="Frontend tidak menjalankan preprocessing runtime."
-          label="Ulasan Diproses"
-          tone="positive"
-          value={preprocessing.total_rows ?? 0}
+          description="Jumlah ulasan sebelum filtering kualitas."
+          label="Ulasan Input"
+          value={preprocessing.input_review_count ?? 0}
         />
         <StatCard
-          description="Duplikasi tidak dihitung di frontend."
-          label="Duplikasi Dihapus"
-          value={0}
+          description="Ulasan yang dihapus saat tahap filtering kualitas."
+          label="Ulasan Dihapus"
+          tone="negative"
+          value={preprocessing.dropped_review_count ?? 0}
         />
         <StatCard
-          description="Kosong setelah cleaning dibaca jika tersedia pada artefak."
-          label="Kosong Setelah Cleaning"
-          tone="positive"
-          value={0}
-        />
-        <StatCard
-          description="Total token tidak dihitung di frontend."
-          label="Token Bersih"
-          tone="primary"
-          value={0}
-        />
-        <StatCard
-          description="Status data preprocessing."
-          label="Status Pipeline"
-          tone="primary"
-          value={preprocessingResult.isAvailable ? "Data tersedia" : EMPTY_TEXT}
+          description={preprocessing.aspect_data_status ? `Aspek: ${preprocessing.aspect_data_status}` : "Status data aspek."}
+          label="Status Aspek"
+          tone="neutral"
+          value={stringValue(preprocessing.aspect_data_status, "Tidak diketahui")}
         />
       </section>
 

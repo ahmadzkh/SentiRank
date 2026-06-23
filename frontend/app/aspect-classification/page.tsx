@@ -11,7 +11,6 @@ import {
   EMPTY_ASPECT_EVALUATION,
   EMPTY_ASPECT_SUMMARY,
   EMPTY_RANDOM_REVIEWS,
-  EMPTY_TABLE_CELL,
   EMPTY_TEXT,
   aspectRankingData,
   formatPercent,
@@ -40,9 +39,7 @@ function confidenceValue(value: number | string | null | undefined) {
   return tableCellValue(value);
 }
 
-function aspectResultColumns(
-  modelVersion: string,
-): readonly SimpleTableColumn<GatewayReviewSample>[] {
+function aspectResultColumns(): readonly SimpleTableColumn<GatewayReviewSample>[] {
   return [
     {
       key: "no",
@@ -77,22 +74,6 @@ function aspectResultColumns(
       align: "right",
       render: (row) => confidenceValue(row.aspect_confidence),
     },
-    {
-      key: "model",
-      header: "Model",
-      render: () => "SVM",
-    },
-    {
-      key: "modelVersion",
-      header: "Model Version",
-      className: "min-w-[180px]",
-      render: () => modelVersion,
-    },
-    {
-      key: "predictionSource",
-      header: "Prediction Source",
-      render: (row) => tableCellValue(row.aspect_prediction_source),
-    },
   ] satisfies SimpleTableColumn<GatewayReviewSample>[];
 }
 
@@ -105,7 +86,7 @@ export default async function AspectClassificationPage() {
   const summary = summaryResult.data;
   const evaluation = evaluationResult.data;
   const aspectRows = aspectRankingData(
-    Object.keys(summary.negative_aspect_distribution).length
+    summary.negative_aspect_distribution && Object.keys(summary.negative_aspect_distribution).length
       ? summary.negative_aspect_distribution
       : summary.aspect_distribution,
   );
@@ -123,7 +104,7 @@ export default async function AspectClassificationPage() {
 
       <ApiGatewayAlert error={apiError} />
 
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
+      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <StatCard
           description="Total count dari distribusi aspek."
           label="Ulasan Diklasifikasi"
@@ -134,17 +115,6 @@ export default async function AspectClassificationPage() {
           label="Aspek Dominan"
           tone="primary"
           value={topAspect?.label ?? "-"}
-        />
-        <StatCard
-          description="Aspek negatif dengan jumlah tertinggi."
-          label="Aspek Negatif Utama"
-          tone="negative"
-          value={topAspect?.label ?? "-"}
-        />
-        <StatCard
-          description="Data multi-aspek belum tersedia."
-          label="Multi-aspek"
-          value={0}
         />
         <StatCard
           description="Jumlah label final dari taxonomy aspek."
@@ -206,9 +176,7 @@ export default async function AspectClassificationPage() {
         title="Tabel Hasil Aspek"
       >
         <SimpleTable
-          columns={aspectResultColumns(
-            summaryResult.isAvailable ? summary.selected_classifier : EMPTY_TABLE_CELL,
-          )}
+          columns={aspectResultColumns()}
           data={reviewsResult.isAvailable ? reviews : []}
           emptyMessage={EMPTY_GATEWAY_MESSAGE}
           minWidthClassName="min-w-[1180px]"

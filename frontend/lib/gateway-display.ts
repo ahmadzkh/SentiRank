@@ -23,44 +23,42 @@ export const EMPTY_TEXT = "Data belum tersedia";
 export const EMPTY_TABLE_CELL = "-";
 
 export const EMPTY_DATASET_SUMMARY: GatewayDatasetSummary = {
-  dataset_availability: {},
+  data_status: null,
   total_review_count: 0,
+  raw_review_count: 0,
+  dropped_review_count: 0,
   rating_distribution: {},
   sentiment_distribution: {},
-  source_application: {},
   review_period: {
     reviewed_at_min: null,
     reviewed_at_max: null,
   },
-  missing_value_summary: {},
-  text_length_summary: {},
-  evaluation_summary_available: false,
   warnings: [],
 };
 
 export const EMPTY_SCRAPING_SUMMARY: GatewayScrapingSummary = {
   app_id: null,
   source_name: null,
-  app_title: null,
-  country: null,
-  lang: null,
+  data_status: null,
   target_quota_per_rating: {},
   achieved_count_per_rating: {},
   total_achieved_rows: 0,
-  rating_results: {},
   rating_3_limitation_note: null,
-  generated_at: null,
   warnings: [],
 };
 
 export const EMPTY_PREPROCESSING_SUMMARY: GatewayPreprocessingSummary = {
+  data_status: null,
   total_rows: 0,
+  input_review_count: 0,
+  valid_review_count: 0,
+  dropped_review_count: 0,
+  drop_reason_distribution: {},
+  quality_stage_distribution: {},
   relabeling_changes: {},
   sentiment_distribution_before: {},
   sentiment_distribution_after: {},
-  text_cleaning_summary: {},
-  aspect_weak_label_summary: {},
-  aspect_taxonomy_summary_available: false,
+  aspect_data_status: null,
   general_fallback_limitation: {},
   warnings: [],
 };
@@ -76,62 +74,63 @@ export const EMPTY_RANDOM_REVIEWS: GatewayRandomReviewsResponse = {
 };
 
 export const EMPTY_SENTIMENT_SUMMARY: GatewaySentimentSummary = {
+  data_status: null,
   selected_model: "run_3_weighted_loss_lr_1e-5",
   sentiment_labels: ["Negative", "Neutral", "Positive"],
   model_status: "unavailable",
+  model_available: false,
+  model_source: "fallback",
+  configured_model_id: null,
+  prediction_source: "fallback_rule",
+  is_fallback: true,
   final_sentiment_distribution: {},
-  raw_sentiment_distribution: {},
-  output_source_availability: {},
   warnings: [],
 };
 
 export const EMPTY_SENTIMENT_EVALUATION: GatewaySentimentEvaluation = {
+  data_status: null,
   selected_candidate: "run_3_weighted_loss_lr_1e-5",
-  run_comparison: [],
   selected_metrics: {},
   limitations: [],
-  output_source_availability: {},
   warnings: [],
 };
 
 export const EMPTY_ASPECT_SUMMARY: GatewayAspectSummary = {
+  data_status: null,
   selected_classifier: "merged_5class",
   final_aspect_labels: [],
   model_status: "unavailable",
-  original_7class_baseline: {},
-  merged_5class_taxonomy: [],
+  model_available: false,
+  model_name: null,
+  prediction_source: null,
   aspect_distribution: {},
-  negative_aspect_distribution: {},
   weak_label_limitation: "",
-  output_source_availability: {},
   warnings: [],
 };
 
 export const EMPTY_ASPECT_EVALUATION: GatewayAspectEvaluation = {
+  data_status: null,
   selected_candidate: "merged_5class",
-  scenario_comparison: [],
   selected_metrics: {},
-  classification_report: {},
   limitations: [],
-  output_source_availability: {},
   warnings: [],
 };
 
 export const EMPTY_EVALUATION_SUMMARY: GatewayEvaluationSummary = {
+  model_data_status: null,
   selected_indobert_model: "run_3_weighted_loss_lr_1e-5",
   selected_svm_model: "merged_5class",
   indobert_run_comparison: [],
   svm_scenario_comparison: [],
-  model_evaluation_records: [],
   final_aspect_criteria: [],
   ahp_fuzzy_ahp_sample_status: {},
   limitations: [],
   expert_judgement_note: "",
-  output_source_availability: {},
   warnings: [],
 };
 
 export const EMPTY_REPORT_SUMMARY: GatewayReportSummary = {
+  model_data_status: null,
   project_name: "SentiRank",
   application: "Spotify Google Play Reviews",
   pipeline_status: {},
@@ -143,7 +142,6 @@ export const EMPTY_REPORT_SUMMARY: GatewayReportSummary = {
   demo_notes: [],
   limitations: [],
   expert_judgement_note: "",
-  output_source_availability: {},
   warnings: [],
 };
 

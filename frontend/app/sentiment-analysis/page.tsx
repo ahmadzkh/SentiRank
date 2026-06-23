@@ -16,7 +16,6 @@ import {
   EMPTY_TEXT,
   formatPercent,
   recordNumber,
-  selectedRecord,
   sentimentDistributionData,
   tableCellValue,
 } from "@/lib/gateway-display";
@@ -44,9 +43,7 @@ function confidenceValue(value: number | null | undefined) {
     : EMPTY_TABLE_CELL;
 }
 
-function sentimentResultColumns(
-  modelVersion: string,
-): readonly SimpleTableColumn<GatewayReviewSample>[] {
+function sentimentResultColumns(): readonly SimpleTableColumn<GatewayReviewSample>[] {
   return [
     {
       key: "no",
@@ -82,22 +79,6 @@ function sentimentResultColumns(
       align: "right",
       render: (row) => confidenceValue(row.sentiment_confidence),
     },
-    {
-      key: "model",
-      header: "Model",
-      render: () => "IndoBERT",
-    },
-    {
-      key: "modelVersion",
-      header: "Model Version",
-      className: "min-w-[180px]",
-      render: () => modelVersion,
-    },
-    {
-      key: "predictionSource",
-      header: "Prediction Source",
-      render: (row) => tableCellValue(row.sentiment_prediction_source),
-    },
   ] satisfies SimpleTableColumn<GatewayReviewSample>[];
 }
 
@@ -115,10 +96,7 @@ export default async function SentimentAnalysisPage() {
   const sentimentRows = sentimentDistributionData(
     summary.final_sentiment_distribution,
   );
-  const selectedMetrics = selectedRecord(
-    evaluation.run_comparison,
-    evaluation.selected_candidate,
-  );
+  const selectedMetrics = evaluation.selected_metrics;
   const reviews = reviewsResult.data.reviews;
   const apiError =
     summaryResult.error ?? evaluationResult.error ?? reviewsResult.error;
@@ -164,15 +142,10 @@ export default async function SentimentAnalysisPage() {
           }
         />
         <StatCard
-          description="Confidence batch tidak dihitung di frontend."
-          label="Confidence Rata-rata"
-          tone="primary"
-          value="0%"
-        />
-        <StatCard
-          description={summary.model_status}
-          label="Model"
-          value="IndoBERT"
+          description={summary.is_fallback ? "Model dalam mode fallback." : summary.model_status}
+          label="Status Model"
+          tone={summary.is_fallback ? "neutral" : "positive"}
+          value={summary.is_fallback ? "Fallback" : "Aktif"}
         />
       </section>
 
@@ -253,11 +226,7 @@ export default async function SentimentAnalysisPage() {
         title="Tabel Hasil Sentimen"
       >
         <SimpleTable
-          columns={sentimentResultColumns(
-            summaryResult.isAvailable
-              ? summary.selected_model
-              : EMPTY_TABLE_CELL,
-          )}
+          columns={sentimentResultColumns()}
           data={reviewsResult.isAvailable ? reviews : []}
           emptyMessage={EMPTY_GATEWAY_MESSAGE}
           minWidthClassName="min-w-[1180px]"
