@@ -1,6 +1,6 @@
 {
   "eval_metrics": {
-    "accuracy": 0.7577038451049904,
+    "accuracy": 0.7608590566949797,
     "dataset_source": {
       "label_mapping_file": "/content/drive/MyDrive/SentiRank/datasets/processed/indobert/label_mapping.json",
       "test_file": "/content/drive/MyDrive/SentiRank/datasets/processed/indobert/test.csv",
@@ -8,34 +8,34 @@
       "validation_file": "/content/drive/MyDrive/SentiRank/datasets/processed/indobert/validation.csv"
     },
     "dataset_version": "processed_indobert_current",
-    "f1_macro": 0.7283657684678827,
-    "f1_weighted": 0.7634036059725428,
-    "generated_at": "2026-06-18T15:02:11.546171+00:00",
-    "loss": 0.6077752113342285,
+    "f1_macro": 0.7310462773692072,
+    "f1_weighted": 0.7666077834032392,
+    "generated_at": "2026-06-24T13:33:09.141196+00:00",
+    "loss": 0.6280543208122253,
     "notes": "Metrics are from this Colab run. Previous run_3 metrics are historical if the processed dataset was regenerated after text quality filtering.",
-    "precision_macro": 0.7249571316253677,
-    "precision_weighted": 0.7735247972806631,
+    "precision_macro": 0.727571354719311,
+    "precision_weighted": 0.7769631153485558,
     "preprocessing_version": "preprocess_indobert_quality_filtering_v1",
     "raw_test_metrics": {
-      "test_accuracy": 0.7577038451049904,
-      "test_f1_macro": 0.7283657684678827,
-      "test_f1_weighted": 0.7634036059725428,
-      "test_loss": 0.6077752113342285,
-      "test_precision_macro": 0.7249571316253677,
-      "test_precision_weighted": 0.7735247972806631,
-      "test_recall_macro": 0.7385961850531321,
-      "test_recall_weighted": 0.7577038451049904
+      "test_accuracy": 0.7608590566949797,
+      "test_f1_macro": 0.7310462773692072,
+      "test_f1_weighted": 0.7666077834032392,
+      "test_loss": 0.6280543208122253,
+      "test_precision_macro": 0.727571354719311,
+      "test_precision_weighted": 0.7769631153485558,
+      "test_recall_macro": 0.741612802494089,
+      "test_recall_weighted": 0.7608590566949797
     },
     "raw_train_metrics": {
       "epoch": 3.0,
-      "total_flos": 5981319297099468.0,
-      "train_loss": 0.5680311909527427,
-      "train_runtime": 2436.1101,
-      "train_samples_per_second": 84.289,
-      "train_steps_per_second": 5.268
+      "total_flos": 5899821971531796.0,
+      "train_loss": 0.5602580465451635,
+      "train_runtime": 2502.0923,
+      "train_samples_per_second": 81.02,
+      "train_steps_per_second": 5.065
     },
-    "recall_macro": 0.7385961850531321,
-    "recall_weighted": 0.7577038451049904,
+    "recall_macro": 0.741612802494089,
+    "recall_weighted": 0.7608590566949797,
     "run_name": "run_3_weighted_loss_lr_1e-5",
     "selected_configuration": {
       "base_model": "indobenchmark/indobert-base-p1",
@@ -45,9 +45,9 @@
       "max_length": 128,
       "weighted_loss_enabled": true
     },
-    "test_rows": 14668,
-    "train_rows": 68446,
-    "validation_rows": 14668
+    "test_rows": 14481,
+    "train_rows": 67573,
+    "validation_rows": 14480
   },
   "preprocessing_config": {
     "dropped_noise_report_path": "ml-service/quality_audit/reviews_preprocessed_indobert_noise_report.csv",
@@ -70,22 +70,22 @@
     "validation_file": "/content/drive/MyDrive/SentiRank/datasets/processed/indobert/validation.csv"
   },
   "test_metrics": {
-    "test_accuracy": 0.7577038451049904,
-    "test_f1_macro": 0.7283657684678827,
-    "test_f1_weighted": 0.7634036059725428,
-    "test_loss": 0.6077752113342285,
-    "test_precision_macro": 0.7249571316253677,
-    "test_precision_weighted": 0.7735247972806631,
-    "test_recall_macro": 0.7385961850531321,
-    "test_recall_weighted": 0.7577038451049904
+    "test_accuracy": 0.7608590566949797,
+    "test_f1_macro": 0.7310462773692072,
+    "test_f1_weighted": 0.7666077834032392,
+    "test_loss": 0.6280543208122253,
+    "test_precision_macro": 0.727571354719311,
+    "test_precision_weighted": 0.7769631153485558,
+    "test_recall_macro": 0.741612802494089,
+    "test_recall_weighted": 0.7608590566949797
   },
   "train_metrics": {
     "epoch": 3.0,
-    "total_flos": 5981319297099468.0,
-    "train_loss": 0.5680311909527427,
-    "train_runtime": 2436.1101,
-    "train_samples_per_second": 84.289,
-    "train_steps_per_second": 5.268
+    "total_flos": 5899821971531796.0,
+    "train_loss": 0.5602580465451635,
+    "train_runtime": 2502.0923,
+    "train_samples_per_second": 81.02,
+    "train_steps_per_second": 5.065
   },
   "training_config": {
     "base_model": "indobenchmark/indobert-base-p1",
@@ -95,19 +95,19 @@
       "method": "sklearn.utils.class_weight.compute_class_weight(class_weight='balanced')",
       "run_name": "run_3_weighted_loss_lr_1e-5",
       "train_distribution": {
-        "Negative": 27780,
-        "Neutral": 12340,
-        "Positive": 28326
+        "Negative": 27590,
+        "Neutral": 12099,
+        "Positive": 27884
       },
       "weights_by_id": {
-        "0": 0.8212862970962324,
-        "1": 1.848892490545651,
-        "2": 0.8054555296665019
+        "0": 0.8163948290443397,
+        "1": 1.8616690084579992,
+        "2": 0.807787022426242
       },
       "weights_by_label": {
-        "Negative": 0.8212862970962324,
-        "Neutral": 1.848892490545651,
-        "Positive": 0.8054555296665019
+        "Negative": 0.8163948290443397,
+        "Neutral": 1.8616690084579992,
+        "Positive": 0.807787022426242
       }
     },
     "epochs": 3,
