@@ -332,8 +332,8 @@ export function RuntimeInferencePanel({
                     value: formatInferenceConfidence(result.sentiment.confidence),
                   },
                   {
-                    label: "Model",
-                    value: result.sentiment.model_name ?? "-",
+                    label: "Model Sentimen",
+                    value: result.sentiment.model_name === "rule_based_fallback" ? "Rule-based (fallback)" : "IndoBERT",
                   },
                   {
                     label: "Sumber prediksi",
@@ -398,8 +398,8 @@ export function RuntimeInferencePanel({
                         : undefined,
                   },
                   {
-                    label: "Model",
-                    value: result.aspect.model_name ?? "-",
+                    label: "Model Aspek",
+                    value: result.aspect.model_name === "rule_based_fallback" ? "Rule-based (fallback)" : "SVM",
                   },
                   {
                     label: "Sumber prediksi",

@@ -110,7 +110,6 @@ export default async function DatasetPage() {
   const scraping = scrapingResult.data;
   const apiError = datasetResult.error ?? reviewsResult.error ?? scrapingResult.error;
 
-  // Scraping helper functions
   function scrapingPreviewRows(
     reviews: readonly GatewayReviewSample[],
     scraping: GatewayScrapingSummary,
@@ -166,7 +165,7 @@ export default async function DatasetPage() {
 
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <StatCard
-          description={dataset.data_status ? `Status: ${dataset.data_status}` : "Menunggu data dari API."}
+          description="Status data dataset untuk analisis."
           label="Total Ulasan Bersih"
           value={dataset.total_review_count ?? 0}
         />
@@ -189,7 +188,7 @@ export default async function DatasetPage() {
         />
       </section>
 
-      <section className="grid gap-6 xl:grid-cols-[minmax(0,9fr)_minmax(0,1.1fr)]">
+      <section className="mt-8">
         <SummaryCard
           description={
             datasetResult.isAvailable
@@ -224,99 +223,84 @@ export default async function DatasetPage() {
           ]}
           title="Ringkasan Dataset"
         />
+      </section>
 
-        {/* Scraping section */}
-        <section className="mt-8">
-          <PageHeader
-            description="Status pengumpulan ulasan Spotify serta ringkasan batch scraping."
-            eyebrow="Pengumpulan data"
-            title="Scraping"
+      <section className="mt-8">
+        <PageHeader
+          description="Status pengumpulan ulasan Spotify serta ringkasan batch scraping."
+          eyebrow="Pengumpulan data"
+          title="Scraping"
+        />
+        <ApiGatewayAlert error={scrapingResult.error} />
+        <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <StatCard
+            description="Total target dari ringkasan quota scraping."
+            label="Request Ulasan"
+            value={(() => {
+              const targetRows = Object.entries(scraping.target_quota_per_rating ?? {});
+              return targetRows.reduce((total, [, v]) => total + (v ?? 0), 0);
+            })()}
           />
-          <ApiGatewayAlert error={scrapingResult.error} />
-          <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-            <StatCard
-              description="Total target dari ringkasan quota scraping."
-              label="Request Ulasan"
-              value={(() => {
-                const targetRows = Object.entries(scraping.target_quota_per_rating ?? {});
-                return targetRows.reduce((total, [, v]) => total + (v ?? 0), 0);
-              })()}
-            />
-            <StatCard
-              description="Data yang tersedia dari artefak scraping."
-              label="Terkumpul"
-              tone="primary"
-              value={scraping.total_achieved_rows ?? 0}
-            />
-            <StatCard
-              description="Sumber aplikasi Spotify."
-              label="Package"
-              value={stringValue(scraping.app_id, EMPTY_TEXT)}
-            />
-            <StatCard
-              description="Status data scraping."
-              label="Status"
-              tone={scrapingResult.isAvailable ? "positive" : "neutral"}
-              value={scrapingResult.isAvailable ? "Data tersedia" : EMPTY_TEXT}
-            />
-          </section>
-
-          <SummaryCard
-            description={
-              scrapingResult.isAvailable
-                ? "Ringkasan scraping penelitian tersedia."
-                : EMPTY_GATEWAY_MESSAGE
-            }
-            items={[
-              {
-                label: "Source",
-                value: stringValue(scraping.source_name, EMPTY_TEXT),
-                description: stringValue(scraping.app_id, EMPTY_TEXT),
-              },
-              {
-                label: "Total Terkumpul",
-                value: scraping.total_achieved_rows ?? 0,
-                description: "Jumlah ulasan yang berhasil dikumpulkan.",
-              },
-              {
-                label: "Catatan Rating 3",
-                value: stringValue(scraping.rating_3_limitation_note, "Tidak ada catatan"),
-                description: "Keterbatasan pengumpulan rating 3.",
-              },
-              {
-                label: "Mode",
-                value: scrapingResult.isAvailable ? "Data tersedia" : EMPTY_TEXT,
-                description: "Frontend hanya membaca hasil, tidak menjalankan scraper.",
-              },
-            ]}
-            title="Ringkasan Status Scraping"
+          <StatCard
+            description="Data yang tersedia dari artefak scraping."
+            label="Terkumpul"
+            tone="primary"
+            value={scraping.total_achieved_rows ?? 0}
           />
-
-          <ChartCard
-            description="Pratinjau Hasil Scraping"
-            title="Pratinjau Hasil Scraping"
-          >
-            <SimpleTable
-              columns={scrapingPreviewColumns}
-              data={scrapingPreviewRows(reviews, scraping)}
-              emptyMessage={EMPTY_GATEWAY_MESSAGE}
-              minWidthClassName="min-w-[1180px]"
-              rowKey={(row, index) => row.external_id ?? row.scrape_request_id ?? `scraping-review-${index}`}
-            />
-          </ChartCard>
+          <StatCard
+            description="Sumber aplikasi Spotify."
+            label="Package"
+            value={stringValue(scraping.app_id, EMPTY_TEXT)}
+          />
+          <StatCard
+            description="Status data scraping."
+            label="Status"
+            tone={scrapingResult.isAvailable ? "positive" : "neutral"}
+            value={scrapingResult.isAvailable ? "Data tersedia" : EMPTY_TEXT}
+          />
         </section>
-        {/* End of Scraping section */}
+
+        <SummaryCard
+          description={
+            scrapingResult.isAvailable
+              ? "Ringkasan scraping penelitian tersedia."
+              : EMPTY_GATEWAY_MESSAGE
+          }
+          items={[
+            {
+              label: "Source",
+              value: stringValue(scraping.source_name, EMPTY_TEXT),
+              description: stringValue(scraping.app_id, EMPTY_TEXT),
+            },
+            {
+              label: "Total Terkumpul",
+              value: scraping.total_achieved_rows ?? 0,
+              description: "Jumlah ulasan yang berhasil dikumpulkan.",
+            },
+            {
+              label: "Catatan Rating 3",
+              value: stringValue(scraping.rating_3_limitation_note, "Tidak ada catatan"),
+              description: "Keterbatasan pengumpulan rating 3.",
+            },
+            {
+              label: "Mode",
+              value: scrapingResult.isAvailable ? "Data tersedia" : EMPTY_TEXT,
+              description: "Frontend hanya membaca hasil, tidak menjalankan scraper.",
+            },
+          ]}
+          title="Ringkasan Status Scraping"
+        />
 
         <ChartCard
-          description="Distribusi rating ulasan Spotify dari dataset penelitian."
-          title="Distribusi Rating"
+          description="Pratinjau Hasil Scraping"
+          title="Pratinjau Hasil Scraping"
         >
           <SimpleTable
-            columns={ratingColumns}
-            data={ratingRows}
+            columns={scrapingPreviewColumns}
+            data={scrapingPreviewRows(reviews, scraping)}
             emptyMessage={EMPTY_GATEWAY_MESSAGE}
-            minWidthClassName="min-w-[420px]"
-            rowKey={(row) => `rating-${row.rating}`}
+            minWidthClassName="min-w-[1180px]"
+            rowKey={(row, index) => row.external_id ?? row.scrape_request_id ?? `scraping-review-${index}`}
           />
         </ChartCard>
       </section>

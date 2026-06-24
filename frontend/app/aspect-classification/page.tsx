@@ -123,9 +123,9 @@ export default async function AspectClassificationPage() {
           value={summary.final_aspect_labels.length}
         />
         <StatCard
-          description={summary.model_status}
+          description="Model SVM yang digunakan untuk klasifikasi aspek."
           label="Model"
-          value={summary.selected_classifier}
+          value="SVM"
         />
       </section>
 

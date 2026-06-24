@@ -170,7 +170,7 @@ export default async function SentimentAnalysisPage() {
           }
         />
         <StatCard
-          description={summary.is_fallback ? "Model dalam mode fallback." : summary.model_status}
+          description={summary.is_fallback ? "Model menggunakan fallback rule-based." : summary.model_status}
           label="Status Model"
           tone={summary.is_fallback ? "neutral" : "positive"}
           value={summary.is_fallback ? "Fallback" : "Aktif"}
@@ -225,8 +225,8 @@ export default async function SentimentAnalysisPage() {
             },
             {
               label: "Model",
-              value: summary.selected_model,
-              description: evaluation.selected_candidate,
+              value: "IndoBERT",
+              description: "Model sentimen IndoBERT fine-tuned pada dataset penelitian.",
             },
             {
               label: "Status",

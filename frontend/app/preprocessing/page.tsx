@@ -22,10 +22,43 @@ import type { GatewayReviewSample } from "@/types";
 
 export const dynamic = "force-dynamic";
 
-function objectRows(record: Record<string, unknown>) {
-  return Object.entries(record).map(([key, value]) => ({
+function relabelingRows(relabeling: Record<string, unknown>) {
+  const labelMap: Record<string, string> = {
+    changed_label_count: "Jumlah label berubah",
+    total_before: "Total sebelum",
+    total_after: "Total sesudah",
+    negative_to_positive: "Negatif ke positif",
+    positive_to_negative: "Positif ke negatif",
+    neutral_to_negative: "Netral ke negatif",
+    neutral_to_positive: "Netral ke positif",
+    positive_to_neutral: "Positif ke netral",
+    negative_to_neutral: "Negatif ke netral",
+  };
+  return Object.entries(relabeling).map(([key, value]) => ({
     key,
-    label: key,
+    label: labelMap[key] ?? key,
+    value:
+      typeof value === "object" && value !== null
+        ? JSON.stringify(value)
+        : stringValue(String(value), EMPTY_TEXT),
+  }));
+}
+
+function textCleaningRows(summary: Record<string, unknown>) {
+  const labelMap: Record<string, string> = {
+    total_stopwords_removed: "Stopwords dihapus",
+    total_mentions_removed: "Mention dihapus",
+    total_urls_removed: "URL dihapus",
+    total_emojis_removed: "Emoji dihapus",
+    total_whitespace_normalized: "Spasi dinormalisasi",
+    avg_token_length_before: "Panjang token rata-rata (sebelum)",
+    avg_token_length_after: "Panjang token rata-rata (sesudah)",
+    avg_review_length_before: "Panjang ulasan rata-rata (sebelum)",
+    avg_review_length_after: "Panjang ulasan rata-rata (sesudah)",
+  };
+  return Object.entries(summary).map(([key, value]) => ({
+    key,
+    label: labelMap[key] ?? key,
     value:
       typeof value === "object" && value !== null
         ? JSON.stringify(value)
@@ -69,30 +102,55 @@ const preprocessingReviewColumns = [
   },
   {
     key: "textLengthBefore",
-    header: "Text Length Before",
+    header: "Panjang Teks Sebelum",
     align: "right",
     render: (row) => tableCellValue(row.text_length_before),
   },
   {
     key: "textLengthAfter",
-    header: "Text Length After",
+    header: "Panjang Teks Sesudah",
     align: "right",
     render: (row) => tableCellValue(row.text_length_after),
   },
   {
     key: "noiseFlag",
-    header: "Noise Flag",
-    render: (row) => tableCellValue(row.noise_flag),
+    header: "Flag Gangguan",
+    render: (row) => {
+      const flag = row.noise_flag;
+      if (typeof flag === "boolean") return flag ? "Ya" : "Tidak";
+      return tableCellValue(flag);
+    },
   },
   {
     key: "dropReason",
-    header: "Drop Reason",
-    render: (row) => tableCellValue(row.drop_reason),
+    header: "Alasan Dihapus",
+    render: (row) => {
+      const reason = row.drop_reason;
+      if (!reason) return EMPTY_TABLE_CELL;
+      const labelMap: Record<string, string> = {
+        duplicate: "Duplikat",
+        too_short: "Terlalu pendek",
+        non_indonesian: "Bukan Bahasa Indonesia",
+        empty_after_cleaning: "Kosong setelah cleaning",
+        low_quality: "Kualitas rendah",
+      };
+      return labelMap[String(reason)] ?? tableCellValue(reason);
+    },
   },
   {
     key: "preprocessingStatus",
-    header: "Preprocessing Status",
-    render: (row) => tableCellValue(row.preprocessing_status, EMPTY_TABLE_CELL),
+    header: "Status Prapemrosesan",
+    render: (row) => {
+      const status = row.preprocessing_status;
+      if (!status) return EMPTY_TABLE_CELL;
+      const labelMap: Record<string, string> = {
+        processed: "Terproses",
+        valid: "Valid",
+        dropped: "Dihapus",
+        cleaned: "Dibersihkan",
+      };
+      return labelMap[String(status)] ?? tableCellValue(status);
+    },
   },
 ] satisfies SimpleTableColumn<GatewayReviewSample>[];
 
@@ -138,7 +196,7 @@ export default async function PreprocessingPage() {
 
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <StatCard
-          description={preprocessing.data_status ? `Status: ${preprocessing.data_status}` : "Menunggu data."}
+          description="Jumlah ulasan valid setelah filtering kualitas."
           label="Total Ulasan Bersih"
           value={preprocessing.valid_review_count ?? preprocessing.total_rows ?? 0}
         />
@@ -154,10 +212,10 @@ export default async function PreprocessingPage() {
           value={preprocessing.dropped_review_count ?? 0}
         />
         <StatCard
-          description={preprocessing.aspect_data_status ? `Aspek: ${preprocessing.aspect_data_status}` : "Status data aspek."}
+          description="Status data aspek untuk klasifikasi SVM."
           label="Status Aspek"
           tone="neutral"
-          value={stringValue(preprocessing.aspect_data_status, "Tidak diketahui")}
+          value={preprocessing.aspect_data_status ? "Tersedia" : "Belum tersedia"}
         />
       </section>
 
@@ -222,7 +280,7 @@ export default async function PreprocessingPage() {
                 render: (row) => row.value,
               },
             ]}
-            data={preprocessingResult.isAvailable ? objectRows(relabeling) : []}
+            data={preprocessingResult.isAvailable ? relabelingRows(relabeling) : []}
             emptyMessage={EMPTY_GATEWAY_MESSAGE}
             minWidthClassName="min-w-[420px]"
             rowKey={(row) => row.key}
@@ -251,7 +309,7 @@ export default async function PreprocessingPage() {
             preprocessingResult.isAvailable &&
             typeof preprocessing.text_cleaning_summary === "object" &&
             preprocessing.text_cleaning_summary !== null
-              ? objectRows(preprocessing.text_cleaning_summary as Record<string, unknown>)
+              ? textCleaningRows(preprocessing.text_cleaning_summary as Record<string, unknown>)
               : []
           }
           emptyMessage={EMPTY_GATEWAY_MESSAGE}

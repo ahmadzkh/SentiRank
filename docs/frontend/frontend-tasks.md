@@ -1256,3 +1256,44 @@ Menggabungkan halaman `/inference` (Uji Ulasan) dan `/scraping` ke dalam halaman
 ### Completion Note
 
 Completed on 2026-06-24. MS-15G mengonsolidasikan Uji Ulasan ke dalam halaman Sentiment Analysis dan scraping ke dalam halaman Dataset, menghapus kedua route terpisah. Sidebar dan dokumentasi disinkronkan. Build berhasil dengan 9 route: `/`, `/dataset`, `/preprocessing`, `/sentiment-analysis`, `/aspect-classification`, `/ahp-fuzzy-ahp`, `/model-evaluation`, `/settings`, `/_not-found`.
+
+---
+
+## MS-15H — Report-style UI Cleanup
+
+### Objective
+
+Membersihkan semua halaman frontend dari field teknis yang hanya relevan untuk developer, agar UI terbaca seperti laporan data yang siap untuk demo skripsi.
+
+### Task Checklist
+
+- [x] Audit semua halaman utama terhadap field teknis: `data_status`, `model_status`, `selected_model`, `selected_classifier`, `selected_indobert_model`, `selected_svm_model`, `*_exists`, raw artifact paths.
+- [x] Ganti `selected_model` (Sentiment Analysis) dengan label user-friendly "IndoBERT".
+- [x] Ganti `selected_classifier` (Aspect Classification) dengan label user-friendly "SVM".
+- [x] Ganti `selected_indobert_model` / `selected_svm_model` (Model Evaluation) dengan label "IndoBERT" / "SVM".
+- [x] Hapus `data_status` dari deskripsi StatCard di Dataset dan Preprocessing.
+- [x] Ganti `aspect_data_status` raw value dengan "Tersedia" / "Belum tersedia".
+- [x] Ganti `model_name` di RuntimeInferencePanel dengan label user-friendly (IndoBERT / Rule-based fallback, SVM / Rule-based fallback).
+- [x] Hapus duplikasi chart "Distribusi Rating" di halaman Dataset.
+- [x] Ganti header tabel preprocessing dari Bahasa Inggris ke Bahasa Indonesia (Noise Flag, Drop Reason, Preprocessing Status, Text Length Before/After).
+- [x] Ganti raw key-value display di preprocessing (relabeling, text_cleaning_summary) dengan label Bahasa Indonesia.
+- [x] Update `docs/frontend/frontend-tasks.md`.
+- [x] Jalankan `npm run lint`.
+- [x] Jalankan `npm run build`.
+
+### Acceptance Criteria
+
+- [x] Dashboard tidak menampilkan path, file name, atau diagnostik internal.
+- [x] Dataset tidak menampilkan `*_exists` atau artifact path mentah.
+- [x] Preprocessing terbaca seperti laporan prapemrosesan (header dan value dalam Bahasa Indonesia).
+- [x] Sentiment Analysis menampilkan laporan + section uji ulasan dengan label model yang mudah dipahami.
+- [x] Aspect Classification menampilkan "SVM" bukan "merged_5class".
+- [x] Model Evaluation menampilkan "IndoBERT" / "SVM" bukan internal model identifier.
+- [x] AHP/Fuzzy AHP tetap read-only dan sample-labeled.
+- [x] API Gateway OFF tetap menampilkan alert merah + empty state.
+- [x] `npm run lint` berhasil tanpa warning.
+- [x] `npm run build` berhasil.
+
+### Completion Note
+
+Completed on 2026-06-24. MS-15H membersihkan semua halaman utama dari field teknis. Perubahan utama: (1) Semua nama model diganti dengan label user-friendly; (2) `data_status` / `model_status` / `*_exists` disembunyikan dari UI utama; (3) Tabel preprocessing diterjemahkan ke Bahasa Indonesia dengan mapping key yang meaningful; (4) RuntimeInferencePanel menampilkan label model yang mudah dipahami; (5) Duplikasi chart dihapus. Build berhasil dengan 9 route tanpa warning.
