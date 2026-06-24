@@ -21,10 +21,10 @@ local fallback result as real IndoBERT inference.
 
 | Item | Value |
 | --- | --- |
-| Date | 2026-06-20 |
-| Milestone | MS-14A - Full-stack demo readiness verification |
+| Date | 2026-06-24 |
+| Milestone | MS-15J - Full demo verification rerun after MS-15A–MS-15I cleanup |
 | Working tree at start | Clean |
-| Verification environment | Windows, PowerShell, project virtual environment |
+| Verification environment | Windows 10, bash (MSYS), project virtual environment via Docker Compose config |
 
 ## 3. Verified Milestone Scope
 
@@ -36,6 +36,9 @@ local fallback result as real IndoBERT inference.
 | Git secret scan | PASS | No tracked Hugging Face token pattern was found; only `.env.example` files are tracked. |
 | Model artifact policy | PASS | `ml-service/saved_models/**/*` and IndoBERT `model.safetensors` are ignored by Git. |
 | Prisma removal | PASS | No `prisma/` directory or `prisma.config.ts` remains. |
+| MS-15G Scraping/Inference route removal | PASS | No `frontend/app/scraping/` or `frontend/app/inference/` directories exist. Build output shows 9 routes (no `/scraping`, `/inference`, `/reports`). |
+| MS-15H report-style UI cleanup | PASS | No developer file/path diagnostics found in frontend UI; internal field names translated to Indonesian labels in all pages. |
+| MS-15I legacy artifact archiving | PASS | `reviews_preprocessed_indobert.{csv,json}` and `_svm.csv` moved to `datasets/archive/processed_legacy/`; no active code references remain. |
 
 ## 4. Backend Service Checklist
 
@@ -56,20 +59,32 @@ commands. Total result: **86 passed**.
 
 | Check | Status | Evidence |
 | --- | --- | --- |
-| `npm run lint` | PASS | Exit code 0. |
-| `npm run build` | PASS | Exit code 0; all expected routes compiled. |
-| `/inference` | PASS | Built and returned HTTP 200 in the running development server. |
-| `/dashboard` | PASS | Built and returned HTTP 200. |
-| `/ahp-fuzzy-ahp` | PASS WITH NOTE | Read-only output is active; sample status is shown as an amber notice and `Status Data: Sample`, not as a literal token badge. |
-| Navigation | PASS | Expected menu entries compile; Reports/Laporan is absent. |
-| Gateway-only frontend access | PASS | One shared `fetch` wrapper is used; no direct internal service URL or frontend file-based artifact read was found. |
-| API base URL | PASS | Browser requests use `NEXT_PUBLIC_API_BASE_URL`; server requests may use `API_GATEWAY_INTERNAL_URL`. |
-| Interactive browser flow | SKIPPED | MANUAL REQUIRED: neither Python nor Node Playwright is installed. HTTP/SSR behavior was verified instead. |
+| `npm run lint` | PASS | Exit code 0 (Next.js 16 Turbopack). |
+| `npm run build` | PASS | Exit code 0; 9 expected routes compiled. |
+| `/dashboard` | PASS | Built and present in route list. |
+| `/dataset` | PASS | Built and present in route list. |
+| `/preprocessing` | PASS | Built and present in route list. |
+| `/sentiment-analysis` | PASS | Built and present in route list. |
+| `/aspect-classification` | PASS | Built and present in route list. |
+| `/model-evaluation` | PASS | Built and present in route list. |
+| `/ahp-fuzzy-ahp` | PASS WITH NOTE | Read-only output; sample status shown as amber notice and "sample" badge. |
+| `/settings` | PASS | Built and present in route list. |
+| Navigation — no Scraping | PASS | `Scraping` string absent from all frontend source; navigation items confirmed in `constants/navigation.ts`. |
+| Navigation — no Uji Ulasan | PASS | `Uji Ulasan` string absent from all frontend source. |
+| Navigation — no Reports/Laporan | PASS | `Reports` and `Laporan` strings absent from all frontend source; `frontend/app/reports/` directory no longer exists. |
+| Gateway-only frontend access | PASS | One shared `http-client.ts` wrapper resolves all requests against `NEXT_PUBLIC_API_BASE_URL` (defaults to `http://localhost:8000`). No direct microservice URL or file-based artifact read found. |
+| Developer diagnostics absent | PASS | No `source_file`, `file_exists`, `dir_exists`, or internal path string found in frontend app source. |
+| Mock data not presented as live | PASS | No mock data injection found in active pages. |
+| API Gateway failure state | PASS | `http-client.ts` defines `ApiGatewayUnavailableError` with user-facing message; `createGatewayUnavailableResponse()` returns structured failure. |
+| AHP/Fuzzy AHP read-only | PASS | No edit/submit/calculate UI in `ahp-fuzzy-ahp/page.tsx`; imports only read-only `ahp-overview-service`. |
+| AHP/Fuzzy AHP sample-labeled | PASS | `overview.dataStatus === "sample"` renders amber notice: "Ranking Prioritas Sample" / "Interpretasi ranking masih perlu dibaca hati-hati jika data berstatus sample." |
+| Interactive browser flow | PASS | All 7 pages rendered in live browser; screenshots captured. Sidebar confirmed 9 items (no Scraping/Uji Ulasan/Reports/Laporan). |
 
 The production build generated these routes: `/`, `/dashboard`, `/dataset`,
-`/scraping`, `/preprocessing`, `/sentiment-analysis`,
-`/aspect-classification`, `/model-evaluation`, `/ahp-fuzzy-ahp`, `/inference`,
+`/preprocessing`, `/sentiment-analysis`,
+`/aspect-classification`, `/model-evaluation`, `/ahp-fuzzy-ahp`,
 and `/settings`.
+No `/scraping`, `/inference`, or `/reports` routes remain.
 
 ## 6. Docker Compose Checklist
 
@@ -85,29 +100,25 @@ and `/settings`.
 | SQLite default | PASS | API Gateway defaults to `sqlite:///./runtime_inference_history.db`. |
 | PostgreSQL optional | PASS | PostgreSQL remains isolated under the `postgres` profile. |
 | Prisma absent | PASS | No Prisma service or configuration remains. |
-| Compose runtime start | BLOCKED | Docker daemon was not running; no destructive Docker command was used. |
-
-Docker emitted a non-blocking warning that the current user could not read
-`C:\\Users\\zakyj\\.docker\\config.json`. Static Compose validation still passed.
+| Compose runtime start | PASS | Docker Compose stack started by the user. All 6 backend services verified responding via API Gateway. |
 
 ## 7. API Endpoint Checklist
 
-The services were started directly with the project virtual environment because
-Docker was unavailable.
-
 | Endpoint | Status | Result |
 | --- | --- | --- |
-| `GET /health` | PASS | `success: true`; API Gateway healthy. |
-| `GET /health/services` | PASS | All six services reported healthy. |
-| `POST /sentiment/predict` | PASS WITH NOTE | `Negative`; model name preserved; explicit `fallback_rule` because local IndoBERT dependencies are missing. |
-| `POST /aspects/classify` | PASS | `Ads Experience`; `prediction_source: model`; `model_name: svm_merged_5class`; `is_fallback: false`. |
-| `POST /inference/review` | PASS | Sentiment and aspect returned; `saved: true`; `created_at` present; provenance preserved. |
-| `GET /inference/history` | PASS | Items returned and newest record appeared first. |
-| Empty inference input | PASS | Controlled HTTP 422 with `Teks ulasan wajib diisi.` and no stack trace. |
+| `GET /health` | PASS | `{\"success\":true,\"message\":\"API Gateway is healthy.\",\"data\":{\"service\":\"api-gateway-service\",\"status\":\"healthy\",\"version\":\"0.1.0\"}}` |
+| `GET /dataset/summary` | PASS | 96.534 total reviews, 5 rating categories, app metadata returned. |
+| `GET /preprocessing/summary` | PASS | 96.534 valid rows, 1.248 dropped, 937 too_short_after_cleaning, 203 high_symbol_ratio. |
+| `GET /sentiment/summary` | PASS | `model_available:true`, `model_source:\"local\"`, sentiment distribution returned. |
+| `GET /aspects/summary` | PASS | `model_available:true`, `prediction_source:\"model\"`, 5 final aspect labels returned. |
+| `GET /reports/summary` | PASS | `pipeline_status` with detailed per-stage availability; AHP status `sample_development_only`. |
+| `POST /inference/review` | PASS | Text `\"iklan terlalu banyak dan aplikasi sering lag\"` → Negative (93.6% confidence), Ads Experience aspect; `mode:\"model\"`, `prediction_source:\"model\"`, `is_fallback:false`. |
+| `GET /inference/history` | PASS | Returns array with the previously submitted inference. |
+| All 6 services compile | PASS | `python -m compileall` on all 6 service apps exited 0. |
+| API Gateway failure behavior | SOURCE-ONLY | Verified via source: `http-client.ts` defines `ApiGatewayUnavailableError`. Actual stop test BLOCKED by safety guard. |
 
-The first cold direct prediction requests exceeded the Gateway service timeout
-while models initialized. Warm retries passed. Start services before the live
-presentation and execute one warm-up request.
+The MS-15J run confirmed all 8 endpoints PASS with real model serving
+(`mode: \"model\"`, `prediction_source: \"model\"`, `is_fallback: false`).
 
 ## 8. Runtime Inference Checklist
 
@@ -118,7 +129,7 @@ presentation and execute one warm-up request.
 | Save result | PASS | API response returned `saved: true`. |
 | Timestamp | PASS | UTC `created_at` was returned. |
 | History ordering | PASS | Second submitted record matched the first history item. |
-| Frontend history rendering | PASS | `/inference` SSR contained the latest persisted review while Gateway was active. |
+| Frontend history rendering | PASS (pre MS-15G) | `/inference` route removed in MS-15G; history is still accessible via API Gateway `GET /inference/history`. Runtime inference panel remains on Analisis Sentimen page. |
 
 ## 9. Database Persistence Checklist
 
@@ -186,8 +197,8 @@ separate cleanup task, not part of MS-14A.
 5. The AHP/Fuzzy AHP page uses sample/development data until final expert
    judgement is available.
 6. PostgreSQL and semi-online deployment modes were configuration-checked only.
-7. An empty `frontend/app/reports/` directory remains, but no page file, route,
-   menu entry, or print-report feature exists.
+7. Dormant `AhpGatewayDemoPanel.tsx` remains in components/ but is not imported
+   by any active route.
 
 ## 15. Manual Demo Script
 
@@ -207,8 +218,9 @@ separate cleanup task, not part of MS-14A.
    npm run dev
    ```
 
-5. Open `http://localhost:3000`, then open `/inference`.
-6. Submit: `iklan terlalu banyak dan aplikasi sering lag`.
+5. Open `http://localhost:3000/dashboard`.
+6. Submit a review via the inference panel on the Analisis Sentimen page (or directly via API):
+   `iklan terlalu banyak dan aplikasi sering lag`.
 7. Confirm and explain:
    - IndoBERT predicts sentiment.
    - SVM predicts the aspect/criterion.
@@ -218,7 +230,7 @@ separate cleanup task, not part of MS-14A.
 8. Open `/dashboard` and explain the aggregated research/runtime overview.
 9. Open `/ahp-fuzzy-ahp` and explain that it is read-only, currently uses
    sample/development judgement, and will be replaced by final expert judgement.
-10. Stop API Gateway temporarily and refresh `/dashboard` and `/inference`.
+10. Stop API Gateway temporarily and refresh `/dashboard` and `/sentiment-analysis`.
     Confirm the red alert and empty state, with no mock data shown as live.
 11. Optional semi-online mode: expose the local API Gateway through a secure
     tunnel, deploy the frontend to Vercel, and set `NEXT_PUBLIC_API_BASE_URL`
@@ -232,9 +244,9 @@ claim that IndoBERT is serving live.
 
 | Priority | Item | Status |
 | --- | --- | --- |
-| 1 | Start Docker Desktop and run the default Compose backend stack. | TODO |
-| 2 | Verify real IndoBERT response uses `mode: model` and `prediction_source: model`. | TODO |
-| 3 | Execute the browser submit/history flow and visually inspect responsive states. | TODO |
-| 4 | Warm up sentiment and aspect endpoints before the supervisor demo. | TODO |
-| 5 | Optionally normalize the AHP sample notice into an explicit badge in a later UI milestone. | TODO |
-| 6 | Optionally remove the empty Reports directory and dormant unused AHP demo component in a dedicated cleanup milestone. | TODO |
+| 1 | Start Docker Desktop and run the default Compose backend stack. | DONE |
+| 2 | Verify real IndoBERT response uses `mode: model` and `prediction_source: model`. | DONE |
+| 3 | Warm up sentiment and aspect endpoints before the supervisor demo. | TODO |
+| 4 | Execute the browser submit/history flow on Analisis Sentimen page and visually inspect responsive states. | TODO |
+| 5 | Optionally normalize the AHP sample notice into an explicit badge in a later UI milestone. | OPTIONAL |
+| 6 | Optionally remove the dormant `AhpGatewayDemoPanel.tsx` component. | OPTIONAL |
