@@ -26,8 +26,8 @@
 - [x] MS-13G — Dokumentasi frontend aktif disinkronkan
 - [x] MS-15F — Frontend Data Mapping Fix
 - [x] MS-15G — Frontend Merge Uji Ulasan and Scraping menus
-- [ ] MS-15H — Frontend UI Cleanup
-- [ ] MS-15I — Frontend Archive Legacy Routes
+- [x] MS-15H — Frontend UI Cleanup
+- [x] MS-15I — Frontend Archive Legacy Routes
 - [ ] MS-15J — Frontend Full Verification
 - [ ] MS-16 — Retrain Decision Service
 - [ ] MS-17 — Expert Judgement Final
@@ -1297,3 +1297,23 @@ Membersihkan semua halaman frontend dari field teknis yang hanya relevan untuk d
 ### Completion Note
 
 Completed on 2026-06-24. MS-15H membersihkan semua halaman utama dari field teknis. Perubahan utama: (1) Semua nama model diganti dengan label user-friendly; (2) `data_status` / `model_status` / `*_exists` disembunyikan dari UI utama; (3) Tabel preprocessing diterjemahkan ke Bahasa Indonesia dengan mapping key yang meaningful; (4) RuntimeInferencePanel menampilkan label model yang mudah dipahami; (5) Duplikasi chart dihapus. Build berhasil dengan 9 route tanpa warning.
+
+---
+
+## Year Review Chart — Component Created
+
+Komponen `YearReviewChart` (BarChart tahunan) sudah dibuat di `frontend/components/charts/YearReviewChart.tsx`.
+
+Data diekstrak langsung dari CSV `dataset_spotify_processed.csv` (field `reviewed_at`) saat `_canonical_dataset_stats()` dipanggil — **tidak perlu endpoint backend terpisah**.
+
+### Backend Changes (`research_data_service.py`)
+
+- `_canonical_dataset_stats()` — tambah dictionary `yearly_counts`, ekstrak tahun dari `reviewed_at[:4]`, increment per baris.
+- `dataset_summary()` — tambah `"yearly_counts"` ke return dict.
+
+### Status ✅
+
+- Backend mengembalikan `yearly_counts` di `/dataset/summary` (13 tahun: 2014–2026).
+- Frontend `YearReviewChart` menerima data via `yearlyCountData()` transformer.
+- Build PASS, halaman Dataset menampilkan BarChart tahunan dengan data real.
+

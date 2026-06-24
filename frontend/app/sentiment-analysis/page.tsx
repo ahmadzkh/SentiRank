@@ -60,7 +60,7 @@ function sentimentResultColumns() {
     },
     {
       key: "cleanedReview",
-      header: "Cleaned Review",
+      header: "Teks Bersih",
       className: "min-w-[320px] max-w-[460px]",
       render: (row) => (
         <span className="line-clamp-3 break-words font-medium text-foreground">
@@ -70,17 +70,17 @@ function sentimentResultColumns() {
     },
     {
       key: "actualWeakLabel",
-      header: "Actual/Weak Label",
+      header: "Label Aktual",
       render: (row) => tableCellValue(row.final_sentiment ?? row.initial_sentiment),
     },
     {
       key: "predictedSentiment",
-      header: "Predicted Sentiment",
+      header: "Prediksi Sentimen",
       render: (row) => tableCellValue(row.predicted_sentiment),
     },
     {
       key: "confidence",
-      header: "Confidence",
+      header: "Konfidensi",
       align: "right",
       render: (row) => confidenceValue(row.sentiment_confidence),
     },
@@ -130,7 +130,7 @@ export default async function SentimentAnalysisPage() {
     <AppShell>
       {/* Header */}
       <PageHeader
-        description="Ringkasan hasil analisis sentimen IndoBERT dari dataset penelitian."
+        description="Ringkasan analisis sentimen IndoBERT."
         eyebrow="IndoBERT"
         title="Analisis Sentimen"
       />
@@ -141,12 +141,12 @@ export default async function SentimentAnalysisPage() {
       {/* STATISTICS CARDS ------------------------------------------------*/}
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
         <StatCard
-          description="Jumlah dari distribusi sentimen."
-          label="Total Ulasan"
+          description="Total ulasan dalam distribusi."
+          label="Ulasan Bersih"
           value={sentimentRows.reduce((total, row) => total + row.count, 0)}
         />
         <StatCard
-          description="Distribusi dari /sentiment/summary."
+          description="Jumlah ulasan positif."
           label="Positif"
           tone="positive"
           value={
@@ -154,7 +154,7 @@ export default async function SentimentAnalysisPage() {
           }
         />
         <StatCard
-          description="Distribusi dari /sentiment/summary."
+          description="Jumlah ulasan netral."
           label="Netral"
           tone="neutral"
           value={
@@ -162,7 +162,7 @@ export default async function SentimentAnalysisPage() {
           }
         />
         <StatCard
-          description="Distribusi dari /sentiment/summary."
+          description="Jumlah ulasan negatif."
           label="Negatif"
           tone="negative"
           value={
@@ -180,7 +180,7 @@ export default async function SentimentAnalysisPage() {
       {/* CHART & SUMMARY -------------------------------------------------*/}
       <section className="grid gap-6 xl:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
         <ChartCard
-          description="Form ini menampilkan alur prediksi sentimen saat layanan tersedia."
+          description="Form prediksi satu ulasan."
           title="Input Ulasan Tunggal"
         >
           <div className="space-y-4">
@@ -238,10 +238,10 @@ export default async function SentimentAnalysisPage() {
         />
 
         <ChartCard
-          description="Ringkasan distribusi sentimen batch dari dataset penelitian."
+          description="Distribusi sentimen dari dataset."
           insight={
             sentimentRows.length > 0
-              ? "Distribusi berasal dari output preprocessing/modeling."
+              ? "Distribusi dari hasil preprocessing."
               : EMPTY_GATEWAY_MESSAGE
           }
           title="Distribusi Sentimen"
@@ -250,7 +250,7 @@ export default async function SentimentAnalysisPage() {
         </ChartCard>
 
         <ChartCard
-          description="Tabel ini menampilkan sampel hasil sentimen jika field prediksi tersedia dari API Gateway."
+          description="Sampel hasil prediksi sentimen."
           title="Tabel Hasil Sentimen"
         >
           <SimpleTable
@@ -266,7 +266,7 @@ export default async function SentimentAnalysisPage() {
       {/*--- RUNTIME INFERENCE SECTION --------------------------------------*/}
       <section className="mt-8">
         <PageHeader
-          description="Analisis satu ulasan Spotify secara runtime serta riwayat hasil tersimpan."
+          description="Analisis satu ulasan secara langsung."
           eyebrow="Runtime inference"
           title="Uji Ulasan"
         />

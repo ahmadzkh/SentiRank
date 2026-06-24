@@ -202,6 +202,8 @@ export interface GatewayDatasetSummary {
   rating_distribution: Record<string, number>;
   sentiment_distribution: Record<string, number>;
   review_period: Record<string, string | null>;
+  yearly_counts?: Record<string, number>;
+  yearly_sentiment_counts?: Record<string, Record<string, number>>;
   dataset_availability?: Record<string, boolean>;
   source_application?: Record<string, unknown>;
   missing_value_summary?: unknown;

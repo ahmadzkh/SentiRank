@@ -50,7 +50,7 @@ function aspectResultColumns(): readonly SimpleTableColumn<GatewayReviewSample>[
     },
     {
       key: "cleanedReview",
-      header: "Cleaned Review",
+      header: "Teks Bersih",
       className: "min-w-[320px] max-w-[460px]",
       render: (row) => (
         <span className="line-clamp-3 break-words font-medium text-foreground">
@@ -65,12 +65,12 @@ function aspectResultColumns(): readonly SimpleTableColumn<GatewayReviewSample>[
     },
     {
       key: "predictedAspect",
-      header: "Predicted Aspect",
+      header: "Prediksi Aspek",
       render: (row) => tableCellValue(row.predicted_aspect ?? row.aspect_label),
     },
     {
       key: "confidence",
-      header: "Confidence",
+      header: "Konfidensi",
       align: "right",
       render: (row) => confidenceValue(row.aspect_confidence),
     },
@@ -97,7 +97,7 @@ export default async function AspectClassificationPage() {
   return (
     <AppShell>
       <PageHeader
-        description="Ringkasan klasifikasi aspek SVM dan distribusi aspek ulasan negatif."
+        description="Ringkasan klasifikasi aspek SVM."
         eyebrow="SVM"
         title="Klasifikasi Aspek"
       />
@@ -106,19 +106,19 @@ export default async function AspectClassificationPage() {
 
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <StatCard
-          description="Total count dari distribusi aspek."
-          label="Ulasan Diklasifikasi"
+          description="Total ulasan yang terklasifikasi."
+          label="Ulasan Terklasifikasi"
           value={aspectRows.reduce((total, row) => total + row.count, 0)}
         />
         <StatCard
-          description="Aspek paling sering muncul pada ringkasan klasifikasi."
+          description="Aspek dengan frekuensi tertinggi."
           label="Aspek Dominan"
           tone="primary"
           value={topAspect?.label ?? "-"}
         />
         <StatCard
-          description="Jumlah label final dari taxonomy aspek."
-          label="Hasil Aspek"
+          description="Jumlah label aspek final."
+          label="Label Aspek"
           tone="primary"
           value={summary.final_aspect_labels.length}
         />
@@ -131,7 +131,7 @@ export default async function AspectClassificationPage() {
 
       <section className="grid gap-6 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
         <ChartCard
-          description="Frekuensi aspek dari hasil klasifikasi."
+          description="Frekuensi aspek hasil klasifikasi."
           insight={
             topAspect
               ? `${topAspect.label} menjadi aspek tertinggi pada ringkasan klasifikasi.`
@@ -172,7 +172,7 @@ export default async function AspectClassificationPage() {
       </section>
 
       <ChartCard
-        description="Tabel ini menampilkan sampel hasil klasifikasi aspek jika field prediksi tersedia dari API Gateway."
+        description="Sampel hasil klasifikasi aspek."
         title="Tabel Hasil Aspek"
       >
         <SimpleTable

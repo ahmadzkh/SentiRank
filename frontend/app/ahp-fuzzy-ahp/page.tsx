@@ -220,8 +220,8 @@ export default async function AhpFuzzyAhpPage() {
       </section>
 
       <ChartCard
-        description="Kriteria ditampilkan sesuai data yang diterima dari layanan analisis. Jumlah kriteria tidak dikunci di frontend."
-        title="Criteria Overview"
+        description="Daftar kriteria yang digunakan dalam perhitungan AHP."
+        title="Tinjauan Kriteria"
       >
         <SimpleTable
           columns={criteriaColumns}

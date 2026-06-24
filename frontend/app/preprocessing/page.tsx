@@ -82,7 +82,7 @@ const preprocessingReviewColumns = [
   },
   {
     key: "originalReview",
-    header: "Original Review",
+    header: "Teks Asli",
     className: "min-w-[280px] max-w-[400px]",
     render: (row) => (
       <span className="line-clamp-3 break-words font-medium text-foreground">
@@ -92,7 +92,7 @@ const preprocessingReviewColumns = [
   },
   {
     key: "cleanedReview",
-    header: "Cleaned Review",
+    header: "Teks Bersih",
     className: "min-w-[280px] max-w-[400px]",
     render: (row) => (
       <span className="line-clamp-3 break-words text-muted-foreground">
@@ -187,7 +187,7 @@ export default async function PreprocessingPage() {
   return (
     <AppShell>
       <PageHeader
-        description="Menjelaskan pipeline pembersihan teks sebelum hasil ulasan digunakan oleh IndoBERT dan SVM."
+        description="Pipeline pembersihan teks sebelum analisis."
         eyebrow="Persiapan teks"
         title="Prapemrosesan"
       />
@@ -196,23 +196,23 @@ export default async function PreprocessingPage() {
 
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <StatCard
-          description="Jumlah ulasan valid setelah filtering kualitas."
+          description="Ulasan valid setelah filtering."
           label="Total Ulasan Bersih"
           value={preprocessing.valid_review_count ?? preprocessing.total_rows ?? 0}
         />
         <StatCard
-          description="Jumlah ulasan sebelum filtering kualitas."
-          label="Ulasan Input"
+          description="Ulasan sebelum filtering."
+          label="Ulasan Mentah"
           value={preprocessing.input_review_count ?? 0}
         />
         <StatCard
-          description="Ulasan yang dihapus saat tahap filtering kualitas."
+          description="Ulasan dihapus saat filtering."
           label="Ulasan Dihapus"
           tone="negative"
           value={preprocessing.dropped_review_count ?? 0}
         />
         <StatCard
-          description="Status data aspek untuk klasifikasi SVM."
+          description="Status data aspek untuk SVM."
           label="Status Aspek"
           tone="neutral"
           value={preprocessing.aspect_data_status ? "Tersedia" : "Belum tersedia"}
@@ -221,7 +221,7 @@ export default async function PreprocessingPage() {
 
       <section className="grid gap-6 xl:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
         <ChartCard
-          description="Urutan proses dibuat eksplisit agar transformasi data dapat dijelaskan saat demo skripsi."
+          description="Urutan proses pipeline."
           title="Ringkasan Tahap Pipeline"
         >
           <SimpleTable
@@ -289,8 +289,8 @@ export default async function PreprocessingPage() {
       </section>
 
       <ChartCard
-        description="Contoh before/after ditampilkan bila tersedia dari dataset penelitian."
-        title="Sampel Teks Sebelum / Sesudah"
+        description="Contoh teks sebelum dan sesudah."
+        title="Contoh Teks Sebelum & Sesudah"
       >
         <SimpleTable
           columns={[
@@ -319,8 +319,8 @@ export default async function PreprocessingPage() {
       </ChartCard>
 
       <ChartCard
-        description="Tabel ini menunjukkan status before/after cleaning jika metadata tersedia dari API Gateway."
-        title="Tabel Prapemrosesan Review"
+        description="Tabel sampel teks sebelum dan sesudah."
+        title="Tabel Prapemrosesan"
       >
         <SimpleTable
           columns={preprocessingReviewColumns}

@@ -214,7 +214,9 @@ function buildDatasetCards(sources: DashboardSources): DashboardDatasetCard[] {
   const scrapingRows =
     finiteNumber(sources.scraping?.total_achieved_rows) ??
     finiteNumber(sources.dataset?.total_review_count);
-  const rawTotal = finiteNumber(sources.dataset?.total_review_count);
+  const rawTotal =
+    finiteNumber(sources.dataset?.raw_review_count) ??
+    finiteNumber(sources.dataset?.total_review_count);
   const processedTotal = finiteNumber(sources.preprocessing?.total_rows);
   const criteriaCount =
     finiteNumber(sources.ranking?.summary.total_criteria) ??
@@ -227,12 +229,9 @@ function buildDatasetCards(sources: DashboardSources): DashboardDatasetCard[] {
   return [
     {
       id: "scraping-request",
-      label: "Request Scraping",
+      label: "Target Ulasan",
       value: formatCount(scrapingTarget > 0 ? scrapingTarget : scrapingRows),
-      description:
-        scrapingTarget > 0
-          ? "Target pengambilan data."
-          : "Jumlah data hasil scraping.",
+      description: "Target pengambilan data.",
     },
     {
       id: "total-dataset",
@@ -242,7 +241,7 @@ function buildDatasetCards(sources: DashboardSources): DashboardDatasetCard[] {
     },
     {
       id: "preprocessing-dataset",
-      label: "Dataset Preprocessing",
+      label: "Ulasan Bersih",
       value: formatCount(processedTotal),
       description: retainedRateDescription(rawTotal, processedTotal),
     },
@@ -250,7 +249,7 @@ function buildDatasetCards(sources: DashboardSources): DashboardDatasetCard[] {
       id: "priority-criteria",
       label: "Kriteria Prioritas",
       value: formatCount(criteriaCount),
-      description: "Jumlah aspek final untuk AHP dan Fuzzy AHP.",
+      description: "Jumlah kriteria prioritas.",
     },
     {
       id: "top-ahp-priority",
@@ -497,9 +496,9 @@ function retainedRateDescription(
   processedTotal: number | null,
 ): string {
   if (rawTotal && processedTotal !== null) {
-    return `${formatPercent(processedTotal / rawTotal)} dari dataset awal.`;
+    return `${formatPercent(processedTotal / rawTotal)} dari dataset.`;
   }
-  return "Total ulasan setelah pembersihan data.";
+  return "Ulasan setelah pembersihan.";
 }
 
 function sentimentCounts(

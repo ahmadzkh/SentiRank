@@ -2,6 +2,7 @@ import { ASPECT_META } from "@/constants/aspect";
 import { SENTIMENT_LABELS, SENTIMENT_META } from "@/constants/sentiment";
 import type { AspectRankingDatum } from "@/components/charts/AspectRankingChart";
 import type { SentimentDistributionDatum } from "@/components/charts/SentimentDistributionChart";
+import type { YearReviewDatum } from "@/components/charts/YearReviewChart";
 import type {
   GatewayAspectEvaluation,
   GatewayAspectSummary,
@@ -33,6 +34,8 @@ export const EMPTY_DATASET_SUMMARY: GatewayDatasetSummary = {
     reviewed_at_min: null,
     reviewed_at_max: null,
   },
+  yearly_counts: {},
+  yearly_sentiment_counts: {},
   warnings: [],
 };
 
@@ -352,4 +355,33 @@ export function selectedRecord(
     records.find((record) => record.scenario === selectedName) ??
     {}
   );
+}
+
+const SENTIMENT_KEY_MAP: Record<string, string> = {
+  Positive: "Positif",
+  Neutral: "Netral",
+  Negative: "Negatif",
+};
+
+export function yearlySentimentData(
+  yearly_sentiment_counts: Record<string, Record<string, number>> | undefined,
+): YearReviewDatum[] {
+  if (
+    !yearly_sentiment_counts ||
+    Object.keys(yearly_sentiment_counts).length === 0
+  ) {
+    return [];
+  }
+  return Object.entries(yearly_sentiment_counts)
+    .map(([year, sentiments]) => {
+      const mapped: Record<string, number> = {};
+      for (const [key, val] of Object.entries(sentiments)) {
+        mapped[SENTIMENT_KEY_MAP[key] ?? key] = val;
+      }
+      return {
+        year: Number(year),
+        ...mapped,
+      };
+    })
+    .sort((a, b) => a.year - b.year);
 }

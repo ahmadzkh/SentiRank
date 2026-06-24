@@ -84,7 +84,7 @@ const evaluationColumns = [
   },
   {
     key: "task",
-    header: "Task",
+    header: "Tugas",
     className: "min-w-[180px]",
     render: (row) => row.task,
   },
@@ -226,8 +226,8 @@ export default async function ModelEvaluationPage() {
       </section>
 
       <ChartCard
-        description="Tabel ini merangkum metrik model yang tersedia."
-        title="Laporan Klasifikasi / Ringkasan Evaluasi"
+        description="Ringkasan evaluasi model."
+        title="Ringkasan Evaluasi Model"
       >
         <SimpleTable
           columns={evaluationColumns}

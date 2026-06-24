@@ -45,6 +45,8 @@ class ResearchDataService:
                 "reviewed_at_min": canonical["reviewed_at_min"],
                 "reviewed_at_max": canonical["reviewed_at_max"],
             },
+            "yearly_counts": canonical["yearly_counts"],
+            "yearly_sentiment_counts": canonical["yearly_sentiment_counts"],
             "missing_value_summary": missing_values,
             "text_length_summary": text_length_summary,
             "warnings": warnings,
@@ -443,6 +445,8 @@ class ResearchDataService:
             "sentiment_distribution": {},
             "reviewed_at_min": None,
             "reviewed_at_max": None,
+            "yearly_counts": {},
+            "yearly_sentiment_counts": {},
         }
         if not path.exists():
             self._append_warning(warnings, "Canonical processed dataset is unavailable.")
@@ -451,6 +455,8 @@ class ResearchDataService:
         row_count = 0
         rating_distribution: dict[str, int] = {}
         sentiment_distribution: dict[str, int] = {}
+        yearly_counts: dict[str, int] = {}
+        yearly_sentiment_counts: dict[str, dict[str, int]] = {}
         reviewed_at_min: str | None = None
         reviewed_at_max: str | None = None
         try:
@@ -471,6 +477,12 @@ class ResearchDataService:
                     if reviewed_at:
                         reviewed_at_min = min(reviewed_at_min, reviewed_at) if reviewed_at_min else reviewed_at
                         reviewed_at_max = max(reviewed_at_max, reviewed_at) if reviewed_at_max else reviewed_at
+                        year = reviewed_at[:4]
+                        if year.isdigit():
+                            yearly_counts[year] = yearly_counts.get(year, 0) + 1
+                            if sentiment:
+                                year_sent = yearly_sentiment_counts.setdefault(year, {})
+                                year_sent[sentiment] = year_sent.get(sentiment, 0) + 1
         except OSError:
             self._append_warning(warnings, "Canonical processed dataset could not be read.")
             return empty
@@ -482,6 +494,8 @@ class ResearchDataService:
             "sentiment_distribution": sentiment_distribution,
             "reviewed_at_min": reviewed_at_min,
             "reviewed_at_max": reviewed_at_max,
+            "yearly_counts": yearly_counts,
+            "yearly_sentiment_counts": yearly_sentiment_counts,
         }
 
     def _noise_report_stats(self, warnings: list[str]) -> dict[str, Any]:
