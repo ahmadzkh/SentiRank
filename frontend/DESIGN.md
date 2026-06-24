@@ -245,13 +245,11 @@ Sidebar items:
 ```txt
 Dashboard
 Dataset
-Scraping
 Preprocessing
 Sentiment Analysis
 Aspect Classification
 AHP / Fuzzy AHP
 Model Evaluation
-Settings
 ```
 
 Rules:
@@ -452,9 +450,10 @@ Preprocessing:
 - Make transformations explainable for thesis evaluation.
 
 Sentiment Analysis:
-
-- Support single review prediction and batch summary.
-- Show label, confidence, distribution, and result table.
+Sentiment Analysis:
+- Support single review runtime prediction and batch summary.
+- Show label, confidence, distribution, result table, and runtime inference history.
+- Treat `/inference` as a runtime section inside this page, not a separate route.
 
 Aspect Classification:
 

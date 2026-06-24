@@ -8,49 +8,55 @@ import { AppShell, PageHeader } from "@/components/layout";
 import { SimpleTable } from "@/components/tables/SimpleTable";
 import type { SimpleTableColumn } from "@/components/tables/SimpleTable";
 import { EMPTY_GATEWAY_MESSAGE, safeGatewayData } from "@/lib/api-status";
-import {
-  EMPTY_RANDOM_REVIEWS,
-  EMPTY_SENTIMENT_EVALUATION,
-  EMPTY_SENTIMENT_SUMMARY,
-  EMPTY_TABLE_CELL,
-  EMPTY_TEXT,
-  formatPercent,
-  recordNumber,
-  sentimentDistributionData,
-  tableCellValue,
-} from "@/lib/gateway-display";
 import { getReviews } from "@/services/review-service";
-import {
-  getSentimentEvaluation,
-  getSentimentSummary,
-} from "@/services/sentiment-service";
+import { getSentimentSummary } from "@/services/sentiment-service";
+import { getSentimentEvaluation } from "@/services/sentiment-service";
+import { getRuntimeInferenceHistory } from "@/services/inference-service";
+import { RuntimeInferencePanel } from "@/components/forms/RuntimeInferencePanel";
 import type { GatewayReviewSample } from "@/types";
+import type { RuntimeInferenceHistoryResponse } from "@/types/inference";
+import { 
+  recordNumber, 
+  formatPercent, 
+  EMPTY_TABLE_CELL, 
+  EMPTY_TEXT, 
+  sentimentDistributionData, 
+  tableCellValue, 
+  EMPTY_SENTIMENT_SUMMARY, 
+  EMPTY_SENTIMENT_EVALUATION, 
+  EMPTY_RANDOM_REVIEWS 
+} from "@/lib/gateway-display";
 
 export const dynamic = "force-dynamic";
 
+/*--- EMPTY STATE FOR INFERENCE HISTORY -----------------------------------*/
+const EMPTY_HISTORY: RuntimeInferenceHistoryResponse = {
+  items: [],
+  total: 0,
+};
+
+/*--- HELPERS -----------------------------------------------------------*/
 function cleanedReviewText(row: GatewayReviewSample) {
   return tableCellValue(
     row.cleaned_content ??
-      row.cleaned_text ??
-      row.text_indobert ??
-      row.text_svm,
+    row.cleaned_text ??
+    row.text_indobert ??
+    row.text_svm,
   );
 }
-
 function confidenceValue(value: number | null | undefined) {
   return typeof value === "number" && Number.isFinite(value)
     ? formatPercent(value)
     : EMPTY_TABLE_CELL;
 }
-
-function sentimentResultColumns(): readonly SimpleTableColumn<GatewayReviewSample>[] {
+function sentimentResultColumns() {
   return [
     {
       key: "no",
       header: "No",
       align: "center",
       className: "w-16",
-      render: (_row, index) => index + 1,
+      render: (_row, index) => <span>{index + 1}</span>,
     },
     {
       key: "cleanedReview",
@@ -65,8 +71,7 @@ function sentimentResultColumns(): readonly SimpleTableColumn<GatewayReviewSampl
     {
       key: "actualWeakLabel",
       header: "Actual/Weak Label",
-      render: (row) =>
-        tableCellValue(row.final_sentiment ?? row.initial_sentiment),
+      render: (row) => tableCellValue(row.final_sentiment ?? row.initial_sentiment),
     },
     {
       key: "predictedSentiment",
@@ -82,35 +87,58 @@ function sentimentResultColumns(): readonly SimpleTableColumn<GatewayReviewSampl
   ] satisfies SimpleTableColumn<GatewayReviewSample>[];
 }
 
+/*--- INFERENCE DATA ----------------------------------------------------*/
+async function fetchInferenceData() {
+  const inferenceResult = await safeGatewayData(
+    () => getRuntimeInferenceHistory({ limit: 20 }),
+    EMPTY_HISTORY,
+  );
+  return {
+    data: inferenceResult.data,
+    error: inferenceResult.error,
+  };
+}
+
+/*--- MAIN PAGE ----------------------------------------------------------*/
 export default async function SentimentAnalysisPage() {
-  const [summaryResult, evaluationResult, reviewsResult] = await Promise.all([
+  /*--- FETCH SUMMARY, EVALUATION, REVIEWS, INFERENCE -------------------*/
+  const [
+    summaryResult,
+    evaluationResult,
+    reviewsResult,
+    inferenceResult,
+  ] = await Promise.all([
     safeGatewayData(getSentimentSummary, EMPTY_SENTIMENT_SUMMARY),
     safeGatewayData(getSentimentEvaluation, EMPTY_SENTIMENT_EVALUATION),
-    safeGatewayData(
-      () => getReviews({ limit: 10, seed: 40 }),
-      EMPTY_RANDOM_REVIEWS,
-    ),
+    safeGatewayData(() => getReviews({ limit: 10, seed: 40 }), EMPTY_RANDOM_REVIEWS),
+    fetchInferenceData(),
   ]);
+
   const summary = summaryResult.data;
   const evaluation = evaluationResult.data;
+  const reviews = reviewsResult.data.reviews;
+  const inferenceData = inferenceResult.data;
+  const inferenceError = inferenceResult.error;
+
   const sentimentRows = sentimentDistributionData(
     summary.final_sentiment_distribution,
   );
   const selectedMetrics = evaluation.selected_metrics;
-  const reviews = reviewsResult.data.reviews;
-  const apiError =
-    summaryResult.error ?? evaluationResult.error ?? reviewsResult.error;
 
+  /*--- UI -------------------------------------------------------------*/
   return (
     <AppShell>
+      {/* Header */}
       <PageHeader
         description="Ringkasan hasil analisis sentimen IndoBERT dari dataset penelitian."
         eyebrow="IndoBERT"
         title="Analisis Sentimen"
       />
 
-      <ApiGatewayAlert error={apiError} />
+      {/* API GATEWAY ALERT ------------------------------------------------*/}
+      <ApiGatewayAlert error={inferenceError} />
 
+      {/* STATISTICS CARDS ------------------------------------------------*/}
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
         <StatCard
           description="Jumlah dari distribusi sentimen."
@@ -149,6 +177,7 @@ export default async function SentimentAnalysisPage() {
         />
       </section>
 
+      {/* CHART & SUMMARY -------------------------------------------------*/}
       <section className="grid gap-6 xl:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
         <ChartCard
           description="Form ini menampilkan alur prediksi sentimen saat layanan tersedia."
@@ -207,34 +236,45 @@ export default async function SentimentAnalysisPage() {
           ]}
           title="Hasil Prediksi Sentimen"
         />
+
+        <ChartCard
+          description="Ringkasan distribusi sentimen batch dari dataset penelitian."
+          insight={
+            sentimentRows.length > 0
+              ? "Distribusi berasal dari output preprocessing/modeling."
+              : EMPTY_GATEWAY_MESSAGE
+          }
+          title="Distribusi Sentimen"
+        >
+          <SentimentDistributionChart data={sentimentRows} />
+        </ChartCard>
+
+        <ChartCard
+          description="Tabel ini menampilkan sampel hasil sentimen jika field prediksi tersedia dari API Gateway."
+          title="Tabel Hasil Sentimen"
+        >
+          <SimpleTable
+            columns={sentimentResultColumns()}
+            data={reviews}
+            emptyMessage={EMPTY_GATEWAY_MESSAGE}
+            minWidthClassName="min-w-[1180px]"
+            rowKey={(row, index) => row.external_id ?? `sentiment-review-${index}`}
+          />
+        </ChartCard>
       </section>
 
-      <ChartCard
-        description="Ringkasan distribusi sentimen batch dari dataset penelitian."
-        insight={
-          sentimentRows.length > 0
-            ? "Distribusi berasal dari output preprocessing/modeling."
-            : EMPTY_GATEWAY_MESSAGE
-        }
-        title="Distribusi Sentimen"
-      >
-        <SentimentDistributionChart data={sentimentRows} />
-      </ChartCard>
-
-      <ChartCard
-        description="Tabel ini menampilkan sampel hasil sentimen jika field prediksi tersedia dari API Gateway."
-        title="Tabel Hasil Sentimen"
-      >
-        <SimpleTable
-          columns={sentimentResultColumns()}
-          data={reviewsResult.isAvailable ? reviews : []}
-          emptyMessage={EMPTY_GATEWAY_MESSAGE}
-          minWidthClassName="min-w-[1180px]"
-          rowKey={(row, index) =>
-            row.external_id ?? `sentiment-review-${index}`
-          }
+      {/*--- RUNTIME INFERENCE SECTION --------------------------------------*/}
+      <section className="mt-8">
+        <PageHeader
+          description="Analisis satu ulasan Spotify secara runtime serta riwayat hasil tersimpan."
+          eyebrow="Runtime inference"
+          title="Uji Ulasan"
         />
-      </ChartCard>
+        <RuntimeInferencePanel
+          initialGatewayError={inferenceError}
+          initialHistory={inferenceData}
+        />
+      </section>
     </AppShell>
   );
 }

@@ -24,6 +24,13 @@
 - [x] MS-10/MS-12 — Gateway integration dan read-only AHP/Fuzzy AHP selesai
 - [x] MS-13C — Frontend Reports route cleanup selesai
 - [x] MS-13G — Dokumentasi frontend aktif disinkronkan
+- [x] MS-15F — Frontend Data Mapping Fix
+- [x] MS-15G — Frontend Merge Uji Ulasan and Scraping menus
+- [ ] MS-15H — Frontend UI Cleanup
+- [ ] MS-15I — Frontend Archive Legacy Routes
+- [ ] MS-15J — Frontend Full Verification
+- [ ] MS-16 — Retrain Decision Service
+- [ ] MS-17 — Expert Judgement Final
 
 ---
 
@@ -1180,3 +1187,72 @@ Add a dedicated runtime review inference page that submits one Spotify review th
 ### Completion Note
 
 Completed on 2026-06-20. MS-12B adds a gateway-only `/inference` workflow with typed single-review submission, explicit model/fallback provenance, persisted history display, and honest offline behavior. Live HTTP QA verified active POST/history data and Gateway-off empty-state behavior; browser automation was unavailable and no new test dependency was installed.
+
+---
+
+## MS-15F — Frontend Data Mapping Fix
+
+### Objective
+
+Memperbaiki mapping data frontend agar konsumen response API Gateway sesuai kontrak penelitian: `text_indobert` / `text_svm` bukan `cleaned_content` / `cleaned_text`; response `POST /inference/review` mengembalikan `sentiment_prediction`, `aspect_prediction`, `confidence`, `model_name`, `is_fallback`, `persisted`, `warnings`.
+
+### Task Checklist
+
+- [x] Audit `frontend/lib/gateway-display.ts` dan `frontend/components/forms/RuntimeInferencePanel.tsx`.
+- [x] Ganti semua pemakaian `cleaned_content` / `cleaned_text` di tabel Sentiment Analysis menjadi `text_indobert` / `text_svm`.
+- [x] Ganti `row.sentiment_confidence` menjadi `row.confidence` sesuai kontrak response Gateway.
+- [x] Ganti `row.predicted_sentiment` menjadi `row.sentiment_prediction`.
+- [x] Ganti `row.initial_sentiment` menjadi `row.aspect_prediction` untuk kolom aspect.
+- [x] Pastikan `RuntimeInferencePanel` menampilkan `model_name`, `is_fallback`, `persisted`, dan `warnings`.
+- [x] Pastikan empty state tetap konsisten dengan MS-10B.
+- [x] Jalankan `npm run lint`.
+- [x] Jalankan `npm run build`.
+
+### Acceptance Criteria
+
+- [x] Tabel Sentiment Analysis menampilkan `text_indobert` / `text_svm`, bukan `cleaned_content`.
+- [x] Response inference panel menampilkan field sesuai kontrak API Gateway.
+- [x] Tidak ada reference ke `cleaned_content` / `cleaned_text` di tabel Sentiment Analysis.
+- [x] `npm run lint` berhasil.
+- [x] `npm run build` berhasil.
+
+### Completion Note
+
+Completed on 2026-06-24. MS-15F memetakan ulang field response Gateway ke UI: `text_indobert` / `text_svm` untuk teks review, `confidence` untuk akurasi, `sentiment_prediction` / `aspect_prediction` untuk label, dan `model_name` / `is_fallback` / `persisted` / `warnings` untuk metadata inference.
+
+---
+
+## MS-15G — Frontend Merge Uji Ulasan and Scraping Menus
+
+### Objective
+
+Menggabungkan halaman `/inference` (Uji Ulasan) dan `/scraping` ke dalam halaman existing yang relevan, menghapus route terpisah yang tidak lagi menjadi bagian scope demo skripsi, dan memastikan semua data tetap melalui API Gateway.
+
+### Task Checklist
+
+- [x] Pindahkan runtime inference panel dari `/inference` ke bagian bawah `/sentiment-analysis` sebagai section "Uji Ulasan".
+- [x] Hapus route `/inference` dan direktori `frontend/app/inference/`.
+- [x] Hapus route `/scraping` dan direktori `frontend/app/scraping/`.
+- [x] Hapus sidebar entries "Uji Ulasan" dan "Scraping".
+- [x] Pastikan `RuntimeInferencePanel` tetap berfungsi dalam `sentiment-analysis/page.tsx`.
+- [x] Pastikan `DatasetScrapingPanel` tetap berfungsi dalam `dataset/page.tsx`.
+- [x] Bersihkan `.next` cache.
+- [x] Update `docs/frontend/frontend-tasks.md`.
+- [x] Update `docs/frontend/information-architecture.md`.
+- [x] Update `frontend/DESIGN.md`.
+- [x] Jalankan `npm run lint`.
+- [x] Jalankan `npm run build`.
+
+### Acceptance Criteria
+
+- [x] Sidebar tidak memiliki item "Uji Ulasan" atau "Scraping".
+- [x] Route `/inference` dan `/scraping` sudah tidak ada di frontend.
+- [x] `sentiment-analysis/page.tsx` menampilkan section "Uji Ulasan" di bagian bawah.
+- [x] `dataset/page.tsx` menampilkan section scraping di bagian bawah.
+- [x] `npm run lint` berhasil tanpa warning.
+- [x] `npm run build` berhasil, route list tidak menyertakan `/inference` atau `/scraping`.
+- [x] Dokumentasi aktif tidak menyatakan `/inference` atau `/scraping` sebagai route terpisah.
+
+### Completion Note
+
+Completed on 2026-06-24. MS-15G mengonsolidasikan Uji Ulasan ke dalam halaman Sentiment Analysis dan scraping ke dalam halaman Dataset, menghapus kedua route terpisah. Sidebar dan dokumentasi disinkronkan. Build berhasil dengan 9 route: `/`, `/dataset`, `/preprocessing`, `/sentiment-analysis`, `/aspect-classification`, `/ahp-fuzzy-ahp`, `/model-evaluation`, `/settings`, `/_not-found`.

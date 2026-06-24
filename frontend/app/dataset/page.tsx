@@ -10,6 +10,7 @@ import { EMPTY_GATEWAY_MESSAGE, safeGatewayData } from "@/lib/api-status";
 import {
   EMPTY_DATASET_SUMMARY,
   EMPTY_RANDOM_REVIEWS,
+  EMPTY_SCRAPING_SUMMARY,
   EMPTY_TABLE_CELL,
   EMPTY_TEXT,
   ratingDistributionRows,
@@ -20,7 +21,9 @@ import {
 } from "@/lib/gateway-display";
 import { getDatasetSummary } from "@/services/dataset-service";
 import { getReviews } from "@/services/review-service";
+import { getScrapingSummary } from "@/services/scraping-service";
 import type { GatewayReviewSample } from "@/types";
+import type { GatewayScrapingSummary } from "@/types";
 
 export const dynamic = "force-dynamic";
 
@@ -58,21 +61,13 @@ const datasetReviewColumns = [
     key: "reviewId",
     header: "Review ID",
     className: "max-w-[180px]",
-    render: (row) => (
-      <span className="line-clamp-2 break-all text-muted-foreground">
-        {tableCellValue(row.external_id)}
-      </span>
-    ),
+    render: (row) => tableCellValue(row.external_id),
   },
   {
     key: "originalReview",
     header: "Original Review",
     className: "min-w-[320px] max-w-[420px]",
-    render: (row) => (
-      <span className="line-clamp-3 break-words font-medium text-foreground">
-        {tableCellValue(row.content)}
-      </span>
-    ),
+    render: (row) => tableCellValue(row.content),
   },
   {
     key: "rating",
@@ -83,8 +78,7 @@ const datasetReviewColumns = [
   {
     key: "sentiment",
     header: "Sentimen",
-    render: (row) =>
-      tableCellValue(row.final_sentiment ?? row.initial_sentiment),
+    render: (row) => tableCellValue(row.final_sentiment ?? row.initial_sentiment),
   },
   {
     key: "aspect",
@@ -104,15 +98,62 @@ const datasetReviewColumns = [
 ] satisfies SimpleTableColumn<GatewayReviewSample>[];
 
 export default async function DatasetPage() {
-  const [datasetResult, reviewsResult] = await Promise.all([
+  const [datasetResult, reviewsResult, scrapingResult] = await Promise.all([
     safeGatewayData(getDatasetSummary, EMPTY_DATASET_SUMMARY),
     safeGatewayData(() => getReviews({ limit: 10, seed: 10 }), EMPTY_RANDOM_REVIEWS),
+    safeGatewayData(getScrapingSummary, EMPTY_SCRAPING_SUMMARY),
   ]);
   const dataset = datasetResult.data;
   const ratingRows = ratingDistributionRows(dataset.rating_distribution);
   const sentimentRows = sentimentDistributionData(dataset.sentiment_distribution);
   const reviews = reviewsResult.data.reviews;
-  const apiError = datasetResult.error ?? reviewsResult.error;
+  const scraping = scrapingResult.data;
+  const apiError = datasetResult.error ?? reviewsResult.error ?? scrapingResult.error;
+
+  // Scraping helper functions
+  function scrapingPreviewRows(
+    reviews: readonly GatewayReviewSample[],
+    scraping: GatewayScrapingSummary,
+  ) {
+    return reviews.map((review) => ({
+      ...review,
+      sourceAppId: review.app_id ?? scraping.app_id,
+    }));
+  }
+  type ScrapingPreviewRow = ReturnType<typeof scrapingPreviewRows>[number];
+
+  const scrapingPreviewColumns = [
+    {
+      key: "no",
+      header: "No",
+      align: "center",
+      className: "w-16",
+      render: (_row, index) => index + 1,
+    },
+    {
+      key: "reviewText",
+      header: "Review Text",
+      className: "min-w-[320px] max-w-[460px]",
+      render: (row) => tableCellValue(row.content),
+    },
+    {
+      key: "rating",
+      header: "Rating",
+      align: "right",
+      render: (row) => (row.rating ? `${row.rating}/5` : EMPTY_TABLE_CELL),
+    },
+    {
+      key: "sentiment",
+      header: "Sentimen",
+      render: (row) =>
+        tableCellValue(row.final_sentiment ?? row.initial_sentiment),
+    },
+    {
+      key: "reviewDate",
+      header: "Review Date",
+      render: (row) => tableDateValue(row.reviewed_at),
+    },
+  ] satisfies SimpleTableColumn<ScrapingPreviewRow>[];
 
   return (
     <AppShell>
@@ -121,7 +162,6 @@ export default async function DatasetPage() {
         eyebrow="Data dan kualitas"
         title="Dataset"
       />
-
       <ApiGatewayAlert error={apiError} />
 
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -149,7 +189,7 @@ export default async function DatasetPage() {
         />
       </section>
 
-      <section className="grid gap-6 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
+      <section className="grid gap-6 xl:grid-cols-[minmax(0,9fr)_minmax(0,1.1fr)]">
         <SummaryCard
           description={
             datasetResult.isAvailable
@@ -174,7 +214,7 @@ export default async function DatasetPage() {
             {
               label: "Total ulasan bersih",
               value: dataset.total_review_count ?? 0,
-              description: `${dataset.raw_review_count ?? 0} mentah, ${dataset.dropped_review_count ?? 0} dihapus.`,
+              description: `${dataset.raw_review_count ?? 0} mentah, ${dataset.dropped_review_count ?? 0} dihapus.` ,
             },
             {
               label: "Sumber",
@@ -184,6 +224,88 @@ export default async function DatasetPage() {
           ]}
           title="Ringkasan Dataset"
         />
+
+        {/* Scraping section */}
+        <section className="mt-8">
+          <PageHeader
+            description="Status pengumpulan ulasan Spotify serta ringkasan batch scraping."
+            eyebrow="Pengumpulan data"
+            title="Scraping"
+          />
+          <ApiGatewayAlert error={scrapingResult.error} />
+          <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            <StatCard
+              description="Total target dari ringkasan quota scraping."
+              label="Request Ulasan"
+              value={(() => {
+                const targetRows = Object.entries(scraping.target_quota_per_rating ?? {});
+                return targetRows.reduce((total, [, v]) => total + (v ?? 0), 0);
+              })()}
+            />
+            <StatCard
+              description="Data yang tersedia dari artefak scraping."
+              label="Terkumpul"
+              tone="primary"
+              value={scraping.total_achieved_rows ?? 0}
+            />
+            <StatCard
+              description="Sumber aplikasi Spotify."
+              label="Package"
+              value={stringValue(scraping.app_id, EMPTY_TEXT)}
+            />
+            <StatCard
+              description="Status data scraping."
+              label="Status"
+              tone={scrapingResult.isAvailable ? "positive" : "neutral"}
+              value={scrapingResult.isAvailable ? "Data tersedia" : EMPTY_TEXT}
+            />
+          </section>
+
+          <SummaryCard
+            description={
+              scrapingResult.isAvailable
+                ? "Ringkasan scraping penelitian tersedia."
+                : EMPTY_GATEWAY_MESSAGE
+            }
+            items={[
+              {
+                label: "Source",
+                value: stringValue(scraping.source_name, EMPTY_TEXT),
+                description: stringValue(scraping.app_id, EMPTY_TEXT),
+              },
+              {
+                label: "Total Terkumpul",
+                value: scraping.total_achieved_rows ?? 0,
+                description: "Jumlah ulasan yang berhasil dikumpulkan.",
+              },
+              {
+                label: "Catatan Rating 3",
+                value: stringValue(scraping.rating_3_limitation_note, "Tidak ada catatan"),
+                description: "Keterbatasan pengumpulan rating 3.",
+              },
+              {
+                label: "Mode",
+                value: scrapingResult.isAvailable ? "Data tersedia" : EMPTY_TEXT,
+                description: "Frontend hanya membaca hasil, tidak menjalankan scraper.",
+              },
+            ]}
+            title="Ringkasan Status Scraping"
+          />
+
+          <ChartCard
+            description="Pratinjau Hasil Scraping"
+            title="Pratinjau Hasil Scraping"
+          >
+            <SimpleTable
+              columns={scrapingPreviewColumns}
+              data={scrapingPreviewRows(reviews, scraping)}
+              emptyMessage={EMPTY_GATEWAY_MESSAGE}
+              minWidthClassName="min-w-[1180px]"
+              rowKey={(row, index) => row.external_id ?? row.scrape_request_id ?? `scraping-review-${index}`}
+            />
+          </ChartCard>
+        </section>
+        {/* End of Scraping section */}
 
         <ChartCard
           description="Distribusi rating ulasan Spotify dari dataset penelitian."
