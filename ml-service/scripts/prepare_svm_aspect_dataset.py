@@ -15,7 +15,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 
-DEFAULT_INPUT = Path("../datasets/processed/reviews_with_aspect_labels_refined.csv")
+DEFAULT_INPUT = Path("../datasets/processed/dataset_spotify_aspect_labeled.csv")
 DEFAULT_OUTPUT = Path("../datasets/processed/svm/svm_aspect_dataset.csv")
 DEFAULT_SUMMARY_OUTPUT = Path(
     "../datasets/outputs/eda/04_svm/svm_aspect_dataset_summary.json"

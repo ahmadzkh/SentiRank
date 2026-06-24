@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-23T06:45:24.511777+00:00",
+  "generated_at": "2026-06-24T14:38:56.865101+00:00",
   "labels": [
     "Account/Login",
     "Ads Experience",
@@ -35,34 +35,36 @@
   "preparation": {
     "conflicting_duplicate_text_count": 0,
     "duplicate_text_removed_count": 922,
+    "preprocessing_status_rows_removed": 0,
     "removed_empty_text_count": 0,
-    "rows_after_deduplication": 16061,
-    "rows_after_label_mapping": 16983,
-    "total_input_rows": 16983
+    "rows_after_deduplication": 16055,
+    "rows_after_label_mapping": 16977,
+    "rows_after_preprocessing_status_filter": 16977,
+    "total_input_rows": 16977
   },
   "scenario": "merged_5class",
   "split_sizes": {
-    "test": 2410,
-    "train": 11242,
+    "test": 2409,
+    "train": 11237,
     "validation": 2409
   },
   "target_column": "aspect_label_merged",
   "test_metrics": {
-    "accuracy": 0.950207468879668,
-    "f1_macro": 0.9367812076632358,
-    "f1_weighted": 0.9501424835741542,
-    "precision_macro": 0.9341269083471747,
-    "precision_weighted": 0.9502595428801952,
-    "recall_macro": 0.9402876428365226,
-    "recall_weighted": 0.950207468879668
+    "accuracy": 0.9506019095060191,
+    "f1_macro": 0.9404117616493985,
+    "f1_weighted": 0.9504830873456026,
+    "precision_macro": 0.9418244819002778,
+    "precision_weighted": 0.9505752098929569,
+    "recall_macro": 0.9399014429282747,
+    "recall_weighted": 0.9506019095060191
   },
   "validation_metrics": {
-    "accuracy": 0.9414694894146949,
-    "f1_macro": 0.9312640240285402,
-    "f1_weighted": 0.9413993967489023,
-    "precision_macro": 0.9348962278831372,
-    "precision_weighted": 0.94138072422056,
-    "recall_macro": 0.9277474494328958,
-    "recall_weighted": 0.9414694894146949
+    "accuracy": 0.9564134495641345,
+    "f1_macro": 0.9460535355889064,
+    "f1_weighted": 0.9564016758451938,
+    "precision_macro": 0.9516900843182727,
+    "precision_weighted": 0.9564846523176623,
+    "recall_macro": 0.9407733192687084,
+    "recall_weighted": 0.9564134495641345
   }
 }

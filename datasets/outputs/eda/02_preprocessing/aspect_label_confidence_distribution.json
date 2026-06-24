@@ -1,18 +1,18 @@
 [
   {
     "aspect_label_confidence": "none",
-    "count": 44267
+    "count": 43045
   },
   {
     "aspect_label_confidence": "low",
-    "count": 36532
+    "count": 36512
   },
   {
     "aspect_label_confidence": "medium",
-    "count": 9811
+    "count": 9806
   },
   {
     "aspect_label_confidence": "high",
-    "count": 7172
+    "count": 7171
   }
 ]
