@@ -122,6 +122,43 @@ Cannot evaluate locally: no eval-only script exists for SVM; `joblib` can load t
 
 ### Open items
 
-- Local environment lacks `torch` and full IndoBERT inference dependencies → evaluation on canonical test split deferred to retraining step.
-- No eval-only script exists for either model → evaluation is always coupled with training.
-- The 6 non-canonical IDs in SVM dataset should be investigated during weak-label regeneration; they may indicate preprocessing pipeline mismatch.
+| Local environment lacks `torch` and full IndoBERT inference dependencies → evaluation on canonical test split deferred to retraining step.
+| No eval-only script exists for either model → evaluation is always coupled with training.
+| The 6 non-canonical IDs in SVM dataset should be investigated during weak-label regeneration; they may indicate preprocessing pipeline mismatch.
+
+---
+
+## 4. Resolution (MS-16B through MS-16F)
+
+### MS-16B — IndoBERT Canonical Retrain ✅
+- Re-trained `run_3_weighted_loss_lr_1e-5` on canonical 96,534-row dataset in Colab (same hyperparameters, batch 16, LR 1e-5, epoch 3, max_length 128, weighted loss).
+- Artifact exported to `ml-service/saved_models/indobert/run_3_weighted_loss_lr_1e-5/`.
+- Notebook metadata updated to reflect canonical input path and dataset version.
+
+### MS-16C — Aspect Label Regeneration ✅
+- Ran `label_aspects_by_keywords.py` against canonical `dataset_spotify_processed.csv` (96,534 rows).
+- Output: `dataset_spotify_aspect_labeled.csv` (96,534 rows, 100% canonical IDs, 0 non-canonical IDs).
+- 6 legacy IDs confirmed as quality-filter drops (typo-heavy, positive reviews, duplicates).
+
+### MS-16D — SVM Canonical Retrain ✅
+- Ran `prepare_svm_aspect_dataset.py` (default input updated to canonical file).
+- Retrained `merged_5class` scenario → 16,977 rows (100% canonical, −6 legacy rows).
+- Artifact: `ml-service/saved_models/svm/svm_merged_5class_pipeline.joblib` updated (24 Jun 2026).
+
+### MS-16E — Model Serving Update ✅
+- Both `sentiment-service` and `aspect-service` config verified to point to correct canonical artifacts.
+- `report_summary_service.py` model_data_status updated to `canonical_retrained`.
+- `.gitignore` preserves model binaries (no artifacts committed).
+
+### MS-16F — Final Metrics Sync ✅
+- `model_evaluation_summary.json` regenerated with canonical metrics.
+- Service status strings updated (sentiment- and aspect-summary-service).
+- `docs/methodology/model_evaluation_summary.md` updated with canonical metric tables.
+- Frontend `model-evaluation/page.tsx` and `dashboard/page.tsx` consume metrics dynamically via API Gateway (no code change needed).
+
+### Final metrics
+
+| Model | Accuracy | Macro F1 | Weighted F1 |
+|-------|----------|----------|-------------|
+| IndoBERT (canonical retrain) | **0.7609** | **0.7310** | **0.7666** |
+| SVM (canonical retrain) | **0.9506** | **0.9404** | **0.9505** |

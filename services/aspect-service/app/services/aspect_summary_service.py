@@ -45,7 +45,7 @@ class AspectSummaryService:
         runtime_metadata = AspectClassifierService(self.settings).runtime_metadata()
 
         return AspectSummaryData(
-            data_status="needs_verification",
+            data_status="canonical_retrained",
             selected_classifier=self._selected_classifier(final_selection),
             final_aspect_labels=FINAL_ASPECT_LABELS,
             model_status=str(runtime_metadata["model_status"]),
@@ -100,14 +100,14 @@ class AspectSummaryService:
         )
 
         return AspectEvaluationData(
-            data_status="needs_verification",
+            data_status="canonical_retrained",
             selected_candidate=FINAL_ASPECT_CLASSIFIER,
             scenario_comparison=comparison,
             selected_metrics=self._selected_metrics(final_selection, merged_metrics, comparison),
             classification_report=classification_report if isinstance(classification_report, dict) else {},
             limitations=[
                 WEAK_LABEL_LIMITATION,
-                "SVM derived datasets still depend on the historical aspect-labeled branch and need lineage verification before canonical regeneration.",
+                "SVM has been retrained on the canonical aspect dataset (96,534 rows, MS-16C/D). Metrics reflect the latest canonical retrained artifact.",
                 "If the SVM artifact is not mounted or cannot be loaded, the prediction endpoint returns explicit fallback_keyword metadata.",
             ],
             warnings=warnings,

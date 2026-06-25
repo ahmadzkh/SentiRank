@@ -57,8 +57,8 @@ class ReportSummaryService:
 
         return EvaluationSummaryData(
             model_data_status={
-                "indobert": "historical_pre_canonical_retraining_required",
-                "svm": "needs_verification",
+                "indobert": "canonical_retrained",
+                "svm": "canonical_retrained",
             },
             selected_indobert_model=self._string_value(
                 evaluation_json,

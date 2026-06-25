@@ -81,7 +81,7 @@ class SentimentSummaryService:
         selected_metrics = self._selected_metrics(run_comparison)
 
         return SentimentEvaluationData(
-            data_status="historical_pre_canonical_retraining_required",
+            data_status="canonical_retrained",
             selected_candidate=FINAL_SENTIMENT_MODEL,
             run_comparison=run_comparison,
             selected_metrics=selected_metrics,
@@ -89,7 +89,7 @@ class SentimentSummaryService:
                 "Model artifact may not be mounted in the current runtime environment.",
                 "Prediction endpoint uses real IndoBERT inference when the local artifact or configured Hugging Face model can be loaded.",
                 "Prediction endpoint falls back explicitly when the model artifact is unavailable or cannot be loaded.",
-                "Published evaluation metrics predate the canonical dataset regeneration and require retraining before they represent the canonical split.",
+                "IndoBERT has been retrained on the canonical dataset (96,534 clean rows) after MS-15D text quality filtering. Metrics reflect the latest canonical retrained artifact.",
                 "Run 4 slang normalization was tested but did not outperform Run 3.",
             ],
             warnings=warnings,
