@@ -1,7 +1,6 @@
 import { ApiGatewayAlert } from "@/components/alerts/ApiGatewayAlert";
 import { ChartCard } from "@/components/cards/ChartCard";
 import { ModelMetricCard } from "@/components/cards/ModelMetricCard";
-import { StatCard } from "@/components/cards/StatCard";
 import { SummaryCard } from "@/components/cards/SummaryCard";
 import { AppShell, PageHeader } from "@/components/layout";
 import { SimpleTable } from "@/components/tables/SimpleTable";
@@ -133,32 +132,6 @@ export default async function ModelEvaluationPage() {
     evaluation.svm_scenario_comparison,
     evaluation.selected_svm_model,
   );
-  const overview = [
-    {
-      id: "indobert-macro-f1",
-      label: "IndoBERT Macro F1",
-      value: recordNumber(selectedIndobert, "f1_macro"),
-      description: "Model sentimen IndoBERT fine-tuned pada dataset penelitian.",
-    },
-    {
-      id: "indobert-weighted-f1",
-      label: "IndoBERT Weighted F1",
-      value: recordNumber(selectedIndobert, "f1_weighted"),
-      description: "Model sentimen IndoBERT fine-tuned pada dataset penelitian.",
-    },
-    {
-      id: "svm-macro-f1",
-      label: "SVM Macro F1",
-      value: recordNumber(selectedSvm, "f1_macro"),
-      description: "Model klasifikasi aspek SVM merged 5-class.",
-    },
-    {
-      id: "svm-weighted-f1",
-      label: "SVM Weighted F1",
-      value: recordNumber(selectedSvm, "f1_weighted"),
-      description: "Model klasifikasi aspek SVM merged 5-class.",
-    },
-  ];
   const modelMetrics = [
     {
       id: "indobert-accuracy",
@@ -200,18 +173,6 @@ export default async function ModelEvaluationPage() {
       />
 
       <ApiGatewayAlert error={evaluationResult.error} />
-
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        {overview.map((metric) => (
-          <StatCard
-            description={metric.description}
-            key={metric.id}
-            label={metric.label}
-            tone="primary"
-            value={formatPercent(metric.value)}
-          />
-        ))}
-      </section>
 
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         {modelMetrics.map((metric) => (
