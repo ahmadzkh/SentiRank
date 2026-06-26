@@ -72,11 +72,67 @@ function cleanedReviewText(row: GatewayReviewSample) {
   );
 }
 
+const pipelineTableColumns = [
+  {
+    key: "name",
+    header: "Tahap",
+    render: (row) => (
+      <span className="font-medium text-foreground">{row.name}</span>
+    ),
+  },
+  {
+    key: "description",
+    header: "Penjelasan",
+    render: (row) => row.description,
+  },
+  {
+    key: "rowsAffected",
+    header: "Baris",
+    align: "right" as const,
+    render: (row) => row.rowsAffected,
+  },
+  {
+    key: "status",
+    header: "Status",
+    render: (row) => (
+      <span className="rounded-md border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-medium text-slate-700">
+        {row.status}
+      </span>
+    ),
+  },
+] satisfies SimpleTableColumn<Record<string, unknown>>[];
+
+const relabelingTableColumns = [
+  {
+    key: "label",
+    header: "Item",
+    render: (row) => row.label,
+  },
+  {
+    key: "value",
+    header: "Nilai",
+    render: (row) => row.value,
+  },
+] satisfies SimpleTableColumn<Record<string, unknown>>[];
+
+const textCleaningColumns = [
+  {
+    key: "label",
+    header: "Sumber",
+    render: (row) => row.label,
+  },
+  {
+    key: "value",
+    header: "Ringkasan",
+    render: (row) => row.value,
+  },
+] satisfies SimpleTableColumn<Record<string, unknown>>[];
+
 const preprocessingReviewColumns = [
   {
     key: "no",
     header: "No",
-    align: "center",
+    align: "center" as const,
     className: "w-16",
     render: (_row, index) => index + 1,
   },
@@ -84,7 +140,7 @@ const preprocessingReviewColumns = [
     key: "originalReview",
     header: "Teks Asli",
     className: "min-w-[280px] max-w-[400px]",
-    render: (row) => (
+    render: (row: GatewayReviewSample) => (
       <span className="line-clamp-3 break-words font-medium text-foreground">
         {tableCellValue(row.content)}
       </span>
@@ -94,7 +150,7 @@ const preprocessingReviewColumns = [
     key: "cleanedReview",
     header: "Teks Bersih",
     className: "min-w-[280px] max-w-[400px]",
-    render: (row) => (
+    render: (row: GatewayReviewSample) => (
       <span className="line-clamp-3 break-words text-muted-foreground">
         {cleanedReviewText(row)}
       </span>
@@ -102,20 +158,20 @@ const preprocessingReviewColumns = [
   },
   {
     key: "textLengthBefore",
-    header: "Panjang Teks Sebelum",
-    align: "right",
-    render: (row) => tableCellValue(row.text_length_before),
+    header: "Panjang Sebelum",
+    align: "right" as const,
+    render: (row: GatewayReviewSample) => tableCellValue(row.text_length_before),
   },
   {
     key: "textLengthAfter",
-    header: "Panjang Teks Sesudah",
-    align: "right",
-    render: (row) => tableCellValue(row.text_length_after),
+    header: "Panjang Sesudah",
+    align: "right" as const,
+    render: (row: GatewayReviewSample) => tableCellValue(row.text_length_after),
   },
   {
     key: "noiseFlag",
     header: "Flag Gangguan",
-    render: (row) => {
+    render: (row: GatewayReviewSample) => {
       const flag = row.noise_flag;
       if (typeof flag === "boolean") return flag ? "Ya" : "Tidak";
       return tableCellValue(flag);
@@ -124,7 +180,7 @@ const preprocessingReviewColumns = [
   {
     key: "dropReason",
     header: "Alasan Dihapus",
-    render: (row) => {
+    render: (row: GatewayReviewSample) => {
       const reason = row.drop_reason;
       if (!reason) return EMPTY_TABLE_CELL;
       const labelMap: Record<string, string> = {
@@ -140,7 +196,7 @@ const preprocessingReviewColumns = [
   {
     key: "preprocessingStatus",
     header: "Status Prapemrosesan",
-    render: (row) => {
+    render: (row: GatewayReviewSample) => {
       const status = row.preprocessing_status;
       if (!status) return EMPTY_TABLE_CELL;
       const labelMap: Record<string, string> = {
@@ -197,7 +253,7 @@ export default async function PreprocessingPage() {
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <StatCard
           description="Ulasan valid setelah filtering."
-          label="Total Ulasan Bersih"
+          label="Ulasan Bersih"
           value={preprocessing.valid_review_count ?? preprocessing.total_rows ?? 0}
         />
         <StatCard
@@ -219,92 +275,41 @@ export default async function PreprocessingPage() {
         />
       </section>
 
-      <section className="grid gap-6 xl:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
-        <ChartCard
-          description="Urutan proses pipeline."
-          title="Ringkasan Tahap Pipeline"
-        >
-          <SimpleTable
-            columns={[
-              {
-                key: "name",
-                header: "Tahap",
-                render: (row) => (
-                  <span className="font-medium text-foreground">
-                    {row.name}
-                  </span>
-                ),
-              },
-              {
-                key: "description",
-                header: "Penjelasan",
-                render: (row) => row.description,
-              },
-              {
-                key: "rowsAffected",
-                header: "Baris",
-                align: "right",
-                render: (row) => row.rowsAffected,
-              },
-              {
-                key: "status",
-                header: "Status",
-                render: (row) => (
-                  <span className="rounded-md border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-medium text-slate-700">
-                    {row.status}
-                  </span>
-                ),
-              },
-            ]}
-            data={pipelineRows}
-            emptyMessage={EMPTY_GATEWAY_MESSAGE}
-            minWidthClassName="min-w-[760px]"
-            rowKey={(row) => row.id}
-          />
-        </ChartCard>
-
-        <SummaryCard
-          description="Catatan ini membantu menjelaskan batas UI: frontend menampilkan output, bukan menjalankan pipeline ML."
-          title="Ringkasan Proses"
-        >
-          <SimpleTable
-            columns={[
-              {
-                key: "label",
-                header: "Item",
-                render: (row) => row.label,
-              },
-              {
-                key: "value",
-                header: "Nilai",
-                render: (row) => row.value,
-              },
-            ]}
-            data={preprocessingResult.isAvailable ? relabelingRows(relabeling) : []}
-            emptyMessage={EMPTY_GATEWAY_MESSAGE}
-            minWidthClassName="min-w-[420px]"
-            rowKey={(row) => row.key}
-          />
-        </SummaryCard>
-      </section>
-
+      {/* Pipeline table — full width */}
       <ChartCard
-        description="Contoh teks sebelum dan sesudah."
-        title="Contoh Teks Sebelum & Sesudah"
+        description="Urutan proses pipeline."
+        title="Ringkasan Tahap Pipeline"
       >
         <SimpleTable
-          columns={[
-            {
-              key: "label",
-              header: "Sumber",
-              render: (row) => row.label,
-            },
-            {
-              key: "value",
-              header: "Ringkasan",
-              render: (row) => row.value,
-            },
-          ]}
+          columns={pipelineTableColumns}
+          data={pipelineRows}
+          emptyMessage={EMPTY_GATEWAY_MESSAGE}
+          minWidthClassName="min-w-[760px]"
+          rowKey={(row) => row.id}
+        />
+      </ChartCard>
+
+      {/* Relabeling table — full width */}
+      <ChartCard
+        description="Ringkasan perubahan label dari output preprocessing."
+        title="Ringkasan Relabeling Sentimen"
+      >
+        <SimpleTable
+          columns={relabelingTableColumns}
+          data={preprocessingResult.isAvailable ? relabelingRows(relabeling) : []}
+          emptyMessage={EMPTY_GATEWAY_MESSAGE}
+          minWidthClassName="min-w-[420px]"
+          rowKey={(row) => row.key}
+        />
+      </ChartCard>
+
+      {/* Text cleaning summary — full width */}
+      <ChartCard
+        description="Contoh teks sebelum dan sesudah."
+        title="Ringkasan Pembersihan Teks"
+      >
+        <SimpleTable
+          columns={textCleaningColumns}
           data={
             preprocessingResult.isAvailable &&
             typeof preprocessing.text_cleaning_summary === "object" &&
@@ -318,6 +323,7 @@ export default async function PreprocessingPage() {
         />
       </ChartCard>
 
+      {/* Sample review table — full width */}
       <ChartCard
         description="Tabel sampel teks sebelum dan sesudah."
         title="Tabel Prapemrosesan"
