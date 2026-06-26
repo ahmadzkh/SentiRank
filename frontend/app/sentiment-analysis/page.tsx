@@ -101,7 +101,7 @@ async function fetchInferenceData() {
 
 /*--- MAIN PAGE ----------------------------------------------------------*/
 export default async function SentimentAnalysisPage() {
-  /*--- FETCH SUMMARY, EVALUATION, REVIEWS, INFERENCE -------------------*/
+  /*--- FETCH ---------------------------------------------------*/
   const [
     summaryResult,
     evaluationResult,
@@ -128,17 +128,15 @@ export default async function SentimentAnalysisPage() {
   /*--- UI -------------------------------------------------------------*/
   return (
     <AppShell>
-      {/* Header */}
       <PageHeader
         description="Ringkasan analisis sentimen IndoBERT."
         eyebrow="IndoBERT"
         title="Analisis Sentimen"
       />
 
-      {/* API GATEWAY ALERT ------------------------------------------------*/}
       <ApiGatewayAlert error={inferenceError} />
 
-      {/* STATISTICS CARDS ------------------------------------------------*/}
+      {/* STAT CARDS */}
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
         <StatCard
           description="Total ulasan dalam distribusi."
@@ -177,33 +175,18 @@ export default async function SentimentAnalysisPage() {
         />
       </section>
 
-      {/* CHART & SUMMARY -------------------------------------------------*/}
-      <section className="grid gap-6 xl:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
+      {/* CHART + SUMMARY SIDE BY SIDE */}
+      <section className="grid gap-6 xl:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
         <ChartCard
-          description="Form prediksi satu ulasan."
-          title="Input Ulasan Tunggal"
+          description="Distribusi sentimen dari dataset."
+          insight={
+            sentimentRows.length > 0
+              ? "Distribusi dari hasil preprocessing."
+              : EMPTY_GATEWAY_MESSAGE
+          }
+          title="Distribusi Sentimen"
         >
-          <div className="space-y-4">
-            <label
-              className="block text-sm font-medium text-foreground"
-              htmlFor="sentiment-review-input"
-            >
-              Teks ulasan
-            </label>
-            <textarea
-              className="min-h-32 w-full resize-none rounded-md border border-input bg-white px-3 py-2 text-sm leading-6 text-foreground outline-none ring-offset-background placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring"
-              id="sentiment-review-input"
-              placeholder={EMPTY_GATEWAY_MESSAGE}
-              readOnly
-            />
-            <button
-              className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground disabled:cursor-not-allowed disabled:opacity-60"
-              disabled
-              type="button"
-            >
-              Jalankan Prediksi via Gateway
-            </button>
-          </div>
+          <SentimentDistributionChart data={sentimentRows} />
         </ChartCard>
 
         <SummaryCard
@@ -236,34 +219,23 @@ export default async function SentimentAnalysisPage() {
           ]}
           title="Hasil Prediksi Sentimen"
         />
-
-        <ChartCard
-          description="Distribusi sentimen dari dataset."
-          insight={
-            sentimentRows.length > 0
-              ? "Distribusi dari hasil preprocessing."
-              : EMPTY_GATEWAY_MESSAGE
-          }
-          title="Distribusi Sentimen"
-        >
-          <SentimentDistributionChart data={sentimentRows} />
-        </ChartCard>
-
-        <ChartCard
-          description="Sampel hasil prediksi sentimen."
-          title="Tabel Hasil Sentimen"
-        >
-          <SimpleTable
-            columns={sentimentResultColumns()}
-            data={reviews}
-            emptyMessage={EMPTY_GATEWAY_MESSAGE}
-            minWidthClassName="min-w-[1180px]"
-            rowKey={(row, index) => row.external_id ?? `sentiment-review-${index}`}
-          />
-        </ChartCard>
       </section>
 
-      {/*--- RUNTIME INFERENCE SECTION --------------------------------------*/}
+      {/* TABLE — FULL WIDTH */}
+      <ChartCard
+        description="Sampel hasil prediksi sentimen."
+        title="Tabel Hasil Sentimen"
+      >
+        <SimpleTable
+          columns={sentimentResultColumns()}
+          data={reviews}
+          emptyMessage={EMPTY_GATEWAY_MESSAGE}
+          minWidthClassName="min-w-[1180px]"
+          rowKey={(row, index) => row.external_id ?? `sentiment-review-${index}`}
+        />
+      </ChartCard>
+
+      {/* RUNTIME INFERENCE SECTION */}
       <section className="mt-8">
         <PageHeader
           description="Analisis satu ulasan secara langsung."
