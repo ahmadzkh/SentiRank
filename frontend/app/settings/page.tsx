@@ -61,38 +61,37 @@ export default function SettingsPage() {
         />
       </section>
 
-      <section className="grid gap-6 xl:grid-cols-[minmax(0,0.85fr)_minmax(0,1.15fr)]">
-        <SummaryCard
-          description="Informasi ini membantu evaluator memahami batas implementasi frontend saat ini."
-          items={[
-            {
-              label: "Nama aplikasi",
-              value: mockSystemSettings.app.name,
-              description: mockSystemSettings.app.owner,
-            },
-            {
-              label: "Environment",
-              value: mockSystemSettings.app.environment,
-              description: "Data berasal dari mock FE-07 dan FE-10.",
-            },
-            {
-              label: "Visual direction",
-              value: mockSystemSettings.theme.visualDirection,
-              description: "Mengikuti frontend/DESIGN.md.",
-            },
-            {
-              label: "Dark Mode",
-              value: mockSystemSettings.theme.darkModeStatus,
-              description: "Tidak ada theme switcher pada fase ini.",
-            },
-          ]}
-          title="Metadata Aplikasi"
-        />
+      <SummaryCard
+        description="Informasi ini membantu evaluator memahami batas implementasi frontend saat ini."
+        items={[
+          {
+            label: "Nama aplikasi",
+            value: mockSystemSettings.app.name,
+            description: mockSystemSettings.app.owner,
+          },
+          {
+            label: "Environment",
+            value: mockSystemSettings.app.environment,
+            description: "Data berasal dari mock FE-07 dan FE-10.",
+          },
+          {
+            label: "Visual direction",
+            value: mockSystemSettings.theme.visualDirection,
+            description: "Mengikuti frontend/DESIGN.md.",
+          },
+          {
+            label: "Dark Mode",
+            value: mockSystemSettings.theme.darkModeStatus,
+            description: "Tidak ada theme switcher pada fase ini.",
+          },
+        ]}
+        title="Metadata Aplikasi"
+      />
 
-        <ChartCard
-          description="Daftar endpoint bersifat kontrak awal dan belum menjalankan real API call."
-          title="Placeholder Endpoint API"
-        >
+      <ChartCard
+        description="Daftar endpoint bersifat kontrak awal dan belum menjalankan real API call."
+        title="Placeholder Endpoint API"
+      >
           <SimpleTable
             columns={[
               {
@@ -133,7 +132,6 @@ export default function SettingsPage() {
             rowKey={(row) => row.id}
           />
         </ChartCard>
-      </section>
 
       <ChartCard
         description="Metadata model digunakan untuk menjelaskan sumber output mock dan kesiapan penggantian ke artefak final."
