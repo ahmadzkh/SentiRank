@@ -13,6 +13,8 @@ from itertools import combinations
 from pathlib import Path
 from typing import Any
 
+SCRIPT_DIR = Path(__file__).resolve().parent
+PROJECT_ROOT = SCRIPT_DIR.parent.parent.parent
 
 AHP_FIELDS = [
     "respondent_id",
@@ -61,13 +63,13 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--criteria-json",
         type=Path,
-        default=Path("../docs/templates/ahp/final_criteria_for_ahp.json"),
+        default=PROJECT_ROOT / "docs/templates/ahp/final_criteria_for_ahp.json",
         help="Path to final criteria JSON with a top-level criteria array.",
     )
     parser.add_argument(
         "--output-dir",
         type=Path,
-        default=Path("../docs/templates/ahp"),
+        default=PROJECT_ROOT / "docs/templates/ahp",
         help="Directory where expert judgement templates will be written.",
     )
     return parser.parse_args()

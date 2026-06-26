@@ -1,0 +1,65 @@
+{
+  "generated_at": "2026-06-26T09:56:32.773395+00:00",
+  "run_label": "MS-17B_expert_judgement",
+  "data_source": "aggregated_from_valid_expert_judgement",
+  "valid_respondent_count": 8,
+  "respondent_ids_used": [
+    "EJ002",
+    "EJ003",
+    "EJ004",
+    "EJ005",
+    "EJ006",
+    "EJ007",
+    "EJ008",
+    "EJ009"
+  ],
+  "ahp_consistency_ratio": 0.004838,
+  "ahp_is_consistent": true,
+  "ranking_comparison": [
+    {
+      "criteria": "Features, Content & Audio Experience",
+      "ahp_weight": 0.253203,
+      "ahp_rank": 1,
+      "fuzzy_weight": 0.220791,
+      "fuzzy_rank": 2,
+      "rank_difference": -1,
+      "interpretation": "AHP ranks higher"
+    },
+    {
+      "criteria": "App Reliability & Usability",
+      "ahp_weight": 0.239669,
+      "ahp_rank": 2,
+      "fuzzy_weight": 0.254121,
+      "fuzzy_rank": 1,
+      "rank_difference": 1,
+      "interpretation": "Fuzzy ranks higher"
+    },
+    {
+      "criteria": "Ads Experience",
+      "ahp_weight": 0.18718,
+      "ahp_rank": 3,
+      "fuzzy_weight": 0.193295,
+      "fuzzy_rank": 3,
+      "rank_difference": 0,
+      "interpretation": "Same rank"
+    },
+    {
+      "criteria": "Subscription & Pricing",
+      "ahp_weight": 0.184805,
+      "ahp_rank": 4,
+      "fuzzy_weight": 0.173944,
+      "fuzzy_rank": 4,
+      "rank_difference": 0,
+      "interpretation": "Same rank"
+    },
+    {
+      "criteria": "Account/Login",
+      "ahp_weight": 0.135143,
+      "ahp_rank": 5,
+      "fuzzy_weight": 0.157849,
+      "fuzzy_rank": 5,
+      "rank_difference": 0,
+      "interpretation": "Same rank"
+    }
+  ]
+}

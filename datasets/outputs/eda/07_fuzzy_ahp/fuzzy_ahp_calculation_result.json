@@ -1,0 +1,116 @@
+{
+  "run_label": "MS-17B_expert_judgement",
+  "generated_at": "2026-06-26T09:56:32.771392+00:00",
+  "data_source": "aggregated_from_valid_expert_judgement",
+  "method": "fuzzy_geometric_mean + centroid_defuzzification",
+  "tfn_scale": {
+    "1.0": [
+      1.0,
+      1.0,
+      1.0
+    ],
+    "2.0": [
+      1.0,
+      2.0,
+      3.0
+    ],
+    "3.0": [
+      2.0,
+      3.0,
+      4.0
+    ],
+    "4.0": [
+      3.0,
+      4.0,
+      5.0
+    ],
+    "5.0": [
+      4.0,
+      5.0,
+      6.0
+    ],
+    "6.0": [
+      5.0,
+      6.0,
+      7.0
+    ],
+    "7.0": [
+      6.0,
+      7.0,
+      8.0
+    ],
+    "8.0": [
+      7.0,
+      8.0,
+      9.0
+    ],
+    "9.0": [
+      8.0,
+      9.0,
+      9.0
+    ]
+  },
+  "valid_respondent_count": 8,
+  "respondent_ids_used": [
+    "EJ002",
+    "EJ003",
+    "EJ004",
+    "EJ005",
+    "EJ006",
+    "EJ007",
+    "EJ008",
+    "EJ009"
+  ],
+  "weights": [
+    {
+      "criterion_id": "C1",
+      "criterion_name": "Features, Content & Audio Experience",
+      "fuzzy_weight_l": 0.172486,
+      "fuzzy_weight_m": 0.225385,
+      "fuzzy_weight_u": 0.28012,
+      "defuzzified_weight": 0.225997,
+      "normalized_weight": 0.220791,
+      "rank": 2
+    },
+    {
+      "criterion_id": "C2",
+      "criterion_name": "Ads Experience",
+      "fuzzy_weight_l": 0.172486,
+      "fuzzy_weight_m": 0.196209,
+      "fuzzy_weight_u": 0.224864,
+      "defuzzified_weight": 0.197853,
+      "normalized_weight": 0.193295,
+      "rank": 3
+    },
+    {
+      "criterion_id": "C3",
+      "criterion_name": "Subscription & Pricing",
+      "fuzzy_weight_l": 0.138462,
+      "fuzzy_weight_m": 0.17081,
+      "fuzzy_weight_u": 0.224864,
+      "defuzzified_weight": 0.178045,
+      "normalized_weight": 0.173944,
+      "rank": 4
+    },
+    {
+      "criterion_id": "C4",
+      "criterion_name": "Account/Login",
+      "fuzzy_weight_l": 0.111149,
+      "fuzzy_weight_m": 0.148698,
+      "fuzzy_weight_u": 0.224864,
+      "defuzzified_weight": 0.16157,
+      "normalized_weight": 0.157849,
+      "rank": 5
+    },
+    {
+      "criterion_id": "C5",
+      "criterion_name": "App Reliability & Usability",
+      "fuzzy_weight_l": 0.172486,
+      "fuzzy_weight_m": 0.258899,
+      "fuzzy_weight_u": 0.348954,
+      "defuzzified_weight": 0.260113,
+      "normalized_weight": 0.254121,
+      "rank": 1
+    }
+  ]
+}

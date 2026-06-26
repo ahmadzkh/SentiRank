@@ -119,22 +119,45 @@ Satu-satunya responden actual (EJ001 / ACT-01 / Dhian Sweetania) memiliki CR = 0
 
 ## Perubahan yang Dilakukan
 
-| File | Perubahan |
-|------|-----------|
-| `services/decision-service/app/routers/ahp.py` | FINAL_CRITERIA diurutkan sesuai spreadsheet (C2=Ads, C3=Pricing, C4=Account, C5=Reliability) |
-| `scripts/prepare_expert_judgement_dataset.py` | **BARU** — intake + mapping + validation pipeline |
-| `datasets/external/expert_judgement/spotify_expert_judgement_augmented.xlsx` | **BARU** — copy spreadsheet augmented |
-| `datasets/processed/expert_judgement/*` | **BARU** — 5 file output |
-| `docs/methodology/expert-judgement-data-processing.md` | **BARU** — dokumentasi ini |
+|| File | Perubahan |
+||------|-----------|
+|| `services/decision-service/app/routers/ahp.py` | FINAL_CRITERIA diurutkan sesuai spreadsheet (C2=Ads, C3=Pricing, C4=Account, C5=Reliability) |
+|| `services/decision-service/scripts/prepare_expert_judgement_dataset.py` | **BARU** — intake + mapping + validation pipeline |
+|| `services/decision-service/scripts/ms17b_compute_expert_judgement.py` | **BARU** — MS-17B agregasi AHP/Fuzzy AHP |
+|| `services/decision-service/scripts/*.py` (8 file) | **PINDAH** dari `ml-service/scripts/` → domain decision-service |
+|| `ml-service/scripts/` (10 file AHP dihapus) | **BERSIH** — hanya berisi script ML murni |
+|| `datasets/external/expert_judgement/spotify_expert_judgement_augmented.xlsx` | **BARU** — copy spreadsheet augmented |
+|| `datasets/processed/expert_judgement/*` | **BARU** — 5 file output MS-17A |
+|| `datasets/outputs/eda/06_ahp/*` | **BARU** — AHP aggregated + calculation + ranking (MS-17B) |
+|| `datasets/outputs/eda/07_fuzzy_ahp/*` | **BARU** — Fuzzy AHP calculation + comparison (MS-17B) |
+|| `docs/methodology/expert-judgement-data-processing.md` | **BARU** — dokumentasi ini |
 
 ---
 
-## Next Step
+## Langkah Selanjutnya (Next Steps)
 
-### MS-17B — AHP and Fuzzy AHP Aggregation & Ranking
+### ✅ MS-17B — AHP and Fuzzy AHP Aggregation & Ranking (SELESAI)
 
-- Baca `datasets/processed/expert_judgement/expert_judgement_valid_responses.csv`
-- Geometric mean aggregation dari responden valid
-- Kirim ke `POST /ahp/calculate` dan `POST /ahp/fuzzy-calculate`
-- Dapatkan ranking final AHP + Fuzzy AHP
-- Update dashboard dan model-evaluation di frontend
+Hasil akhir dari MS-17B:
+
+| Output | Path |
+|--------|------|
+| Aggregated pairwise matrix | `datasets/outputs/eda/06_ahp/aggregated/ahp_aggregated_pairwise_judgement.json` |
+| AHP weights + consistency | `datasets/outputs/eda/06_ahp/ahp_calculation_result.json` |
+| AHP ranking | `datasets/outputs/eda/06_ahp/ahp_ranking.csv` |
+| Fuzzy AHP weights | `datasets/outputs/eda/07_fuzzy_ahp/fuzzy_ahp_calculation_result.json` |
+| Fuzzy AHP ranking | `datasets/outputs/eda/07_fuzzy_ahp/fuzzy_ahp_ranking.csv` |
+| AHP vs Fuzzy comparison | `datasets/outputs/eda/07_fuzzy_ahp/ahp_fuzzy_ahp_ranking_comparison.json` |
+
+**Ringkasan hasil**:
+- 8 responden valid (semua synthetic), 2 invalid (ACT-01 + SYN-09 control)
+- Agregasi: geometric mean
+- **AHP CR**: 0.0048 (✅ konsisten)
+- **Ranking AHP**: C1=Features (0.253), C5=Reliability (0.240), C2=Ads (0.187), C3=Pricing (0.185), C4=Account (0.135)
+- **Ranking Fuzzy AHP**: C5=Reliability (0.254), C1=Features (0.221), C2=Ads (0.193), C3=Pricing (0.174), C4=Account (0.158)
+- **Perbedaan ranking**: C1 vs C5 bertukar posisi 1↔2; C2, C3, C4 tetap
+
+### MS-17C — Frontend AHP/Fuzzy AHP Result Display (Next)
+
+- Update frontend untuk menampilkan hasil final dari MS-17B
+- Pindahkan endpoint `/ahp/summary` dari sample_development ke expert_judgement mode

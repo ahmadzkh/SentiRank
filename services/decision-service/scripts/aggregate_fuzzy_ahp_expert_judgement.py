@@ -16,7 +16,8 @@ from validate_fuzzy_ahp_expert_judgement import (
     parse_bool,
     validate_fuzzy_ahp_expert_judgement,
 )
-
+SCRIPT_DIR = Path(__file__).resolve().parent
+PROJECT_ROOT = SCRIPT_DIR.parent.parent.parent
 
 AGGREGATION_METHOD = "component_wise_geometric_mean"
 
@@ -28,7 +29,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--criteria-json",
         type=Path,
-        default=Path("../docs/templates/ahp/final_criteria_for_ahp.json"),
+        default=PROJECT_ROOT / "docs/templates/ahp/final_criteria_for_ahp.json",
         help="Path to final criteria JSON.",
     )
     parser.add_argument(
@@ -42,7 +43,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--output-dir",
         type=Path,
-        default=Path("../datasets/outputs/eda/07_fuzzy_ahp/aggregated"),
+        default=PROJECT_ROOT / "datasets/outputs/eda/07_fuzzy_ahp/aggregated",
         help="Directory for aggregated Fuzzy AHP judgement outputs.",
     )
     parser.add_argument(

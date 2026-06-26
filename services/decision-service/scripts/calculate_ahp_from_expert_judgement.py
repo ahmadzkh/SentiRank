@@ -18,10 +18,10 @@ from typing import Any
 import matplotlib.pyplot as plt
 
 
-ML_SERVICE_ROOT = Path(__file__).resolve().parents[1]
-PROJECT_ROOT = ML_SERVICE_ROOT.parent
-if str(ML_SERVICE_ROOT) not in sys.path:
-    sys.path.insert(0, str(ML_SERVICE_ROOT))
+DECISION_ROOT = Path(__file__).resolve().parents[1]
+PROJECT_ROOT = DECISION_ROOT.parent.parent
+if str(DECISION_ROOT) not in sys.path:
+    sys.path.insert(0, str(DECISION_ROOT))
 
 from app.schemas.ahp import AhpCalculateRequest, AhpPairwiseComparison, Criterion
 from app.services.ahp_calculator import calculate_ahp
@@ -42,7 +42,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--criteria-json",
         type=Path,
-        default=Path("../docs/templates/ahp/final_criteria_for_ahp.json"),
+        default=PROJECT_ROOT / "docs/templates/ahp/final_criteria_for_ahp.json",
         help="Path to final criteria JSON.",
     )
     parser.add_argument(
@@ -56,7 +56,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--output-dir",
         type=Path,
-        default=Path("../datasets/outputs/eda/06_ahp/sample_development"),
+        default=PROJECT_ROOT / "datasets/outputs/eda/06_ahp/sample_development",
         help="Directory for sample AHP calculation outputs.",
     )
     parser.add_argument(

@@ -1,19 +1,21 @@
-"""Validate Fuzzy AHP expert judgement CSV files before aggregation."""
+"""Validate AHP expert judgement CSV files before aggregation or calculation."""
 
 from __future__ import annotations
 
 import argparse
 import csv
 import json
+import math
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+SCRIPT_DIR = Path(__file__).resolve().parent
+PROJECT_ROOT = SCRIPT_DIR.parent.parent.parent
 
 EXPECTED_CRITERIA_COUNT = 5
 EXPECTED_COMPARISON_COUNT = 10
 VALID_PREFERENCES = {"criterion_a", "criterion_b", "equal"}
-VALID_LINGUISTIC_SCALES = {"equal", "moderate", "strong", "very_strong", "extreme"}
 REQUIRED_COLUMNS = [
     "respondent_id",
     "respondent_role",
@@ -21,13 +23,11 @@ REQUIRED_COLUMNS = [
     "criterion_a",
     "criterion_b",
     "preferred_criterion",
-    "linguistic_scale",
-    "fuzzy_l",
-    "fuzzy_m",
-    "fuzzy_u",
-    "fuzzy_value_a_over_b",
+    "intensity_saaty",
+    "ahp_value_a_over_b",
     "justification",
 ]
+FLOAT_TOLERANCE = 1e-6
 
 
 def parse_bool(value: str | bool) -> bool:
@@ -43,26 +43,26 @@ def parse_bool(value: str | bool) -> bool:
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Validate Fuzzy AHP expert judgement CSV before aggregation."
+        description="Validate AHP expert judgement CSV before aggregation."
     )
     parser.add_argument(
         "--criteria-json",
         type=Path,
-        default=Path("../docs/templates/ahp/final_criteria_for_ahp.json"),
+        default=PROJECT_ROOT / "docs/templates/ahp/final_criteria_for_ahp.json",
         help="Path to final criteria JSON.",
     )
     parser.add_argument(
         "--input",
         type=Path,
         default=Path(
-            "../docs/templates/ahp/sample_development/fuzzy_ahp_pairwise_sample_development.csv"
+            "../docs/templates/ahp/sample_development/ahp_pairwise_sample_development.csv"
         ),
-        help="Path to filled Fuzzy AHP pairwise judgement CSV.",
+        help="Path to filled AHP pairwise judgement CSV.",
     )
     parser.add_argument(
         "--output-dir",
         type=Path,
-        default=Path("../datasets/outputs/eda/07_fuzzy_ahp/validation"),
+        default=PROJECT_ROOT / "datasets/outputs/eda/06_ahp/validation",
         help="Directory for validation report outputs.",
     )
     parser.add_argument(
@@ -116,7 +116,7 @@ def load_criteria(criteria_json: Path) -> list[dict[str, str]]:
 
 def load_csv_rows(input_path: Path) -> tuple[list[dict[str, str]], list[str]]:
     if not input_path.exists():
-        raise FileNotFoundError(f"Fuzzy AHP expert judgement CSV not found: {input_path}")
+        raise FileNotFoundError(f"AHP expert judgement CSV not found: {input_path}")
 
     with input_path.open("r", encoding="utf-8", newline="") as file:
         reader = csv.DictReader(file)
@@ -146,6 +146,16 @@ def issue(
     }
 
 
+def _parse_intensity(value: str) -> int | None:
+    try:
+        parsed = float(value)
+    except (TypeError, ValueError):
+        return None
+    if not parsed.is_integer():
+        return None
+    return int(parsed)
+
+
 def _parse_float(value: str) -> float | None:
     try:
         return float(value)
@@ -153,7 +163,7 @@ def _parse_float(value: str) -> float | None:
         return None
 
 
-def validate_fuzzy_rows(
+def validate_ahp_rows(
     rows: list[dict[str, str]],
     fieldnames: list[str],
     criteria: list[dict[str, str]],
@@ -217,10 +227,8 @@ def validate_fuzzy_rows(
             criterion_a = str(row.get("criterion_a", "")).strip()
             criterion_b = str(row.get("criterion_b", "")).strip()
             preferred = str(row.get("preferred_criterion", "")).strip()
-            linguistic_scale = str(row.get("linguistic_scale", "")).strip()
-            fuzzy_l = _parse_float(str(row.get("fuzzy_l", "")).strip())
-            fuzzy_m = _parse_float(str(row.get("fuzzy_m", "")).strip())
-            fuzzy_u = _parse_float(str(row.get("fuzzy_u", "")).strip())
+            intensity = _parse_intensity(str(row.get("intensity_saaty", "")).strip())
+            value = _parse_float(str(row.get("ahp_value_a_over_b", "")).strip())
 
             if not comparison_id:
                 issues.append(
@@ -256,42 +264,44 @@ def validate_fuzzy_rows(
                         "preferred_criterion must be criterion_a, criterion_b, or equal.",
                     )
                 )
-            if linguistic_scale and linguistic_scale not in VALID_LINGUISTIC_SCALES:
+            if intensity is None or intensity < 1 or intensity > 9:
                 issues.append(
                     issue(
                         respondent_id,
                         comparison_id,
-                        "invalid_linguistic_scale",
-                        f"Unknown linguistic_scale: {linguistic_scale}",
+                        "invalid_intensity_saaty",
+                        "intensity_saaty must be an integer from 1 to 9.",
                     )
                 )
-            if fuzzy_l is None or fuzzy_m is None or fuzzy_u is None:
+            if value is None or value <= 0:
                 issues.append(
                     issue(
                         respondent_id,
                         comparison_id,
-                        "invalid_tfn",
-                        "fuzzy_l, fuzzy_m, and fuzzy_u must be numeric.",
+                        "invalid_ahp_value",
+                        "ahp_value_a_over_b must be positive.",
                     )
                 )
-            elif fuzzy_l <= 0 or fuzzy_m <= 0 or fuzzy_u <= 0:
-                issues.append(
-                    issue(
-                        respondent_id,
-                        comparison_id,
-                        "invalid_tfn",
-                        "fuzzy_l, fuzzy_m, and fuzzy_u must be positive.",
+
+            if preferred in VALID_PREFERENCES and intensity is not None and value is not None and value > 0:
+                if preferred == "equal":
+                    expected_value = 1.0
+                elif preferred == "criterion_a":
+                    expected_value = float(intensity)
+                else:
+                    expected_value = 1.0 / float(intensity)
+                if not math.isclose(value, expected_value, rel_tol=FLOAT_TOLERANCE, abs_tol=FLOAT_TOLERANCE):
+                    issues.append(
+                        issue(
+                            respondent_id,
+                            comparison_id,
+                            "inconsistent_preference_value",
+                            (
+                                "preferred_criterion, intensity_saaty, and "
+                                f"ahp_value_a_over_b are inconsistent; expected {expected_value}."
+                            ),
+                        )
                     )
-                )
-            elif fuzzy_l > fuzzy_m or fuzzy_m > fuzzy_u:
-                issues.append(
-                    issue(
-                        respondent_id,
-                        comparison_id,
-                        "invalid_tfn",
-                        "TFN must satisfy fuzzy_l <= fuzzy_m <= fuzzy_u.",
-                    )
-                )
 
         missing_pairs = sorted(set(expected_pairs) - seen_pairs)
         for pair_key in missing_pairs:
@@ -342,8 +352,8 @@ def validate_fuzzy_rows(
 
 def write_validation_report(report: dict[str, Any], output_dir: Path) -> tuple[Path, Path]:
     output_dir.mkdir(parents=True, exist_ok=True)
-    json_path = output_dir / "fuzzy_ahp_expert_judgement_validation_report.json"
-    csv_path = output_dir / "fuzzy_ahp_expert_judgement_validation_report.csv"
+    json_path = output_dir / "ahp_expert_judgement_validation_report.json"
+    csv_path = output_dir / "ahp_expert_judgement_validation_report.csv"
     json_path.write_text(json.dumps(report, indent=2, ensure_ascii=False), encoding="utf-8")
 
     fields = [
@@ -386,7 +396,7 @@ def write_validation_report(report: dict[str, Any], output_dir: Path) -> tuple[P
     return json_path, csv_path
 
 
-def validate_fuzzy_ahp_expert_judgement(
+def validate_ahp_expert_judgement(
     criteria_json: Path,
     input_path: Path,
     run_label: str,
@@ -394,20 +404,20 @@ def validate_fuzzy_ahp_expert_judgement(
 ) -> dict[str, Any]:
     criteria = load_criteria(criteria_json)
     rows, fieldnames = load_csv_rows(input_path)
-    return validate_fuzzy_rows(rows, fieldnames, criteria, run_label, input_path, allow_sample)
+    return validate_ahp_rows(rows, fieldnames, criteria, run_label, input_path, allow_sample)
 
 
 def main() -> None:
     args = parse_args()
-    report = validate_fuzzy_ahp_expert_judgement(
+    report = validate_ahp_expert_judgement(
         args.criteria_json.resolve(),
         args.input.resolve(),
         args.run_label,
         args.allow_sample,
     )
     json_path, csv_path = write_validation_report(report, args.output_dir.resolve())
-    print(f"Fuzzy AHP validation report JSON: {json_path}")
-    print(f"Fuzzy AHP validation report CSV: {csv_path}")
+    print(f"AHP validation report JSON: {json_path}")
+    print(f"AHP validation report CSV: {csv_path}")
     print(f"Can calculate: {report['can_calculate']}")
     print(f"Valid respondents: {report['valid_respondent_count']}")
     print(f"Invalid respondents: {report['invalid_respondent_count']}")

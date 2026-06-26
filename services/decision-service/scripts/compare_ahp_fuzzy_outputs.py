@@ -13,10 +13,10 @@ from typing import Any
 import matplotlib.pyplot as plt
 
 
-ML_SERVICE_ROOT = Path(__file__).resolve().parents[1]
-PROJECT_ROOT = ML_SERVICE_ROOT.parent
-if str(ML_SERVICE_ROOT) not in sys.path:
-    sys.path.insert(0, str(ML_SERVICE_ROOT))
+DECISION_ROOT = Path(__file__).resolve().parents[1]
+PROJECT_ROOT = DECISION_ROOT.parent.parent
+if str(DECISION_ROOT) not in sys.path:
+    sys.path.insert(0, str(DECISION_ROOT))
 
 from app.schemas.ahp import (
     AhpCriterionWeight,
@@ -55,7 +55,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--output-dir",
         type=Path,
-        default=Path("../datasets/outputs/eda/08_ranking_comparison/sample_development"),
+        default=PROJECT_ROOT / "datasets/outputs/eda/08_ranking_comparison/sample_development",
         help="Directory for sample comparison outputs.",
     )
     parser.add_argument(

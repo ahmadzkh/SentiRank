@@ -1,11 +1,6 @@
-run_label,is_sample,not_final_expert_judgement,comparison_id,criterion_a,criterion_b,fuzzy_l,fuzzy_m,fuzzy_u,fuzzy_value_a_over_b,respondent_count,aggregation_method
-sample_development_only,True,True,P01,"Features, Content & Audio Experience",App Reliability & Usability,0.25,0.3333333333333333,0.5,"(0.25, 0.3333333333333333, 0.5)",1,component_wise_geometric_mean
-sample_development_only,True,True,P02,"Features, Content & Audio Experience",Ads Experience,2.0,3.0000000000000004,4.0,"(2.0, 3.0000000000000004, 4.0)",1,component_wise_geometric_mean
-sample_development_only,True,True,P03,"Features, Content & Audio Experience",Subscription & Pricing,1.0,1.0,1.0,"(1.0, 1.0, 1.0)",1,component_wise_geometric_mean
-sample_development_only,True,True,P04,"Features, Content & Audio Experience",Account/Login,2.0,3.0000000000000004,4.0,"(2.0, 3.0000000000000004, 4.0)",1,component_wise_geometric_mean
-sample_development_only,True,True,P05,App Reliability & Usability,Ads Experience,7.999999999999998,9.000000000000002,9.000000000000002,"(7.999999999999998, 9.000000000000002, 9.000000000000002)",1,component_wise_geometric_mean
-sample_development_only,True,True,P06,App Reliability & Usability,Subscription & Pricing,2.0,3.0000000000000004,4.0,"(2.0, 3.0000000000000004, 4.0)",1,component_wise_geometric_mean
-sample_development_only,True,True,P07,App Reliability & Usability,Account/Login,7.999999999999998,9.000000000000002,9.000000000000002,"(7.999999999999998, 9.000000000000002, 9.000000000000002)",1,component_wise_geometric_mean
-sample_development_only,True,True,P08,Ads Experience,Subscription & Pricing,0.25,0.3333333333333333,0.5,"(0.25, 0.3333333333333333, 0.5)",1,component_wise_geometric_mean
-sample_development_only,True,True,P09,Ads Experience,Account/Login,1.0,1.0,1.0,"(1.0, 1.0, 1.0)",1,component_wise_geometric_mean
-sample_development_only,True,True,P10,Subscription & Pricing,Account/Login,2.0,3.0000000000000004,4.0,"(2.0, 3.0000000000000004, 4.0)",1,component_wise_geometric_mean
+criterion_name,C1_l,C2_l,C3_l,C4_l,C5_l,C1_m,C2_m,C3_m,C4_m,C5_m,C1_u,C2_u,C3_u,C4_u,C5_u
+"Features, Content & Audio Experience",1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,2.0,1.0,1.0,1.0,1.0,3.0,1.0
+Ads Experience,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0,1.0
+Subscription & Pricing,1.0,1.0,1.0,1.0,0.333333,1.0,1.0,1.0,1.0,0.5,1.0,1.0,1.0,1.0,1.0
+Account/Login,0.333333,1.0,1.0,1.0,0.333333,0.5,1.0,1.0,1.0,0.5,1.0,1.0,1.0,1.0,1.0
+App Reliability & Usability,1.0,1.0,1.0,1.0,1.0,1.0,1.0,2.0,2.0,1.0,1.0,1.0,3.0,3.0,1.0

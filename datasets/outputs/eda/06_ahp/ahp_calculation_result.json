@@ -1,0 +1,108 @@
+{
+  "run_label": "MS-17B_expert_judgement",
+  "generated_at": "2026-06-26T09:56:32.769395+00:00",
+  "data_source": "aggregated_from_valid_expert_judgement",
+  "aggregation": {
+    "criteria_count": 5,
+    "valid_respondent_count": 8,
+    "respondent_ids_used": [
+      "EJ002",
+      "EJ003",
+      "EJ004",
+      "EJ005",
+      "EJ006",
+      "EJ007",
+      "EJ008",
+      "EJ009"
+    ],
+    "aggregation_method": "geometric_mean",
+    "consistency_ratio": 0.004838,
+    "consistency_threshold": 0.1,
+    "is_consistent": true,
+    "total_weight": 1.0,
+    "all_diagonal_one": true,
+    "source_type_summary": {
+      "actual": 0,
+      "synthetic": 8,
+      "unknown": 0
+    }
+  },
+  "pairwise_matrix": [
+    [
+      1.0,
+      1.316074,
+      1.147203,
+      1.846255,
+      1.316074
+    ],
+    [
+      0.759836,
+      1.0,
+      1.0,
+      1.402851,
+      0.759836
+    ],
+    [
+      0.871686,
+      1.0,
+      1.0,
+      1.316074,
+      0.662338
+    ],
+    [
+      0.541637,
+      0.712834,
+      0.759836,
+      1.0,
+      0.541637
+    ],
+    [
+      0.759836,
+      1.316074,
+      1.509804,
+      1.846255,
+      1.0
+    ]
+  ],
+  "weights": [
+    {
+      "criterion_id": "C1",
+      "criterion_name": "Features, Content & Audio Experience",
+      "weight": 0.253203,
+      "rank": 1,
+      "data_source": "aggregated_expert_judgement"
+    },
+    {
+      "criterion_id": "C2",
+      "criterion_name": "Ads Experience",
+      "weight": 0.18718,
+      "rank": 3,
+      "data_source": "aggregated_expert_judgement"
+    },
+    {
+      "criterion_id": "C3",
+      "criterion_name": "Subscription & Pricing",
+      "weight": 0.184805,
+      "rank": 4,
+      "data_source": "aggregated_expert_judgement"
+    },
+    {
+      "criterion_id": "C4",
+      "criterion_name": "Account/Login",
+      "weight": 0.135143,
+      "rank": 5,
+      "data_source": "aggregated_expert_judgement"
+    },
+    {
+      "criterion_id": "C5",
+      "criterion_name": "App Reliability & Usability",
+      "weight": 0.239669,
+      "rank": 2,
+      "data_source": "aggregated_expert_judgement"
+    }
+  ],
+  "lambda_max": 5.021675,
+  "consistency_index": 0.005419,
+  "consistency_ratio": 0.004838,
+  "is_consistent": true
+}
