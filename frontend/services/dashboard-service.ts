@@ -91,6 +91,17 @@ export interface DashboardReviewInsightRow {
   source: string;
 }
 
+export interface DashboardComparisonRow {
+  id: string;
+  criterion: string;
+  ahpRank: string;
+  fuzzyRank: string;
+  ahpWeight: string;
+  fuzzyWeight: string;
+  rankChange: string;
+  interpretation: string;
+}
+
 export interface DashboardData {
   apiError: ApiGatewayFailure | null;
   datasetCards: DashboardDatasetCard[];
@@ -99,6 +110,7 @@ export interface DashboardData {
   topAspects: AspectRankingDatum[];
   priorityComparison: AhpRankingComparisonDatum[];
   priorityRows: DashboardRecommendationRow[];
+  comparisonRows: DashboardComparisonRow[];
   reviewInsightRows: DashboardReviewInsightRow[];
   rankingCsvAvailable: boolean;
 }
@@ -152,6 +164,7 @@ export async function getDashboardSummary(): Promise<DashboardData> {
     topAspects: buildTopAspects(sources.aspect, 5),
     priorityComparison: buildPriorityComparison(sources.ranking),
     priorityRows: buildPriorityRows(sources.ranking, sources.aspect),
+    comparisonRows: buildComparisonRows(sources.ranking),
     reviewInsightRows: buildReviewInsightRows(sources),
     rankingCsvAvailable: Boolean(sources.ranking?.items.length),
   };
@@ -392,6 +405,46 @@ function buildPriorityRows(
     recommendation: tableCellValue(item.recommendation),
     interpretation: tableCellValue(item.interpretation ?? item.status),
   }));
+}
+
+function buildComparisonRows(
+  ranking: GatewayRankingComparisonResponse | null,
+): DashboardComparisonRow[] {
+  return sortedRankingItems(ranking?.items).map((item, index) => {
+    const ahpR = item.ahp_rank;
+    const fuzzyR = item.fuzzy_ahp_rank;
+    const delta = item.rank_delta;
+    return {
+      id: item.criterion_id || `comp-${index}`,
+      criterion: tableCellValue(item.criterion_name),
+      ahpRank: ahpR != null ? String(ahpR) : EMPTY_TABLE_CELL,
+      fuzzyRank: fuzzyR != null ? String(fuzzyR) : EMPTY_TABLE_CELL,
+      ahpWeight:
+        finiteNumber(item.ahp_weight) === null
+          ? EMPTY_TABLE_CELL
+          : formatScore(item.ahp_weight),
+      fuzzyWeight:
+        finiteNumber(item.fuzzy_ahp_weight) === null
+          ? EMPTY_TABLE_CELL
+          : formatScore(item.fuzzy_ahp_weight),
+      rankChange:
+        delta == null
+          ? EMPTY_TABLE_CELL
+          : delta === 0
+            ? "—"
+            : delta < 0
+              ? `Naik ${Math.abs(delta)}`
+              : `Turun ${delta}`,
+      interpretation:
+        delta == null
+          ? EMPTY_TABLE_CELL
+          : delta === 0
+            ? "Stabil pada kedua metode"
+            : delta < 0
+              ? "Fuzzy AHP ranking lebih tinggi"
+              : "AHP ranking lebih tinggi",
+    };
+  });
 }
 
 function buildReviewInsightRows(

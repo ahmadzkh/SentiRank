@@ -6,11 +6,10 @@ import { ChartCard } from "@/components/cards/ChartCard";
 import { ModelMetricCard } from "@/components/cards/ModelMetricCard";
 import { StatCard } from "@/components/cards/StatCard";
 import { AppShell, PageHeader } from "@/components/layout";
-import { SimpleTable } from "@/components/tables/SimpleTable";
-import type { SimpleTableColumn } from "@/components/tables/SimpleTable";
+import { SimpleTable, type SimpleTableColumn } from "@/components/tables/SimpleTable";
 import {
   getDashboardSummary,
-  type DashboardRecommendationRow,
+  type DashboardComparisonRow,
   type DashboardReviewInsightRow,
 } from "@/services/dashboard-service";
 import { EMPTY_GATEWAY_MESSAGE } from "@/lib/api-status";
@@ -19,63 +18,48 @@ export const dynamic = "force-dynamic";
 
 const EMPTY_MESSAGE = EMPTY_GATEWAY_MESSAGE;
 
-const rankingColumns: readonly SimpleTableColumn<DashboardRecommendationRow>[] = [
+const comparisonColumns: readonly SimpleTableColumn<DashboardComparisonRow>[] = [
   {
-    key: "rank",
-    header: "Rank",
-    align: "center",
-    render: (row) => row.rank,
-  },
-  {
-    key: "criteria",
+    key: "criterion",
     header: "Kriteria",
     render: (row) => (
-      <span className="font-medium text-foreground">{row.criteria}</span>
+      <span className="font-medium text-foreground">{row.criterion}</span>
     ),
   },
   {
+    key: "ahpRank",
+    header: "Rank AHP",
+    align: "center",
+    render: (row) => row.ahpRank,
+  },
+  {
+    key: "fuzzyRank",
+    header: "Rank Fuzzy AHP",
+    align: "center",
+    render: (row) => row.fuzzyRank,
+  },
+  {
     key: "ahpWeight",
-    header: "AHP Weight",
+    header: "Bobot AHP",
     align: "right",
     render: (row) => row.ahpWeight,
   },
   {
-    key: "fuzzyAhpWeight",
-    header: "Fuzzy AHP Weight",
+    key: "fuzzyWeight",
+    header: "Bobot Fuzzy AHP",
     align: "right",
-    render: (row) => row.fuzzyAhpWeight,
+    render: (row) => row.fuzzyWeight,
   },
   {
-    key: "negativeReviewCount",
-    header: "Jumlah Ulasan Negatif",
-    align: "right",
-    render: (row) => row.negativeReviewCount,
-  },
-  {
-    key: "priorityScore",
-    header: "Priority Score",
-    align: "right",
-    render: (row) => row.priorityScore,
-  },
-  {
-    key: "recommendation",
-    header: "Rekomendasi",
-    className: "min-w-[220px]",
-    render: (row) => (
-      <span className="line-clamp-3 text-muted-foreground">
-        {row.recommendation}
-      </span>
-    ),
+    key: "rankChange",
+    header: "Perubahan Ranking",
+    render: (row) => row.rankChange,
   },
   {
     key: "interpretation",
     header: "Interpretasi",
     className: "min-w-[220px]",
-    render: (row) => (
-      <span className="line-clamp-3 text-muted-foreground">
-        {row.interpretation}
-      </span>
-    ),
+    render: (row) => row.interpretation,
   },
 ];
 
@@ -188,19 +172,19 @@ export default async function DashboardPage() {
 
       <ChartCard
         className="w-full"
-        title="Perbandingan Prioritas AHP dan Fuzzy AHP"
+        description="Perbandingan bobot AHP dan Fuzzy AHP per kriteria. Ranking menunjukkan prioritas relatif tiap aspek."
+        title="Perbandingan AHP vs Fuzzy AHP"
       >
         <AhpRankingComparisonChart data={dashboard.priorityComparison} />
-      </ChartCard>
-
-      <ChartCard className="w-full" title="Rekomendasi Prioritas">
-        <SimpleTable
-          columns={rankingColumns}
-          data={dashboard.priorityRows}
-          emptyMessage={EMPTY_MESSAGE}
-          minWidthClassName="min-w-[1180px]"
-          rowKey={(row) => row.id}
-        />
+        <div className="mt-6">
+          <SimpleTable
+            columns={comparisonColumns}
+            data={dashboard.comparisonRows}
+            emptyMessage={EMPTY_MESSAGE}
+            minWidthClassName="min-w-[1080px]"
+            rowKey={(row) => row.id}
+          />
+        </div>
       </ChartCard>
 
       <ChartCard
