@@ -1,22 +1,18 @@
 """
-MS-17B — AHP/Fuzzy AHP Aggregation & Ranking from Valid Expert Judgement.
+AHP/Fuzzy AHP Aggregation & Ranking from Valid Expert Judgement.
+
+Computes geometric-mean aggregation of valid-respondent pairwise matrices,
+calculates AHP weights/CR, Fuzzy AHP (TFN-based) weights, and ranking
+comparison. Outputs to datasets/outputs/eda/{06_ahp,07_fuzzy_ahp,08_ranking_comparison}.
 
 Input : datasets/processed/expert_judgement/expert_judgement_pairwise_matrices.json
         datasets/processed/expert_judgement/expert_judgement_validation_summary.json
-Output: datasets/outputs/eda/06_ahp/aggregated/
-        datasets/outputs/eda/06_ahp/ahp_calculation_result.json
-        datasets/outputs/eda/06_ahp/ahp_criteria_weights.csv
-        datasets/outputs/eda/06_ahp/ahp_ranking.csv
-        datasets/outputs/eda/06_ahp/validation/
-        datasets/outputs/eda/07_fuzzy_ahp/aggregated/
-        datasets/outputs/eda/07_fuzzy_ahp/fuzzy_ahp_calculation_result.json
-        datasets/outputs/eda/07_fuzzy_ahp/fuzzy_ahp_criteria_weights.csv
-        datasets/outputs/eda/07_fuzzy_ahp/fuzzy_ahp_ranking.csv
-        datasets/outputs/eda/07_fuzzy_ahp/ahp_fuzzy_ahp_ranking_comparison.csv
-        datasets/outputs/eda/07_fuzzy_ahp/ahp_fuzzy_ahp_ranking_comparison.json
+Output: datasets/outputs/eda/06_ahp/
+        datasets/outputs/eda/07_fuzzy_ahp/
+        datasets/outputs/eda/08_ranking_comparison/final/   (bridge to report-service)
 
 Usage:
-    python services/decision-service/scripts/ms17b_compute_expert_judgement.py
+    python services/decision-service/scripts/compute_expert_judgement_ranking.py
 
 Requires running from project root.
 """
@@ -94,11 +90,12 @@ CRITERIA = [
 DATA_DIR = PROJECT_ROOT / "datasets" / "processed" / "expert_judgement"
 _AHP_DIR = PROJECT_ROOT / "datasets" / "outputs" / "eda" / "06_ahp"
 _FUZZY_DIR = PROJECT_ROOT / "datasets" / "outputs" / "eda" / "07_fuzzy_ahp"
+_RANKING_DIR = PROJECT_ROOT / "datasets" / "outputs" / "eda" / "08_ranking_comparison" / "final"
 
 
 def _ensure_dirs() -> None:
     for d in [_AHP_DIR / "aggregated", _AHP_DIR / "validation",
-              _FUZZY_DIR / "aggregated"]:
+              _FUZZY_DIR / "aggregated", _RANKING_DIR]:
         d.mkdir(parents=True, exist_ok=True)
 
 
@@ -133,8 +130,16 @@ def _check_inputs() -> None:
         if not p.exists():
             raise FileNotFoundError(
                 f"Required MS-17A output not found: {p}\n"
-                "Run scripts/prepare_expert_judgement_dataset.py first."
+                "Run services/decision-service/scripts/prepare_expert_judgement_dataset.py first."
             )
+
+
+def _count_invalid() -> int:
+    """Re-read validation summary for invalid count."""
+    val = json.loads(
+        (DATA_DIR / "expert_judgement_validation_summary.json").read_text("utf-8")
+    )
+    return sum(1 for r in val.get("respondents", []) if not r.get("is_consistent", False))
 
 
 def load_valid_respondent_data() -> dict[str, Any]:
@@ -250,7 +255,6 @@ def calculate_ahp_from_aggregated(
     }
 
     result = {
-        "run_label": "MS-17B_expert_judgement",
         "generated_at": datetime.now(UTC).isoformat(),
         "data_source": "aggregated_from_valid_expert_judgement",
         "aggregation": validation_checks,
@@ -324,7 +328,6 @@ def calculate_fuzzy_from_aggregated(
         })
 
     result = {
-        "run_label": "MS-17B_expert_judgement",
         "generated_at": datetime.now(UTC).isoformat(),
         "data_source": "aggregated_from_valid_expert_judgement",
         "method": "fuzzy_geometric_mean + centroid_defuzzification",
@@ -382,7 +385,6 @@ def build_comparison(
 
     comparison = {
         "generated_at": datetime.now(UTC).isoformat(),
-        "run_label": "MS-17B_expert_judgement",
         "data_source": "aggregated_from_valid_expert_judgement",
         "valid_respondent_count": len(used_ids),
         "respondent_ids_used": used_ids,
@@ -428,7 +430,7 @@ def main() -> None:
     _check_inputs()
 
     print("=" * 60)
-    print("MS-17B — AHP/Fuzzy AHP Aggregation & Ranking")
+    print("AHP/Fuzzy AHP Aggregation & Ranking from Expert Judgement")
     print("=" * 60)
 
     # Phase 1: Load valid respondent data
@@ -548,11 +550,56 @@ def main() -> None:
                comparison["ranking_comparison"])
     print(f"  ✅ Comparison results → {_FUZZY_DIR}")
 
+    # Phase 6: Bridge to report-service (08_ranking_comparison/final/)
+    print("\n[Phase 6] Bridging to report-service output...")
+    invalid_count = _count_invalid()
+    total_respondents = len(used_ids) + invalid_count
+
+    # CSV for report-service ranking-comparison endpoint
+    bridge_csv = _RANKING_DIR / "08_ranking_comparison.csv"
+    bridge_rows = []
+    for row in comparison["ranking_comparison"]:
+        weight_delta = round(row["ahp_weight"] - row["fuzzy_weight"], 6)
+        bridge_rows.append({
+            "criterion_name": row["criteria"],
+            "ahp_weight": row["ahp_weight"],
+            "ahp_rank": row["ahp_rank"],
+            "fuzzy_ahp_weight": row["fuzzy_weight"],
+            "fuzzy_ahp_rank": row["fuzzy_rank"],
+            "weight_delta": weight_delta,
+            "rank_delta": row["rank_difference"],
+            "final_rank": row["ahp_rank"],
+            "status": "synthetic_expert_judgement",
+        })
+    _write_csv(bridge_csv, bridge_rows)
+    print(f"  ✅ Ranking comparison CSV → {bridge_csv}")
+
+    # Summary JSON for report-service
+    src = _source_summary(used_ids)
+    summary_json = _RANKING_DIR / "ranking_comparison_summary.json"
+    _write_json(summary_json, {
+        "generated_at": datetime.now(UTC).isoformat(),
+        "data_source": "aggregated_from_valid_expert_judgement",
+        "aggregation_method": "geometric_mean",
+        "total_respondents": total_respondents,
+        "valid_respondent_count": len(used_ids),
+        "invalid_respondent_count": invalid_count,
+        "respondent_ids_used": used_ids,
+        "source_type_summary": src,
+        "ahp_method": "geometric_mean + eigenvalue",
+        "fuzzy_ahp_method": "TFN geometric_mean + centroid_defuzzification",
+        "ahp_consistency_ratio": ahp_result["consistency_ratio"],
+        "ahp_is_consistent": ahp_result["is_consistent"],
+        "ahp_lambda_max": ahp_result["lambda_max"],
+        "consistency_index": ahp_result["consistency_index"],
+        "note": "Results from synthetic expert judgement (simulated data).",
+    })
+    print(f"  ✅ Summary JSON → {summary_json}")
+
     # Summary
     print("\n" + "=" * 60)
-    print("✅ MS-17B Complete")
+    print("✅ Complete — AHP/Fuzzy AHP ranking from expert judgement")
     print("=" * 60)
-    src = _source_summary(used_ids)
     print(f"  Valid respondents : {len(used_ids)} (actual={src.get('actual',0)}, synthetic={src.get('synthetic',0)})")
     print(f"  Aggregation method: geometric_mean")
     print(f"  AHP CR            : {ahp_result['consistency_ratio']:.6f}")
@@ -560,6 +607,7 @@ def main() -> None:
     print(f"\n  Output files:")
     print(f"    06_ahp/          : {_AHP_DIR}")
     print(f"    07_fuzzy_ahp/    : {_FUZZY_DIR}")
+    print(f"    08_ranking_comparison/ : {_RANKING_DIR}")
     print(f"  Top AHP rank      : {ahp_result['weights'][0]['criterion_name']} ({ahp_result['weights'][0]['weight']:.4f})")
     print(f"  Top Fuzzy AHP rank: {fuzzy_result['weights'][0]['criterion_name']} ({fuzzy_result['weights'][0]['normalized_weight']:.4f})")
 

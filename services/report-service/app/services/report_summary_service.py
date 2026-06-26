@@ -11,7 +11,13 @@ from app.core.config import (
     FINAL_SENTIMENT_MODEL,
     Settings,
 )
-from app.schemas.report import EvaluationSummaryData, RankingComparisonData, RankingComparisonItem, ReportSummaryData
+from app.schemas.report import (
+    EvaluationSummaryData,
+    RankingComparisonData,
+    RankingComparisonItem,
+    ReportSummaryData,
+    RespondentSummary,
+)
 
 
 class ReportSummaryService:
@@ -158,6 +164,19 @@ class ReportSummaryService:
         top_ahp = next((item.criterion_id for item in items if item.ahp_rank == 1), None)
         top_fuzzy = next((item.criterion_id for item in items if item.fuzzy_ahp_rank == 1), None)
 
+        # Read respondent summary from companion JSON (final/)
+        summary_json = self.ranking_comparison_dir / "final" / "ranking_comparison_summary.json"
+        rs_data = self._read_json(summary_json, warnings)
+        respondent_summary = RespondentSummary(
+            total_respondents=rs_data.get("total_respondents", 0),
+            valid_respondent_count=rs_data.get("valid_respondent_count", 0),
+            invalid_respondent_count=rs_data.get("invalid_respondent_count", 0),
+            respondent_ids_used=rs_data.get("respondent_ids_used", []),
+            source_type_summary=rs_data.get("source_type_summary", {}),
+            ahp_consistency_ratio=rs_data.get("ahp_consistency_ratio"),
+            note=rs_data.get("note", ""),
+        )
+
         return RankingComparisonData(
             run_label=run_label,
             is_sample=is_sample,
@@ -168,6 +187,7 @@ class ReportSummaryService:
                 "changed_rank_count": changed_rank_count,
                 "identical_top_rank": bool(top_ahp and top_fuzzy and top_ahp == top_fuzzy),
             },
+            respondent_summary=respondent_summary,
             warnings=warnings,
         )
 

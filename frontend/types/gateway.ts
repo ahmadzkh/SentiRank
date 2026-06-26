@@ -118,7 +118,18 @@ export interface GatewayRankingComparisonResponse {
     changed_rank_count: number;
     identical_top_rank?: boolean | null;
   };
+  respondent_summary: GatewayRespondentSummary;
   warnings: string[];
+}
+
+export interface GatewayRespondentSummary {
+  total_respondents: number;
+  valid_respondent_count: number;
+  invalid_respondent_count: number;
+  respondent_ids_used: string[];
+  source_type_summary: Record<string, number>;
+  ahp_consistency_ratio: number | null;
+  note: string;
 }
 
 export interface GatewayHealthStatus {

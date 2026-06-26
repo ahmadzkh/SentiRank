@@ -41,9 +41,20 @@ class RankingComparisonItem(BaseModel):
     status: str | None = None
 
 
+class RespondentSummary(BaseModel):
+    total_respondents: int = 0
+    valid_respondent_count: int = 0
+    invalid_respondent_count: int = 0
+    respondent_ids_used: list[str] = Field(default_factory=list)
+    source_type_summary: dict[str, int] = Field(default_factory=dict)
+    ahp_consistency_ratio: float | None = None
+    note: str = ""
+
+
 class RankingComparisonData(BaseModel):
     run_label: str
     is_sample: bool = False
     items: list[RankingComparisonItem] = Field(default_factory=list)
     summary: dict = Field(default_factory=dict)
+    respondent_summary: RespondentSummary = Field(default_factory=RespondentSummary)
     warnings: list[str] = Field(default_factory=list)

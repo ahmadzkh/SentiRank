@@ -1,0 +1,30 @@
+{
+  "generated_at": "2026-06-26T11:02:56.644792+00:00",
+  "data_source": "aggregated_from_valid_expert_judgement",
+  "aggregation_method": "geometric_mean",
+  "total_respondents": 10,
+  "valid_respondent_count": 8,
+  "invalid_respondent_count": 2,
+  "respondent_ids_used": [
+    "EJ002",
+    "EJ003",
+    "EJ004",
+    "EJ005",
+    "EJ006",
+    "EJ007",
+    "EJ008",
+    "EJ009"
+  ],
+  "source_type_summary": {
+    "actual": 0,
+    "synthetic": 8,
+    "unknown": 0
+  },
+  "ahp_method": "geometric_mean + eigenvalue",
+  "fuzzy_ahp_method": "TFN geometric_mean + centroid_defuzzification",
+  "ahp_consistency_ratio": 0.004838,
+  "ahp_is_consistent": true,
+  "ahp_lambda_max": 5.021675,
+  "consistency_index": 0.005419,
+  "note": "Results from synthetic expert judgement (simulated data)."
+}

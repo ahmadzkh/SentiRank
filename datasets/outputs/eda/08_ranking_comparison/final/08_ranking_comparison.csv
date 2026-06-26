@@ -1,0 +1,6 @@
+criterion_name,ahp_weight,ahp_rank,fuzzy_ahp_weight,fuzzy_ahp_rank,weight_delta,rank_delta,final_rank,status
+"Features, Content & Audio Experience",0.253203,1,0.220791,2,0.032412,-1,1,synthetic_expert_judgement
+App Reliability & Usability,0.239669,2,0.254121,1,-0.014452,1,2,synthetic_expert_judgement
+Ads Experience,0.18718,3,0.193295,3,-0.006115,0,3,synthetic_expert_judgement
+Subscription & Pricing,0.184805,4,0.173944,4,0.010861,0,4,synthetic_expert_judgement
+Account/Login,0.135143,5,0.157849,5,-0.022706,0,5,synthetic_expert_judgement

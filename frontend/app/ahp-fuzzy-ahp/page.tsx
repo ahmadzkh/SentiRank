@@ -12,10 +12,6 @@ import {
   type AhpFuzzyAhpNotice,
   type AhpFuzzyAhpSummaryCard,
   type ComparisonRow,
-  type CriteriaOverviewRow,
-  type MethodSummary,
-  type MethodWeightRow,
-  type PriorityRow,
 } from "@/services/ahp-overview-service";
 import { EMPTY_GATEWAY_MESSAGE } from "@/lib/api-status";
 import { cn } from "@/lib/utils";
@@ -23,82 +19,6 @@ import { cn } from "@/lib/utils";
 export const dynamic = "force-dynamic";
 
 const EMPTY_MESSAGE = EMPTY_GATEWAY_MESSAGE;
-
-const criteriaColumns: readonly SimpleTableColumn<CriteriaOverviewRow>[] = [
-  {
-    key: "no",
-    header: "No",
-    align: "center",
-    className: "w-16",
-    render: (row) => row.no,
-  },
-  {
-    key: "criterion",
-    header: "Kriteria",
-    render: (row) => (
-      <span className="font-medium text-foreground">{row.criterion}</span>
-    ),
-  },
-  {
-    key: "description",
-    header: "Deskripsi",
-    className: "min-w-[280px]",
-    render: (row) => (
-      <span className="line-clamp-3 text-muted-foreground">
-        {row.description}
-      </span>
-    ),
-  },
-  {
-    key: "negativeReviewCount",
-    header: "Jumlah Ulasan Negatif",
-    align: "right",
-    render: (row) => row.negativeReviewCount,
-  },
-  {
-    key: "complaintExample",
-    header: "Contoh Keluhan",
-    className: "min-w-[220px]",
-    render: (row) => (
-      <span className="line-clamp-2 text-muted-foreground">
-        {row.complaintExample}
-      </span>
-    ),
-  },
-];
-
-const weightColumns: readonly SimpleTableColumn<MethodWeightRow>[] = [
-  {
-    key: "rank",
-    header: "Rank",
-    align: "center",
-    render: (row) => row.rank,
-  },
-  {
-    key: "criterion",
-    header: "Kriteria",
-    render: (row) => (
-      <span className="font-medium text-foreground">{row.criterion}</span>
-    ),
-  },
-  {
-    key: "weight",
-    header: "Bobot",
-    align: "right",
-    render: (row) => row.weight,
-  },
-  {
-    key: "percent",
-    header: "Persentase Bobot",
-    align: "right",
-    render: (row) => row.percent,
-  },
-  {
-    key: "status",
-    header: "Status",
-    render: (row) => row.status,
-  },
-];
 
 const comparisonColumns: readonly SimpleTableColumn<ComparisonRow>[] = [
   {
@@ -139,61 +59,14 @@ const comparisonColumns: readonly SimpleTableColumn<ComparisonRow>[] = [
   },
   {
     key: "interpretation",
-    header: "Interpretasi Singkat",
+    header: "Interpretasi",
     className: "min-w-[220px]",
     render: (row) => row.interpretation,
   },
 ];
 
-const priorityColumns: readonly SimpleTableColumn<PriorityRow>[] = [
-  {
-    key: "rank",
-    header: "Rank",
-    align: "center",
-    render: (row) => row.rank,
-  },
-  {
-    key: "criterion",
-    header: "Kriteria",
-    render: (row) => (
-      <span className="font-medium text-foreground">{row.criterion}</span>
-    ),
-  },
-  {
-    key: "ahpWeight",
-    header: "Bobot AHP",
-    align: "right",
-    render: (row) => row.ahpWeight,
-  },
-  {
-    key: "fuzzyWeight",
-    header: "Bobot Fuzzy AHP",
-    align: "right",
-    render: (row) => row.fuzzyWeight,
-  },
-  {
-    key: "priority",
-    header: "Prioritas",
-    render: (row) => row.priority,
-  },
-  {
-    key: "recommendation",
-    header: "Rekomendasi Singkat",
-    className: "min-w-[300px]",
-    render: (row) => (
-      <span className="line-clamp-3 text-muted-foreground">
-        {row.recommendation}
-      </span>
-    ),
-  },
-];
-
 export default async function AhpFuzzyAhpPage() {
   const overview = await getAhpFuzzyAhpOverview();
-  const priorityRankingTitle =
-    overview.dataStatus === "sample"
-      ? "Ranking Prioritas Sample"
-      : "Ranking Prioritas";
 
   return (
     <AppShell>
@@ -210,6 +83,7 @@ export default async function AhpFuzzyAhpPage() {
 
       {overview.isServiceUnavailable ? <UnavailableState /> : null}
 
+      {/* Section 1: Ringkasan Prioritas */}
       <section>
         <SectionHeading title="Ringkasan Prioritas" />
         <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -219,74 +93,9 @@ export default async function AhpFuzzyAhpPage() {
         </div>
       </section>
 
+      {/* Section 2: Chart + Comparison Table */}
       <ChartCard
-        description="Daftar kriteria yang digunakan dalam perhitungan AHP."
-        title="Tinjauan Kriteria"
-      >
-        <SimpleTable
-          columns={criteriaColumns}
-          data={overview.criteriaRows}
-          emptyMessage={EMPTY_MESSAGE}
-          minWidthClassName="min-w-[980px]"
-          rowKey={(row) => row.id}
-        />
-      </ChartCard>
-
-      <ChartCard
-        description="Hasil AHP diringkas sebagai ranking dan bobot prioritas per kriteria."
-        title="Hasil AHP"
-      >
-        <MethodSummaryStrip
-          labels={{
-            top: "Ranking pertama",
-            consistency: "Consistency Ratio",
-            status: "Status konsistensi",
-            count: "Jumlah kriteria",
-          }}
-          summary={overview.ahpSummary}
-        />
-        <div className="mt-5">
-          <SimpleTable
-            columns={weightColumns}
-            data={overview.ahpRows}
-            emptyMessage={EMPTY_MESSAGE}
-            minWidthClassName="min-w-[760px]"
-            rowKey={(row) => row.id}
-          />
-        </div>
-      </ChartCard>
-
-      <ChartCard
-        description="Hasil Fuzzy AHP diringkas sebagai bobot yang mempertimbangkan ketidakpastian penilaian expert."
-        title="Hasil Fuzzy AHP"
-      >
-        <MethodSummaryStrip
-          labels={{
-            top: "Ranking pertama",
-            consistency: "Nilai konsistensi",
-            status: "Status data",
-            count: "Jumlah kriteria",
-          }}
-          summary={overview.fuzzySummary}
-        />
-        <div className="mt-5">
-          <SimpleTable
-            columns={weightColumns}
-            data={overview.fuzzyRows}
-            emptyMessage={EMPTY_MESSAGE}
-            minWidthClassName="min-w-[760px]"
-            rowKey={(row) => row.id}
-          />
-        </div>
-      </ChartCard>
-
-      <ChartCard
-        description="Perbandingan membantu melihat apakah ranking kriteria tetap stabil pada kedua metode."
-        insight={
-          overview.dataStatus === "sample"
-            ? "Interpretasi ranking masih perlu dibaca hati-hati jika data berstatus sample."
-            : null
-        }
+        description="Perbandingan bobot AHP dan Fuzzy AHP per kriteria. Ranking menunjukkan prioritas relatif tiap aspek."
         title="Perbandingan AHP vs Fuzzy AHP"
       >
         <AhpRankingComparisonChart data={overview.chartData} />
@@ -301,41 +110,11 @@ export default async function AhpFuzzyAhpPage() {
         </div>
       </ChartCard>
 
-      <ChartCard
-        description="Ranking ini membantu menentukan urutan perhatian terhadap aspek ulasan negatif."
-        title={priorityRankingTitle}
-      >
-        <SimpleTable
-          columns={priorityColumns}
-          data={overview.priorityRows}
-          emptyMessage={EMPTY_MESSAGE}
-          minWidthClassName="min-w-[1040px]"
-          rowKey={(row) => row.id}
-        />
-      </ChartCard>
-
-      {/* <RecommendationCard
-        basis={overview.recommendationBasis}
-        note="Rekomendasi ini bersifat display-only dan tidak menjalankan perhitungan baru di frontend."
-        recommendation={<p>{overview.recommendationText}</p>}
-        title={overview.recommendationTitle}
-      /> */}
-
-      {/* <SummaryCard
-        description="Catatan ini menjaga interpretasi halaman tetap sesuai batasan metodologi saat ini."
-        title="Catatan Interpretasi"
-      >
-        <div className="grid gap-3 md:grid-cols-2">
-          {overview.interpretationNotes.map((note) => (
-            <p
-              className="rounded-md border border-border bg-background px-4 py-3 text-sm leading-6 text-muted-foreground"
-              key={note}
-            >
-              {note}
-            </p>
-          ))}
-        </div>
-      </SummaryCard> */}
+      {/* Section 3: Catatan Metodologis */}
+      <MethodNote
+        rs={overview.respondentSummary}
+        dataStatus={overview.dataStatus}
+      />
     </AppShell>
   );
 }
@@ -380,42 +159,61 @@ function UnavailableState() {
   );
 }
 
-function MethodSummaryStrip({
-  labels,
-  summary,
+function MethodNote({
+  rs,
+  dataStatus,
 }: {
-  labels: {
-    top: string;
-    consistency: string;
-    status: string;
-    count: string;
+  rs: {
+    totalRespondents: number;
+    validCount: number;
+    invalidCount: number;
+    actualCount: number;
+    syntheticCount: number;
+    ahpConsistencyRatio: string;
+    note: string;
   };
-  summary: MethodSummary;
+  dataStatus: string;
 }) {
-  return (
-    <dl className="grid gap-3 sm:grid-cols-2">
-      <MethodSummaryItem label={labels.top} value={summary.topCriterion} />
-      <MethodSummaryItem
-        label={labels.consistency}
-        value={summary.consistencyRatio}
-      />
-      <MethodSummaryItem
-        label={labels.status}
-        value={summary.consistencyStatus}
-      />
-      <MethodSummaryItem label={labels.count} value={summary.criteriaCount} />
-    </dl>
-  );
-}
+  const showData =
+    dataStatus !== "unavailable" && dataStatus !== "pending" && rs.totalRespondents > 0;
 
-function MethodSummaryItem({ label, value }: { label: string; value: string }) {
+  if (!showData) return null;
+
   return (
-    <div className="border-l-2 border-blue-200 pl-3">
-      <dt className="text-xs font-medium uppercase tracking-normal text-muted-foreground">
-        {label}
-      </dt>
-      <dd className="mt-1 text-sm font-semibold text-foreground">{value}</dd>
-    </div>
+    <ChartCard
+      description="Informasi metodologis tentang data dan metode yang digunakan."
+      title="Catatan Metodologis"
+    >
+      <div className="space-y-3 text-sm leading-6 text-muted-foreground">
+        <p>
+          <strong>Data:</strong> Hasil perhitungan AHP dan Fuzzy AHP
+          berdasarkan penilaian berpasangan dari {rs.totalRespondents} responden
+          ({rs.validCount} valid, {rs.invalidCount} tidak konsisten).
+        </p>
+        <p>
+          <strong>Komposisi responden:</strong>{" "}
+          {rs.actualCount > 0
+            ? `${rs.actualCount} penilaian aktual, `
+            : ""}
+          {rs.syntheticCount > 0
+            ? `${rs.syntheticCount} data simulasi/sintetis untuk pengujian mekanisme AHP dan Fuzzy AHP.`
+            : "Semua responden berasal dari penilaian aktual."}
+        </p>
+        <p>
+          <strong>Metode AHP:</strong> Geometric mean + eigenvalue
+          (Consistency Ratio = {rs.ahpConsistencyRatio}).
+        </p>
+        <p>
+          <strong>Metode Fuzzy AHP:</strong> TFN geometric mean + centroid
+          defuzzification.
+        </p>
+        {rs.note ? (
+          <div className="rounded-md border border-amber-200 bg-amber-50 px-4 py-2 text-amber-900">
+            {rs.note}
+          </div>
+        ) : null}
+      </div>
+    </ChartCard>
   );
 }
 
