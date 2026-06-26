@@ -58,8 +58,8 @@ export function SentimentDistributionChart({
       className="space-y-5"
       role="group"
     >
-      <div className="h-72 min-h-72 min-w-0">
-        <ResponsiveContainer height="100%" width="100%">
+      <div className="h-72 min-h-72 min-w-[200px]">
+        <ResponsiveContainer height="100%" minWidth={200} width="100%">
           <PieChart>
             <Pie
               cx="50%"

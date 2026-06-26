@@ -38,8 +38,8 @@ export function YearReviewChart({ data }: YearReviewChartProps) {
   }
 
   return (
-    <div className="min-w-0">
-      <ResponsiveContainer width="100%" height={280}>
+    <div className="min-w-[200px]">
+      <ResponsiveContainer width="100%" height={280} minWidth={200}>
       <LineChart
         data={data}
         margin={{ top: 8, right: 8, left: -8, bottom: 4 }}

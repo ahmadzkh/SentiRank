@@ -61,8 +61,8 @@ export function SentimentStageComparisonChart({
   }
 
   return (
-    <div aria-label="Grafik distribusi sentimen per tahap" className="h-80 min-w-0" role="img">
-      <ResponsiveContainer height="100%" width="100%">
+    <div aria-label="Grafik distribusi sentimen per tahap" className="h-80 min-w-[200px]" role="img">
+      <ResponsiveContainer height="100%" minWidth={200} width="100%">
         <BarChart data={data} margin={{ bottom: 8, left: 0, right: 12, top: 8 }}>
           <CartesianGrid vertical={false} stroke="#e2e8f0" />
           <XAxis axisLine={false} dataKey="stage" tickLine={false} />
