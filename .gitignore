@@ -82,3 +82,6 @@ huggingface_token*
 .huggingface/
 
 .agents
+graphify-out/
+.graphify_analysis.json
+.hermes.md
