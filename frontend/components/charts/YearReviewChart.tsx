@@ -10,6 +10,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { useCallback, useSyncExternalStore } from "react";
 
 export interface YearReviewDatum {
   year: number;
@@ -29,12 +30,25 @@ interface YearReviewChartProps {
 }
 
 export function YearReviewChart({ data }: YearReviewChartProps) {
+  const mounted = useSyncExternalStore(
+    useCallback((onStoreChange) => {
+      const id = requestAnimationFrame(onStoreChange);
+      return () => cancelAnimationFrame(id);
+    }, []),
+    () => true,
+    () => false,
+  );
+
   if (!data || data.length === 0) {
     return (
       <div className="flex min-h-[200px] items-center justify-center rounded-lg border border-dashed px-4 text-center text-sm text-muted-foreground">
         Grafik sebaran tahunan akan tersedia setelah dataset dimuat.
       </div>
     );
+  }
+
+  if (!mounted) {
+    return <div className="h-80 rounded-md bg-background" />;
   }
 
   return (
