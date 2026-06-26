@@ -64,7 +64,7 @@ export function AhpRankingComparisonChart({
   }
 
   return (
-    <div aria-label="Grafik perbandingan AHP dan Fuzzy AHP" className="h-80" role="img">
+    <div aria-label="Grafik perbandingan AHP dan Fuzzy AHP" className="h-80 min-w-0" role="img">
       <ResponsiveContainer height="100%" width="100%">
         <BarChart data={data} margin={{ bottom: 8, left: 0, right: 12, top: 8 }}>
           <CartesianGrid vertical={false} stroke="#e2e8f0" />

@@ -67,7 +67,7 @@ export function RatingBarChart({ data, description }: RatingBarChartProps) {
 
   return (
     <div aria-label="Grafik distribusi rating" role="group">
-      <div className="h-72 min-h-72">
+      <div className="h-72 min-h-72 min-w-0">
         <ResponsiveContainer height="100%" width="100%">
           <BarChart
             data={[...data]}

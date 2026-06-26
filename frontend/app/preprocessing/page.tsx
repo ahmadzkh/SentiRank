@@ -1,7 +1,6 @@
 import { ApiGatewayAlert } from "@/components/alerts/ApiGatewayAlert";
 import { ChartCard } from "@/components/cards/ChartCard";
 import { StatCard } from "@/components/cards/StatCard";
-import { SummaryCard } from "@/components/cards/SummaryCard";
 import { AppShell, PageHeader } from "@/components/layout";
 import { SimpleTable } from "@/components/tables/SimpleTable";
 import type { SimpleTableColumn } from "@/components/tables/SimpleTable";
@@ -68,7 +67,10 @@ function textCleaningRows(summary: Record<string, unknown>) {
 
 function cleanedReviewText(row: GatewayReviewSample) {
   return tableCellValue(
-    row.cleaned_content ?? row.cleaned_text ?? row.text_indobert ?? row.text_svm,
+    row.cleaned_content ??
+      row.cleaned_text ??
+      row.text_indobert ??
+      row.text_svm,
   );
 }
 
@@ -106,7 +108,9 @@ const relabelingTableColumns = [
   {
     key: "label",
     header: "Item",
-    render: (row) => <span className="font-medium text-foreground">{String(row.label)}</span>,
+    render: (row) => (
+      <span className="font-medium text-foreground">{String(row.label)}</span>
+    ),
   },
   {
     key: "value",
@@ -119,7 +123,9 @@ const textCleaningColumns = [
   {
     key: "label",
     header: "Sumber",
-    render: (row) => <span className="font-medium text-foreground">{String(row.label)}</span>,
+    render: (row) => (
+      <span className="font-medium text-foreground">{String(row.label)}</span>
+    ),
   },
   {
     key: "value",
@@ -160,7 +166,8 @@ const preprocessingReviewColumns = [
     key: "textLengthBefore",
     header: "Panjang Sebelum",
     align: "right" as const,
-    render: (row: GatewayReviewSample) => tableCellValue(row.text_length_before),
+    render: (row: GatewayReviewSample) =>
+      tableCellValue(row.text_length_before),
   },
   {
     key: "textLengthAfter",
@@ -213,7 +220,10 @@ const preprocessingReviewColumns = [
 export default async function PreprocessingPage() {
   const [preprocessingResult, reviewsResult] = await Promise.all([
     safeGatewayData(getPreprocessingSummary, EMPTY_PREPROCESSING_SUMMARY),
-    safeGatewayData(() => getReviews({ limit: 10, seed: 30 }), EMPTY_RANDOM_REVIEWS),
+    safeGatewayData(
+      () => getReviews({ limit: 10, seed: 30 }),
+      EMPTY_RANDOM_REVIEWS,
+    ),
   ]);
   const preprocessing = preprocessingResult.data;
   const relabeling = preprocessing.relabeling_changes;
@@ -254,7 +264,9 @@ export default async function PreprocessingPage() {
         <StatCard
           description="Ulasan valid setelah filtering."
           label="Ulasan Bersih"
-          value={preprocessing.valid_review_count ?? preprocessing.total_rows ?? 0}
+          value={
+            preprocessing.valid_review_count ?? preprocessing.total_rows ?? 0
+          }
         />
         <StatCard
           description="Ulasan sebelum filtering."
@@ -271,7 +283,9 @@ export default async function PreprocessingPage() {
           description="Status data aspek untuk SVM."
           label="Status Aspek"
           tone="neutral"
-          value={preprocessing.aspect_data_status ? "Tersedia" : "Belum tersedia"}
+          value={
+            preprocessing.aspect_data_status ? "Tersedia" : "Belum tersedia"
+          }
         />
       </section>
 
@@ -296,7 +310,9 @@ export default async function PreprocessingPage() {
       >
         <SimpleTable
           columns={relabelingTableColumns}
-          data={preprocessingResult.isAvailable ? relabelingRows(relabeling) : []}
+          data={
+            preprocessingResult.isAvailable ? relabelingRows(relabeling) : []
+          }
           emptyMessage={EMPTY_GATEWAY_MESSAGE}
           minWidthClassName="min-w-[420px]"
           rowKey={(row) => row.key}
@@ -314,7 +330,12 @@ export default async function PreprocessingPage() {
             preprocessingResult.isAvailable &&
             typeof preprocessing.text_cleaning_summary === "object" &&
             preprocessing.text_cleaning_summary !== null
-              ? textCleaningRows(preprocessing.text_cleaning_summary as Record<string, unknown>)
+              ? textCleaningRows(
+                  preprocessing.text_cleaning_summary as Record<
+                    string,
+                    unknown
+                  >,
+                )
               : []
           }
           emptyMessage={EMPTY_GATEWAY_MESSAGE}
@@ -333,7 +354,9 @@ export default async function PreprocessingPage() {
           data={reviews}
           emptyMessage={EMPTY_GATEWAY_MESSAGE}
           minWidthClassName="min-w-[1280px]"
-          rowKey={(row, index) => row.external_id ?? `preprocessing-review-${index}`}
+          rowKey={(row, index) =>
+            row.external_id ?? `preprocessing-review-${index}`
+          }
         />
       </ChartCard>
     </AppShell>

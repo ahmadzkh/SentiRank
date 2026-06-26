@@ -58,7 +58,7 @@ export function AspectRankingChart({ data }: AspectRankingChartProps) {
   }
 
   return (
-    <div aria-label="Grafik ranking aspek negatif" className="h-80" role="img">
+    <div aria-label="Grafik ranking aspek negatif" className="h-80 min-w-0" role="img">
       <ResponsiveContainer height="100%" width="100%">
         <BarChart
           data={data}
