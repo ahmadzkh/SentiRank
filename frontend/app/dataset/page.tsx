@@ -1,7 +1,6 @@
 import { ApiGatewayAlert } from "@/components/alerts/ApiGatewayAlert";
 import { ChartCard } from "@/components/cards/ChartCard";
 import { StatCard } from "@/components/cards/StatCard";
-import { SummaryCard } from "@/components/cards/SummaryCard";
 import { RatingBarChart } from "@/components/charts/RatingBarChart";
 import { SentimentDistributionChart } from "@/components/charts/SentimentDistributionChart";
 import { YearReviewChart } from "@/components/charts/YearReviewChart";
@@ -14,10 +13,8 @@ import {
   EMPTY_RANDOM_REVIEWS,
   EMPTY_SCRAPING_SUMMARY,
   EMPTY_TABLE_CELL,
-  EMPTY_TEXT,
   ratingDistributionRows,
   sentimentDistributionData,
-  stringValue,
   tableCellValue,
   tableDateValue,
   yearlySentimentData,
@@ -76,6 +73,10 @@ export default async function DatasetPage() {
   const scraping = scrapingResult.data;
   const apiError = datasetResult.error ?? reviewsResult.error ?? scrapingResult.error;
 
+  const targetTotal = Object.entries(
+    scraping.target_quota_per_rating ?? {},
+  ).reduce((total, [, v]) => total + (v ?? 0), 0);
+
   return (
     <AppShell>
       <PageHeader
@@ -85,12 +86,12 @@ export default async function DatasetPage() {
       />
       <ApiGatewayAlert error={apiError} />
 
-      {/* ── Ringkasan Dataset ── */}
+      {/* Stat Cards */}
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <StatCard
-          description="Total ulasan valid setelah tahap filtering kualitas."
-          label="Total Ulasan Bersih"
-          value={dataset.total_review_count ?? 0}
+          description="Target pengambilan data scraping."
+          label="Target Ulasan"
+          value={targetTotal}
         />
         <StatCard
           description="Jumlah ulasan sebelum filtering kualitas."
@@ -98,117 +99,27 @@ export default async function DatasetPage() {
           value={dataset.raw_review_count ?? 0}
         />
         <StatCard
-          description="Ulasan yang dihapus saat tahap filtering kualitas."
-          label="Ulasan Dihapus"
-          tone="negative"
-          value={dataset.dropped_review_count ?? 0}
+          description="Total ulasan valid setelah tahap filtering kualitas."
+          label="Ulasan Bersih"
+          tone="primary"
+          value={dataset.total_review_count ?? 0}
         />
         <StatCard
-          description="Persentase ulasan yang memiliki label sentimen."
-          label="Cakupan Label"
-          tone="primary"
-          value={sentimentRows.length > 0 ? "100%" : "0%"}
+          description="Nama paket aplikasi di Google Play Store."
+          label="Aplikasi"
+          value={scraping.app_id ?? "com.spotify.music"}
         />
       </section>
 
-      <SummaryCard
-        className="mt-8"
-        description={
-          datasetResult.isAvailable
-            ? "Ringkasan dataset penelitian tersedia."
-            : EMPTY_GATEWAY_MESSAGE
-        }
-        items={[
-          {
-            label: "Total ulasan bersih",
-            value: dataset.total_review_count ?? 0,
-            description: `${dataset.raw_review_count ?? 0} mentah, ${dataset.dropped_review_count ?? 0} dihapus.`,
-          },
-          {
-            label: "Sumber",
-            value: "Google Play Store - Spotify",
-            description: "com.spotify.music",
-          },
-        ]}
+      {/* Line Chart — Ringkasan Dataset */}
+      <ChartCard
+        description="Distribusi ulasan per tahun berdasarkan sentimen."
         title="Ringkasan Dataset"
       >
         <YearReviewChart data={yearlySentimentData(dataset.yearly_sentiment_counts)} />
-      </SummaryCard>
+      </ChartCard>
 
-      <hr className="my-10 border-border" />
-
-      {/* ── Scraping ── */}
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <StatCard
-          description="Target pengambilan data."
-          label="Target Ulasan"
-          value={(() => {
-            const targetRows = Object.entries(
-              scraping.target_quota_per_rating ?? {},
-            );
-            return targetRows.reduce((total, [, v]) => total + (v ?? 0), 0);
-          })()}
-        />
-        <StatCard
-          description="Jumlah ulasan yang berhasil dikumpulkan."
-          label="Terkumpul"
-          tone="primary"
-          value={scraping.total_achieved_rows ?? 0}
-        />
-        <StatCard
-          description="Nama paket aplikasi."
-          label="Aplikasi"
-          value={stringValue(scraping.app_id, EMPTY_TEXT)}
-        />
-        <StatCard
-          description="Status ketersediaan data."
-          label="Status Data"
-          tone={scrapingResult.isAvailable ? "positive" : "neutral"}
-          value={scrapingResult.isAvailable ? "Data tersedia" : EMPTY_TEXT}
-        />
-      </section>
-
-      <SummaryCard
-        className="mt-8"
-        description={
-          scrapingResult.isAvailable
-            ? "Ringkasan hasil scraping."
-            : EMPTY_GATEWAY_MESSAGE
-        }
-        items={[
-          {
-            label: "Sumber",
-            value: stringValue(scraping.source_name, EMPTY_TEXT),
-            description: stringValue(scraping.app_id, EMPTY_TEXT),
-          },
-          {
-            label: "Total terkumpul",
-            value: scraping.total_achieved_rows ?? 0,
-            description: "Jumlah ulasan yang berhasil dikumpulkan.",
-          },
-          {
-            label: "Catatan rating 3",
-            value: stringValue(
-              scraping.rating_3_limitation_note,
-              "Tidak ada catatan",
-            ),
-            description: "Keterbatasan pengumpulan rating 3.",
-          },
-          {
-            label: "Mode akses",
-            value: scrapingResult.isAvailable
-              ? "Data tersedia"
-              : EMPTY_TEXT,
-            description:
-              "Frontend hanya membaca hasil, tidak menjalankan scraper.",
-          },
-        ]}
-        title="Ringkasan Scraping"
-      />
-
-      <hr className="my-10 border-border" />
-
-      {/* ── Distribusi ── */}
+      {/* Split Charts — Distribusi */}
       <section className="grid gap-6 xl:grid-cols-2">
         <ChartCard
           description="Distribusi label sentimen dataset."
@@ -233,9 +144,8 @@ export default async function DatasetPage() {
         </ChartCard>
       </section>
 
-      {/* ── Tabel Dataset Mentah ── */}
+      {/* Tabel Dataset Mentah */}
       <ChartCard
-        className="mt-8"
         description="Sampel data mentah hasil scraping sebelum melalui tahap preprocessing dan modeling."
         title="Tabel Dataset Mentah"
       >
