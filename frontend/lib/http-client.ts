@@ -9,7 +9,7 @@ const DEFAULT_API_BASE_URL = "http://localhost:8000";
 export const API_GATEWAY_OFFLINE_MESSAGE =
   "API Gateway belum aktif. Jalankan microservice backend terlebih dahulu.";
 const API_GATEWAY_ERROR_CODE = "API_GATEWAY_UNAVAILABLE";
-const API_GATEWAY_TIMEOUT_MS = 10_000;
+const API_GATEWAY_TIMEOUT_MS = 30_000;
 
 export class ApiGatewayUnavailableError extends Error implements ApiGatewayFailure {
   source = "api-gateway" as const;

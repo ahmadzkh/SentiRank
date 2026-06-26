@@ -34,6 +34,7 @@ services:
       DECISION_SERVICE_URL: ${DECISION_SERVICE_URL:-http://decision-service:8004}
       REPORT_SERVICE_URL: ${REPORT_SERVICE_URL:-http://report-service:8005}
       API_GATEWAY_DATABASE_URL: ${API_GATEWAY_DATABASE_URL:-sqlite:///./runtime_inference_history.db}
+      GATEWAY_TIMEOUT_SECONDS: 30
     depends_on:
       - review-service
       - sentiment-service

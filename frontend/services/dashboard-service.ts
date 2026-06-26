@@ -121,7 +121,7 @@ export async function getDashboardSummary(): Promise<DashboardData> {
     getAspectSummary(),
     fetchEvaluationSummary(),
     fetchRankingComparison(),
-    getLatestNegativeReviews({ limit: 10, sort: "word_count_desc" }),
+    getLatestNegativeReviews({ limit: 10, sort: "reviewed_at_desc" }),
   ]);
 
   const sources: DashboardSources = {
@@ -202,11 +202,16 @@ function settledValue<T>(result: PromiseSettledResult<T>): T | null {
 function firstRejectedGatewayError(
   results: readonly PromiseSettledResult<unknown>[],
 ): ApiGatewayFailure | null {
-  const rejected = results.find(
+  const rejected = results.filter(
     (result): result is PromiseRejectedResult => result.status === "rejected",
   );
 
-  return rejected ? normalizeApiGatewayError(rejected.reason) : null;
+  // Only report error if ALL endpoints failed (not just one timeout)
+  if (rejected.length === 0 || rejected.length < results.length) {
+    return null;
+  }
+
+  return normalizeApiGatewayError(rejected[0].reason);
 }
 
 function buildDatasetCards(sources: DashboardSources): DashboardDatasetCard[] {
