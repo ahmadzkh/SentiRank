@@ -129,7 +129,7 @@ export default async function AspectClassificationPage() {
         />
       </section>
 
-      <section className="grid gap-6 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
+      <section className="grid gap-6 xl:grid-cols-2">
         <ChartCard
           description="Frekuensi aspek hasil klasifikasi."
           insight={
@@ -141,35 +141,31 @@ export default async function AspectClassificationPage() {
         >
           <AspectRankingChart data={aspectRows} />
         </ChartCard>
-
-        <SummaryCard
-          description={
-            summaryResult.isAvailable
-              ? "Taxonomy final dari SVM merged_5class."
-              : EMPTY_GATEWAY_MESSAGE
-          }
-          title="Taxonomy Aspek"
-        >
-          <SimpleTable
-            columns={[
-              {
-                key: "label",
-                header: "Kriteria",
-                render: (row) => row.label,
-              },
-            ]}
-            data={
-              summary.final_aspect_labels.map((label) => ({
-                id: label,
-                label,
-              }))
-            }
-            emptyMessage={EMPTY_GATEWAY_MESSAGE}
-            minWidthClassName="min-w-[420px]"
-            rowKey={(row) => row.id}
-          />
-        </SummaryCard>
       </section>
+
+      <ChartCard
+        description="Taxonomy final dari SVM merged_5class."
+        title="Taxonomy Aspek"
+      >
+        <SimpleTable
+          columns={[
+            {
+              key: "label",
+              header: "Kriteria",
+              render: (row) => row.label,
+            },
+          ]}
+          data={
+            summary.final_aspect_labels.map((label) => ({
+              id: label,
+              label,
+            }))
+          }
+          emptyMessage={EMPTY_GATEWAY_MESSAGE}
+          minWidthClassName="min-w-[420px]"
+          rowKey={(row) => row.id}
+        />
+      </ChartCard>
 
       <ChartCard
         description="Sampel hasil klasifikasi aspek."
