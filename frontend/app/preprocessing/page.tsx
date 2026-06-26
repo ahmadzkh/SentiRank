@@ -77,26 +77,26 @@ const pipelineTableColumns = [
     key: "name",
     header: "Tahap",
     render: (row) => (
-      <span className="font-medium text-foreground">{row.name}</span>
+      <span className="font-medium text-foreground">{String(row.name)}</span>
     ),
   },
   {
     key: "description",
     header: "Penjelasan",
-    render: (row) => row.description,
+    render: (row) => String(row.description),
   },
   {
     key: "rowsAffected",
     header: "Baris",
     align: "right" as const,
-    render: (row) => row.rowsAffected,
+    render: (row) => String(row.rowsAffected),
   },
   {
     key: "status",
     header: "Status",
     render: (row) => (
       <span className="rounded-md border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-medium text-slate-700">
-        {row.status}
+        {String(row.status)}
       </span>
     ),
   },
@@ -106,12 +106,12 @@ const relabelingTableColumns = [
   {
     key: "label",
     header: "Item",
-    render: (row) => row.label,
+    render: (row) => <span className="font-medium text-foreground">{String(row.label)}</span>,
   },
   {
     key: "value",
     header: "Nilai",
-    render: (row) => row.value,
+    render: (row) => String(row.value),
   },
 ] satisfies SimpleTableColumn<Record<string, unknown>>[];
 
@@ -119,12 +119,12 @@ const textCleaningColumns = [
   {
     key: "label",
     header: "Sumber",
-    render: (row) => row.label,
+    render: (row) => <span className="font-medium text-foreground">{String(row.label)}</span>,
   },
   {
     key: "value",
     header: "Ringkasan",
-    render: (row) => row.value,
+    render: (row) => String(row.value),
   },
 ] satisfies SimpleTableColumn<Record<string, unknown>>[];
 

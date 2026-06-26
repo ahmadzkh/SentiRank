@@ -231,9 +231,11 @@ function buildChartData(
   items: readonly GatewayRankingComparisonItem[],
 ): AhpRankingComparisonDatum[] {
   return items.map((item) => ({
+    criterionId: item.criterion_id ?? `criterion-${item.criterion_name}`,
     label: item.criterion_name,
+    shortLabel: item.criterion_name,
     ahpWeight: item.ahp_weight ?? 0,
-    fuzzyWeight: item.fuzzy_ahp_weight ?? 0,
+    fuzzyAhpWeight: item.fuzzy_ahp_weight ?? 0,
   }));
 }
 
