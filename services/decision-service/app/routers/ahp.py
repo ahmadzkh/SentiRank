@@ -26,14 +26,6 @@ FINAL_CRITERIA = [
     ),
     Criterion(
         id="C2",
-        name="App Reliability & Usability",
-        description=(
-            "Issues or improvement priorities related to app performance, stability, "
-            "loading, bugs, crashes, responsiveness, navigation, layout, and ease of use."
-        ),
-    ),
-    Criterion(
-        id="C3",
         name="Ads Experience",
         description=(
             "Issues or improvement priorities related to advertisement frequency, "
@@ -41,7 +33,7 @@ FINAL_CRITERIA = [
         ),
     ),
     Criterion(
-        id="C4",
+        id="C3",
         name="Subscription & Pricing",
         description=(
             "Issues or improvement priorities related to premium subscription, pricing, "
@@ -49,11 +41,19 @@ FINAL_CRITERIA = [
         ),
     ),
     Criterion(
-        id="C5",
+        id="C4",
         name="Account/Login",
         description=(
             "Issues or improvement priorities related to account access, login, "
             "registration, password, email verification, and account-related problems."
+        ),
+    ),
+    Criterion(
+        id="C5",
+        name="App Reliability & Usability",
+        description=(
+            "Issues or improvement priorities related to app performance, stability, "
+            "loading, bugs, crashes, responsiveness, navigation, layout, and ease of use."
         ),
     ),
 ]

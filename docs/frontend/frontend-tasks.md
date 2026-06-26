@@ -29,8 +29,10 @@
 - [x] MS-15H — Frontend UI Cleanup
 - [x] MS-15I — Frontend Archive Legacy Routes
 - [x] MS-15J — Frontend Full Verification
-- [ ] MS-16 — Retrain Decision Service
-- [ ] MS-17 — Expert Judgement Final
+- [x] MS-16 — Retrain Decision Service
+- [~] MS-17 — Expert Judgement Final
+  - [x] MS-17A — Expert Judgement Spreadsheet Intake & Mapping
+  - [ ] MS-17B — AHP/Fuzzy AHP Aggregation & Ranking
 
 ---
 
