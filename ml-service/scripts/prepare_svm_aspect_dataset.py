@@ -15,7 +15,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 
-DEFAULT_INPUT = Path("../datasets/processed/reviews_with_aspect_labels_refined.csv")
+DEFAULT_INPUT = Path("../datasets/processed/dataset_spotify_aspect_labeled.csv")
 DEFAULT_OUTPUT = Path("../datasets/processed/svm/svm_aspect_dataset.csv")
 DEFAULT_SUMMARY_OUTPUT = Path(
     "../datasets/outputs/eda/04_svm/svm_aspect_dataset_summary.json"
@@ -139,9 +139,18 @@ def prepare_svm_dataset(
 
     working = dataframe.copy()
     total_input_rows = int(len(working))
+    preprocessing_status_rows_removed = 0
+
+    if "preprocessing_status" in working.columns:
+        valid_preprocessing_mask = (
+            working["preprocessing_status"].fillna("").astype(str).eq("valid")
+        )
+        preprocessing_status_rows_removed = int((~valid_preprocessing_mask).sum())
+        working = working.loc[valid_preprocessing_mask].copy()
+
     non_empty_text_mask = working[text_column].fillna("").astype(str).str.strip().ne("")
     after_text = working.loc[non_empty_text_mask].copy()
-    removed_empty_text_count = total_input_rows - int(len(after_text))
+    removed_empty_text_count = int(len(working) - len(after_text))
 
     excluded_label_set = set(excluded_labels)
     after_excluded = after_text.loc[
@@ -168,6 +177,8 @@ def prepare_svm_dataset(
 
     counts = {
         "total_input_rows": total_input_rows,
+        "preprocessing_status_rows_removed": preprocessing_status_rows_removed,
+        "rows_after_preprocessing_status_filter": int(len(working)),
         "removed_empty_text_count": removed_empty_text_count,
         "rows_after_text_filter": int(len(after_text)),
         "removed_excluded_label_count": removed_excluded_count,

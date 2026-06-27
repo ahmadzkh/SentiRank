@@ -1,340 +1,400 @@
-import { ConsistencyBadge } from "@/components/badges/ConsistencyBadge";
+import type { ReactNode } from "react";
+import { ApiGatewayAlert } from "@/components/alerts/ApiGatewayAlert";
 import { ChartCard } from "@/components/cards/ChartCard";
-import { RankingCard } from "@/components/cards/RankingCard";
-import type { RankingCardItem } from "@/components/cards/RankingCard";
-import { RecommendationCard } from "@/components/cards/RecommendationCard";
-import { StatCard } from "@/components/cards/StatCard";
-import { SummaryCard } from "@/components/cards/SummaryCard";
-import { AhpRankingComparisonChart } from "@/components/charts/AhpRankingComparisonChart";
-import type { AhpRankingComparisonDatum } from "@/components/charts/AhpRankingComparisonChart";
-import { CriteriaEditor } from "@/components/forms/CriteriaEditor";
-import { PairwiseComparisonInput } from "@/components/forms/PairwiseComparisonInput";
-import { AppShell, PageHeader } from "@/components/layout";
-import { MatrixTable } from "@/components/tables/MatrixTable";
-import { SimpleTable } from "@/components/tables/SimpleTable";
 import {
-  mockAhpCriteria,
-  mockAhpResult,
-  mockFuzzyAhpResult,
-} from "@/lib/mock-data";
-import type { FuzzyTriangularNumber } from "@/types/fuzzy-ahp";
+  SummaryCard,
+  type SummaryCardItem,
+} from "@/components/cards/SummaryCard";
+import { StatCard } from "@/components/cards/StatCard";
+import { AhpRankingComparisonChart } from "@/components/charts/AhpRankingComparisonChart";
+import { AppShell, PageHeader } from "@/components/layout";
+import {
+  SimpleTable,
+  type SimpleTableColumn,
+} from "@/components/tables/SimpleTable";
+import { EMPTY_GATEWAY_MESSAGE } from "@/lib/api-status";
+import { cn } from "@/lib/utils";
+import {
+  getAhpFuzzyAhpOverview,
+  type AhpFuzzyAhpNotice,
+  type AhpFuzzyAhpSummaryCard,
+  type ComparisonRow,
+  type MatrixCriterionView,
+  type PairwiseMatrixRow,
+  type RespondentDetailRow,
+  type RespondentSummaryView,
+} from "@/services/ahp-overview-service";
 
-const CONSISTENCY_THRESHOLD = 0.1;
+export const dynamic = "force-dynamic";
 
-function formatWeight(value: number) {
-  return `${Math.round(value * 100)}%`;
-}
+const EMPTY_MESSAGE = EMPTY_GATEWAY_MESSAGE;
 
-function formatDecimal(value: number) {
-  return new Intl.NumberFormat("id-ID", {
-    maximumFractionDigits: 3,
-  }).format(value);
-}
+const comparisonColumns: readonly SimpleTableColumn<ComparisonRow>[] = [
+  {
+    key: "criterion",
+    header: "Kriteria",
+    render: (row) => (
+      <span className="font-medium text-foreground">{row.criterion}</span>
+    ),
+  },
+  {
+    key: "ahpRank",
+    header: "Rank AHP",
+    align: "center",
+    render: (row) => row.ahpRank,
+  },
+  {
+    key: "fuzzyRank",
+    header: "Rank Fuzzy AHP",
+    align: "center",
+    render: (row) => row.fuzzyRank,
+  },
+  {
+    key: "ahpWeight",
+    header: "Bobot AHP",
+    align: "right",
+    render: (row) => row.ahpWeight,
+  },
+  {
+    key: "fuzzyWeight",
+    header: "Bobot Fuzzy AHP",
+    align: "right",
+    render: (row) => row.fuzzyWeight,
+  },
+  {
+    key: "rankChange",
+    header: "Perubahan Ranking",
+    render: (row) => row.rankChange,
+  },
+  {
+    key: "interpretation",
+    header: "Interpretasi",
+    className: "min-w-[220px]",
+    render: (row) => row.interpretation,
+  },
+];
 
-function formatTfn(value: FuzzyTriangularNumber) {
-  return `(${formatDecimal(value.lower)}, ${formatDecimal(value.middle)}, ${formatDecimal(value.upper)})`;
-}
+const respondentColumns: readonly SimpleTableColumn<RespondentDetailRow>[] = [
+  {
+    key: "respondent",
+    header: "Responden",
+    className: "min-w-[140px]",
+    render: (row) => (
+      <div>
+        <div className="font-medium text-foreground">{row.id}</div>
+        <div className="mt-1 text-xs text-muted-foreground">
+          {row.originalCode}
+        </div>
+      </div>
+    ),
+  },
+  {
+    key: "sourceType",
+    header: "Sumber",
+    render: (row) => <SourceBadge value={row.sourceType} />,
+  },
+  {
+    key: "roleCategory",
+    header: "Kategori Peran",
+    className: "min-w-[220px]",
+    render: (row) => row.roleCategory,
+  },
+  {
+    key: "profile",
+    header: "Profil",
+    className: "min-w-[180px]",
+    render: (row) => row.profile,
+  },
+  {
+    key: "spotifyUsage",
+    header: "Penggunaan Spotify",
+    className: "min-w-[180px]",
+    render: (row) => row.spotifyUsage,
+  },
+  {
+    key: "topCriterion",
+    header: "Kriteria Teratas",
+    className: "min-w-[240px]",
+    render: (row) => row.topCriterion,
+  },
+  {
+    key: "criteriaAdequacy",
+    header: "Kecukupan Kriteria",
+    className: "min-w-[170px]",
+    render: (row) => row.criteriaAdequacy,
+  },
+  {
+    key: "consistencyRatio",
+    header: "CR",
+    align: "right",
+    render: (row) => row.consistencyRatio,
+  },
+  {
+    key: "consistencyStatus",
+    header: "Status",
+    render: (row) => <ConsistencyBadge value={row.consistencyStatus} />,
+  },
+];
 
-function getShortLabel(label: string) {
-  return label.split(" ").slice(0, 2).join(" ");
-}
+export default async function AhpFuzzyAhpPage() {
+  const overview = await getAhpFuzzyAhpOverview();
+  const matrixColumns = buildMatrixColumns(overview.matrixCriteria);
 
-const priorityComparisonData = mockAhpResult.ranking.map((ahpItem) => {
-  const fuzzyItem = mockFuzzyAhpResult.ranking.find(
-    (item) => item.criterionId === ahpItem.criterionId,
-  );
-
-  return {
-    criterionId: ahpItem.criterionId,
-    label: ahpItem.label,
-    shortLabel: getShortLabel(ahpItem.label),
-    ahpWeight: Math.round(ahpItem.weight * 100),
-    fuzzyAhpWeight: Math.round((fuzzyItem?.normalizedWeight ?? 0) * 100),
-  };
-}) satisfies AhpRankingComparisonDatum[];
-
-const ahpRankingItems = mockAhpResult.ranking.map((item) => ({
-  id: item.criterionId,
-  rank: item.rank,
-  label: item.label,
-  score: formatWeight(item.weight),
-  description: item.interpretation,
-})) satisfies RankingCardItem[];
-
-const fuzzyRankingItems = mockFuzzyAhpResult.ranking.map((item) => ({
-  id: item.criterionId,
-  rank: item.rank,
-  label: item.label,
-  score: formatWeight(item.normalizedWeight),
-  description: item.interpretation,
-})) satisfies RankingCardItem[];
-
-const topAhpRank = mockAhpResult.ranking[0];
-const topFuzzyRank = mockFuzzyAhpResult.ranking[0];
-
-export default function AhpFuzzyAhpPrototypePage() {
   return (
     <AppShell>
       <PageHeader
-        description="Prototype frontend untuk menampilkan kriteria, expert judgement, matriks pairwise, Consistency Ratio, bobot AHP, bobot Fuzzy AHP, dan ringkasan rekomendasi berbasis data mock."
-        eyebrow="Prototype metode"
+        description="Halaman ini menampilkan prioritas aspek ulasan negatif berdasarkan metode AHP dan Fuzzy AHP. Bobot prioritas digunakan untuk membantu menentukan aspek yang perlu mendapatkan perhatian lebih dalam pengembangan layanan Spotify."
         title="AHP / Fuzzy AHP"
       />
 
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
-        <StatCard
-          description="Jumlah berasal dari kriteria mock dan tetap data-driven."
-          label="Kriteria"
-          tone="primary"
-          value={mockAhpCriteria.length}
-        />
-        <StatCard
-          description="Jumlah judgement mock untuk matriks AHP."
-          label="Pairwise"
-          value={mockAhpResult.pairwiseComparisons.length}
-        />
-        <StatCard
-          description="Nilai mock, bukan hasil kalkulasi frontend."
-          label="Consistency Ratio"
-          tone="primary"
-          value={
-            mockAhpResult.consistencyRatio === null
-              ? "Belum tersedia"
-              : formatWeight(mockAhpResult.consistencyRatio)
-          }
-        />
-        <StatCard
-          description="Prioritas tertinggi dari ranking AHP mock."
-          label="Prioritas AHP"
-          tone="primary"
-          value={topAhpRank?.label ?? "Belum tersedia"}
-        />
-        <StatCard
-          description="Prioritas tertinggi dari ranking Fuzzy AHP mock."
-          label="Prioritas Fuzzy AHP"
-          tone="primary"
-          value={topFuzzyRank?.label ?? "Belum tersedia"}
-        />
-        <StatCard
-          description="Formula final dan mapping TFN belum dikunci."
-          label="Status"
-          value="Prototype mock"
-        />
-      </section>
+      <ApiGatewayAlert error={overview.apiError} />
 
-      <SummaryCard
-        description="Halaman ini adalah frontend prototype. Nilai ditampilkan untuk demo UI dan belum menjadi hasil penelitian final."
-        items={[
-          {
-            label: "AHP",
-            value: mockAhpResult.methodVersion,
-            description: mockAhpResult.methodNote,
-          },
-          {
-            label: "Fuzzy AHP",
-            value: mockFuzzyAhpResult.methodVersion,
-            description: mockFuzzyAhpResult.methodNote,
-          },
-          {
-            label: "TFN",
-            value: `${mockFuzzyAhpResult.scaleOptions.length} opsi skala mock`,
-            description: "Mapping TFN final tetap menjadi bagian metodologi/backend.",
-          },
-          {
-            label: "Integrasi API",
-            value: "Belum aktif",
-            description: "Service kalkulasi disiapkan pada fase API integration.",
-          },
-        ]}
-        title="Ringkasan Metode"
-      />
+      {overview.dataStatus !== "unavailable" ? (
+        <DataNotice notice={overview.notice} />
+      ) : null}
 
-      <section className="grid gap-6 xl:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
-        <ChartCard
-          description="Daftar kriteria berasal dari data mock AHP dan tidak mengunci jumlah final kriteria."
-          title="Pratinjau Setup Kriteria"
-        >
-          <CriteriaEditor criteria={mockAhpCriteria} />
-        </ChartCard>
+      {overview.isServiceUnavailable ? <UnavailableState /> : null}
 
-        <ChartCard
-          description="Pratinjau expert judgement menampilkan nilai pairwise mock tanpa menjalankan perhitungan bobot di frontend."
-          title="Pratinjau Expert Judgement / Pairwise Comparison"
-        >
-          <PairwiseComparisonInput
-            comparisons={mockAhpResult.pairwiseComparisons}
-            criteria={mockAhpCriteria}
-          />
-        </ChartCard>
+      <section>
+        <SectionHeading title="Ringkasan Prioritas" />
+        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          {overview.summaryCards.map((card) => (
+            <SummaryStatCard card={card} key={card.id} />
+          ))}
+        </div>
       </section>
 
       <ChartCard
-        description="Matriks dibentuk dari pairwise comparison mock dan nilai resiprokal yang sudah tersedia di data mock."
-        insight="Matriks ini bersifat prototype-ready. Frontend hanya memvisualisasikan data, bukan menghitung eigen vector atau bobot AHP."
-        title="Matriks Pairwise Comparison AHP"
+        description="Perbandingan bobot AHP dan Fuzzy AHP per kriteria. Ranking menunjukkan prioritas relatif tiap aspek."
+        title="Perbandingan AHP vs Fuzzy AHP"
       >
-        <MatrixTable
-          comparisons={mockAhpResult.pairwiseComparisons}
-          criteria={mockAhpCriteria}
+        <AhpRankingComparisonChart data={overview.chartData} />
+        <div className="mt-6">
+          <SimpleTable
+            columns={comparisonColumns}
+            data={overview.comparisonRows}
+            emptyMessage={EMPTY_MESSAGE}
+            minWidthClassName="min-w-[1080px]"
+            rowKey={(row) => row.id}
+          />
+        </div>
+      </ChartCard>
+
+      <SummaryCard
+        description="Detail partisipasi, komposisi, dan konsistensi 10 responden expert judgement. Responden tidak konsisten tidak dipakai dalam agregasi akhir."
+        items={buildRespondentSummaryItems(
+          overview.respondentSummary,
+          overview.dataStatusLabel,
+        )}
+        title="Ringkasan Responden"
+      >
+        <SimpleTable
+          columns={respondentColumns}
+          data={overview.respondentRows}
+          emptyMessage="Detail responden belum tersedia dari report-service."
+          minWidthClassName="min-w-[1320px]"
+          rowKey={(row) => row.id}
+        />
+        {overview.respondentSummary.note ? (
+          <div className="mt-4 rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-900">
+            {overview.respondentSummary.note}
+          </div>
+        ) : null}
+      </SummaryCard>
+
+      <ChartCard
+        description="Matriks agregat perbandingan berpasangan AHP dari responden valid. Nilai diagonal bernilai 1; nilai resiprokal menunjukkan preferensi arah sebaliknya."
+        insight={<MatrixLegend criteria={overview.matrixCriteria} />}
+        title="Matriks Pairwise AHP"
+      >
+        <SimpleTable
+          columns={matrixColumns}
+          data={overview.ahpPairwiseRows}
+          emptyMessage="Matriks pairwise AHP belum tersedia dari report-service."
+          minWidthClassName="min-w-[980px]"
+          rowKey={(row) => row.id}
         />
       </ChartCard>
 
-      <section className="grid gap-6 xl:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]">
-        <SummaryCard
-          description="Consistency Ratio ditampilkan sebagai status mock untuk membantu menjelaskan validitas judgement pada demo."
-          title="Kartu Consistency Ratio"
-        >
-          <div className="space-y-4">
-            <ConsistencyBadge
-              ratio={mockAhpResult.consistencyRatio}
-              status={mockAhpResult.consistencyStatus}
-              threshold={CONSISTENCY_THRESHOLD}
-            />
-            <p className="text-sm leading-6 text-muted-foreground">
-              Nilai ini berasal dari hasil mock. Ambang ditampilkan sebagai
-              parameter UI dan tidak melakukan validasi metode di frontend.
-            </p>
-          </div>
-        </SummaryCard>
-
-        <ChartCard
-          description="Opsi skala Fuzzy AHP ditampilkan sebagai preview TFN dan belum mengunci mapping final."
-          title="Pratinjau Skala TFN Fuzzy AHP"
-        >
-          <SimpleTable
-            columns={[
-              {
-                key: "label",
-                header: "Skala",
-                render: (row) => (
-                  <span className="font-medium text-foreground">
-                    {row.label}
-                  </span>
-                ),
-              },
-              {
-                key: "tfn",
-                header: "TFN",
-                render: (row) => formatTfn(row.value),
-              },
-              {
-                key: "status",
-                header: "Status",
-                render: () => (
-                  <span className="rounded-md border border-amber-200 bg-amber-50 px-2 py-1 text-xs font-medium text-amber-700">
-                    Prototype
-                  </span>
-                ),
-              },
-            ]}
-            data={mockFuzzyAhpResult.scaleOptions}
-            minWidthClassName="min-w-[520px]"
-            rowKey={(row) => row.id}
-          />
-        </ChartCard>
-      </section>
-
-      <section className="grid gap-6 xl:grid-cols-2">
-        <RankingCard
-          description="Ranking AHP mock menggunakan bobot yang sudah tersedia di FE-07."
-          items={ahpRankingItems}
-          title="Hasil Bobot AHP"
-        />
-
-        <RankingCard
-          description="Ranking Fuzzy AHP mock menampilkan bobot ternormalisasi dan interpretasi prototype."
-          items={fuzzyRankingItems}
-          title="Hasil Bobot Fuzzy AHP"
-        />
-      </section>
-
-      <section className="grid gap-6 xl:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
-        <ChartCard
-          description="Perbandingan bobot mock antara AHP dan Fuzzy AHP untuk membantu demo skripsi."
-          insight="Grafik ini membandingkan output mock yang sudah tersedia. Frontend tidak melakukan kalkulasi bobot."
-          title="Perbandingan Ranking AHP vs Fuzzy AHP"
-        >
-          <AhpRankingComparisonChart data={priorityComparisonData} />
-        </ChartCard>
-
-        <ChartCard
-          description="Tabel numerik disediakan agar bobot dapat dibaca jelas tanpa bergantung pada chart."
-          title="Detail Bobot AHP dan Fuzzy AHP"
-        >
-          <SimpleTable
-            columns={[
-              {
-                key: "label",
-                header: "Kriteria",
-                className: "max-w-[280px]",
-                render: (row) => (
-                  <span className="font-medium text-foreground">
-                    {row.label}
-                  </span>
-                ),
-              },
-              {
-                key: "ahp",
-                header: "AHP",
-                align: "right",
-                render: (row) => `${row.ahpWeight}%`,
-              },
-              {
-                key: "fuzzy",
-                header: "Fuzzy AHP",
-                align: "right",
-                render: (row) => `${row.fuzzyAhpWeight}%`,
-              },
-            ]}
-            data={priorityComparisonData}
-            minWidthClassName="min-w-[520px]"
-            rowKey={(row) => row.criterionId}
-          />
-        </ChartCard>
-      </section>
-
-      <RecommendationCard
-        basis={[
-          `Prioritas AHP tertinggi: ${topAhpRank?.label ?? "belum tersedia"} (${topAhpRank ? formatWeight(topAhpRank.weight) : "-"})`,
-          `Prioritas Fuzzy AHP tertinggi: ${topFuzzyRank?.label ?? "belum tersedia"} (${topFuzzyRank ? formatWeight(topFuzzyRank.normalizedWeight) : "-"})`,
-          `Consistency Ratio mock: ${mockAhpResult.consistencyRatio === null ? "belum tersedia" : formatWeight(mockAhpResult.consistencyRatio)}`,
-          `Jumlah kriteria aktif: ${mockAhpCriteria.filter((criterion) => criterion.isActive).length}`,
-        ]}
-        note="Rekomendasi ini hanya ringkasan prototype. Nilai final wajib berasal dari backend calculation service dan artefak metodologi yang tervalidasi."
-        recommendation={
-          <p>
-            Berdasarkan output mock,{" "}
-            <span className="font-semibold">
-              {topAhpRank?.label ?? "prioritas belum tersedia"}
-            </span>{" "}
-            menjadi kandidat prioritas utama untuk ditinjau saat demo skripsi.
-            Interpretasi ini tidak boleh dipakai sebagai kesimpulan final
-            sebelum service kalkulasi AHP/Fuzzy AHP terintegrasi.
-          </p>
-        }
-        title="Ringkasan Rekomendasi Akhir"
-      />
-
-      <SummaryCard
-        description="Catatan ini sengaja dibuat eksplisit agar prototype tidak disalahpahami sebagai implementasi metodologi final."
-        title="Catatan Batasan Metode / Prototype"
+      <ChartCard
+        description="Matriks Triangular Fuzzy Number (TFN) untuk Fuzzy AHP. Setiap sel ditampilkan sebagai (l, m, u): lower, modal, dan upper bound."
+        insight={<MatrixLegend criteria={overview.matrixCriteria} />}
+        title="Matriks Pairwise Fuzzy AHP (TFN)"
       >
-        <div className="grid gap-3 md:grid-cols-2">
-          {[
-            "Frontend tidak menghitung bobot AHP, eigen vector, Consistency Ratio, atau Fuzzy AHP.",
-            "Jumlah kriteria, skala expert judgement, dan mapping TFN tetap fleksibel dan data-driven.",
-            "Data mock digunakan untuk validasi tata letak, tabel, grafik, dan narasi demo skripsi.",
-            "Integrasi backend dan API contract disiapkan pada FE-12.",
-          ].map((note) => (
-            <p
-              className="rounded-md border border-border bg-background px-4 py-3 text-sm leading-6 text-muted-foreground"
-              key={note}
-            >
-              {note}
-            </p>
-          ))}
-        </div>
-      </SummaryCard>
+        <SimpleTable
+          columns={matrixColumns}
+          data={overview.fuzzyPairwiseRows}
+          emptyMessage="Matriks TFN Fuzzy AHP belum tersedia dari report-service."
+          minWidthClassName="min-w-[1180px]"
+          rowKey={(row) => row.id}
+        />
+      </ChartCard>
     </AppShell>
+  );
+}
+
+function SummaryStatCard({ card }: { card: AhpFuzzyAhpSummaryCard }) {
+  return (
+    <StatCard
+      description={card.description}
+      label={card.label}
+      tone={card.tone}
+      value={card.value}
+    />
+  );
+}
+
+function DataNotice({ notice }: { notice: AhpFuzzyAhpNotice }) {
+  const className = {
+    final: "border-green-200 bg-green-50 text-green-900",
+    info: "border-slate-200 bg-slate-50 text-slate-700",
+    sample: "border-amber-200 bg-amber-50 text-amber-900",
+  }[notice.tone];
+
+  return (
+    <div
+      className={cn("rounded-lg border px-4 py-3 text-sm leading-6", className)}
+    >
+      {notice.text}
+    </div>
+  );
+}
+
+function UnavailableState() {
+  return (
+    <section className="rounded-lg border border-border bg-card p-6 shadow-sm">
+      <h3 className="text-base font-semibold text-foreground">
+        Data belum dapat ditampilkan
+      </h3>
+      <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
+        {EMPTY_GATEWAY_MESSAGE}
+      </p>
+    </section>
+  );
+}
+
+function SectionHeading({ title }: { title: string }) {
+  return (
+    <div className="mb-4">
+      <h2 className="text-base font-semibold text-foreground">{title}</h2>
+    </div>
+  );
+}
+
+function buildRespondentSummaryItems(
+  rs: RespondentSummaryView,
+  dataStatusLabel: string,
+): SummaryCardItem[] {
+  return [
+    {
+      label: "Status Data",
+      value: dataStatusLabel,
+      description: "Menunjukkan status final/sample dari keluaran AHP.",
+    },
+    {
+      label: "Total Responden",
+      value: rs.totalRespondents,
+      description: `${rs.actualCount} aktual dan ${rs.syntheticCount} sintetis.`,
+    },
+    {
+      label: "Responden Valid",
+      value: rs.validCount,
+      description: "Dipakai dalam agregasi geometric mean.",
+    },
+    {
+      label: "Tidak Konsisten",
+      value: rs.invalidCount,
+      description: "Dikeluarkan dari perhitungan prioritas akhir.",
+    },
+    {
+      label: "Consistency Ratio AHP",
+      value: rs.ahpConsistencyRatio,
+      description: "Ambang konsistensi yang digunakan: CR ≤ 0,10.",
+    },
+  ];
+}
+
+function buildMatrixColumns(
+  criteria: readonly MatrixCriterionView[],
+): SimpleTableColumn<PairwiseMatrixRow>[] {
+  return [
+    {
+      key: "criterion",
+      header: "Kriteria",
+      className: "min-w-[280px]",
+      render: (row) => (
+        <span className="font-medium text-foreground">{row.criterion}</span>
+      ),
+    },
+    ...criteria.map((criterion, index) => ({
+      key: criterion.id,
+      header: criterion.id,
+      align: "center" as const,
+      className: "min-w-[120px]",
+      render: (row: PairwiseMatrixRow) => row.values[index] ?? "-",
+    })),
+  ];
+}
+
+function MatrixLegend({ criteria }: { criteria: readonly MatrixCriterionView[] }) {
+  if (criteria.length === 0) return null;
+
+  return (
+    <div>
+      <div className="font-medium">Legenda kriteria</div>
+      <div className="mt-2 grid gap-2 md:grid-cols-2">
+        {criteria.map((criterion) => (
+          <div key={criterion.id}>
+            <span className="font-semibold">{criterion.id}</span> ={" "}
+            {criterion.name}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function SourceBadge({ value }: { value: string }) {
+  const className =
+    value === "Aktual"
+      ? "border-green-200 bg-green-50 text-green-800"
+      : value === "Sintetis"
+        ? "border-blue-200 bg-blue-50 text-blue-800"
+        : "border-slate-200 bg-slate-50 text-slate-700";
+
+  return <Badge className={className}>{value}</Badge>;
+}
+
+function ConsistencyBadge({
+  value,
+}: {
+  value: RespondentDetailRow["consistencyStatus"];
+}) {
+  const className =
+    value === "Konsisten"
+      ? "border-green-200 bg-green-50 text-green-800"
+      : value === "Tidak Konsisten"
+        ? "border-red-200 bg-red-50 text-red-800"
+        : "border-slate-200 bg-slate-50 text-slate-700";
+
+  return <Badge className={className}>{value}</Badge>;
+}
+
+function Badge({
+  children,
+  className,
+}: {
+  children: ReactNode;
+  className: string;
+}) {
+  return (
+    <span
+      className={cn(
+        "inline-flex rounded-full border px-2 py-1 text-xs font-medium",
+        className,
+      )}
+    >
+      {children}
+    </span>
   );
 }

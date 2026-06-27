@@ -1,0 +1,25 @@
+{
+  "aspect_distribution": {
+    "Account/Login": 1473,
+    "Ads Experience": 16273,
+    "Audio Quality": 442,
+    "Features & Content": 21693,
+    "General": 43045,
+    "Performance & Stability": 2598,
+    "Subscription & Pricing": 10659,
+    "UI/UX": 351
+  },
+  "aspect_label_confidence_distribution": {
+    "high": 7171,
+    "low": 36512,
+    "medium": 9806,
+    "none": 43045
+  },
+  "general_label_count": 43045,
+  "general_label_percentage": 44.5905,
+  "generated_at": "2026-06-24T14:33:08.758850+00:00",
+  "methodology_note": "Refined weak aspect labels include keyword scores and confidence metadata for exploratory SVM preparation. They are not expert-validated ground truth or final AHP/Fuzzy AHP criteria.",
+  "rows_with_keyword_match": 53489,
+  "rows_without_keyword_match": 43045,
+  "total_rows": 96534
+}

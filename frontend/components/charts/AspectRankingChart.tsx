@@ -22,6 +22,10 @@ interface AspectRankingChartProps {
   data: readonly AspectRankingDatum[];
 }
 
+const EMPTY_CHART_MESSAGE =
+  "Data belum tersedia karena API Gateway belum aktif.";
+const COUNT_FORMATTER = new Intl.NumberFormat("id-ID");
+
 function subscribe() {
   return () => {};
 }
@@ -43,28 +47,33 @@ export function AspectRankingChart({ data }: AspectRankingChartProps) {
 
   if (data.length === 0) {
     return (
-      <div className="flex h-64 items-center justify-center rounded-md border border-dashed border-border bg-background text-sm text-muted-foreground">
-        Data aspek negatif belum tersedia.
+      <div className="flex h-80 items-center justify-center rounded-md border border-dashed border-border bg-background text-sm text-muted-foreground">
+        {EMPTY_CHART_MESSAGE}
       </div>
     );
   }
 
   if (!mounted) {
-    return <div className="h-72 rounded-md bg-background" />;
+    return <div className="h-80 rounded-md bg-background" />;
   }
 
   return (
-    <div aria-label="Grafik ranking aspek negatif" className="h-72" role="img">
-      <ResponsiveContainer height="100%" width="100%">
+    <div
+      aria-label="Grafik ranking aspek negatif"
+      className="h-96 min-w-[200px]"
+      role="img"
+    >
+      <ResponsiveContainer height="100%" minWidth={200} width="100%">
         <BarChart
           data={data}
           layout="vertical"
-          margin={{ bottom: 8, left: 12, right: 16, top: 8 }}
+          margin={{ bottom: 0, left: 16, right: 16, top: 0 }}
         >
           <CartesianGrid horizontal={false} stroke="#e2e8f0" />
           <XAxis
             allowDecimals={false}
             axisLine={false}
+            tickFormatter={(value) => COUNT_FORMATTER.format(Number(value))}
             tickLine={false}
             type="number"
           />
@@ -73,10 +82,20 @@ export function AspectRankingChart({ data }: AspectRankingChartProps) {
             dataKey="label"
             tickLine={false}
             type="category"
-            width={132}
+            width={150}
           />
-          <Tooltip formatter={(value) => [value, "Jumlah"]} />
-          <Bar dataKey="count" fill="#2563eb" name="Jumlah" radius={[0, 6, 6, 0]} />
+          <Tooltip
+            formatter={(value) => [
+              COUNT_FORMATTER.format(Number(value)),
+              "Jumlah",
+            ]}
+          />
+          <Bar
+            dataKey="count"
+            fill="#2563eb"
+            name="Jumlah"
+            radius={[0, 6, 6, 0]}
+          />
         </BarChart>
       </ResponsiveContainer>
     </div>

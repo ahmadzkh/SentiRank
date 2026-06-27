@@ -53,14 +53,12 @@ Primary navigation uses a left sidebar inside a dashboard app shell.
 | --- | --- | --- | --- |
 | 1 | Dashboard | `/` | Overview of latest dataset, sentiment, aspects, priority ranking, and model health. |
 | 2 | Dataset | `/dataset` | Dataset import, quality summary, distribution, and review explorer. |
-| 3 | Scraping | `/scraping` | Scraping batch status and raw review collection summary. |
-| 4 | Preprocessing | `/preprocessing` | Text cleaning pipeline and before/after review samples. |
-| 5 | Sentiment Analysis | `/sentiment-analysis` | IndoBERT sentiment prediction results and distribution. |
-| 6 | Aspect Classification | `/aspect-classification` | SVM aspect classification results and aspect frequency. |
-| 7 | AHP / Fuzzy AHP | `/ahp-fuzzy-ahp` | Criteria weighting, matrix review, consistency, and ranking output. |
-| 8 | Model Evaluation | `/model-evaluation` | Sentiment and aspect model metrics. |
-| 9 | Reports | `/reports` | Research summary and export-oriented findings. |
-| 10 | Settings | `/settings` | Application metadata, API configuration preview, and system settings. |
+| 3 | Preprocessing | `/preprocessing` | Text cleaning pipeline and before/after review samples. |
+| 4 | Sentiment Analysis | `/sentiment-analysis` | IndoBERT sentiment prediction results, distribution, and runtime inference. |
+| 5 | Aspect Classification | `/aspect-classification` | SVM aspect classification results and aspect frequency. |
+| 6 | AHP / Fuzzy AHP | `/ahp-fuzzy-ahp` | Criteria weighting, matrix review, consistency, and ranking output. |
+| 7 | Model Evaluation | `/model-evaluation` | Sentiment and aspect model metrics. |
+| 8 | Settings | `/settings` | Application metadata, API configuration preview, and system settings. |
 
 Secondary navigation should be page-local only, such as tabs or filters inside a page. The main sidebar remains stable across all routes.
 
@@ -75,13 +73,11 @@ App Shell
 - Main Content
   - Dashboard
   - Dataset
-  - Scraping
   - Preprocessing
   - Sentiment Analysis
   - Aspect Classification
   - AHP / Fuzzy AHP
   - Model Evaluation
-  - Reports
   - Settings
 ```
 
@@ -114,13 +110,11 @@ Planned route structure for FE-06 implementation:
 | --- | --- | --- |
 | `/` | `frontend/app/(dashboard)/page.tsx` | Dashboard |
 | `/dataset` | `frontend/app/(dashboard)/dataset/page.tsx` | Dataset |
-| `/scraping` | `frontend/app/(dashboard)/scraping/page.tsx` | Scraping |
 | `/preprocessing` | `frontend/app/(dashboard)/preprocessing/page.tsx` | Preprocessing |
 | `/sentiment-analysis` | `frontend/app/(dashboard)/sentiment-analysis/page.tsx` | Sentiment Analysis |
 | `/aspect-classification` | `frontend/app/(dashboard)/aspect-classification/page.tsx` | Aspect Classification |
 | `/ahp-fuzzy-ahp` | `frontend/app/(dashboard)/ahp-fuzzy-ahp/page.tsx` | AHP / Fuzzy AHP |
 | `/model-evaluation` | `frontend/app/(dashboard)/model-evaluation/page.tsx` | Model Evaluation |
-| `/reports` | `frontend/app/(dashboard)/reports/page.tsx` | Reports |
 | `/settings` | `frontend/app/(dashboard)/settings/page.tsx` | Settings |
 
 Shared layout plan:
@@ -143,13 +137,11 @@ This is a route plan only. FE-02 does not implement NextJS files.
 | --- | --- |
 | Dashboard | Provide a quick overview of the current analysis state and the most important findings. |
 | Dataset | Manage and inspect review data before analysis. |
-| Scraping | Show raw review collection process, status, and batch outputs. |
 | Preprocessing | Explain and inspect text cleaning results before modeling. |
-| Sentiment Analysis | Display IndoBERT sentiment outputs for single and batch review analysis. |
+| Sentiment Analysis | Display IndoBERT sentiment outputs and runtime inference history. |
 | Aspect Classification | Display aspect labels from SVM and summarize negative review themes. |
 | AHP / Fuzzy AHP | Show prioritization inputs, matrices, weights, consistency, and final ranking. |
 | Model Evaluation | Show model performance evidence for sentiment and aspect classifiers. |
-| Reports | Summarize findings in a format suitable for thesis demo and documentation. |
 | Settings | Hold app configuration, API readiness, model metadata, and system information. |
 
 ---
@@ -160,13 +152,11 @@ This is a route plan only. FE-02 does not implement NextJS files.
 | --- | --- |
 | Dashboard | Total reviews, sentiment counts, top negative aspect, priority score, sentiment distribution, aspect ranking, model performance preview, latest negative reviews. |
 | Dataset | Dataset source, import status, total rows, duplicate count, missing value count, rating distribution, label distribution, review table. |
-| Scraping | Scraping source, batch date, collection status, requested count, collected count, failed count, rating group distribution, raw review preview. |
 | Preprocessing | Pipeline steps, raw text sample, cleaned text sample, token summary, removed noise examples, processed dataset table. |
-| Sentiment Analysis | Single review input state, predicted label, confidence score, batch sentiment counts, sentiment chart, sentiment result table. |
+| Sentiment Analysis | Batch sentiment counts, sentiment chart, sentiment result table, single review runtime inference form, runtime inference history. |
 | Aspect Classification | Aspect counts, negative review grouping, aspect frequency chart, confidence or rule evidence if available, aspect result table. |
 | AHP / Fuzzy AHP | Criteria list, pairwise comparison matrix, consistency ratio, AHP weights, Fuzzy AHP weights, ranking comparison, final recommendation. |
 | Model Evaluation | Accuracy, precision, recall, F1 score, macro F1, confusion matrix, classification report, model version, evaluation notes. |
-| Reports | Dataset summary, sentiment summary, aspect summary, AHP/Fuzzy AHP recommendation summary, export status, research notes. |
 | Settings | App metadata, API endpoint placeholders, model metadata, theme preference, system status, environment notes. |
 
 ---

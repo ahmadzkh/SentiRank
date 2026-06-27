@@ -6,6 +6,15 @@ import type { ReviewSentimentLabel } from "./sentiment";
 export interface ApiError {
   code: string;
   message: string;
+  source?: "api-gateway";
+  status?: "unavailable";
+  details?: Record<string, unknown>;
+}
+
+export interface ApiGatewayFailure {
+  source: "api-gateway";
+  message: string;
+  status: "unavailable";
   details?: Record<string, unknown>;
 }
 
@@ -47,12 +56,15 @@ export interface ApiRequestOptions<
 }
 
 export interface ReviewListQuery {
+  limit?: number;
   page?: number;
   pageSize?: number;
   search?: string;
   rating?: number;
+  seed?: number;
   sentiment?: ReviewSentimentLabel;
   aspect?: AspectLabel;
+  sort?: "reviewed_at_desc" | "word_count_desc";
 }
 
 export interface TextAnalysisRequest {

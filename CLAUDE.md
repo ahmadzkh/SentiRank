@@ -43,6 +43,20 @@ The system focuses on identifying priority areas for application/service improve
 | Analytics platform      | A multi-user system            |
 | Decision support system | An authentication-based system |
 
+### Current Architecture Status
+
+SentiRank now uses a thesis-stage microservice runtime. The active frontend integration boundary is `api-gateway-service`; frontend code must not call internal service ports directly and must not read local CSV/JSON artifacts.
+
+The canonical microservice and data-source policy is documented in `docs/microservices/architecture.md`. If this file conflicts with that architecture document, the microservice architecture document is the source of truth for service ownership and data-source boundaries.
+
+### Data Source Policy
+
+Research CSV/JSON/model artifacts are allowed and expected for reproducible thesis outputs such as scraped datasets, preprocessing output, labeling output, model evaluation metrics, AHP output, Fuzzy AHP output, ranking comparison output, and dashboard/report snapshots derived from research outputs.
+
+Runtime services may read those artifacts only as read-only research evidence under clear service ownership. They must not present artifact data as live user-generated runtime data.
+
+The database is reserved for user-facing runtime inference history: submitted review text, sentiment result, aspect/criteria result, confidence/probability, model version, prediction source, timestamp, and related inference history. SQLite is the local/demo default and PostgreSQL is optional for deployment. Prisma has been removed and is not part of this persistence path. Do not migrate all research CSV/JSON artifacts into the database.
+
 ---
 
 ## 2. Tech Stack
@@ -59,11 +73,13 @@ The system focuses on identifying priority areas for application/service improve
 
 ### Backend
 
-| Layer    | Technology             |
-| -------- | ---------------------- |
-| API      | Next.js Route Handlers |
-| ORM      | Prisma                 |
-| Database | SQLite                 |
+| Layer | Technology |
+| --- | --- |
+| Public API | FastAPI `api-gateway-service` |
+| Internal services | FastAPI review, sentiment, aspect, decision, and report services |
+| Research artifacts | Versioned CSV/JSON/model outputs, read-only at runtime |
+| Runtime persistence | API Gateway repository persistence for user inference history only |
+| Database modes | SQLite local/demo default and optional PostgreSQL deployment via `DATABASE_URL` or `API_GATEWAY_DATABASE_URL` |
 
 ### Machine Learning
 
@@ -74,12 +90,14 @@ The system focuses on identifying priority areas for application/service improve
 | Deep Learning     | PyTorch                     |
 | ML Utilities      | scikit-learn, pandas, NumPy |
 
+The active sentiment candidate is `run_3_weighted_loss_lr_1e-5`; the active aspect classifier is the merged five-class SVM. Runtime responses expose model/fallback provenance explicitly. SVM `predict_proba` may be unavailable, so model confidence can be `null`.
+
 ### Package Managers
 
 | Scope              | Manager |
 | ------------------ | ------- |
-| Frontend & Backend | `npm`   |
-| Python Environment | `uv`    |
+| Frontend | `npm` |
+| Python research/services | `uv` for local environments; service images use their Dockerfiles/requirements |
 
 > **Never use:** `pnpm`, `yarn`, `pipenv`, `poetry`
 
@@ -88,30 +106,20 @@ The system focuses on identifying priority areas for application/service improve
 ## 3. Commands
 
 ```bash
-# Development
-npm run dev           # Start development server
-npm run build         # Build for production
-npm run start         # Run production build
-npm run lint          # Run linter
-npm run format        # Format code
+# Local backend microservices from repository root
+docker compose up --build
 
-# Package Management
-npm install           # Install all dependencies
-npm install [package] # Install a new package
+# Frontend
+cd frontend
+npm install
+npm run dev
+npm run lint
+npm run build
 
-# Testing
-npm run test          # Run all tests
-npm run test:unit     # Run unit tests only
-npm run test:e2e      # Run e2e tests only
-
-# Database
-npm run db:migrate    # Run Prisma migrations
-npm run db:seed       # Seed initial data
-npm run db:reset      # Reset database
-
-# Python ML Service
-uv sync               # Sync Python dependencies
-uv run python [file]  # Run Python script in venv
+# Python research environment
+cd ml-service
+uv sync
+uv run python [file]
 ```
 
 ---
@@ -120,21 +128,20 @@ uv run python [file]  # Run Python script in venv
 
 ```
 User
-  ↓
-Next.js Dashboard (UI Layer)
-  ↓
-Next.js API Route Handlers
-  ↓
-ML Processing Service
-  ├── Preprocessing
-  ├── IndoBERT Sentiment Analysis
-  ├── SVM Aspect Classification
-  └── AHP Ranking Calculation
-  ↓
-SQLite Database (via Prisma)
-  ↓
-Visualization Dashboard (Recharts)
+  -> Next.js frontend-service
+  -> api-gateway-service
+     -> review-service
+     -> sentiment-service
+     -> aspect-service
+     -> decision-service
+     -> report-service
+     -> API Gateway repository
+        -> SQLite local/demo or optional PostgreSQL
+
+Read-only research artifacts -> owning domain services
 ```
+
+Runtime persistence is owned by the API Gateway repository: `POST /inference/review` orchestrates sentiment and aspect services, then writes inference history. Domain services do not write directly to the database.
 
 ### ML Pipeline
 
@@ -168,7 +175,38 @@ Dataset
 
 ## 6. Project Structure
 
-Architecture: **Feature-based modular architecture with strict separation between Next.js frontend, Next.js API Route Handlers, and Python ML service**
+Architecture: **Thesis-stage microservice architecture with strict separation between Next.js frontend, API Gateway, domain FastAPI services, read-only research artifacts, and runtime inference-history persistence**
+
+### Current Repository Roles
+
+```text
+SentiRank/
+|-- frontend/                  # Next.js UI; calls API Gateway only
+|-- services/                  # Active runtime microservices
+|   |-- api-gateway/           # Public API, orchestration, persistence repository
+|   |-- review-service/        # Review/dataset summaries
+|   |-- sentiment-service/     # IndoBERT serving and sentiment summaries
+|   |-- aspect-service/        # SVM serving and aspect summaries
+|   |-- decision-service/      # AHP/Fuzzy AHP calculations and results
+|   `-- report-service/        # Dashboard/evaluation/ranking aggregation
+|-- ml-service/                # Research pipeline, notebooks, audits, and legacy utilities
+|   |-- app/                   # Legacy pre-extraction runtime; not frontend-facing
+|   |-- notebooks/
+|   |-- scripts/
+|   |-- quality_audit/
+|   |-- models/
+|   |-- saved_models/          # Local model artifacts; ignored by Git
+|   `-- tests/
+|-- datasets/                  # Research datasets and generated outputs
+|-- docs/                      # Thesis/project documentation and figures
+`-- docker-compose.yml         # Local/demo backend orchestration
+```
+
+The legacy Prisma directory and `prisma.config.ts` were removed in MS-13E. `ml-service/` remains important for research reproducibility, but extracted services under `services/` are the primary runtime layer.
+
+### Historical Pre-Refactor Layout
+
+The detailed tree below is retained as a historical planning snapshot. It is not the active repository placement guide; use the current role map and file-placement table instead.
 
 ```
 SentiRank/
@@ -176,7 +214,7 @@ SentiRank/
 ├── app/                                    # Next.js App Router — routing and pages only
 │   ├── layout.tsx                          # Root layout
 │   ├── page.tsx                            # Landing page
-│   ├── api/                                # Next.js API Route Handlers (backend boundary)
+│   ├── api/                                # Legacy/planned Next.js Route Handlers; not the active microservice boundary
 │   │   ├── dataset/
 │   │   │   └── route.ts                    # Dataset read endpoints
 │   │   ├── sentiment/
@@ -224,15 +262,9 @@ SentiRank/
 │   └── database/                           # Database access abstractions and repository functions
 │
 ├── lib/                                    # Shared utilities — no business logic
-│   ├── prisma/                             # Prisma client singleton (client.ts only)
 │   ├── utils/                              # Pure utility functions (formatters, helpers)
 │   ├── constants/                          # App-wide constants and enums
 │   └── validators/                         # Input/output validation schemas (zod)
-│
-├── prisma/                                 # Prisma ORM configuration
-│   ├── schema.prisma                       # Database schema definition
-│   ├── migrations/                         # Auto-generated migration files
-│   └── seed.ts                             # Database seed script
 │
 ├── ml-service/                             # Python ML service — fully independent from Next.js
 │   ├── app/                                # FastAPI runtime (ML inference API)
@@ -307,7 +339,7 @@ SentiRank/
 │
 ├── tests/                                  # Frontend and API tests (Jest / Vitest)
 │   ├── unit/                               # Unit tests for utilities and feature logic
-│   └── integration/                        # Integration tests for Next.js API Route Handlers
+│   └── integration/                        # Frontend/API integration tests
 │
 ├── public/                                 # Static public assets served by Next.js
 │
@@ -327,25 +359,25 @@ SentiRank/
 
 | Path | Responsibility |
 | --- | --- |
-| `app/` | Next.js routing only — pages and layouts; no business logic |
-| `app/api/` | Next.js API Route Handlers only — the backend boundary between UI and data |
-| `components/` | Reusable UI components only — no ML, AHP, or database logic |
-| `features/` | Feature-specific frontend logic — hooks, types, data transformers per dashboard module |
-| `services/api/` | Frontend HTTP clients — all `fetch()` calls targeting `app/api/` routes |
-| `services/ml/` | Communication layer between Next.js Route Handlers and the Python ML service |
-| `services/database/` | Database access abstractions and repository functions — wraps Prisma queries |
-| `lib/prisma/` | Prisma client singleton only — no query logic here |
-| `prisma/` | Prisma schema, migrations, and seed scripts only |
-| `ml-service/app/` | FastAPI ML service runtime — inference endpoints exposed to `services/ml/` |
-| `ml-service/notebooks/` | Research notebooks for documentation and experimentation only — 8 notebooks map 1-to-1 with research stages; never imported by production code |
-| `ml-service/scripts/` | Reproducible, non-interactive Python scripts — one script per pipeline stage; AHP and Fuzzy AHP must remain in separate scripts |
-| `ml-service/models/` | Python model class definitions and configurations — not trained weights |
-| `ml-service/saved_models/` | Trained and serialized model artifacts only — not source code |
-| `datasets/raw/` | Original scraped data — read-only; never modified directly |
-| `datasets/processed/` | Cleaned and preprocessed data — always generated from scripts or notebooks; never edited manually |
+| `frontend/app/` | Next.js pages and layouts; no backend or model logic |
+| `frontend/components/` | Reusable UI components; no ML, AHP, or database logic |
+| `frontend/constants/`, `hooks/`, `lib/`, `types/` | Frontend routes, shared behavior, API helpers, and contracts |
+| `frontend/services/` | Frontend service layer; all browser-facing API calls must use API Gateway routes |
+| `frontend/lib/http-client.ts` | Gateway HTTP client using `NEXT_PUBLIC_API_BASE_URL` and server-side `API_GATEWAY_INTERNAL_URL` |
+| `services/api-gateway/` | Public API, orchestration, response normalization, and runtime inference repository persistence |
+| `services/review-service/` | Review dataset metadata, scraping summaries, preprocessing summaries, and review samples |
+| `services/sentiment-service/` | IndoBERT model loading, sentiment inference, summaries, and evaluation |
+| `services/aspect-service/` | SVM model loading, aspect inference, summaries, and evaluation |
+| `services/decision-service/` | AHP, Fuzzy AHP, criteria, judgement processing, weighting, and ranking comparison calculations |
+| `services/report-service/` | Read-only Dashboard/evaluation/ranking aggregation; not a printable Reports feature |
+| `ml-service/app/` | Legacy pre-extraction FastAPI experiment runtime; not the primary runtime layer |
+| `ml-service/notebooks/`, `scripts/`, `quality_audit/` | Active research pipeline, experiments, audits, and reproducible exports |
+| `ml-service/models/` | Research model definitions and utilities, not trained weights |
+| `ml-service/saved_models/` | Local trained artifacts only; ignored by Git and mounted read-only when used |
+| `datasets/raw/` | Original scraped data; read-only and never modified directly |
+| `datasets/processed/` | Generated cleaned/preprocessed data; never edited manually |
 | `datasets/outputs/` | All generated result files: sentiment predictions, aspect predictions, evaluation metrics, AHP weights, Fuzzy AHP weights, rankings, and comparison outputs |
-| `docs/figures/` | Exported visuals organized per research stage (01–08) — generated from notebooks or scripts; never created manually |
-| `tests/` | Frontend unit tests and Next.js API Route Handler integration tests |
+| `docs/` | Thesis/project documentation, methodology, templates, architecture notes, and figures |
 | `ml-service/tests/` | Python unit tests for preprocessing, ML inference, and AHP calculation logic |
 
 > **Never create new top-level folders without confirmation.**
@@ -358,28 +390,35 @@ These rules define hard boundaries between system layers. No exceptions without 
 
 ```
 # UI Layer
-- UI components must not contain ML logic, AHP calculation logic, or Prisma queries
-- Next.js pages must call feature hooks or services layers — never call Prisma directly
+- UI components must not contain ML logic, AHP calculation logic, or database queries
+- Next.js pages must call frontend service-layer modules that target API Gateway routes
+- Frontend code must not read CSV/JSON artifacts directly
+- Frontend code must not call internal service ports 8001 through 8005 directly
 - Client Components must not import server-only modules
 
 # API Layer
-- app/api/ Route Handlers are the only backend entry point for the frontend
-- Route Handlers delegate to services/database/ or services/ml/ — no inline logic
-- Route Handlers must validate all inputs before delegating
+- api-gateway-service is the only backend API entry point for the frontend
+- API Gateway delegates to domain services over HTTP and normalizes response/error envelopes
+- Domain service routers must validate inputs before delegating
 
-# ML Service Layer
-- ml-service/app/ is a standalone FastAPI service — it must not import Next.js internals
-- ML inference must be exposed through ml-service/app/ API endpoints only
-- services/ml/ is the only Next.js module allowed to call the ML service
+# Domain Service Layer
+- Extracted FastAPI services must not import Next.js internals
+- review-service owns review/dataset artifact summaries and review samples
+- sentiment-service owns IndoBERT sentiment metadata, summaries, evaluation, and inference behavior
+- aspect-service owns SVM aspect metadata, summaries, evaluation, and inference behavior
+- decision-service owns AHP, Fuzzy AHP, criteria, judgement processing, weighting, and ranking comparison calculations
+- report-service owns read-only aggregation for dashboard/report views
 
 # Data and Artifacts
 - datasets/raw/ must never be modified directly — always treat as immutable source
 - datasets/processed/ must be generated only from scripts or notebooks — never edited manually
+- datasets/outputs/ contains reproducible research outputs and may be read by backend services as read-only artifacts under explicit ownership
 - ml-service/saved_models/ must not contain source code — trained artifacts only
 - saved model artifacts must not be mixed with model definition source files
 - AHP and Fuzzy AHP must be implemented in entirely separate notebooks and separate scripts
 - Ranking comparison must be handled in its own dedicated notebook (08) and script (compare_rankings.py)
 - All output files must be written to datasets/outputs/ — never to raw/ or processed/
+- Do not migrate all research CSV/JSON artifacts into the runtime database without an explicit requirement
 
 # Notebooks
 - ml-service/notebooks/ is for research, experimentation, and academic documentation only
@@ -389,8 +428,9 @@ These rules define hard boundaries between system layers. No exceptions without 
 - Figures exported from notebooks must be saved to the corresponding docs/figures/[stage]/ subfolder
 
 # Database
-- All database access must go through Prisma via services/database/ or lib/prisma/
-- Raw SQL queries are not allowed — use Prisma query API only
+- Database usage is reserved for user-submitted runtime inference history unless a later milestone explicitly expands scope
+- Runtime inference history may include submitted text, sentiment/aspect result, confidence/probability, model version, prediction source, and created_at timestamp
+- Research CSV/JSON/model artifacts are not interactive runtime data and do not need to be stored in the database
 - Database credentials must never be exposed to the client side
 ```
 
@@ -534,7 +574,7 @@ These rules define hard boundaries between system layers. No exceptions without 
     422 — Unprocessable Entity
     500 — Internal Server Error
 - Never expose internal errors or stack traces to the client
-- Store all fetch functions in services/api/ — never inline in components
+- Store frontend fetch functions in `frontend/services/` or shared gateway helpers; never inline gateway calls in components
 
 # Environment
 - Use environment variables for all URLs and API keys
@@ -599,14 +639,16 @@ uv run python ml-service/[file] # Run a script inside the venv
 
 ## 14. Database Rules
 
-- SQLite is the primary and **only** database for this project
-- Managed exclusively via **Prisma ORM**
-- Never expose the `.db` file path publicly
+- Database work is for runtime inference history, not bulk research artifact storage
+- Prisma legacy schema/config files were removed in MS-13E; runtime persistence is handled by `api-gateway-service` repository code
+- SQLite is the local/demo default; PostgreSQL remains optional for deployment through `DATABASE_URL` or `API_GATEWAY_DATABASE_URL`
+- Do not migrate CSV/JSON/model research artifacts into the database unless a later milestone explicitly requires it
+- Use the existing database boundary/tooling when runtime persistence work is explicitly in scope
 - Never run destructive queries without confirmation
 - Never create migrations without confirmation
 - Never expose database credentials to the client side
 
-> **Why SQLite?** Lightweight, zero-config setup, sufficient for research-scale data, and fully compatible with Prisma.
+> **Why not migrate all artifacts?** CSV/JSON/model outputs are reproducible thesis artifacts. Keeping them read-only preserves experiment traceability and avoids unnecessary database migration in the current thesis architecture.
 
 ---
 
@@ -642,7 +684,7 @@ docs: update CLAUDE.md with ML pipeline rules
 
 ```
 # Testing Approach
-- Framework: Jest / Vitest (frontend), pytest (ML service)
+- Framework: ESLint/build checks for frontend, pytest for FastAPI services and ML/research utilities
 
 # What Must Be Tested
 - All preprocessing functions
@@ -672,7 +714,10 @@ docs: update CLAUDE.md with ML pipeline rules
 
 ```bash
 # Database
-DATABASE_URL="file:./dev.db"
+DATABASE_URL=sqlite:///./runtime_inference_history.db
+API_GATEWAY_DATABASE_URL=sqlite:///./runtime_inference_history.db
+# Optional PostgreSQL Compose profile:
+# API_GATEWAY_DATABASE_URL=postgresql://sentirank:sentirank@database-service:5432/sentirank
 
 # App
 NEXT_PUBLIC_APP_NAME="SentiRank"
@@ -680,7 +725,11 @@ NEXT_PUBLIC_APP_NAME="SentiRank"
 # ML Model Paths — server-only, never expose to client
 ML_MODEL_PATH=""
 SVM_MODEL_PATH=""
-INDOBERT_MODEL_PATH=""
+SENTIMENT_MODEL_SOURCE=auto
+INDOBERT_MODEL_PATH="ml-service/saved_models/indobert/run_3_weighted_loss_lr_1e-5"
+INDOBERT_MODEL_ID="ahmadzkh/sentirank-indobert-run3"
+HF_TOKEN=""
+SVM_ASPECT_MODEL_PATH="ml-service/saved_models/svm/svm_merged_5class_pipeline.joblib"
 ```
 
 > **Rules:**
@@ -695,26 +744,22 @@ INDOBERT_MODEL_PATH=""
 ## 18. Features
 
 ```
-# Completed and working
-- [ ] (none yet — v0.1.0)
+# Active thesis-demo capabilities
+- [x] Next.js research Dashboard and analysis pages
+- [x] API Gateway as the single frontend backend boundary
+- [x] Extracted review, sentiment, aspect, decision, and report services
+- [x] Real IndoBERT serving when local/Hugging Face artifact is available
+- [x] Real merged five-class SVM serving when its artifact is available
+- [x] Explicit model/fallback provenance in inference responses
+- [x] Runtime review inference orchestration and inference history persistence
+- [x] SQLite local/demo default and optional PostgreSQL deployment support
+- [x] Read-only AHP/Fuzzy AHP result presentation through API Gateway
+- [x] Dashboard aggregation through report-service
 
-# In progress — do not modify without confirmation
-- [ ] Project scaffolding and structure setup
-- [ ] Prisma schema definition
-- [ ] ML preprocessing pipeline
-
-# Not yet started
-- [ ] IndoBERT sentiment inference integration
-- [ ] SVM aspect classification integration
-- [ ] AHP calculation engine
-- [ ] Priority ranking generator
-- [ ] Dashboard: Dataset module
-- [ ] Dashboard: Sentiment module
-- [ ] Dashboard: Aspect module
-- [ ] Dashboard: Evaluation module
-- [ ] Dashboard: AHP module
-- [ ] Dashboard: Ranking module
-- [ ] Recharts data visualizations
+# Current research limitations
+- [ ] Replace sample/development AHP/Fuzzy AHP outputs with validated expert judgement
+- [ ] Complete production-grade deployment, resource limits, and observability if required
+- [ ] Retire legacy ml-service/app only in a separately audited milestone
 ```
 
 ---
@@ -760,8 +805,8 @@ If any instruction or prompt is ambiguous, **ask first before coding**. Never as
 - Do not mix business logic inside UI components
 
 # Database
-- Do not use PostgreSQL
 - Do not use MongoDB
+- Do not migrate research CSV/JSON/model artifacts into the database without an explicit milestone
 - Do not run commands that modify or delete production data
 - Do not create database migrations without confirmation
 - Do not expose database credentials to the client
@@ -770,7 +815,7 @@ If any instruction or prompt is ambiguous, **ask first before coding**. Never as
 - Do not expose API keys or any secret to the client
 - Do not bypass user input validation
 - Do not skip error handling in API routes
-- Do not expose the SQLite .db file path publicly
+- Do not expose database file paths, connection strings, or credentials publicly
 - Do not expose sanitized dataset files outside the server
 ```
 

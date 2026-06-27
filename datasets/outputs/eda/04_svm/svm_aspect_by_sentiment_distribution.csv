@@ -2,7 +2,7 @@ aspect_label,final_sentiment,count
 Account/Login,Negative,515
 Ads Experience,Negative,3479
 Audio Quality,Negative,58
-Features & Content,Negative,3871
+Features & Content,Negative,3867
 Performance & Stability,Negative,501
 Subscription & Pricing,Negative,1907
 UI/UX,Negative,11
@@ -16,7 +16,7 @@ UI/UX,Neutral,5
 Account/Login,Positive,53
 Ads Experience,Positive,913
 Audio Quality,Positive,130
-Features & Content,Positive,2348
+Features & Content,Positive,2346
 Performance & Stability,Positive,161
 Subscription & Pricing,Positive,467
 UI/UX,Positive,32

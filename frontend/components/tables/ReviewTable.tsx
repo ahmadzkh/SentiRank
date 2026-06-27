@@ -2,9 +2,16 @@ import type { Review } from "@/types/review";
 import { AspectBadge } from "@/components/badges/AspectBadge";
 import { SentimentBadge } from "@/components/badges/SentimentBadge";
 
+const COUNT_FORMATTER = new Intl.NumberFormat("id-ID");
+
 interface ReviewTableProps {
   reviews: readonly Review[];
   emptyMessage?: string;
+  reviewHeader?: string;
+  reviewerHeader?: string;
+  showReviewerColumn?: boolean;
+  showWordCount?: boolean;
+  wordCountHeader?: string;
 }
 
 function formatDate(value: string) {
@@ -18,6 +25,11 @@ function formatDate(value: string) {
 export function ReviewTable({
   reviews,
   emptyMessage = "Belum ada ulasan yang tersedia.",
+  reviewHeader = "Ulasan",
+  reviewerHeader = "Reviewer",
+  showReviewerColumn = false,
+  showWordCount = false,
+  wordCountHeader = "Jumlah Kata",
 }: ReviewTableProps) {
   if (reviews.length === 0) {
     return (
@@ -30,10 +42,16 @@ export function ReviewTable({
   return (
     <div className="overflow-hidden rounded-lg border border-border">
       <div className="overflow-x-auto">
-        <table className="min-w-[840px] w-full border-collapse bg-card text-left text-sm">
+        <table className="min-w-[960px] w-full border-collapse bg-card text-left text-sm">
           <thead className="bg-slate-50 text-xs font-semibold uppercase tracking-normal text-muted-foreground">
             <tr>
-              <th className="px-4 py-3">Ulasan</th>
+              <th className="px-4 py-3">{reviewHeader}</th>
+              {showReviewerColumn ? (
+                <th className="px-4 py-3">{reviewerHeader}</th>
+              ) : null}
+              {showWordCount ? (
+                <th className="px-4 py-3 text-right">{wordCountHeader}</th>
+              ) : null}
               <th className="px-4 py-3">Sentimen</th>
               <th className="px-4 py-3">Aspek</th>
               <th className="px-4 py-3 text-right">Rating</th>
@@ -47,10 +65,22 @@ export function ReviewTable({
                   <p className="line-clamp-2 font-medium leading-6 text-foreground">
                     {review.text}
                   </p>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    {review.userName}
-                  </p>
+                  {!showReviewerColumn ? (
+                    <p className="mt-1 text-xs text-muted-foreground">
+                      {review.userName}
+                    </p>
+                  ) : null}
                 </td>
+                {showReviewerColumn ? (
+                  <td className="max-w-[180px] px-4 py-4 text-muted-foreground">
+                    <span className="line-clamp-2 break-all">{review.userName}</span>
+                  </td>
+                ) : null}
+                {showWordCount ? (
+                  <td className="px-4 py-4 text-right font-medium text-foreground">
+                    {COUNT_FORMATTER.format(review.wordCount ?? 0)}
+                  </td>
+                ) : null}
                 <td className="px-4 py-4">
                   <SentimentBadge sentiment={review.sentimentLabel} />
                 </td>
@@ -61,7 +91,9 @@ export function ReviewTable({
                         <AspectBadge aspect={aspect} key={aspect} />
                       ))
                     ) : (
-                      <AspectBadge />
+                      <span className="text-sm text-muted-foreground">
+                        Tidak tersedia
+                      </span>
                     )}
                   </div>
                 </td>

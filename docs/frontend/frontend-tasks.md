@@ -21,6 +21,18 @@
 - [x] FE-10 — Core pages selesai
 - [x] FE-11 — AHP/Fuzzy AHP prototype selesai
 - [x] FE-12 — API integration preparation selesai
+- [x] MS-10/MS-12 — Gateway integration dan read-only AHP/Fuzzy AHP selesai
+- [x] MS-13C — Frontend Reports route cleanup selesai
+- [x] MS-13G — Dokumentasi frontend aktif disinkronkan
+- [x] MS-15F — Frontend Data Mapping Fix
+- [x] MS-15G — Frontend Merge Uji Ulasan and Scraping menus
+- [x] MS-15H — Frontend UI Cleanup
+- [x] MS-15I — Frontend Archive Legacy Routes
+- [x] MS-15J — Frontend Full Verification
+- [x] MS-16 — Retrain Decision Service
+- [x] MS-17 — Expert Judgement Final
+  - [x] MS-17A — Expert Judgement Spreadsheet Intake & Mapping
+  - [x] MS-17B — AHP/Fuzzy AHP Aggregation & Ranking
 
 ---
 
@@ -871,3 +883,439 @@ Implementation scope:
 ```txt
 Contracts and service functions only. Real backend integration and page migration remain future work.
 ```
+
+---
+
+## MS-10 — Frontend Gateway Integration
+
+### Objective
+
+Menghubungkan frontend SentiRank ke `api-gateway-service` sebagai satu-satunya entry point API tanpa memanggil internal microservice ports secara langsung.
+
+### Task Checklist
+
+- [x] Pastikan `frontend/.env.example` menggunakan `NEXT_PUBLIC_API_BASE_URL=http://localhost:8000`.
+- [x] Ubah endpoint constants dari placeholder `/api/*` ke public Gateway routes.
+- [x] Tambahkan helper unwrap response envelope Gateway di HTTP client.
+- [x] Update service layer agar membaca payload `data` dari Gateway response.
+- [x] Tambahkan health service untuk `/health` dan `/health/services`.
+- [x] Tambahkan panel demo API Gateway pada halaman AHP/Fuzzy AHP.
+- [x] Pertahankan warning sample development judgement.
+- [x] Pastikan tidak ada kalkulasi AHP/Fuzzy AHP di frontend.
+- [x] Jalankan `npm run lint`.
+- [x] Jalankan `npm run build`.
+
+### Acceptance Criteria
+
+- [x] Frontend memakai `NEXT_PUBLIC_API_BASE_URL=http://localhost:8000`.
+- [x] Frontend tidak memakai internal service URL atau port `8001` sampai `8005`.
+- [x] AHP/Fuzzy AHP demo memanggil `/ahp/criteria`, `/ahp/calculate`, `/ahp/fuzzy-calculate`, dan `/ahp/compare` melalui Gateway.
+- [x] Jika Gateway offline, UI menampilkan pesan `API Gateway belum aktif. Jalankan microservice backend terlebih dahulu.`
+- [x] Tidak ada perubahan pada setup Prisma legacy, model, scraping, preprocessing, raw/processed dataset, atau legacy `ml-service`. Setup Prisma legacy kemudian dihapus pada MS-13E.
+
+### Completion Note
+
+Completed on 2026-06-05. MS-10 updated the frontend API client, endpoint constants, services, and AHP/Fuzzy AHP integration so browser-facing calls use `api-gateway-service` only. At that milestone the page still had a Gateway-backed sample demo panel; MS-12 later replaced it with the current read-only results page. Historical mock UI is reference-only and is not an active demo fallback.
+
+---
+
+## MS-10B — Frontend Gateway Failure Fallback Cleanup
+
+### Objective
+
+Membersihkan perilaku fallback agar halaman yang sudah memakai API Gateway tidak menampilkan nilai mock ketika Gateway gagal atau belum aktif.
+
+### Task Checklist
+
+- [x] Normalisasi error Gateway menjadi `source=api-gateway`, `status=unavailable`.
+- [x] Tambahkan red alert untuk pesan `API Gateway belum aktif. Jalankan microservice backend terlebih dahulu.`
+- [x] Ubah Dashboard ke zero/empty state ketika Gateway gagal.
+- [x] Ubah Dataset, Scraping, dan Preprocessing ke zero/empty state ketika Gateway gagal.
+- [x] Ubah Sentiment, Aspect, Evaluation, dan Report ke zero/empty state ketika Gateway gagal.
+- [x] Bersihkan halaman AHP/Fuzzy AHP dari output mock aktif.
+- [x] Pertahankan sample-development warning hanya ketika data sample AHP/Fuzzy AHP tersedia.
+- [x] Jalankan `npm run lint`.
+- [x] Jalankan `npm run build`.
+
+### Acceptance Criteria
+
+- [x] Tidak ada halaman gateway-backed yang memakai mock data sebagai fallback produksi/demo.
+- [x] Jika API Gateway mati, angka menjadi `0`, tabel/chart kosong, dan alert merah muncul.
+- [x] Jika API Gateway aktif, halaman menggunakan data dari response envelope Gateway.
+- [x] Frontend tetap tidak memanggil internal service port secara langsung.
+- [x] Frontend tetap tidak menghitung AHP/Fuzzy AHP.
+
+### Completion Note
+
+Completed on 2026-06-05 and revalidated on 2026-06-17. MS-10B changes gateway-backed pages from mock fallback to explicit zero/empty fallback with a red API Gateway unavailable alert. Dashboard and AHP/Fuzzy AHP now carry normalized Gateway errors into the UI; AHP/Fuzzy AHP remains read-only, hides sample warning when Gateway is unavailable, and uses `0`, `-`, empty tables, and empty charts instead of mock output. Legacy mock data remains only as design/reference data, not as fallback for dashboard/demo output.
+
+---
+
+## MS-10C - Data Source Policy and Service Ownership Documentation
+
+### Objective
+
+Mendokumentasikan batas data source SentiRank pada arsitektur microservice tahap skripsi: artifact CSV/JSON/model tetap sah sebagai output penelitian read-only, sedangkan database digunakan untuk data runtime user inference history.
+
+### Task Checklist
+
+- [x] Audit dokumentasi arsitektur lama yang masih menyiratkan Next.js API + SQLite/Prisma legacy sebagai desain utama. Setup Prisma legacy kemudian dihapus pada MS-13E.
+- [x] Audit service yang membaca artifact CSV/JSON.
+- [x] Audit apakah frontend hanya memanggil API Gateway.
+- [x] Dokumentasikan research artifact path dan runtime database path.
+- [x] Dokumentasikan service ownership untuk review, sentiment, aspect, decision, report, api-gateway, dan database service.
+- [x] Dokumentasikan acceptable file-based runtime reads.
+- [x] Dokumentasikan future work database dan domain ownership.
+- [x] Update dokumentasi frontend yang relevan.
+- [x] Tidak mengubah schema database, Docker Compose, backend logic, frontend UI, dataset, model, preprocessing, atau AHP/Fuzzy AHP calculation.
+
+### Acceptance Criteria
+
+- [x] Policy menyatakan CSV/JSON/model artifact boleh dipakai sebagai reproducible research outputs.
+- [x] Policy menyatakan artifact runtime service bersifat read-only dan bukan live user runtime data.
+- [x] Policy menyatakan database digunakan untuk user-submitted inference history dan metadata prediksi.
+- [x] Policy menyatakan frontend hanya boleh membaca data dari API Gateway melalui `NEXT_PUBLIC_API_BASE_URL`.
+- [x] Policy menyatakan frontend tidak boleh membaca CSV/JSON langsung, memanggil internal service port, atau menghitung AHP/Fuzzy AHP.
+- [x] Ownership setiap service terdokumentasi.
+- [x] Risiko shared `datasets/` artifact folder tercatat sebagai batasan thesis-stage.
+- [x] Tidak ada build/test runtime yang diperlukan karena perubahan hanya dokumentasi.
+
+### Completion Note
+
+Completed on 2026-06-17. MS-10C clarifies the data source policy in `docs/microservices/architecture.md`, updates project-level architecture notes in `README.md` and `CLAUDE.md`, and records frontend-facing data access constraints in `frontend/DESIGN.md` plus this tracker. Current audit found that `review-service`, `sentiment-service`, `aspect-service`, and `report-service` read CSV/JSON research artifacts behind service boundaries; `decision-service` owns calculation behavior without reading research CSV/JSON; `api-gateway-service` proxies service responses; and frontend service modules call only Gateway routes.
+
+---
+
+## MS-10D - Frontend Table Alignment by Pipeline Stage
+
+### Objective
+
+Menyelaraskan header, mapping kolom, dan empty state tabel frontend agar setiap halaman gateway-backed merepresentasikan tahap pipeline penelitian yang tepat.
+
+### Task Checklist
+
+- [x] Audit tabel Dashboard, Dataset, Scraping, Prapemrosesan, Analisis Sentimen, Klasifikasi Aspek, Evaluasi Model, dan route rekomendasi yang tersedia.
+- [x] Ubah empty state `SimpleTable` agar pesan kosong tampil di dalam struktur tabel.
+- [x] Selaraskan tabel Dashboard untuk hasil review terproses dan rekomendasi prioritas.
+- [x] Selaraskan tabel Dataset untuk record review mentah.
+- [x] Selaraskan tabel Scraping untuk preview hasil pengumpulan data.
+- [x] Selaraskan tabel Prapemrosesan untuk before/after cleaning dan status kualitas.
+- [x] Selaraskan tabel Analisis Sentimen untuk sampel prediksi/evaluasi sentimen.
+- [x] Selaraskan tabel Klasifikasi Aspek untuk sampel hasil klasifikasi aspek.
+- [x] Selaraskan tabel Evaluasi Model untuk metrik performa model.
+- [x] Pertahankan fallback MS-10B: Gateway unavailable menampilkan red alert, nilai zero/empty, dan tabel kosong.
+- [x] Tidak mengubah backend, API Gateway, Docker Compose, schema database, dataset, training script, preprocessing script, atau kalkulasi AHP/Fuzzy AHP.
+- [x] Jalankan `npm run lint`.
+- [x] Jalankan `npm run build`.
+
+### Acceptance Criteria
+
+- [x] Tabel gateway-backed memakai kolom sesuai tahap pipeline, bukan tabel review generik.
+- [x] Tabel kosong saat API Gateway unavailable dan tidak menampilkan mock/stale rows.
+- [x] Field yang tidak tersedia ditampilkan sebagai `-` atau pesan empty state, bukan `undefined`, `null`, atau `NaN`.
+- [x] Tabel lebar tetap mendukung horizontal scroll.
+- [x] Review text panjang memakai truncation/wrapping agar layout tidak rusak.
+- [x] Frontend tetap hanya memanggil API Gateway melalui service layer.
+- [x] Halaman AHP/Fuzzy AHP tidak dimodifikasi.
+- [x] `npm run lint` berhasil.
+- [x] `npm run build` berhasil.
+
+### Completion Note
+
+Completed on 2026-06-17. MS-10D aligns frontend table columns by research pipeline stage, converts `SimpleTable` empty state into an in-table message row, keeps gateway-backed pages on API Gateway data only, and preserves MS-10B zero/empty fallback behavior when Gateway is unavailable.
+
+---
+
+## MS-11 — Dashboard Finalisasi Penelitian
+
+### Objective
+
+Menjadikan Dashboard sebagai ringkasan final penelitian SentiRank yang membaca data terstruktur dari service backend, tanpa copy demo/developer-facing, dan tanpa kalkulasi ulang AHP/Fuzzy AHP di frontend.
+
+### Task Checklist
+
+- [x] Tambahkan endpoint read-only `GET /reports/ranking-comparison` dengan source priority CSV final lalu CSV current.
+- [x] Tambahkan proxy route `GET /reports/ranking-comparison` di API Gateway.
+- [x] Tambahkan distribusi aspek negatif final pada aspect summary.
+- [x] Tambahkan endpoint latest negative reviews dengan `aspect_label`.
+- [x] Tambahkan adapter dashboard `getDashboardSummary()`, `getSentimentStageComparison()`, `getTopAspects()`, `getEvaluationSummary()`, dan `getRankingComparison()`.
+- [x] Ubah Dashboard menjadi layout final: dataset cards, model metrics, sentiment stage bar chart, top 5 aspek negatif, comparison chart, ranking table, dan ulasan negatif terbaru.
+- [x] Hapus section Ringkasan Rekomendasi dari Dashboard.
+- [x] Hapus menu Laporan dan redirect `/reports` ke `/dashboard`.
+- [x] Bersihkan visible copy developer-facing dari Dashboard, sidebar, reports route, dan halaman reachable utama.
+- [x] Jalankan lint, typecheck, build, dan targeted backend tests.
+
+### Acceptance Criteria
+
+- [x] Dashboard tidak lagi menampilkan card positif/netral/negatif di top row.
+- [x] Ringkasan Dataset berisi maksimal 6 card sesuai pipeline penelitian.
+- [x] Ringkasan Performa Model berada di row kedua dan tidak menampilkan nama run.
+- [x] Distribusi sentimen tampil sebagai bar chart per tahap.
+- [x] Top aspek hanya menampilkan 5 aspek negatif final.
+- [x] AHP/Fuzzy AHP full width dan membaca ranking comparison dari CSV backend.
+- [x] Ranking Prioritas full width dan berbentuk tabel.
+- [x] Ringkasan Rekomendasi Dashboard sudah hilang.
+- [x] Menu Laporan sudah hilang. Pada penyelesaian MS-11, `/reports` masih redirect ke Dashboard; route tersebut kemudian dihapus pada MS-13C.
+- [x] Visible UI Dashboard/sidebar/reports tidak menampilkan Preview, Demo, Sample, mock-first, fallback, gateway, atau API Gateway.
+- [x] Validasi lint/typecheck/build/backend tests selesai.
+
+### Completion Note
+
+Completed on 2026-06-05. Dashboard finalisasi penelitian selesai dengan backend CSV ranking endpoint, dashboard adapter, layout final data-backed, UI copy cleanup, dan validasi lint/typecheck/build serta targeted backend tests per service. Redirect Reports yang masih ada saat itu kemudian dihapus pada MS-13C.
+
+---
+
+## MS-12 - AHP/Fuzzy AHP Results Page Cleanup
+
+### Objective
+
+Mengubah halaman `/ahp-fuzzy-ahp` dari panel demo kalkulasi menjadi halaman hasil analisis prioritas yang read-only, user friendly, dan tetap data-backed melalui API Gateway.
+
+### Task Checklist
+
+- [x] Hapus pemakaian panel demo kalkulasi dari halaman utama AHP/Fuzzy AHP.
+- [x] Tambahkan adapter frontend read-only untuk kriteria, status sample, dan ranking comparison.
+- [x] Tampilkan alert sample sebelum judul halaman.
+- [x] Tampilkan ringkasan prioritas, criteria overview, hasil AHP, hasil Fuzzy AHP, comparison, ranking prioritas, dan rekomendasi singkat.
+- [x] Gunakan empty/error state user friendly ketika layanan analisis belum tersedia.
+- [x] Pastikan halaman tidak menampilkan stack trace, path file, endpoint teknis, atau metadata developer-facing.
+- [x] Pastikan tidak ada tombol `Jalankan Perhitungan`, `Run Sample Calculation`, `Hitung AHP`, atau tombol kalkulasi sejenis.
+- [x] Pastikan frontend tetap tidak menghitung AHP/Fuzzy AHP.
+- [x] Catat keputusan desain/integrasi di dokumentasi frontend.
+- [x] Jalankan lint, typecheck, dan build.
+
+### Acceptance Criteria
+
+- [x] `/ahp-fuzzy-ahp` menjadi halaman hasil, bukan kalkulator interaktif.
+- [x] Data AHP/Fuzzy AHP dibaca melalui service layer frontend yang memanggil API Gateway.
+- [x] Jika data berstatus sample, alert sample tampil jelas dan tidak memakai label final.
+- [x] Jika layanan belum tersedia, halaman menampilkan pesan kosong yang mudah dipahami.
+- [x] Tabel tetap responsif dengan horizontal scroll untuk kolom lebar.
+- [x] UI copy menggunakan Bahasa Indonesia natural untuk pengguna non-teknis.
+- [x] Tidak ada perubahan engine AHP, engine Fuzzy AHP, dataset, model, docker-compose, database schema, atau preprocessing.
+
+### Completion Note
+
+Completed on 2026-06-17. Halaman AHP/Fuzzy AHP sekarang memakai adapter `getAhpFuzzyAhpOverview()` untuk membaca `GET /ahp/criteria`, `GET /evaluation/summary`, dan `GET /reports/ranking-comparison` melalui service layer. Halaman tidak lagi menampilkan panel demo kalkulasi, tidak menjalankan POST kalkulasi dari frontend, dan menampilkan status sample serta empty state secara eksplisit.
+
+---
+
+## MS-13C - Frontend Reports Route Cleanup
+
+### Objective
+
+Menghapus sisa route frontend Reports yang tidak lagi menjadi bagian scope demo skripsi, sambil mempertahankan Dashboard sebagai permukaan ringkasan utama dan menjaga semua akses data tetap melalui API Gateway.
+
+### Task Checklist
+
+- [x] Hapus route frontend `/reports` yang sebelumnya hanya redirect ke Dashboard.
+- [x] Hapus konstanta route Reports yang tidak lagi dipakai navigasi.
+- [x] Hapus adapter `getReportSummary()` yang tidak dipakai halaman aktif.
+- [x] Pertahankan `frontend/services/report-service.ts` untuk `getRankingComparison()` karena Dashboard dan AHP/Fuzzy AHP masih membaca `/reports/ranking-comparison` melalui API Gateway.
+- [x] Pastikan backend `report-service`, API Gateway report routes, Docker Compose, dataset, model, setup Prisma legacy, dan AHP/Fuzzy AHP tidak diubah. Setup Prisma legacy kemudian dihapus pada MS-13E.
+
+### Acceptance Criteria
+
+- [x] Sidebar tidak memiliki item Reports/Laporan.
+- [x] Route page-level `/reports` sudah tidak ada di frontend.
+- [x] Tidak ada tombol `Cetak Laporan` atau `Print Report` pada UI yang diaudit.
+- [x] Dashboard tetap memakai service layer API Gateway dan tidak memanggil service internal secara langsung.
+- [x] Backend report-service tidak dihapus pada milestone ini.
+
+### Completion Note
+
+Completed on 2026-06-19. Frontend Reports page dihapus karena hanya redirect ke Dashboard dan tidak reachable dari navigasi. Dashboard tetap menjadi permukaan summary/reporting untuk demo skripsi, fitur print report di luar scope saat ini, dan backend report-service/API Gateway report route tetap disisakan untuk audit dependensi terpisah.
+
+---
+
+## MS-13G - Final Documentation Sync
+
+### Objective
+
+Menyelaraskan dokumentasi frontend aktif dengan arsitektur microservice, gateway-only data access, penghapusan Reports page, dan status read-only AHP/Fuzzy AHP tanpa mengubah source frontend.
+
+### Task Checklist
+
+- [x] Perbarui `frontend/README.md` dari status FE-06 menjadi panduan frontend aktif.
+- [x] Pastikan `frontend/DESIGN.md` menyatakan AHP/Fuzzy AHP read-only dan Dashboard sebagai reporting surface.
+- [x] Pastikan mock data historis tidak dijelaskan sebagai fallback demo aktif.
+- [x] Catat bahwa Vercel hanya menjalankan frontend dan backend tetap terpisah.
+- [x] Catat bahwa `report-service` tetap aktif di belakang API Gateway.
+- [x] Tidak mengubah page, component, service adapter, route, atau source frontend.
+
+### Acceptance Criteria
+
+- [x] Dokumentasi aktif tidak menyatakan `/reports` atau print report sebagai fitur frontend saat ini.
+- [x] Dokumentasi aktif tidak menyatakan frontend menghitung AHP/Fuzzy AHP.
+- [x] Dokumentasi aktif menyatakan frontend hanya memanggil API Gateway.
+- [x] Tidak ada source frontend, Docker Compose, env, dataset, atau model yang berubah.
+
+### Completion Note
+
+Completed on 2026-06-19. Dokumentasi frontend aktif sekarang mencerminkan Dashboard sebagai summary/reporting surface, AHP/Fuzzy AHP sebagai hasil read-only dengan status sample/development, dan API Gateway sebagai satu-satunya backend boundary. Dokumen planning lama di luar scope edit MS-13G masih memerlukan keputusan terpisah untuk anotasi historis atau archival.
+
+---
+
+## MS-12B - Frontend Runtime Review Inference
+
+### Objective
+
+Add a dedicated runtime review inference page that submits one Spotify review through API Gateway and presents the latest anonymous runtime inference history without mixing it with research dataset output.
+
+### Task Checklist
+
+- [x] Add the `/inference` route and `Uji Ulasan` navigation item.
+- [x] Add typed frontend contracts for runtime inference results and history.
+- [x] Add API Gateway service calls for `POST /inference/review` and `GET /inference/history?limit=20`.
+- [x] Add required, trimmed, maximum-length form validation without changing user text beyond trim.
+- [x] Display sentiment, aspect, confidence, model name, prediction source, fallback state, persistence state, and available warnings.
+- [x] Add a full-width latest history table and reload it after successful inference.
+- [x] Preserve the MS-10B red Gateway alert and empty table behavior without mock history.
+- [x] Keep frontend integration limited to API Gateway; do not call internal model service ports.
+- [x] Keep backend, Docker Compose, persistence, model, dataset, AHP/Fuzzy AHP, and report-service files unchanged.
+- [x] Run `npm run lint` and `npm run build`.
+
+### Acceptance Criteria
+
+- [x] `/inference` is separate from research summary pages and uses the existing AppShell layout.
+- [x] Empty input shows `Teks ulasan wajib diisi.` and is not submitted.
+- [x] Successful responses display backend sentiment/aspect output with safe confidence and fallback formatting.
+- [x] History displays the latest API response order, uses horizontal overflow, and reloads after POST.
+- [x] Gateway failure displays the canonical red alert, zero history, an in-table unavailable message, and no mock result.
+- [x] Runtime history is documented as user inference history rather than research dataset content.
+- [x] No auth, `userId`, `sessionId`, batch inference, upload, or frontend model calculation was added.
+- [x] `npm run lint` and `npm run build` succeed.
+
+### Completion Note
+
+Completed on 2026-06-20. MS-12B adds a gateway-only `/inference` workflow with typed single-review submission, explicit model/fallback provenance, persisted history display, and honest offline behavior. Live HTTP QA verified active POST/history data and Gateway-off empty-state behavior; browser automation was unavailable and no new test dependency was installed.
+
+---
+
+## MS-15F — Frontend Data Mapping Fix
+
+### Objective
+
+Memperbaiki mapping data frontend agar konsumen response API Gateway sesuai kontrak penelitian: `text_indobert` / `text_svm` bukan `cleaned_content` / `cleaned_text`; response `POST /inference/review` mengembalikan `sentiment_prediction`, `aspect_prediction`, `confidence`, `model_name`, `is_fallback`, `persisted`, `warnings`.
+
+### Task Checklist
+
+- [x] Audit `frontend/lib/gateway-display.ts` dan `frontend/components/forms/RuntimeInferencePanel.tsx`.
+- [x] Ganti semua pemakaian `cleaned_content` / `cleaned_text` di tabel Sentiment Analysis menjadi `text_indobert` / `text_svm`.
+- [x] Ganti `row.sentiment_confidence` menjadi `row.confidence` sesuai kontrak response Gateway.
+- [x] Ganti `row.predicted_sentiment` menjadi `row.sentiment_prediction`.
+- [x] Ganti `row.initial_sentiment` menjadi `row.aspect_prediction` untuk kolom aspect.
+- [x] Pastikan `RuntimeInferencePanel` menampilkan `model_name`, `is_fallback`, `persisted`, dan `warnings`.
+- [x] Pastikan empty state tetap konsisten dengan MS-10B.
+- [x] Jalankan `npm run lint`.
+- [x] Jalankan `npm run build`.
+
+### Acceptance Criteria
+
+- [x] Tabel Sentiment Analysis menampilkan `text_indobert` / `text_svm`, bukan `cleaned_content`.
+- [x] Response inference panel menampilkan field sesuai kontrak API Gateway.
+- [x] Tidak ada reference ke `cleaned_content` / `cleaned_text` di tabel Sentiment Analysis.
+- [x] `npm run lint` berhasil.
+- [x] `npm run build` berhasil.
+
+### Completion Note
+
+Completed on 2026-06-24. MS-15F memetakan ulang field response Gateway ke UI: `text_indobert` / `text_svm` untuk teks review, `confidence` untuk akurasi, `sentiment_prediction` / `aspect_prediction` untuk label, dan `model_name` / `is_fallback` / `persisted` / `warnings` untuk metadata inference.
+
+---
+
+## MS-15G — Frontend Merge Uji Ulasan and Scraping Menus
+
+### Objective
+
+Menggabungkan halaman `/inference` (Uji Ulasan) dan `/scraping` ke dalam halaman existing yang relevan, menghapus route terpisah yang tidak lagi menjadi bagian scope demo skripsi, dan memastikan semua data tetap melalui API Gateway.
+
+### Task Checklist
+
+- [x] Pindahkan runtime inference panel dari `/inference` ke bagian bawah `/sentiment-analysis` sebagai section "Uji Ulasan".
+- [x] Hapus route `/inference` dan direktori `frontend/app/inference/`.
+- [x] Hapus route `/scraping` dan direktori `frontend/app/scraping/`.
+- [x] Hapus sidebar entries "Uji Ulasan" dan "Scraping".
+- [x] Pastikan `RuntimeInferencePanel` tetap berfungsi dalam `sentiment-analysis/page.tsx`.
+- [x] Pastikan `DatasetScrapingPanel` tetap berfungsi dalam `dataset/page.tsx`.
+- [x] Bersihkan `.next` cache.
+- [x] Update `docs/frontend/frontend-tasks.md`.
+- [x] Update `docs/frontend/information-architecture.md`.
+- [x] Update `frontend/DESIGN.md`.
+- [x] Jalankan `npm run lint`.
+- [x] Jalankan `npm run build`.
+
+### Acceptance Criteria
+
+- [x] Sidebar tidak memiliki item "Uji Ulasan" atau "Scraping".
+- [x] Route `/inference` dan `/scraping` sudah tidak ada di frontend.
+- [x] `sentiment-analysis/page.tsx` menampilkan section "Uji Ulasan" di bagian bawah.
+- [x] `dataset/page.tsx` menampilkan section scraping di bagian bawah.
+- [x] `npm run lint` berhasil tanpa warning.
+- [x] `npm run build` berhasil, route list tidak menyertakan `/inference` atau `/scraping`.
+- [x] Dokumentasi aktif tidak menyatakan `/inference` atau `/scraping` sebagai route terpisah.
+
+### Completion Note
+
+Completed on 2026-06-24. MS-15G mengonsolidasikan Uji Ulasan ke dalam halaman Sentiment Analysis dan scraping ke dalam halaman Dataset, menghapus kedua route terpisah. Sidebar dan dokumentasi disinkronkan. Build berhasil dengan 9 route: `/`, `/dataset`, `/preprocessing`, `/sentiment-analysis`, `/aspect-classification`, `/ahp-fuzzy-ahp`, `/model-evaluation`, `/settings`, `/_not-found`.
+
+---
+
+## MS-15H — Report-style UI Cleanup
+
+### Objective
+
+Membersihkan semua halaman frontend dari field teknis yang hanya relevan untuk developer, agar UI terbaca seperti laporan data yang siap untuk demo skripsi.
+
+### Task Checklist
+
+- [x] Audit semua halaman utama terhadap field teknis: `data_status`, `model_status`, `selected_model`, `selected_classifier`, `selected_indobert_model`, `selected_svm_model`, `*_exists`, raw artifact paths.
+- [x] Ganti `selected_model` (Sentiment Analysis) dengan label user-friendly "IndoBERT".
+- [x] Ganti `selected_classifier` (Aspect Classification) dengan label user-friendly "SVM".
+- [x] Ganti `selected_indobert_model` / `selected_svm_model` (Model Evaluation) dengan label "IndoBERT" / "SVM".
+- [x] Hapus `data_status` dari deskripsi StatCard di Dataset dan Preprocessing.
+- [x] Ganti `aspect_data_status` raw value dengan "Tersedia" / "Belum tersedia".
+- [x] Ganti `model_name` di RuntimeInferencePanel dengan label user-friendly (IndoBERT / Rule-based fallback, SVM / Rule-based fallback).
+- [x] Hapus duplikasi chart "Distribusi Rating" di halaman Dataset.
+- [x] Ganti header tabel preprocessing dari Bahasa Inggris ke Bahasa Indonesia (Noise Flag, Drop Reason, Preprocessing Status, Text Length Before/After).
+- [x] Ganti raw key-value display di preprocessing (relabeling, text_cleaning_summary) dengan label Bahasa Indonesia.
+- [x] Update `docs/frontend/frontend-tasks.md`.
+- [x] Jalankan `npm run lint`.
+- [x] Jalankan `npm run build`.
+
+### Acceptance Criteria
+
+- [x] Dashboard tidak menampilkan path, file name, atau diagnostik internal.
+- [x] Dataset tidak menampilkan `*_exists` atau artifact path mentah.
+- [x] Preprocessing terbaca seperti laporan prapemrosesan (header dan value dalam Bahasa Indonesia).
+- [x] Sentiment Analysis menampilkan laporan + section uji ulasan dengan label model yang mudah dipahami.
+- [x] Aspect Classification menampilkan "SVM" bukan "merged_5class".
+- [x] Model Evaluation menampilkan "IndoBERT" / "SVM" bukan internal model identifier.
+- [x] AHP/Fuzzy AHP tetap read-only dan sample-labeled.
+- [x] API Gateway OFF tetap menampilkan alert merah + empty state.
+- [x] `npm run lint` berhasil tanpa warning.
+- [x] `npm run build` berhasil.
+
+### Completion Note
+
+Completed on 2026-06-24. MS-15H membersihkan semua halaman utama dari field teknis. Perubahan utama: (1) Semua nama model diganti dengan label user-friendly; (2) `data_status` / `model_status` / `*_exists` disembunyikan dari UI utama; (3) Tabel preprocessing diterjemahkan ke Bahasa Indonesia dengan mapping key yang meaningful; (4) RuntimeInferencePanel menampilkan label model yang mudah dipahami; (5) Duplikasi chart dihapus. Build berhasil dengan 9 route tanpa warning.
+
+---
+
+## Year Review Chart — Component Created
+
+Komponen `YearReviewChart` (BarChart tahunan) sudah dibuat di `frontend/components/charts/YearReviewChart.tsx`.
+
+Data diekstrak langsung dari CSV `dataset_spotify_processed.csv` (field `reviewed_at`) saat `_canonical_dataset_stats()` dipanggil — **tidak perlu endpoint backend terpisah**.
+
+### Backend Changes (`research_data_service.py`)
+
+- `_canonical_dataset_stats()` — tambah dictionary `yearly_counts`, ekstrak tahun dari `reviewed_at[:4]`, increment per baris.
+- `dataset_summary()` — tambah `"yearly_counts"` ke return dict.
+
+### Status ✅
+
+- Backend mengembalikan `yearly_counts` di `/dataset/summary` (13 tahun: 2014–2026).
+- Frontend `YearReviewChart` menerima data via `yearlyCountData()` transformer.
+- Build PASS, halaman Dataset menampilkan BarChart tahunan dengan data real.
+

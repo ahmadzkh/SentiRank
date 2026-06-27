@@ -6,7 +6,7 @@ export interface SimpleTableColumn<TData> {
   header: string;
   align?: "left" | "center" | "right";
   className?: string;
-  render: (row: TData) => ReactNode;
+  render: (row: TData, index: number) => ReactNode;
 }
 
 interface SimpleTableProps<TData> {
@@ -30,17 +30,9 @@ export function SimpleTable<TData>({
   columns,
   data,
   rowKey,
-  emptyMessage = "Data belum tersedia.",
+  emptyMessage = "Data belum tersedia karena API Gateway belum aktif.",
   minWidthClassName = "min-w-[720px]",
 }: SimpleTableProps<TData>) {
-  if (data.length === 0) {
-    return (
-      <div className="rounded-md border border-dashed border-border bg-background px-4 py-8 text-center text-sm text-muted-foreground">
-        {emptyMessage}
-      </div>
-    );
-  }
-
   return (
     <div className="overflow-hidden rounded-lg border border-border">
       <div className="overflow-x-auto">
@@ -68,22 +60,33 @@ export function SimpleTable<TData>({
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
-            {data.map((row, index) => (
-              <tr className="align-top hover:bg-slate-50" key={rowKey(row, index)}>
-                {columns.map((column) => (
-                  <td
-                    className={cn(
-                      "px-4 py-4",
-                      alignClassName[column.align ?? "left"],
-                      column.className,
-                    )}
-                    key={column.key}
-                  >
-                    {column.render(row)}
-                  </td>
-                ))}
+            {data.length === 0 ? (
+              <tr>
+                <td
+                  className="bg-background px-4 py-8 text-center text-sm text-muted-foreground"
+                  colSpan={columns.length}
+                >
+                  {emptyMessage}
+                </td>
               </tr>
-            ))}
+            ) : (
+              data.map((row, index) => (
+                <tr className="align-top hover:bg-slate-50" key={rowKey(row, index)}>
+                  {columns.map((column) => (
+                    <td
+                      className={cn(
+                        "px-4 py-4",
+                        alignClassName[column.align ?? "left"],
+                        column.className,
+                      )}
+                      key={column.key}
+                    >
+                      {column.render(row, index)}
+                    </td>
+                  ))}
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>

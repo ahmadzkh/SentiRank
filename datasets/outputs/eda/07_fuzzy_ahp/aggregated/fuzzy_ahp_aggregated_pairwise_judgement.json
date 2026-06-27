@@ -1,123 +1,227 @@
 {
-  "run_label": "sample_development_only",
-  "is_sample": true,
-  "not_final_expert_judgement": true,
-  "total_respondents": 1,
-  "aggregation_method": "component_wise_geometric_mean",
-  "criteria_count": 5,
-  "pairwise_comparison_count": 10,
-  "aggregated_comparisons": [
+  "generated_at": "2026-06-26T09:56:32.766394+00:00",
+  "aggregation_method": "geometric_mean",
+  "tfn_conversion": "saaty_scale_mapping",
+  "tfn_scale": {
+    "1.0": [
+      1.0,
+      1.0,
+      1.0
+    ],
+    "2.0": [
+      1.0,
+      2.0,
+      3.0
+    ],
+    "3.0": [
+      2.0,
+      3.0,
+      4.0
+    ],
+    "4.0": [
+      3.0,
+      4.0,
+      5.0
+    ],
+    "5.0": [
+      4.0,
+      5.0,
+      6.0
+    ],
+    "6.0": [
+      5.0,
+      6.0,
+      7.0
+    ],
+    "7.0": [
+      6.0,
+      7.0,
+      8.0
+    ],
+    "8.0": [
+      7.0,
+      8.0,
+      9.0
+    ],
+    "9.0": [
+      8.0,
+      9.0,
+      9.0
+    ]
+  },
+  "valid_respondent_count": 8,
+  "respondent_ids_used": [
+    "EJ002",
+    "EJ003",
+    "EJ004",
+    "EJ005",
+    "EJ006",
+    "EJ007",
+    "EJ008",
+    "EJ009"
+  ],
+  "source_type_summary": {
+    "actual": 0,
+    "synthetic": 8,
+    "unknown": 0
+  },
+  "criteria": [
     {
-      "comparison_id": "P01",
-      "criterion_a": "Features, Content & Audio Experience",
-      "criterion_b": "App Reliability & Usability",
-      "fuzzy_l": 0.25,
-      "fuzzy_m": 0.3333333333333333,
-      "fuzzy_u": 0.5,
-      "fuzzy_value_a_over_b": "(0.25, 0.3333333333333333, 0.5)",
-      "respondent_count": 1,
-      "aggregation_method": "component_wise_geometric_mean"
+      "id": "C1",
+      "name": "Features, Content & Audio Experience"
     },
     {
-      "comparison_id": "P02",
-      "criterion_a": "Features, Content & Audio Experience",
-      "criterion_b": "Ads Experience",
-      "fuzzy_l": 2.0,
-      "fuzzy_m": 3.0000000000000004,
-      "fuzzy_u": 4.0,
-      "fuzzy_value_a_over_b": "(2.0, 3.0000000000000004, 4.0)",
-      "respondent_count": 1,
-      "aggregation_method": "component_wise_geometric_mean"
+      "id": "C2",
+      "name": "Ads Experience"
     },
     {
-      "comparison_id": "P03",
-      "criterion_a": "Features, Content & Audio Experience",
-      "criterion_b": "Subscription & Pricing",
-      "fuzzy_l": 1.0,
-      "fuzzy_m": 1.0,
-      "fuzzy_u": 1.0,
-      "fuzzy_value_a_over_b": "(1.0, 1.0, 1.0)",
-      "respondent_count": 1,
-      "aggregation_method": "component_wise_geometric_mean"
+      "id": "C3",
+      "name": "Subscription & Pricing"
     },
     {
-      "comparison_id": "P04",
-      "criterion_a": "Features, Content & Audio Experience",
-      "criterion_b": "Account/Login",
-      "fuzzy_l": 2.0,
-      "fuzzy_m": 3.0000000000000004,
-      "fuzzy_u": 4.0,
-      "fuzzy_value_a_over_b": "(2.0, 3.0000000000000004, 4.0)",
-      "respondent_count": 1,
-      "aggregation_method": "component_wise_geometric_mean"
+      "id": "C4",
+      "name": "Account/Login"
     },
     {
-      "comparison_id": "P05",
-      "criterion_a": "App Reliability & Usability",
-      "criterion_b": "Ads Experience",
-      "fuzzy_l": 7.999999999999998,
-      "fuzzy_m": 9.000000000000002,
-      "fuzzy_u": 9.000000000000002,
-      "fuzzy_value_a_over_b": "(7.999999999999998, 9.000000000000002, 9.000000000000002)",
-      "respondent_count": 1,
-      "aggregation_method": "component_wise_geometric_mean"
-    },
-    {
-      "comparison_id": "P06",
-      "criterion_a": "App Reliability & Usability",
-      "criterion_b": "Subscription & Pricing",
-      "fuzzy_l": 2.0,
-      "fuzzy_m": 3.0000000000000004,
-      "fuzzy_u": 4.0,
-      "fuzzy_value_a_over_b": "(2.0, 3.0000000000000004, 4.0)",
-      "respondent_count": 1,
-      "aggregation_method": "component_wise_geometric_mean"
-    },
-    {
-      "comparison_id": "P07",
-      "criterion_a": "App Reliability & Usability",
-      "criterion_b": "Account/Login",
-      "fuzzy_l": 7.999999999999998,
-      "fuzzy_m": 9.000000000000002,
-      "fuzzy_u": 9.000000000000002,
-      "fuzzy_value_a_over_b": "(7.999999999999998, 9.000000000000002, 9.000000000000002)",
-      "respondent_count": 1,
-      "aggregation_method": "component_wise_geometric_mean"
-    },
-    {
-      "comparison_id": "P08",
-      "criterion_a": "Ads Experience",
-      "criterion_b": "Subscription & Pricing",
-      "fuzzy_l": 0.25,
-      "fuzzy_m": 0.3333333333333333,
-      "fuzzy_u": 0.5,
-      "fuzzy_value_a_over_b": "(0.25, 0.3333333333333333, 0.5)",
-      "respondent_count": 1,
-      "aggregation_method": "component_wise_geometric_mean"
-    },
-    {
-      "comparison_id": "P09",
-      "criterion_a": "Ads Experience",
-      "criterion_b": "Account/Login",
-      "fuzzy_l": 1.0,
-      "fuzzy_m": 1.0,
-      "fuzzy_u": 1.0,
-      "fuzzy_value_a_over_b": "(1.0, 1.0, 1.0)",
-      "respondent_count": 1,
-      "aggregation_method": "component_wise_geometric_mean"
-    },
-    {
-      "comparison_id": "P10",
-      "criterion_a": "Subscription & Pricing",
-      "criterion_b": "Account/Login",
-      "fuzzy_l": 2.0,
-      "fuzzy_m": 3.0000000000000004,
-      "fuzzy_u": 4.0,
-      "fuzzy_value_a_over_b": "(2.0, 3.0000000000000004, 4.0)",
-      "respondent_count": 1,
-      "aggregation_method": "component_wise_geometric_mean"
+      "id": "C5",
+      "name": "App Reliability & Usability"
     }
   ],
-  "methodology_note": "Aggregated fuzzy pairwise judgement only. This script does not calculate Fuzzy AHP weights or final rankings.",
-  "generated_at": "2026-06-03T08:04:10.429087+00:00"
+  "aggregated_fuzzy_pairwise_matrix": [
+    [
+      {
+        "l": 1.0,
+        "m": 1.0,
+        "u": 1.0
+      },
+      {
+        "l": 1.0,
+        "m": 1.0,
+        "u": 1.0
+      },
+      {
+        "l": 1.0,
+        "m": 1.0,
+        "u": 1.0
+      },
+      {
+        "l": 1.0,
+        "m": 2.0,
+        "u": 3.0
+      },
+      {
+        "l": 1.0,
+        "m": 1.0,
+        "u": 1.0
+      }
+    ],
+    [
+      {
+        "l": 1.0,
+        "m": 1.0,
+        "u": 1.0
+      },
+      {
+        "l": 1.0,
+        "m": 1.0,
+        "u": 1.0
+      },
+      {
+        "l": 1.0,
+        "m": 1.0,
+        "u": 1.0
+      },
+      {
+        "l": 1.0,
+        "m": 1.0,
+        "u": 1.0
+      },
+      {
+        "l": 1.0,
+        "m": 1.0,
+        "u": 1.0
+      }
+    ],
+    [
+      {
+        "l": 1.0,
+        "m": 1.0,
+        "u": 1.0
+      },
+      {
+        "l": 1.0,
+        "m": 1.0,
+        "u": 1.0
+      },
+      {
+        "l": 1.0,
+        "m": 1.0,
+        "u": 1.0
+      },
+      {
+        "l": 1.0,
+        "m": 1.0,
+        "u": 1.0
+      },
+      {
+        "l": 0.333333,
+        "m": 0.5,
+        "u": 1.0
+      }
+    ],
+    [
+      {
+        "l": 0.333333,
+        "m": 0.5,
+        "u": 1.0
+      },
+      {
+        "l": 1.0,
+        "m": 1.0,
+        "u": 1.0
+      },
+      {
+        "l": 1.0,
+        "m": 1.0,
+        "u": 1.0
+      },
+      {
+        "l": 1.0,
+        "m": 1.0,
+        "u": 1.0
+      },
+      {
+        "l": 0.333333,
+        "m": 0.5,
+        "u": 1.0
+      }
+    ],
+    [
+      {
+        "l": 1.0,
+        "m": 1.0,
+        "u": 1.0
+      },
+      {
+        "l": 1.0,
+        "m": 1.0,
+        "u": 1.0
+      },
+      {
+        "l": 1.0,
+        "m": 2.0,
+        "u": 3.0
+      },
+      {
+        "l": 1.0,
+        "m": 2.0,
+        "u": 3.0
+      },
+      {
+        "l": 1.0,
+        "m": 1.0,
+        "u": 1.0
+      }
+    ]
+  ]
 }

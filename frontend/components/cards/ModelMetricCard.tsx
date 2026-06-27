@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 interface ModelMetricCardProps {
   label: string;
   value: string;
-  modelName: string;
+  modelName?: string;
   description?: string;
   className?: string;
 }
@@ -11,7 +11,6 @@ interface ModelMetricCardProps {
 export function ModelMetricCard({
   label,
   value,
-  modelName,
   description,
   className,
 }: ModelMetricCardProps) {
@@ -29,9 +28,6 @@ export function ModelMetricCard({
             {value}
           </p>
         </div>
-        <span className="rounded-md border border-slate-200 bg-slate-50 px-2.5 py-1 text-xs font-medium text-slate-700">
-          {modelName}
-        </span>
       </div>
       {description ? (
         <p className="mt-3 text-sm leading-5 text-muted-foreground">

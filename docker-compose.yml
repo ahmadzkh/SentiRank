@@ -1,0 +1,203 @@
+x-backend-healthcheck-defaults: &backend-healthcheck-defaults
+  interval: 30s
+  timeout: 5s
+  retries: 3
+  start_period: 10s
+
+services:
+  frontend-service:
+    build:
+      context: ./frontend
+    container_name: sentirank-frontend-service
+    profiles:
+      - frontend
+    ports:
+      - "${FRONTEND_PORT:-3000}:3000"
+    environment:
+      API_GATEWAY_INTERNAL_URL: http://api-gateway-service:8000
+      NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL:-http://localhost:8000}
+    depends_on:
+      - api-gateway-service
+    networks:
+      - sentirank-network
+
+  api-gateway-service:
+    build:
+      context: ./services/api-gateway
+    container_name: sentirank-api-gateway-service
+    ports:
+      - "${API_GATEWAY_PORT:-8000}:8000"
+    environment:
+      REVIEW_SERVICE_URL: ${REVIEW_SERVICE_URL:-http://review-service:8001}
+      SENTIMENT_SERVICE_URL: ${SENTIMENT_SERVICE_URL:-http://sentiment-service:8002}
+      ASPECT_SERVICE_URL: ${ASPECT_SERVICE_URL:-http://aspect-service:8003}
+      DECISION_SERVICE_URL: ${DECISION_SERVICE_URL:-http://decision-service:8004}
+      REPORT_SERVICE_URL: ${REPORT_SERVICE_URL:-http://report-service:8005}
+      API_GATEWAY_DATABASE_URL: ${API_GATEWAY_DATABASE_URL:-sqlite:////app/data/runtime_inference_history.db}
+      GATEWAY_TIMEOUT_SECONDS: 30
+    volumes:
+      - api_gateway_data:/app/data # Mount volume untuk menyimpan data SQLite
+    depends_on:
+      - review-service
+      - sentiment-service
+      - aspect-service
+      - decision-service
+      - report-service
+    networks:
+      - sentirank-network
+    healthcheck:
+      <<: *backend-healthcheck-defaults
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=2)"
+
+  review-service:
+    build:
+      context: ./services/review-service
+    container_name: sentirank-review-service
+    ports:
+      - "${REVIEW_SERVICE_PORT:-8001}:8001"
+    environment:
+      DATASETS_DIR: /app/datasets
+      DOCS_DIR: /app/docs
+    volumes:
+      - ./datasets:/app/datasets:ro
+      - ./docs:/app/docs:ro
+    networks:
+      - sentirank-network
+    healthcheck:
+      <<: *backend-healthcheck-defaults
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8001/health', timeout=2)"
+
+  sentiment-service:
+    build:
+      context: ./services/sentiment-service
+    container_name: sentirank-sentiment-service
+    ports:
+      - "${SENTIMENT_SERVICE_PORT:-8002}:8002"
+    environment:
+      DATASETS_DIR: /app/datasets
+      DOCS_DIR: /app/docs
+      SENTIMENT_MODEL_DIR: /app/models/indobert
+      SENTIMENT_MODEL_SOURCE: ${SENTIMENT_MODEL_SOURCE:-auto}
+      INDOBERT_MODEL_PATH: /app/models/indobert/run_3_weighted_loss_lr_1e-5
+      INDOBERT_MODEL_ID: ${INDOBERT_MODEL_ID:-ahmadzkh/sentirank-indobert-run3}
+      INDOBERT_MODEL_NAME: ${INDOBERT_MODEL_NAME:-run_3_weighted_loss_lr_1e-5}
+      INDOBERT_MAX_LENGTH: ${INDOBERT_MAX_LENGTH:-128}
+      HF_TOKEN: ${HF_TOKEN:-}
+    volumes:
+      - ./datasets:/app/datasets:ro
+      - ./docs:/app/docs:ro
+      - ./ml-service/saved_models/indobert:/app/models/indobert:ro
+    networks:
+      - sentirank-network
+    healthcheck:
+      <<: *backend-healthcheck-defaults
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8002/health', timeout=2)"
+
+  aspect-service:
+    build:
+      context: ./services/aspect-service
+    container_name: sentirank-aspect-service
+    ports:
+      - "${ASPECT_SERVICE_PORT:-8003}:8003"
+    environment:
+      DATASETS_DIR: /app/datasets
+      DOCS_DIR: /app/docs
+      ASPECT_MODEL_DIR: /app/models/svm
+      SVM_ASPECT_MODEL_PATH: /app/models/svm/svm_merged_5class_pipeline.joblib
+    volumes:
+      - ./datasets:/app/datasets:ro
+      - ./docs:/app/docs:ro
+      - ./ml-service/saved_models/svm:/app/models/svm:ro
+    networks:
+      - sentirank-network
+    healthcheck:
+      <<: *backend-healthcheck-defaults
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8003/health', timeout=2)"
+
+  decision-service:
+    build:
+      context: ./services/decision-service
+    container_name: sentirank-decision-service
+    ports:
+      - "${DECISION_SERVICE_PORT:-8004}:8004"
+    networks:
+      - sentirank-network
+    healthcheck:
+      <<: *backend-healthcheck-defaults
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8004/health', timeout=2)"
+
+  report-service:
+    build:
+      context: ./services/report-service
+    container_name: sentirank-report-service
+    ports:
+      - "${REPORT_SERVICE_PORT:-8005}:8005"
+    environment:
+      DATASETS_DIR: /app/datasets
+      DOCS_DIR: /app/docs
+    volumes:
+      - ./datasets:/app/datasets:ro
+      - ./docs:/app/docs:ro
+    networks:
+      - sentirank-network
+    healthcheck:
+      <<: *backend-healthcheck-defaults
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8005/health', timeout=2)"
+
+  database-service:
+    image: postgres:16-alpine
+    container_name: sentirank-database-service
+    profiles:
+      - postgres
+    ports:
+      - "${DATABASE_PORT:-5432}:5432"
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-sentirank}
+      POSTGRES_USER: ${POSTGRES_USER:-sentirank}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-sentirank}
+    volumes:
+      - sentirank-postgres-data:/var/lib/postgresql/data
+    networks:
+      - sentirank-network
+    healthcheck:
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+      test:
+        - CMD-SHELL
+        - "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"
+
+networks:
+  sentirank-network:
+    name: sentirank-network
+
+volumes:
+  sentirank-postgres-data:
+    name: sentirank-postgres-data
+  api_gateway_data: # Volume baru untuk API Gateway
+    name: sentirank-api-gateway-data # Nama eksplisit untuk kemudahan identifikasi

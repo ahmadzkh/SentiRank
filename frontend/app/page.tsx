@@ -103,7 +103,7 @@ export default function HomePage(): ReactElement {
         <div className="rounded-lg border border-border bg-card p-5 shadow-sm">
           <div className="rounded-md border border-blue-100 bg-blue-50 p-4">
             <p className="text-sm font-semibold text-blue-900">
-              Alur Demo Skripsi
+              Alur Penelitian
             </p>
             <p className="mt-2 text-sm leading-6 text-blue-900">
               Dashboard dirancang untuk menunjukkan alur analisis dari data

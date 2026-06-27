@@ -1,0 +1,6 @@
+criteria,ahp_weight,ahp_rank,fuzzy_weight,fuzzy_rank,rank_difference,interpretation
+"Features, Content & Audio Experience",0.253203,1,0.220791,2,-1,AHP ranks higher
+App Reliability & Usability,0.239669,2,0.254121,1,1,Fuzzy ranks higher
+Ads Experience,0.18718,3,0.193295,3,0,Same rank
+Subscription & Pricing,0.184805,4,0.173944,4,0,Same rank
+Account/Login,0.135143,5,0.157849,5,0,Same rank

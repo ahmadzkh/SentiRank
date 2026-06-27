@@ -1,0 +1,6 @@
+criterion_id,criterion_name,weight,rank
+C1,"Features, Content & Audio Experience",0.253203,1
+C2,Ads Experience,0.18718,3
+C3,Subscription & Pricing,0.184805,4
+C4,Account/Login,0.135143,5
+C5,App Reliability & Usability,0.239669,2

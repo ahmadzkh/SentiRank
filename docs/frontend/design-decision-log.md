@@ -8,11 +8,11 @@
 | Module           | Frontend UI/UX                     |
 | Document         | Design Decision Log                |
 | Track            | Frontend Track                     |
-| Current Phase    | FE-12 — API Integration Preparation |
+| Current Phase    | MS-10D - Frontend Table Alignment |
 | Default Theme    | Light Mode                         |
 | Visual Direction | SentiRank Research Analytics Light |
 | Status           | Draft                              |
-| Last Updated     | 2026-06-02                         |
+| Last Updated     | 2026-06-17                         |
 
 ---
 
@@ -1346,5 +1346,188 @@ Frontend Stack Plan:
 NextJS, TypeScript, Tailwind CSS, shadcn/ui
 
 Development Strategy:
-Mock-first, API-contract-ready, component-based
+Data-backed, service-layer integration, component-based
+
+Runtime Data Boundary:
+API Gateway only; no direct internal service or CSV/JSON access
+
+Reporting Surface:
+Dashboard; standalone Reports page/menu and print action removed
+
+AHP/Fuzzy AHP Frontend Role:
+Read-only result display; no calculation action; sample status remains explicit
 ```
+
+---
+
+## 2026-06-05 — Dashboard Final Data-Backed Summary
+
+Decision:
+
+- Dashboard menjadi ringkasan final penelitian SentiRank untuk scraping, dataset, preprocessing, sentimen, aspek, evaluasi model, dan prioritas AHP/Fuzzy AHP.
+- Data ranking AHP/Fuzzy AHP dibaca dari endpoint backend berbasis `08_ranking_comparison.csv`; frontend tidak melakukan kalkulasi ulang prioritas.
+- Copy dashboard dan navigasi dibersihkan dari istilah internal agar aplikasi terlihat sebagai aplikasi penelitian final.
+
+Impact:
+
+- Section Dashboard difokuskan ke 6 card dataset, row metrik model, chart distribusi sentimen per tahap, top 5 aspek negatif, chart/tabel prioritas, dan ulasan negatif terbaru.
+- Menu Laporan dihapus dari navigasi; route lama diarahkan ke Dashboard.
+
+---
+
+## 2026-06-17 - AHP/Fuzzy AHP Read-Only Results Page
+
+Decision:
+
+- Halaman `/ahp-fuzzy-ahp` menjadi halaman hasil analisis prioritas read-only, bukan kalkulator atau panel demo POST calculation.
+- Halaman membaca `GET /ahp/criteria`, `GET /evaluation/summary`, dan `GET /reports/ranking-comparison` melalui service layer frontend.
+- Alert sample ditampilkan sebelum judul selama hasil final expert judgement belum tersedia.
+- Ranking AHP/Fuzzy AHP ditampilkan sebagai tabel dan chart, dengan rekomendasi display-only yang tidak menjalankan kalkulasi baru.
+
+Reason:
+
+- User halaman AHP/Fuzzy AHP adalah pembaca hasil penelitian, bukan operator kalkulasi backend.
+- Tombol kalkulasi di halaman utama membuat UI terlihat developer-oriented dan berisiko disalahpahami sebagai hasil final.
+- Endpoint read-only yang sudah ada cukup untuk menampilkan ranking sample tanpa mengubah engine AHP, engine Fuzzy AHP, dataset, atau service boundary besar.
+
+Impact:
+
+- `AhpGatewayDemoPanel` tidak dipakai lagi pada halaman utama AHP/Fuzzy AHP.
+- Frontend tetap tidak menghitung AHP/Fuzzy AHP dan tidak membaca file lokal output penelitian secara langsung.
+- Struktur kriteria tetap data-driven; saat ini sumber aktif repo menampilkan 5 kriteria merged taxonomy, bukan 6 kriteria terpisah.
+
+---
+
+## 2026-06-17 - Gateway Failure Fallback Revalidation
+
+Decision:
+
+- Normalisasi error Gateway memakai pesan `API Gateway belum aktif. Jalankan microservice backend terlebih dahulu.`.
+- Dashboard dan AHP/Fuzzy AHP membawa error Gateway ke red alert, bukan menelan failure dan menampilkan state yang terlihat aktif.
+- Empty state tabel dan chart gateway-backed memakai pesan `Data belum tersedia karena API Gateway belum aktif.`.
+- Saat Gateway unavailable, AHP/Fuzzy AHP menampilkan `0` untuk nilai konsistensi, `-` untuk prioritas teratas, serta tabel/chart kosong.
+
+Reason:
+
+- Output mock atau pesan generic dapat terlihat seperti data backend valid saat demo skripsi.
+- Failure state harus membedakan masalah infrastruktur Gateway dari hasil penelitian yang memang kosong.
+
+Impact:
+
+- `frontend/lib/http-client.ts`, `frontend/lib/api-status.ts`, dan `ApiGatewayAlert` menjadi sumber perilaku error yang konsisten.
+- Dashboard, shared chart/table empty states, dan halaman AHP/Fuzzy AHP mengikuti kontrak zero/empty fallback MS-10B.
+
+---
+
+## 2026-06-17 - MS-10C Data Source Policy
+
+Decision:
+
+- Frontend SentiRank hanya boleh membaca data melalui API Gateway, menggunakan `NEXT_PUBLIC_API_BASE_URL` untuk browser-facing requests dan `API_GATEWAY_INTERNAL_URL` hanya untuk server-side/Docker routing ke Gateway yang sama.
+- CSV/JSON/model artifact penelitian tetap sah sebagai reproducible research outputs dan tidak perlu dimigrasikan penuh ke database pada milestone ini.
+- Artifact penelitian adalah read-only bagi runtime service dan tidak boleh dipresentasikan sebagai live user-generated runtime data.
+- Database boundary digunakan untuk user-facing runtime inference history, seperti submitted review text, sentiment/aspect result, confidence/probability, model version, prediction source, dan timestamp.
+- Service ownership mengikuti domain: review-service untuk dataset/scraping/preprocessing/review samples, sentiment-service untuk IndoBERT summaries/evaluation/inference behavior, aspect-service untuk SVM summaries/evaluation/inference behavior, decision-service untuk AHP/Fuzzy AHP criteria/calculation/judgement/ranking comparison, report-service untuk read-only dashboard/report aggregation, dan api-gateway-service untuk routing/envelope/error normalization serta repository persistence runtime inference history. PostgreSQL `database-service` hanya infrastruktur opsional; SQLite adalah default local/demo.
+
+Reason:
+
+- Memindahkan seluruh artifact CSV/JSON ke database sekarang akan memperbesar scope tanpa manfaat langsung untuk MS-10C.
+- Untuk skripsi, artifact pipeline penelitian perlu tetap traceable dan reproducible.
+- Batas gateway menjaga frontend tetap konsisten dengan arsitektur microservice dan mencegah UI bergantung pada file lokal atau internal service ports.
+
+Impact:
+
+- Dokumentasi arsitektur perlu menjelaskan dua jalur data: research artifact path dan runtime database path.
+- Shared `datasets/` mount tetap dapat diterima untuk thesis-stage demo/reporting selama read-only dan ownership jelas.
+- Future work mencakup migrasi selected research summaries ke PostgreSQL bila dibutuhkan, domain ownership yang lebih kuat, database-per-service opsional, seed/migration pipeline demo final, dan inference history endpoint.
+
+---
+
+## 2026-06-17 - MS-10D Frontend Table Alignment
+
+Decision:
+
+- Tabel gateway-backed disejajarkan dengan tahap pipeline: raw dataset, scraping preview, preprocessing before/after, sentiment result, aspect result, model evaluation, processed dashboard insight, dan priority recommendation.
+- Empty state `SimpleTable` tetap menampilkan header tabel serta satu baris pesan `Data belum tersedia karena API Gateway belum aktif.` saat data kosong.
+- Field Gateway yang belum tersedia ditampilkan sebagai `-` atau empty state, bukan nilai mock atau placeholder yang terlihat seperti data final.
+
+Reason:
+
+- Tabel generik membuat halaman terlihat tidak sesuai tahap penelitian dan dapat membingungkan saat demo skripsi.
+- Saat API Gateway offline, tabel harus kosong agar tidak ada data lama/mock yang terbaca sebagai hasil backend valid.
+
+Impact:
+
+- Halaman Dashboard, Dataset, Scraping, Prapemrosesan, Analisis Sentimen, Klasifikasi Aspek, dan Evaluasi Model memakai kolom yang lebih spesifik.
+- Halaman AHP/Fuzzy AHP tidak diubah.
+- Frontend tetap membaca data melalui service layer ke API Gateway saja.
+
+---
+
+## 2026-06-19 - MS-13C Frontend Reports Route Cleanup
+
+Decision:
+
+- Route frontend `/reports` dihapus karena hanya redirect ke Dashboard dan tidak lagi reachable dari navigasi.
+- Dashboard tetap menjadi permukaan summary/reporting utama untuk demo skripsi.
+- Fitur cetak/print report berada di luar scope demo skripsi saat ini.
+- Backend `report-service`, API Gateway report routes, dan Docker Compose tidak diubah pada milestone ini.
+
+Reason:
+
+- Halaman Reports tidak memiliki konten mandiri yang dibutuhkan setelah Dashboard mengambil peran ringkasan penelitian.
+- Menghapus route frontend mengurangi permukaan UI tanpa mengubah dependency backend yang masih perlu diaudit terpisah.
+- `frontend/services/report-service.ts` masih diperlukan untuk `getRankingComparison()` yang dipakai Dashboard dan AHP/Fuzzy AHP melalui API Gateway.
+
+Impact:
+
+- Sidebar tetap tanpa menu Reports/Laporan.
+- Tidak ada page-level Reports UI atau tombol print report di frontend yang diaudit.
+- Audit MS-13D kemudian memutuskan `report-service` tetap aktif sebagai Dashboard/evaluation/ranking aggregation service; MS-13F mempertahankannya pada backend Compose default.
+
+---
+
+## 2026-06-19 - MS-13G Final Documentation Sync
+
+Decision:
+
+- Dokumentasi frontend aktif menetapkan API Gateway sebagai satu-satunya backend boundary.
+- Dashboard tetap menjadi summary/reporting surface; standalone Reports page/menu dan print report tetap di luar scope.
+- Halaman AHP/Fuzzy AHP hanya menampilkan hasil read-only dan tidak menyediakan calculation action.
+- Data sample/development AHP/Fuzzy AHP tetap diberi status eksplisit sampai expert judgement tervalidasi tersedia.
+- Vercel diposisikan untuk frontend saja; backend Docker/host tetap deployment terpisah.
+
+Reason:
+
+- Dokumentasi FE-06/FE-13 historis tidak lagi cukup menjelaskan frontend yang sudah terintegrasi dengan microservices.
+- Batas data dan service harus konsisten agar mock/reference data, research artifacts, dan runtime inference history tidak tercampur saat demo skripsi.
+
+Impact:
+
+- `frontend/README.md`, `frontend/DESIGN.md`, dan task tracker mencerminkan runtime saat ini.
+- Tidak ada source frontend, route, component, service adapter, Docker Compose, env, model, dataset, atau runtime behavior yang berubah.
+- Planning documents lama di luar scope edit MS-13G tetap menjadi kandidat anotasi historical/archive pada milestone dokumentasi terpisah.
+
+---
+
+## 2026-06-20 - MS-12B Runtime Review Inference UI
+
+Decision:
+
+- Add `/inference` as the dedicated single-review runtime workflow, separate from Dashboard, Sentiment Analysis, and Aspect Classification research pages.
+- Keep the page-level data boundary on API Gateway through `POST /inference/review` and `GET /inference/history` only.
+- Fetch initial history in the Server Component and keep form submission, explicit history reload, result state, and offline recovery in a narrow Client Component without `useEffect` data fetching.
+- Display backend model/fallback provenance and nullable confidence honestly; never synthesize model output or history in the frontend.
+- Keep runtime history anonymous and separate from research artifacts; no auth, `userId`, or `sessionId` is introduced.
+
+Reason:
+
+- Runtime user input has a different purpose and lifecycle from read-only research result pages.
+- A dedicated route prevents interactive inference from being confused with thesis dataset summaries.
+- Explicit Gateway-off state and empty history preserve the existing no-mock runtime contract.
+
+Impact:
+
+- Navigation now includes `Uji Ulasan` and both desktop/mobile navigation use the same route constant.
+- The page presents sentiment, aspect, probability/confidence, model source, fallback state, persistence status, and the latest 20 runtime records.
+- Backend services, API Gateway, Docker Compose, database implementation, models, datasets, and AHP/Fuzzy AHP remain unchanged.

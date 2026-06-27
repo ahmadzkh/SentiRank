@@ -7,6 +7,7 @@ export interface Review {
   userName: string;
   rating: 1 | 2 | 3 | 4 | 5;
   text: string;
+  wordCount?: number;
   cleanedText?: string;
   language: "id" | "en" | "mixed";
   reviewDate: string;

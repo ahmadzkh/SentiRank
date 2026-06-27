@@ -1,93 +1,79 @@
 {
-  "run_label": "sample_development_only",
-  "is_sample": true,
-  "not_final_expert_judgement": true,
-  "total_respondents": 1,
+  "generated_at": "2026-06-26T09:56:32.764393+00:00",
   "aggregation_method": "geometric_mean",
-  "criteria_count": 5,
-  "pairwise_comparison_count": 10,
-  "aggregated_comparisons": [
+  "valid_respondent_count": 8,
+  "respondent_ids_used": [
+    "EJ002",
+    "EJ003",
+    "EJ004",
+    "EJ005",
+    "EJ006",
+    "EJ007",
+    "EJ008",
+    "EJ009"
+  ],
+  "source_type_summary": {
+    "actual": 0,
+    "synthetic": 8,
+    "unknown": 0
+  },
+  "criteria": [
     {
-      "comparison_id": "P01",
-      "criterion_a": "Features, Content & Audio Experience",
-      "criterion_b": "App Reliability & Usability",
-      "ahp_value_a_over_b": 0.3333333333333333,
-      "respondent_count": 1,
-      "aggregation_method": "geometric_mean"
+      "id": "C1",
+      "name": "Features, Content & Audio Experience"
     },
     {
-      "comparison_id": "P02",
-      "criterion_a": "Features, Content & Audio Experience",
-      "criterion_b": "Ads Experience",
-      "ahp_value_a_over_b": 3.0000000000000004,
-      "respondent_count": 1,
-      "aggregation_method": "geometric_mean"
+      "id": "C2",
+      "name": "Ads Experience"
     },
     {
-      "comparison_id": "P03",
-      "criterion_a": "Features, Content & Audio Experience",
-      "criterion_b": "Subscription & Pricing",
-      "ahp_value_a_over_b": 1.0,
-      "respondent_count": 1,
-      "aggregation_method": "geometric_mean"
+      "id": "C3",
+      "name": "Subscription & Pricing"
     },
     {
-      "comparison_id": "P04",
-      "criterion_a": "Features, Content & Audio Experience",
-      "criterion_b": "Account/Login",
-      "ahp_value_a_over_b": 3.0000000000000004,
-      "respondent_count": 1,
-      "aggregation_method": "geometric_mean"
+      "id": "C4",
+      "name": "Account/Login"
     },
     {
-      "comparison_id": "P05",
-      "criterion_a": "App Reliability & Usability",
-      "criterion_b": "Ads Experience",
-      "ahp_value_a_over_b": 9.000000000000002,
-      "respondent_count": 1,
-      "aggregation_method": "geometric_mean"
-    },
-    {
-      "comparison_id": "P06",
-      "criterion_a": "App Reliability & Usability",
-      "criterion_b": "Subscription & Pricing",
-      "ahp_value_a_over_b": 3.0000000000000004,
-      "respondent_count": 1,
-      "aggregation_method": "geometric_mean"
-    },
-    {
-      "comparison_id": "P07",
-      "criterion_a": "App Reliability & Usability",
-      "criterion_b": "Account/Login",
-      "ahp_value_a_over_b": 9.000000000000002,
-      "respondent_count": 1,
-      "aggregation_method": "geometric_mean"
-    },
-    {
-      "comparison_id": "P08",
-      "criterion_a": "Ads Experience",
-      "criterion_b": "Subscription & Pricing",
-      "ahp_value_a_over_b": 0.3333333333333333,
-      "respondent_count": 1,
-      "aggregation_method": "geometric_mean"
-    },
-    {
-      "comparison_id": "P09",
-      "criterion_a": "Ads Experience",
-      "criterion_b": "Account/Login",
-      "ahp_value_a_over_b": 1.0,
-      "respondent_count": 1,
-      "aggregation_method": "geometric_mean"
-    },
-    {
-      "comparison_id": "P10",
-      "criterion_a": "Subscription & Pricing",
-      "criterion_b": "Account/Login",
-      "ahp_value_a_over_b": 3.0000000000000004,
-      "respondent_count": 1,
-      "aggregation_method": "geometric_mean"
+      "id": "C5",
+      "name": "App Reliability & Usability"
     }
   ],
-  "methodology_note": "Aggregated pairwise judgement only. This script does not calculate AHP weights or final rankings.",
-  "generated_at": "2026-06-03T08:04:09.516111+00:00"
+  "aggregated_pairwise_matrix": [
+    [
+      1.0,
+      1.316074,
+      1.147203,
+      1.846255,
+      1.316074
+    ],
+    [
+      0.759836,
+      1.0,
+      1.0,
+      1.402851,
+      0.759836
+    ],
+    [
+      0.871686,
+      1.0,
+      1.0,
+      1.316074,
+      0.662338
+    ],
+    [
+      0.541637,
+      0.712834,
+      0.759836,
+      1.0,
+      0.541637
+    ],
+    [
+      0.759836,
+      1.316074,
+      1.509804,
+      1.846255,
+      1.0
+    ]
+  ]
 }

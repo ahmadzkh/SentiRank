@@ -2,22 +2,22 @@
   {
     "final_sentiment": "Negative",
     "aspect_label": "Performance & Stability",
-    "count": 1808
+    "count": 1806
   },
   {
     "final_sentiment": "Negative",
     "aspect_label": "Ads Experience",
-    "count": 10564
+    "count": 10559
   },
   {
     "final_sentiment": "Negative",
     "aspect_label": "Subscription & Pricing",
-    "count": 6944
+    "count": 6942
   },
   {
     "final_sentiment": "Negative",
     "aspect_label": "Features & Content",
-    "count": 8392
+    "count": 8387
   },
   {
     "final_sentiment": "Negative",
@@ -32,12 +32,12 @@
   {
     "final_sentiment": "Negative",
     "aspect_label": "Account/Login",
-    "count": 1131
+    "count": 1130
   },
   {
     "final_sentiment": "Negative",
     "aspect_label": "General",
-    "count": 10574
+    "count": 10318
   },
   {
     "final_sentiment": "Neutral",
@@ -47,17 +47,17 @@
   {
     "final_sentiment": "Neutral",
     "aspect_label": "Ads Experience",
-    "count": 1193
+    "count": 1192
   },
   {
     "final_sentiment": "Neutral",
     "aspect_label": "Subscription & Pricing",
-    "count": 1737
+    "count": 1736
   },
   {
     "final_sentiment": "Neutral",
     "aspect_label": "Features & Content",
-    "count": 4152
+    "count": 4151
   },
   {
     "final_sentiment": "Neutral",
@@ -77,7 +77,7 @@
   {
     "final_sentiment": "Neutral",
     "aspect_label": "General",
-    "count": 9866
+    "count": 9525
   },
   {
     "final_sentiment": "Positive",
@@ -87,17 +87,17 @@
   {
     "final_sentiment": "Positive",
     "aspect_label": "Ads Experience",
-    "count": 4525
+    "count": 4522
   },
   {
     "final_sentiment": "Positive",
     "aspect_label": "Subscription & Pricing",
-    "count": 1982
+    "count": 1981
   },
   {
     "final_sentiment": "Positive",
     "aspect_label": "Features & Content",
-    "count": 9159
+    "count": 9155
   },
   {
     "final_sentiment": "Positive",
@@ -117,6 +117,6 @@
   {
     "final_sentiment": "Positive",
     "aspect_label": "General",
-    "count": 23827
+    "count": 23202
   }
 ]

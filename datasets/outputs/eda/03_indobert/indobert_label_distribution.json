@@ -1,0 +1,17 @@
+[
+  {
+    "label": "Negative",
+    "label_id": 0,
+    "count": 39415
+  },
+  {
+    "label": "Neutral",
+    "label_id": 1,
+    "count": 17285
+  },
+  {
+    "label": "Positive",
+    "label_id": 2,
+    "count": 39834
+  }
+]

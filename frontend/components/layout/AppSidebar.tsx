@@ -6,12 +6,10 @@ import {
   Circle,
   Database,
   DownloadCloud,
-  FileText,
-  Gauge,
   LayoutDashboard,
   ListOrdered,
   MessageSquareText,
-  Settings,
+  ScanText,
   Sparkles,
   Tags,
   type LucideIcon,
@@ -22,12 +20,10 @@ import { cn } from "@/lib/utils";
 const iconMap = {
   Database,
   DownloadCloud,
-  FileText,
-  Gauge,
   LayoutDashboard,
   ListOrdered,
   MessageSquareText,
-  Settings,
+  ScanText,
   Sparkles,
   Tags,
 } satisfies Record<string, LucideIcon>;
@@ -109,15 +105,6 @@ export function AppSidebar({ items, className }: AppSidebarProps) {
           })}
         </div>
       </nav>
-
-      <div className="shrink-0 border-t border-sidebar-border px-5 py-4">
-        <p className="text-xs font-medium text-foreground">
-          Fondasi mock-first
-        </p>
-        <p className="mt-1 text-xs leading-5 text-muted-foreground">
-          Layout siap kontrak API untuk halaman demo skripsi.
-        </p>
-      </div>
     </aside>
   );
 }

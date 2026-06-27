@@ -9,6 +9,7 @@
 | Phase | FE-03 - DESIGN.md |
 | Status | Approved |
 | Date | 2026-05-30 |
+| Last Runtime Sync | 2026-06-19 (MS-13G) |
 | Visual Direction | SentiRank Research Analytics Light |
 | Default Theme | Light Mode |
 | Product Type | Dashboard-based research analytics application |
@@ -37,7 +38,9 @@ SentiRank should feel clean, academic, analytical, professional, readable, and c
 - Support thesis screenshots and live demo presentation.
 - Keep navigation predictable across the full analysis workflow.
 - Make AHP/Fuzzy AHP outputs understandable, not only numeric.
-- Keep the frontend mock-first and ready for future API integration.
+- Historical FE mock data remains available for design reference, but gateway-backed demo pages must use API Gateway data or explicit zero/empty states.
+- Research CSV/JSON artifacts are backend-owned read-only evidence; frontend must never read them directly or present them as live runtime user data.
+- Runtime inference history belongs to the database boundary, not to static frontend data or local artifacts.
 - Use a restrained SaaS analytics style with white surfaces, slate/off-white background, and blue accent.
 
 ---
@@ -242,14 +245,11 @@ Sidebar items:
 ```txt
 Dashboard
 Dataset
-Scraping
 Preprocessing
 Sentiment Analysis
 Aspect Classification
 AHP / Fuzzy AHP
 Model Evaluation
-Reports
-Settings
 ```
 
 Rules:
@@ -450,9 +450,10 @@ Preprocessing:
 - Make transformations explainable for thesis evaluation.
 
 Sentiment Analysis:
-
-- Support single review prediction and batch summary.
-- Show label, confidence, distribution, and result table.
+Sentiment Analysis:
+- Support single review runtime prediction and batch summary.
+- Show label, confidence, distribution, result table, and runtime inference history.
+- Treat `/inference` as a runtime section inside this page, not a separate route.
 
 Aspect Classification:
 
@@ -469,10 +470,11 @@ Model Evaluation:
 - Show metrics clearly: accuracy, precision, recall, F1, macro F1, confusion matrix, and classification report.
 - Make weak-class performance visible where relevant.
 
-Reports:
+Reporting surface:
 
-- Summarize dataset, sentiment, aspect, AHP/Fuzzy AHP, and model evaluation results.
-- Write summaries in report-ready language.
+- Dashboard is the current summary/reporting surface for the thesis demo.
+- The standalone Reports page and print report action are out of current frontend scope.
+- Backend report-service dependencies remain behind API Gateway and are not removed by frontend cleanup.
 
 Settings:
 
@@ -483,13 +485,13 @@ Settings:
 
 ## 20. AHP/Fuzzy AHP Interface Rules
 
-AHP/Fuzzy AHP pages need stronger structure because they combine method, numeric judgement, matrix data, and final ranking.
+AHP/Fuzzy AHP views need stronger structure because they combine method context, criteria, consistency, weights, and ranking results. The current frontend view is read-only; judgement entry and calculation remain backend/research responsibilities.
 
 Rules:
 
 - Do not hardcode the number of criteria in UI assumptions.
-- Matrix cells must be large enough to read and edit.
-- Pairwise comparison labels must show both criteria being compared.
+- Matrix cells, when shown, must be large enough to read. The current main page must not expose matrix editing.
+- Pairwise comparison labels, when shown as research context, must identify both criteria.
 - Consistency ratio must be visually prominent and explained.
 - AHP weights and Fuzzy AHP weights must be comparable side by side.
 - Ranking output must include rank, aspect, score/weight, and interpretation.
@@ -497,6 +499,8 @@ Rules:
 - Final recommendation must be stated in plain language.
 - Use tables for exact values and charts only for comparison.
 - Do not perform final methodology logic in frontend unless a later phase explicitly decides it.
+- On the integrated AHP/Fuzzy AHP page, present read-only results from API Gateway data and do not expose calculation buttons on the main page.
+- If expert judgement data is still sample, show an explicit sample notice before the page title and avoid labeling the ranking as final.
 
 ---
 
@@ -552,7 +556,9 @@ NextJS:
 - Use App Router in later setup.
 - Use a dashboard route group for shared sidebar/topbar layout.
 - Keep page components aligned with the IA route plan.
-- Keep data flow mock-first until API contracts are ready.
+- API Gateway contracts are active for demo pages; do not use mock data as a production/demo fallback when Gateway requests fail.
+- Gateway unavailable states must render the red API Gateway alert, zero/empty metric values, empty tables/charts, and the message `Data belum tersedia karena API Gateway belum aktif.`.
+- The integrated AHP/Fuzzy AHP page is read-only: it displays Gateway data, hides sample warnings when Gateway is unavailable, and does not expose calculation actions on the main page.
 
 TypeScript:
 
@@ -573,6 +579,10 @@ shadcn/ui:
 
 API readiness:
 
-- UI should work with mock data first.
+- UI should work with API Gateway data first on integrated pages.
+- Browser-facing data access must use `NEXT_PUBLIC_API_BASE_URL`; server-rendered frontend requests may use `API_GATEWAY_INTERNAL_URL` only to reach the same API Gateway inside Docker.
+- Frontend services must not call `review-service`, `sentiment-service`, `aspect-service`, `decision-service`, or `report-service` ports directly.
+- Frontend must not read `datasets/`, `docs/figures/`, or model artifact files directly.
+- Frontend must not calculate AHP/Fuzzy AHP; calculation and read-only results stay behind gateway-backed services.
 - Data sections must map cleanly to future FastAPI endpoints.
 - Loading, empty, error, and success states should be planned for every data-heavy page.

@@ -157,9 +157,20 @@ def prepare_scenario_dataframe(
 
     working = dataframe.copy()
     total_input_rows = int(len(working))
+    preprocessing_status_rows_removed = 0
+
+    if "preprocessing_status" in working.columns:
+        valid_preprocessing_mask = (
+            working["preprocessing_status"].fillna("").astype(str).eq("valid")
+        )
+        preprocessing_status_rows_removed = int((~valid_preprocessing_mask).sum())
+        working = working.loc[valid_preprocessing_mask].copy()
+
     working[text_column] = working[text_column].fillna("").astype(str).str.strip()
     working = working.loc[working[text_column].ne("")].copy()
-    removed_empty_text_count = total_input_rows - int(len(working))
+    removed_empty_text_count = int(
+        total_input_rows - preprocessing_status_rows_removed - len(working)
+    )
 
     working, target_column, labels = build_target_column(
         dataframe=working,
@@ -183,6 +194,10 @@ def prepare_scenario_dataframe(
 
     details = {
         "total_input_rows": total_input_rows,
+        "preprocessing_status_rows_removed": preprocessing_status_rows_removed,
+        "rows_after_preprocessing_status_filter": int(
+            total_input_rows - preprocessing_status_rows_removed
+        ),
         "removed_empty_text_count": removed_empty_text_count,
         "rows_after_label_mapping": rows_after_label_mapping,
         "duplicate_text_removed_count": duplicate_text_removed_count,

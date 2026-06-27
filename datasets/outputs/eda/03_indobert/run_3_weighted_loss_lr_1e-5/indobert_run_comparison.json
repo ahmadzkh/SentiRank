@@ -23,13 +23,13 @@
   },
   {
     "run_name":"run_3_weighted_loss_lr_1e-5",
-    "accuracy":0.7362285247,
-    "macro_f1":0.7093262951,
-    "weighted_f1":0.7444675722,
-    "negative_f1":0.7861867537,
-    "neutral_precision":0.4770146025,
-    "neutral_recall":0.6669187146,
-    "neutral_f1":0.5562036891,
-    "positive_f1":0.7855884426
+    "accuracy":0.7608590567,
+    "macro_f1":0.7310462774,
+    "weighted_f1":0.7666077834,
+    "negative_f1":0.8000351741,
+    "neutral_precision":0.5141481036,
+    "neutral_recall":0.6586964906,
+    "neutral_f1":0.5775147929,
+    "positive_f1":0.8155888651
   }
 ]

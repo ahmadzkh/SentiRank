@@ -1,0 +1,119 @@
+{
+  "empty_text_rows_removed": 0,
+  "generated_at": "2026-06-21T08:22:44.778560+00:00",
+  "initial_rows": 96534,
+  "invalid_label_rows_removed": 0,
+  "label_column": "final_sentiment",
+  "label_distribution": [
+    {
+      "count": 39415,
+      "label": "Negative",
+      "label_id": 0
+    },
+    {
+      "count": 17285,
+      "label": "Neutral",
+      "label_id": 1
+    },
+    {
+      "count": 39834,
+      "label": "Positive",
+      "label_id": 2
+    }
+  ],
+  "label_mapping": {
+    "Negative": 0,
+    "Neutral": 1,
+    "Positive": 2
+  },
+  "preprocessing_status_rows_removed": 0,
+  "random_state": 42,
+  "rows_after_preprocessing_status_filter": 96534,
+  "split_distribution": [
+    {
+      "count": 27590,
+      "label": "Negative",
+      "label_id": 0,
+      "split": "train"
+    },
+    {
+      "count": 12099,
+      "label": "Neutral",
+      "label_id": 1,
+      "split": "train"
+    },
+    {
+      "count": 27884,
+      "label": "Positive",
+      "label_id": 2,
+      "split": "train"
+    },
+    {
+      "count": 5912,
+      "label": "Negative",
+      "label_id": 0,
+      "split": "validation"
+    },
+    {
+      "count": 2593,
+      "label": "Neutral",
+      "label_id": 1,
+      "split": "validation"
+    },
+    {
+      "count": 5975,
+      "label": "Positive",
+      "label_id": 2,
+      "split": "validation"
+    },
+    {
+      "count": 5913,
+      "label": "Negative",
+      "label_id": 0,
+      "split": "test"
+    },
+    {
+      "count": 2593,
+      "label": "Neutral",
+      "label_id": 1,
+      "split": "test"
+    },
+    {
+      "count": 5975,
+      "label": "Positive",
+      "label_id": 2,
+      "split": "test"
+    }
+  ],
+  "split_sizes": {
+    "test": 14481,
+    "train": 67573,
+    "validation": 14480
+  },
+  "test_size": 0.15,
+  "text_column": "text_indobert",
+  "text_length_summary": {
+    "count": 96534,
+    "max": 628,
+    "mean": 64.01078376530549,
+    "median": 37.0,
+    "min": 2
+  },
+  "train_size": 0.7,
+  "training_config_plan": {
+    "batch_size": 16,
+    "early_stopping": "planned for Phase 8B if feasible",
+    "epochs": 3,
+    "evaluation_strategy": "epoch",
+    "learning_rate": 1e-05,
+    "loss": "weighted_cross_entropy",
+    "max_length": 128,
+    "metric_for_best_model": "f1_macro",
+    "model_name": "indobenchmark/indobert-base-p1",
+    "run_name": "run_3_weighted_loss_lr_1e-5",
+    "save_strategy": "epoch",
+    "weighted_loss_enabled": true
+  },
+  "valid_rows": 96534,
+  "validation_size": 0.15
+}

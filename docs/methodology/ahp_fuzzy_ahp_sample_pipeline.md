@@ -29,9 +29,9 @@ The sample files use the final five candidate criteria from Phase 10A and contai
 
 The same scripts can later be reused with real expert judgement files by passing explicit input paths:
 
-- `ml-service/scripts/calculate_ahp_from_expert_judgement.py`
-- `ml-service/scripts/calculate_fuzzy_ahp_from_expert_judgement.py`
-- `ml-service/scripts/compare_ahp_fuzzy_outputs.py`
+- `services/decision-service/scripts/calculate_ahp_from_expert_judgement.py`
+- `services/decision-service/scripts/calculate_fuzzy_ahp_from_expert_judgement.py`
+- `services/decision-service/scripts/compare_ahp_fuzzy_outputs.py`
 
 The scripts call the existing backend services directly rather than duplicating AHP or Fuzzy AHP mathematics.
 
