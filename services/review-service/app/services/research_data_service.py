@@ -129,6 +129,12 @@ class ResearchDataService:
         if canonical["row_count"] is not None and noise["row_count"] is not None:
             input_review_count = canonical["row_count"] + noise["row_count"]
 
+        rating_after = canonical["rating_distribution"]
+        rating_before = self._merge_distributions(
+            rating_after,
+            noise.get("rating_distribution", {}),
+        )
+
         return {
             "data_status": "canonical_processed" if canonical["available"] else "unavailable",
             "total_rows": canonical["row_count"],
@@ -137,6 +143,10 @@ class ResearchDataService:
             "dropped_review_count": noise["row_count"],
             "drop_reason_distribution": noise["drop_reason_distribution"],
             "quality_stage_distribution": noise["quality_stage_distribution"],
+            "rating_distribution_before": rating_before,
+            "rating_distribution_after": rating_after,
+            "preprocessing_samples": self._preprocessing_samples(warnings),
+            "model_split_summary": self._model_split_summary(warnings),
             "relabeling_changes": {
                 "changed_label_count": relabeling_summary.get("changed_label_count")
                 if isinstance(relabeling_summary, dict)
@@ -504,6 +514,7 @@ class ResearchDataService:
             "row_count": None,
             "drop_reason_distribution": {},
             "quality_stage_distribution": {},
+            "rating_distribution": {},
         }
         if not path.exists():
             self._append_warning(warnings, "Dataset quality report is unavailable.")
@@ -512,14 +523,18 @@ class ResearchDataService:
         row_count = 0
         drop_reasons: dict[str, int] = {}
         quality_stages: dict[str, int] = {}
+        rating_distribution: dict[str, int] = {}
         try:
             with path.open("r", encoding="utf-8-sig", newline="") as handle:
                 for row in csv.DictReader(handle):
                     row_count += 1
                     drop_reason = str(row.get("drop_reason") or "unknown").strip()
                     quality_stage = str(row.get("quality_stage") or "unknown").strip()
+                    rating = str(row.get("rating") or "").strip()
                     drop_reasons[drop_reason] = drop_reasons.get(drop_reason, 0) + 1
                     quality_stages[quality_stage] = quality_stages.get(quality_stage, 0) + 1
+                    if rating:
+                        rating_distribution[rating] = rating_distribution.get(rating, 0) + 1
         except OSError:
             self._append_warning(warnings, "Dataset quality report could not be read.")
             return empty
@@ -528,7 +543,109 @@ class ResearchDataService:
             "row_count": row_count,
             "drop_reason_distribution": drop_reasons,
             "quality_stage_distribution": quality_stages,
+            "rating_distribution": rating_distribution,
         }
+
+    def _preprocessing_samples(self, warnings: list[str], limit_per_status: int = 5) -> list[dict[str, Any]]:
+        processed_path = self.datasets_dir / "processed" / "dataset_spotify_processed.csv"
+        noise_path = self.datasets_dir / "processed" / "dataset_spotify_noise_report.csv"
+        samples: list[dict[str, Any]] = []
+
+        samples.extend(self._sample_preprocessing_rows(processed_path, "valid", limit_per_status, warnings))
+        samples.extend(self._sample_preprocessing_rows(noise_path, "dropped", limit_per_status, warnings))
+        return samples
+
+    def _sample_preprocessing_rows(
+        self,
+        path: Path,
+        status: str,
+        limit: int,
+        warnings: list[str],
+    ) -> list[dict[str, Any]]:
+        if not path.exists():
+            self._append_warning(warnings, "Preprocessing sample data is unavailable.")
+            return []
+
+        rows: list[dict[str, Any]] = []
+        try:
+            with path.open("r", encoding="utf-8-sig", newline="") as handle:
+                for row in csv.DictReader(handle):
+                    rows.append(
+                        {
+                            "external_id": row.get("external_id") or None,
+                            "rating": self._safe_int(row.get("rating")),
+                            "original_text": self._first_non_empty(
+                                row,
+                                ("original_text", "content", "text", "text_indobert", "text_svm"),
+                            ),
+                            "cleaned_text": self._first_non_empty(
+                                row,
+                                ("cleaned_text", "text_indobert", "text_svm"),
+                            ),
+                            "status": status,
+                            "drop_reason": None if status == "valid" else row.get("drop_reason") or None,
+                        }
+                    )
+                    if len(rows) >= limit:
+                        break
+        except OSError:
+            self._append_warning(warnings, "Preprocessing sample data could not be read.")
+        return rows
+
+    def _model_split_summary(self, warnings: list[str]) -> dict[str, Any]:
+        return {
+            "indobert": self._indobert_split_summary(warnings),
+            "svm": self._svm_split_summary(warnings),
+        }
+
+    def _indobert_split_summary(self, warnings: list[str]) -> dict[str, Any]:
+        split_dir = self.datasets_dir / "processed" / "indobert"
+        splits = {
+            "train": self._csv_row_count(split_dir / "train.csv", warnings),
+            "validation": self._csv_row_count(split_dir / "validation.csv", warnings),
+            "test": self._csv_row_count(split_dir / "test.csv", warnings),
+        }
+        return {"splits": splits, "total": sum(value for value in splits.values() if value is not None)}
+
+    def _svm_split_summary(self, warnings: list[str]) -> dict[str, Any]:
+        path = self.datasets_dir / "outputs" / "eda" / "04_svm" / "svm_merged_5class_split_distribution.json"
+        payload = self._read_json(path, warnings)
+        splits = {"train": 0, "validation": 0, "test": 0}
+        labels: dict[str, dict[str, int]] = {}
+        if isinstance(payload, list):
+            for item in payload:
+                if not isinstance(item, dict):
+                    continue
+                split = str(item.get("split") or "")
+                label = str(item.get("label") or "")
+                count = self._safe_int(item.get("count")) or 0
+                if split in splits:
+                    splits[split] += count
+                    if label:
+                        label_counts = labels.setdefault(label, {})
+                        label_counts[split] = label_counts.get(split, 0) + count
+        return {"scenario": "merged_5class", "splits": splits, "total": sum(splits.values()), "labels": labels}
+
+    def _csv_row_count(self, path: Path, warnings: list[str]) -> int | None:
+        if not path.exists():
+            self._append_warning(warnings, "Model split data is unavailable.")
+            return None
+        try:
+            with path.open("r", encoding="utf-8-sig", newline="") as handle:
+                return max(sum(1 for _ in handle) - 1, 0)
+        except OSError:
+            self._append_warning(warnings, "Model split data could not be read.")
+            return None
+
+    @staticmethod
+    def _merge_distributions(
+        first: dict[str, int],
+        second: dict[str, int],
+    ) -> dict[str, int]:
+        merged = {str(key): value for key, value in first.items()}
+        for key, value in second.items():
+            merged[str(key)] = merged.get(str(key), 0) + value
+        return merged
 
     @staticmethod
     def _append_warning(warnings: list[str], message: str) -> None:

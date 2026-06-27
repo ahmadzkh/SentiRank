@@ -13,9 +13,12 @@ from app.core.config import (
 )
 from app.schemas.report import (
     EvaluationSummaryData,
+    FuzzyTriangularNumber,
+    MatrixCriterion,
     RankingComparisonData,
     RankingComparisonItem,
     ReportSummaryData,
+    RespondentDetail,
     RespondentSummary,
 )
 
@@ -32,6 +35,7 @@ class ReportSummaryService:
         self.ahp_dir = self.eda_dir / "06_ahp"
         self.fuzzy_ahp_dir = self.eda_dir / "07_fuzzy_ahp"
         self.ranking_comparison_dir = self.eda_dir / "08_ranking_comparison"
+        self.expert_judgement_dir = self.datasets_dir / "processed" / "expert_judgement"
 
     def evaluation_summary(self) -> EvaluationSummaryData:
         warnings: list[str] = []
@@ -177,6 +181,13 @@ class ReportSummaryService:
             note=rs_data.get("note", ""),
         )
 
+        respondent_details = self._respondent_details(warnings)
+        ahp_payload = self._ahp_matrix_payload(warnings)
+        fuzzy_payload = self._fuzzy_matrix_payload(warnings)
+        criteria = self._matrix_criteria(items, ahp_payload, fuzzy_payload)
+        ahp_matrix = self._ahp_pairwise_matrix(ahp_payload)
+        fuzzy_matrix = self._fuzzy_pairwise_matrix(fuzzy_payload)
+
         return RankingComparisonData(
             run_label=run_label,
             is_sample=is_sample,
@@ -188,8 +199,149 @@ class ReportSummaryService:
                 "identical_top_rank": bool(top_ahp and top_fuzzy and top_ahp == top_fuzzy),
             },
             respondent_summary=respondent_summary,
+            respondent_details=respondent_details,
+            criteria=criteria,
+            ahp_pairwise_matrix=ahp_matrix,
+            fuzzy_ahp_pairwise_matrix=fuzzy_matrix,
             warnings=warnings,
         )
+
+    def _respondent_details(self, warnings: list[str]) -> list[RespondentDetail]:
+        rows = self._read_csv_records(
+            self.expert_judgement_dir / "expert_judgement_responses.csv",
+            warnings,
+        )
+        details: list[RespondentDetail] = []
+        for row in rows:
+            respondent_id = self._row_text(row, ("respondent_id",))
+            if not respondent_id:
+                continue
+            details.append(
+                RespondentDetail(
+                    respondent_id=respondent_id,
+                    original_code=self._row_text(row, ("original_code",)) or None,
+                    source_type=self._row_text(row, ("source_type",)) or None,
+                    role_category=self._row_text(row, ("role_category",)) or None,
+                    education=self._row_text(row, ("education",)) or None,
+                    experience=self._row_text(row, ("experience",)) or None,
+                    spotify_status=self._row_text(row, ("spotify_status",)) or None,
+                    spotify_frequency=self._row_text(row, ("spotify_frequency",)) or None,
+                    criteria_adequacy=self._row_text(row, ("criteria_adequacy",)) or None,
+                    top_criterion=self._row_text(row, ("top_criterion",)) or None,
+                    consistency_ratio=self._row_float(row, ("cr", "consistency_ratio")),
+                    is_consistent=self._row_bool(row, ("is_consistent",)),
+                )
+            )
+        return details
+
+    def _ahp_matrix_payload(self, warnings: list[str]) -> Any:
+        return self._first_json(
+            [
+                self.ahp_dir / "aggregated" / "ahp_aggregated_pairwise_judgement.json",
+                self.ahp_dir / "ahp_calculation_result.json",
+            ],
+            warnings,
+            "AHP pairwise matrix is unavailable.",
+        )
+
+    def _fuzzy_matrix_payload(self, warnings: list[str]) -> Any:
+        return self._first_json(
+            [
+                self.fuzzy_ahp_dir
+                / "aggregated"
+                / "fuzzy_ahp_aggregated_pairwise_judgement.json",
+                self.fuzzy_ahp_dir
+                / "sample_development"
+                / "fuzzy_ahp_pairwise_matrix_sample_development.json",
+            ],
+            warnings,
+            "Fuzzy AHP pairwise matrix is unavailable.",
+        )
+
+    def _matrix_criteria(
+        self,
+        items: list[RankingComparisonItem],
+        ahp_payload: Any,
+        fuzzy_payload: Any,
+    ) -> list[MatrixCriterion]:
+        for payload in (ahp_payload, fuzzy_payload):
+            if isinstance(payload, dict) and isinstance(payload.get("criteria"), list):
+                criteria = []
+                for index, item in enumerate(payload["criteria"], start=1):
+                    if not isinstance(item, dict):
+                        continue
+                    name = str(item.get("name") or "").strip()
+                    if not name:
+                        continue
+                    criteria.append(
+                        MatrixCriterion(
+                            id=str(item.get("id") or f"C{index}"),
+                            name=name,
+                        )
+                    )
+                if criteria:
+                    return criteria
+        return [
+            MatrixCriterion(id=item.criterion_id or f"C{index}", name=item.criterion_name)
+            for index, item in enumerate(items, start=1)
+        ]
+
+    @staticmethod
+    def _ahp_pairwise_matrix(payload: Any) -> list[list[float]]:
+        if not isinstance(payload, dict):
+            return []
+        matrix = payload.get("aggregated_pairwise_matrix") or payload.get("pairwise_matrix")
+        if not isinstance(matrix, list):
+            return []
+        rows: list[list[float]] = []
+        for row in matrix:
+            if not isinstance(row, list):
+                return []
+            try:
+                rows.append([float(value) for value in row])
+            except (TypeError, ValueError):
+                return []
+        return rows
+
+    @staticmethod
+    def _fuzzy_pairwise_matrix(payload: Any) -> list[list[FuzzyTriangularNumber]]:
+        if not isinstance(payload, dict):
+            return []
+        matrix = payload.get("aggregated_fuzzy_pairwise_matrix") or payload.get("fuzzy_pairwise_matrix")
+        if not isinstance(matrix, list):
+            return []
+        rows: list[list[FuzzyTriangularNumber]] = []
+        for row in matrix:
+            if not isinstance(row, list):
+                return []
+            values: list[FuzzyTriangularNumber] = []
+            for value in row:
+                if not isinstance(value, dict):
+                    return []
+                try:
+                    values.append(
+                        FuzzyTriangularNumber(
+                            l=float(value["l"]),
+                            m=float(value["m"]),
+                            u=float(value["u"]),
+                        )
+                    )
+                except (KeyError, TypeError, ValueError):
+                    return []
+            rows.append(values)
+        return rows
+
+    def _first_json(
+        self,
+        paths: list[Path],
+        warnings: list[str],
+        missing_message: str,
+    ) -> Any:
+        for path in paths:
+            if path.exists():
+                return self._read_json(path, warnings)
+        self._append_warning(warnings, missing_message)
+        return {}
 
     def _read_json(self, path: Path, warnings: list[str]) -> Any:
         if not path.exists():
@@ -302,6 +454,20 @@ class ReportSummaryService:
             return int(float(str(value).replace(",", ".")))
         except ValueError:
             return None
+
+    @classmethod
+    def _row_bool(cls, row: dict, aliases: tuple[str, ...]) -> bool | None:
+        value = cls._row_value(row, aliases)
+        if value in (None, ""):
+            return None
+        if isinstance(value, bool):
+            return value
+        text = str(value).strip().lower()
+        if text in {"true", "1", "yes", "y"}:
+            return True
+        if text in {"false", "0", "no", "n"}:
+            return False
+        return None
 
     @classmethod
     def _first_text(cls, rows: list[dict], aliases: tuple[str, ...]) -> str:

@@ -5,14 +5,20 @@ import { getRankingComparison as fetchRankingComparison } from "@/services/repor
 import type {
   ApiGatewayFailure,
   GatewayEvaluationSummary,
+  GatewayFuzzyTriangularNumber,
+  GatewayMatrixCriterion,
   GatewayRankingComparisonItem,
   GatewayRankingComparisonResponse,
+  GatewayRespondentDetail,
 } from "@/types";
 
 const DATA_UNAVAILABLE = "-";
 const COUNT_FORMATTER = new Intl.NumberFormat("id-ID");
 const WEIGHT_FORMATTER = new Intl.NumberFormat("id-ID", {
   maximumFractionDigits: 4,
+});
+const MATRIX_FORMATTER = new Intl.NumberFormat("id-ID", {
+  maximumFractionDigits: 3,
 });
 
 export type AhpFuzzyAhpDataStatus =
@@ -57,6 +63,30 @@ export interface RespondentSummaryView {
   note: string;
 }
 
+export interface RespondentDetailRow {
+  id: string;
+  originalCode: string;
+  sourceType: string;
+  roleCategory: string;
+  profile: string;
+  spotifyUsage: string;
+  criteriaAdequacy: string;
+  topCriterion: string;
+  consistencyRatio: string;
+  consistencyStatus: "Konsisten" | "Tidak Konsisten" | "-";
+}
+
+export interface MatrixCriterionView {
+  id: string;
+  name: string;
+}
+
+export interface PairwiseMatrixRow {
+  id: string;
+  criterion: string;
+  values: string[];
+}
+
 export interface AhpFuzzyAhpOverview {
   apiError: ApiGatewayFailure | null;
   notice: AhpFuzzyAhpNotice;
@@ -67,6 +97,10 @@ export interface AhpFuzzyAhpOverview {
   chartData: AhpRankingComparisonDatum[];
   comparisonRows: ComparisonRow[];
   respondentSummary: RespondentSummaryView;
+  respondentRows: RespondentDetailRow[];
+  matrixCriteria: MatrixCriterionView[];
+  ahpPairwiseRows: PairwiseMatrixRow[];
+  fuzzyPairwiseRows: PairwiseMatrixRow[];
 }
 
 export async function getAhpFuzzyAhpOverview(): Promise<AhpFuzzyAhpOverview> {
@@ -92,6 +126,7 @@ export async function getAhpFuzzyAhpOverview(): Promise<AhpFuzzyAhpOverview> {
   const criteriaCount = finiteNumber(ranking?.summary.total_criteria) ?? 5;
   const topPriority = rankingItems[0]?.criterion_name ?? DATA_UNAVAILABLE;
   const notice = buildNotice(dataStatus, rs);
+  const matrixCriteria = buildMatrixCriteria(ranking?.criteria, rankingItems);
 
   const respondentSummary: RespondentSummaryView = {
     totalRespondents: rs?.total_respondents ?? 0,
@@ -99,7 +134,10 @@ export async function getAhpFuzzyAhpOverview(): Promise<AhpFuzzyAhpOverview> {
     invalidCount: rs?.invalid_respondent_count ?? 0,
     actualCount: rs?.source_type_summary?.actual ?? 0,
     syntheticCount: rs?.source_type_summary?.synthetic ?? 0,
-    ahpConsistencyRatio: rs?.ahp_consistency_ratio != null ? String(rs.ahp_consistency_ratio) : DATA_UNAVAILABLE,
+    ahpConsistencyRatio:
+      rs?.ahp_consistency_ratio != null
+        ? formatWeight(rs.ahp_consistency_ratio)
+        : DATA_UNAVAILABLE,
     note: rs?.note ?? "",
   };
 
@@ -146,6 +184,13 @@ export async function getAhpFuzzyAhpOverview(): Promise<AhpFuzzyAhpOverview> {
     chartData: buildChartData(rankingItems),
     comparisonRows: buildComparisonRows(rankingItems),
     respondentSummary,
+    respondentRows: buildRespondentRows(ranking?.respondent_details),
+    matrixCriteria,
+    ahpPairwiseRows: buildAhpMatrixRows(matrixCriteria, ranking?.ahp_pairwise_matrix),
+    fuzzyPairwiseRows: buildFuzzyMatrixRows(
+      matrixCriteria,
+      ranking?.fuzzy_ahp_pairwise_matrix,
+    ),
   };
 }
 
@@ -254,6 +299,68 @@ function buildComparisonRows(
   }));
 }
 
+function buildRespondentRows(
+  respondents: readonly GatewayRespondentDetail[] | undefined | null,
+): RespondentDetailRow[] {
+  if (!respondents) return [];
+  return respondents.map((respondent) => ({
+    id: respondent.respondent_id,
+    originalCode: respondent.original_code ?? DATA_UNAVAILABLE,
+    sourceType: sourceTypeLabel(respondent.source_type),
+    roleCategory: respondent.role_category ?? DATA_UNAVAILABLE,
+    profile: compactParts([respondent.education, respondent.experience]),
+    spotifyUsage: compactParts([
+      respondent.spotify_status,
+      respondent.spotify_frequency,
+    ]),
+    criteriaAdequacy: respondent.criteria_adequacy ?? DATA_UNAVAILABLE,
+    topCriterion: respondent.top_criterion ?? DATA_UNAVAILABLE,
+    consistencyRatio: formatWeight(respondent.consistency_ratio),
+    consistencyStatus: consistencyStatusLabel(respondent.is_consistent),
+  }));
+}
+
+function buildMatrixCriteria(
+  criteria: readonly GatewayMatrixCriterion[] | undefined | null,
+  items: readonly GatewayRankingComparisonItem[],
+): MatrixCriterionView[] {
+  if (criteria?.length) {
+    return criteria.map((criterion, index) => ({
+      id: criterion.id || `C${index + 1}`,
+      name: criterion.name,
+    }));
+  }
+
+  return items.map((item, index) => ({
+    id: item.criterion_id || `C${index + 1}`,
+    name: item.criterion_name,
+  }));
+}
+
+function buildAhpMatrixRows(
+  criteria: readonly MatrixCriterionView[],
+  matrix: readonly (readonly number[])[] | undefined | null,
+): PairwiseMatrixRow[] {
+  if (!matrix || matrix.length === 0 || criteria.length === 0) return [];
+  return matrix.slice(0, criteria.length).map((row, rowIndex) => ({
+    id: criteria[rowIndex]?.id ?? `row-${rowIndex}`,
+    criterion: criteria[rowIndex]?.name ?? DATA_UNAVAILABLE,
+    values: criteria.map((_, columnIndex) => formatMatrixValue(row[columnIndex])),
+  }));
+}
+
+function buildFuzzyMatrixRows(
+  criteria: readonly MatrixCriterionView[],
+  matrix: readonly (readonly GatewayFuzzyTriangularNumber[])[] | undefined | null,
+): PairwiseMatrixRow[] {
+  if (!matrix || matrix.length === 0 || criteria.length === 0) return [];
+  return matrix.slice(0, criteria.length).map((row, rowIndex) => ({
+    id: criteria[rowIndex]?.id ?? `row-${rowIndex}`,
+    criterion: criteria[rowIndex]?.name ?? DATA_UNAVAILABLE,
+    values: criteria.map((_, columnIndex) => formatTfnValue(row[columnIndex])),
+  }));
+}
+
 function formatRank(rank: number | null | undefined): string {
   if (rank == null) return DATA_UNAVAILABLE;
   return String(rank);
@@ -262,6 +369,16 @@ function formatRank(rank: number | null | undefined): string {
 function formatWeight(weight: number | null | undefined): string {
   if (weight == null || !isFinite(weight)) return DATA_UNAVAILABLE;
   return WEIGHT_FORMATTER.format(weight);
+}
+
+function formatMatrixValue(value: number | null | undefined): string {
+  if (value == null || !isFinite(value)) return DATA_UNAVAILABLE;
+  return MATRIX_FORMATTER.format(value);
+}
+
+function formatTfnValue(value: GatewayFuzzyTriangularNumber | null | undefined): string {
+  if (!value) return DATA_UNAVAILABLE;
+  return `(${formatMatrixValue(value.l)}, ${formatMatrixValue(value.m)}, ${formatMatrixValue(value.u)})`;
 }
 
 function formatCount(value: number | null | undefined): string {
@@ -286,4 +403,23 @@ function rankChangeInterpretation(delta: number | null | undefined): string {
 function finiteNumber(value: number | null | undefined): number | null {
   if (value == null || !isFinite(value)) return null;
   return value;
+}
+
+function compactParts(parts: readonly (string | null | undefined)[]): string {
+  const value = parts.filter(Boolean).join(" · ");
+  return value || DATA_UNAVAILABLE;
+}
+
+function sourceTypeLabel(sourceType: string | null | undefined): string {
+  if (sourceType === "actual") return "Aktual";
+  if (sourceType === "synthetic") return "Sintetis";
+  return DATA_UNAVAILABLE;
+}
+
+function consistencyStatusLabel(
+  isConsistent: boolean | null | undefined,
+): RespondentDetailRow["consistencyStatus"] {
+  if (isConsistent === true) return "Konsisten";
+  if (isConsistent === false) return "Tidak Konsisten";
+  return DATA_UNAVAILABLE;
 }

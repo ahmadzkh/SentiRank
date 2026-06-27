@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import csv
 import json
 from pathlib import Path
 from typing import Any
@@ -66,6 +67,18 @@ class SentimentSummaryService:
     def evaluation(self) -> SentimentEvaluationData:
         warnings: list[str] = []
         evaluation_summary = self._read_json(self.evaluation_summary_path, warnings)
+        selected_run_dir = self.indobert_dir / FINAL_SENTIMENT_MODEL
+        classification_report = self._read_json(
+            selected_run_dir / "indobert_classification_report.json",
+            warnings,
+        )
+        classification_report = (
+            classification_report if isinstance(classification_report, dict) else {}
+        )
+        prediction_samples = self._read_prediction_samples(
+            selected_run_dir / "indobert_test_predictions.csv",
+            warnings,
+        )
         run_comparison = []
 
         if isinstance(evaluation_summary, dict) and isinstance(
@@ -85,6 +98,8 @@ class SentimentSummaryService:
             selected_candidate=FINAL_SENTIMENT_MODEL,
             run_comparison=run_comparison,
             selected_metrics=selected_metrics,
+            classification_report=classification_report,
+            prediction_samples=prediction_samples,
             limitations=[
                 "Model artifact may not be mounted in the current runtime environment.",
                 "Prediction endpoint uses real IndoBERT inference when the local artifact or configured Hugging Face model can be loaded.",
@@ -94,6 +109,58 @@ class SentimentSummaryService:
             ],
             warnings=warnings,
         )
+
+    def _read_prediction_samples(
+        self,
+        path: Path,
+        warnings: list[str],
+        limit: int = 10,
+    ) -> list[dict[str, Any]]:
+        if not path.exists():
+            self._append_warning(warnings, "Some sentiment research data is unavailable.")
+            return []
+        try:
+            with path.open(newline="", encoding="utf-8") as handle:
+                reader = csv.DictReader(handle)
+                return [
+                    self._normalise_prediction_sample(row)
+                    for _, row in zip(range(limit), reader, strict=False)
+                ]
+        except OSError:
+            self._append_warning(warnings, "Some sentiment research data could not be read.")
+            return []
+
+    @classmethod
+    def _normalise_prediction_sample(cls, row: dict[str, str]) -> dict[str, Any]:
+        return {
+            "external_id": row.get("external_id") or None,
+            "rating": cls._optional_int(row.get("rating")),
+            "content": row.get("content") or None,
+            "text_indobert": row.get("text_indobert") or row.get("content") or None,
+            "initial_sentiment": row.get("initial_sentiment") or None,
+            "final_sentiment": row.get("final_sentiment") or row.get("true_label") or None,
+            "true_label": row.get("true_label") or row.get("final_sentiment") or None,
+            "predicted_label": row.get("predicted_label") or None,
+            "predicted_sentiment": row.get("predicted_label") or None,
+            "sentiment_confidence": cls._optional_float(row.get("confidence")),
+            "prob_negative": cls._optional_float(row.get("prob_negative")),
+            "prob_neutral": cls._optional_float(row.get("prob_neutral")),
+            "prob_positive": cls._optional_float(row.get("prob_positive")),
+        }
+
+    @staticmethod
+    def _optional_float(value: str | None) -> float | None:
+        try:
+            return float(value) if value not in (None, "") else None
+        except ValueError:
+            return None
+
+    @staticmethod
+    def _optional_int(value: str | None) -> int | None:
+        try:
+            return int(value) if value not in (None, "") else None
+        except ValueError:
+            return None
 
     def _read_json(self, path: Path, warnings: list[str]) -> Any:
         if not path.exists():

@@ -86,6 +86,10 @@ class AspectSummaryService:
             self.svm_dir / "svm_merged_5class_classification_report.json",
             warnings,
         )
+        prediction_samples = self._read_prediction_samples(
+            self.svm_dir / "svm_merged_5class_predictions.csv",
+            warnings,
+        )
         self._read_json(
             self.svm_dir / "svm_original_7class_classification_report.json",
             warnings,
@@ -105,6 +109,7 @@ class AspectSummaryService:
             scenario_comparison=comparison,
             selected_metrics=self._selected_metrics(final_selection, merged_metrics, comparison),
             classification_report=classification_report if isinstance(classification_report, dict) else {},
+            prediction_samples=prediction_samples,
             limitations=[
                 WEAK_LABEL_LIMITATION,
                 "SVM has been retrained on the canonical aspect dataset (96,534 rows, MS-16C/D). Metrics reflect the latest canonical retrained artifact.",
@@ -133,6 +138,60 @@ class AspectSummaryService:
         except OSError:
             self._append_warning(warnings, "Some aspect research data could not be read.")
             return []
+
+    def _read_prediction_samples(
+        self,
+        path: Path,
+        warnings: list[str],
+        limit: int = 10,
+    ) -> list[dict[str, Any]]:
+        if not path.exists():
+            self._append_warning(warnings, "Some aspect research data is unavailable.")
+            return []
+        try:
+            with path.open("r", encoding="utf-8", newline="") as csv_file:
+                reader = csv.DictReader(csv_file)
+                return [
+                    self._normalise_prediction_sample(row)
+                    for _, row in zip(range(limit), reader, strict=False)
+                ]
+        except OSError:
+            self._append_warning(warnings, "Some aspect research data could not be read.")
+            return []
+
+    @classmethod
+    def _normalise_prediction_sample(cls, row: dict[str, str]) -> dict[str, Any]:
+        return {
+            "external_id": row.get("external_id") or None,
+            "rating": cls._optional_int(row.get("rating")),
+            "content": row.get("content") or None,
+            "text_svm": row.get("text_svm") or row.get("content") or None,
+            "aspect_label": row.get("aspect_label") or None,
+            "aspect_label_confidence": row.get("aspect_label_confidence") or None,
+            "final_sentiment": row.get("final_sentiment") or None,
+            "scenario": row.get("scenario") or None,
+            "true_label": row.get("true_label") or None,
+            "predicted_label": row.get("predicted_label") or None,
+            "is_correct": cls._optional_bool(row.get("is_correct")),
+        }
+
+    @staticmethod
+    def _optional_int(value: str | None) -> int | None:
+        try:
+            return int(value) if value not in (None, "") else None
+        except ValueError:
+            return None
+
+    @staticmethod
+    def _optional_bool(value: str | None) -> bool | None:
+        if value is None or value == "":
+            return None
+        normalized = value.strip().lower()
+        if normalized in {"true", "1", "yes", "y"}:
+            return True
+        if normalized in {"false", "0", "no", "n"}:
+            return False
+        return None
 
     @staticmethod
     def _selected_classifier(payload: Any) -> str:
@@ -221,21 +280,30 @@ class AspectSummaryService:
         original_metrics: Any,
         merged_metrics: Any,
     ) -> list[dict]:
+        records: list[dict] = []
         if isinstance(scenario_comparison, list):
-            return [item for item in scenario_comparison if isinstance(item, dict)]
-        if isinstance(final_selection, dict):
-            records = []
+            records = [item for item in scenario_comparison if isinstance(item, dict)]
+        elif isinstance(final_selection, dict):
             for key in ("original_7class_summary", "merged_5class_summary"):
                 if isinstance(final_selection.get(key), dict):
                     records.append(final_selection[key])
-            if records:
-                return records
-        records = [
+
+        fallback_records = [
             AspectSummaryService._metrics_record("original_7class", original_metrics),
             AspectSummaryService._metrics_record("merged_5class", merged_metrics),
         ]
-        return [record for record in records if record]
-
+        known_scenarios = {
+            str(record.get("scenario"))
+            for record in records
+            if record.get("scenario")
+        }
+        for record in fallback_records:
+            scenario = record.get("scenario")
+            if record and scenario not in known_scenarios:
+                records.append(record)
+                if scenario:
+                    known_scenarios.add(str(scenario))
+        return records
     @staticmethod
     def _selected_metrics(
         final_selection: Any,

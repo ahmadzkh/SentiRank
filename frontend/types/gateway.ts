@@ -107,6 +107,26 @@ export interface GatewayRankingComparisonItem {
   interpretation?: string | null;
 }
 
+export interface GatewayRespondentDetail {
+  respondent_id: string;
+  original_code?: string | null;
+  source_type?: string | null;
+  role_category?: string | null;
+  education?: string | null;
+  experience?: string | null;
+  spotify_status?: string | null;
+  spotify_frequency?: string | null;
+  criteria_adequacy?: string | null;
+  top_criterion?: string | null;
+  consistency_ratio?: number | null;
+  is_consistent?: boolean | null;
+}
+
+export interface GatewayMatrixCriterion {
+  id: string;
+  name: string;
+}
+
 export interface GatewayRankingComparisonResponse {
   run_label: string;
   source_file?: string | null;
@@ -119,6 +139,10 @@ export interface GatewayRankingComparisonResponse {
     identical_top_rank?: boolean | null;
   };
   respondent_summary: GatewayRespondentSummary;
+  respondent_details: GatewayRespondentDetail[];
+  criteria: GatewayMatrixCriterion[];
+  ahp_pairwise_matrix: number[][];
+  fuzzy_ahp_pairwise_matrix: GatewayFuzzyTriangularNumber[][];
   warnings: string[];
 }
 
@@ -239,6 +263,22 @@ export interface GatewayScrapingSummary {
   warnings: string[];
 }
 
+export interface GatewayPreprocessingSample {
+  external_id?: string | null;
+  rating?: number | null;
+  original_text?: string | null;
+  cleaned_text?: string | null;
+  status?: string | null;
+  drop_reason?: string | null;
+}
+
+export interface GatewayModelSplitSummary {
+  total?: number | null;
+  scenario?: string | null;
+  splits?: Record<string, number | null>;
+  labels?: Record<string, Record<string, number>>;
+}
+
 export interface GatewayPreprocessingSummary {
   data_status?: string | null;
   total_rows?: number | null;
@@ -247,6 +287,10 @@ export interface GatewayPreprocessingSummary {
   dropped_review_count?: number | null;
   drop_reason_distribution?: Record<string, number>;
   quality_stage_distribution?: Record<string, number>;
+  rating_distribution_before?: Record<string, number>;
+  rating_distribution_after?: Record<string, number>;
+  preprocessing_samples?: GatewayPreprocessingSample[];
+  model_split_summary?: Record<string, GatewayModelSplitSummary>;
   relabeling_changes: Record<string, number | null>;
   sentiment_distribution_before: Record<string, number>;
   sentiment_distribution_after: Record<string, number>;
@@ -274,11 +318,29 @@ export interface GatewaySentimentSummary {
   warnings: string[];
 }
 
+export interface GatewaySentimentPredictionSample {
+  external_id?: string | null;
+  rating?: number | null;
+  content?: string | null;
+  text_indobert?: string | null;
+  initial_sentiment?: string | null;
+  final_sentiment?: string | null;
+  true_label?: string | null;
+  predicted_label?: string | null;
+  predicted_sentiment?: string | null;
+  sentiment_confidence?: number | null;
+  prob_negative?: number | null;
+  prob_neutral?: number | null;
+  prob_positive?: number | null;
+}
+
 export interface GatewaySentimentEvaluation {
   data_status?: string | null;
   selected_candidate: string;
   run_comparison?: Record<string, unknown>[];
   selected_metrics: Record<string, unknown>;
+  classification_report?: Record<string, unknown>;
+  prediction_samples?: GatewaySentimentPredictionSample[];
   limitations: string[];
   output_source_availability?: Record<string, boolean>;
   warnings: string[];
@@ -301,12 +363,27 @@ export interface GatewayAspectSummary {
   warnings: string[];
 }
 
+export interface GatewayAspectPredictionSample {
+  external_id?: string | null;
+  rating?: number | null;
+  content?: string | null;
+  text_svm?: string | null;
+  aspect_label?: string | null;
+  aspect_label_confidence?: number | string | null;
+  final_sentiment?: string | null;
+  scenario?: string | null;
+  true_label?: string | null;
+  predicted_label?: string | null;
+  is_correct?: boolean | null;
+}
+
 export interface GatewayAspectEvaluation {
   data_status?: string | null;
   selected_candidate: string;
   scenario_comparison?: Record<string, unknown>[];
   selected_metrics: Record<string, unknown>;
   classification_report?: Record<string, unknown>;
+  prediction_samples?: GatewayAspectPredictionSample[];
   limitations: string[];
   output_source_availability?: Record<string, boolean>;
   warnings: string[];

@@ -151,6 +151,7 @@ async function request<TData>(
 
   try {
     const response = await fetch(buildUrl(endpoint, query), {
+      cache: "no-store",
       ...requestOptions,
       body: typeof body === "undefined" ? undefined : JSON.stringify(body),
       headers: requestHeaders,

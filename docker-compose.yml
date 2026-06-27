@@ -33,8 +33,10 @@ services:
       ASPECT_SERVICE_URL: ${ASPECT_SERVICE_URL:-http://aspect-service:8003}
       DECISION_SERVICE_URL: ${DECISION_SERVICE_URL:-http://decision-service:8004}
       REPORT_SERVICE_URL: ${REPORT_SERVICE_URL:-http://report-service:8005}
-      API_GATEWAY_DATABASE_URL: ${API_GATEWAY_DATABASE_URL:-sqlite:///./runtime_inference_history.db}
+      API_GATEWAY_DATABASE_URL: ${API_GATEWAY_DATABASE_URL:-sqlite:////app/data/runtime_inference_history.db}
       GATEWAY_TIMEOUT_SECONDS: 30
+    volumes:
+      - api_gateway_data:/app/data # Mount volume untuk menyimpan data SQLite
     depends_on:
       - review-service
       - sentiment-service
@@ -197,3 +199,5 @@ networks:
 volumes:
   sentirank-postgres-data:
     name: sentirank-postgres-data
+  api_gateway_data: # Volume baru untuk API Gateway
+    name: sentirank-api-gateway-data # Nama eksplisit untuk kemudahan identifikasi

@@ -62,5 +62,6 @@ class AspectEvaluationData(BaseModel):
     scenario_comparison: list[dict]
     selected_metrics: dict
     classification_report: dict
+    prediction_samples: list[dict] = Field(default_factory=list)
     limitations: list[str]
     warnings: list[str] = Field(default_factory=list)

@@ -58,12 +58,16 @@ export function AspectRankingChart({ data }: AspectRankingChartProps) {
   }
 
   return (
-    <div aria-label="Grafik ranking aspek negatif" className="h-80 min-w-[200px]" role="img">
+    <div
+      aria-label="Grafik ranking aspek negatif"
+      className="h-96 min-w-[200px]"
+      role="img"
+    >
       <ResponsiveContainer height="100%" minWidth={200} width="100%">
         <BarChart
           data={data}
           layout="vertical"
-          margin={{ bottom: 8, left: 12, right: 16, top: 8 }}
+          margin={{ bottom: 0, left: 16, right: 16, top: 0 }}
         >
           <CartesianGrid horizontal={false} stroke="#e2e8f0" />
           <XAxis
@@ -78,10 +82,20 @@ export function AspectRankingChart({ data }: AspectRankingChartProps) {
             dataKey="label"
             tickLine={false}
             type="category"
-            width={132}
+            width={150}
           />
-          <Tooltip formatter={(value) => [COUNT_FORMATTER.format(Number(value)), "Jumlah"]} />
-          <Bar dataKey="count" fill="#2563eb" name="Jumlah" radius={[0, 6, 6, 0]} />
+          <Tooltip
+            formatter={(value) => [
+              COUNT_FORMATTER.format(Number(value)),
+              "Jumlah",
+            ]}
+          />
+          <Bar
+            dataKey="count"
+            fill="#2563eb"
+            name="Jumlah"
+            radius={[0, 6, 6, 0]}
+          />
         </BarChart>
       </ResponsiveContainer>
     </div>

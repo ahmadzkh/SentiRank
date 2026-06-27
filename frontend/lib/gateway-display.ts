@@ -94,6 +94,8 @@ export const EMPTY_SENTIMENT_EVALUATION: GatewaySentimentEvaluation = {
   data_status: null,
   selected_candidate: "run_3_weighted_loss_lr_1e-5",
   selected_metrics: {},
+  classification_report: {},
+  prediction_samples: [],
   limitations: [],
   warnings: [],
 };
@@ -115,6 +117,8 @@ export const EMPTY_ASPECT_EVALUATION: GatewayAspectEvaluation = {
   data_status: null,
   selected_candidate: "merged_5class",
   selected_metrics: {},
+  classification_report: {},
+  prediction_samples: [],
   limitations: [],
   warnings: [],
 };
@@ -203,6 +207,90 @@ export function tablePercentValue(value: unknown): string {
   }
 
   return formatPercent(value);
+}
+
+export interface EvaluationMetricRow {
+  id: string;
+  label: string;
+  value: string;
+}
+
+const EVALUATION_METRIC_DEFINITIONS = [
+  { id: "accuracy", label: "Accuracy", keys: ["accuracy", "test_accuracy"] },
+  {
+    id: "precision_macro",
+    label: "Precision Macro",
+    keys: ["precision_macro", "test_precision_macro"],
+  },
+  {
+    id: "recall_macro",
+    label: "Recall Macro",
+    keys: ["recall_macro", "test_recall_macro"],
+  },
+  { id: "f1_macro", label: "F1 Macro", keys: ["f1_macro", "test_f1_macro"] },
+  {
+    id: "precision_weighted",
+    label: "Precision Weighted",
+    keys: ["precision_weighted", "test_precision_weighted"],
+  },
+  {
+    id: "recall_weighted",
+    label: "Recall Weighted",
+    keys: ["recall_weighted", "test_recall_weighted"],
+  },
+  {
+    id: "f1_weighted",
+    label: "F1 Weighted",
+    keys: ["f1_weighted", "test_f1_weighted"],
+  },
+  { id: "test_loss", label: "Test Loss", keys: ["test_loss"], format: "decimal" },
+] as const;
+
+const DECIMAL_FORMATTER = new Intl.NumberFormat("id-ID", {
+  maximumFractionDigits: 4,
+  minimumFractionDigits: 0,
+});
+
+export function metricNumber(
+  record: Record<string, unknown>,
+  keys: readonly string[],
+): number | null {
+  for (const key of keys) {
+    const value = record[key];
+    if (typeof value === "number" && Number.isFinite(value)) {
+      return value;
+    }
+  }
+  return null;
+}
+
+export function formatMetricPercent(value: number | null): string {
+  if (value === null) {
+    return EMPTY_TABLE_CELL;
+  }
+  const normalized = value > 1 ? value : value * 100;
+  return `${DECIMAL_FORMATTER.format(normalized)}%`;
+}
+
+export function evaluationMetricRows(
+  metrics: Record<string, unknown>,
+): EvaluationMetricRow[] {
+  return EVALUATION_METRIC_DEFINITIONS.flatMap((definition) => {
+    const value = metricNumber(metrics, definition.keys);
+    if (value === null) {
+      return [];
+    }
+    return [
+      {
+        id: definition.id,
+        label: definition.label,
+        value:
+          "format" in definition && definition.format === "decimal"
+            ? DECIMAL_FORMATTER.format(value)
+            : formatMetricPercent(value),
+      },
+    ];
+  });
 }
 
 export function recordNumber(

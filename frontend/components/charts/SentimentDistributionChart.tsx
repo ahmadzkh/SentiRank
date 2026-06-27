@@ -1,7 +1,16 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
-import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
 import type { ReviewSentimentLabel } from "@/types/sentiment";
 
 export interface SentimentDistributionDatum {
@@ -16,8 +25,9 @@ interface SentimentDistributionChartProps {
   data: readonly SentimentDistributionDatum[];
 }
 
-const EMPTY_CHART_MESSAGE =
-  "Data belum tersedia karena API Gateway belum aktif.";
+const EMPTY_CHART_MESSAGE = "Data distribusi belum tersedia.";
+
+const COUNT_FORMATTER = new Intl.NumberFormat("id-ID");
 
 function subscribe() {
   return () => {};
@@ -49,7 +59,7 @@ export function SentimentDistributionChart({
   }
 
   if (!mounted) {
-    return <div className="h-96 rounded-md bg-background" />;
+    return <div className="h-80 rounded-md bg-background" />;
   }
 
   return (
@@ -58,25 +68,40 @@ export function SentimentDistributionChart({
       className="space-y-5"
       role="group"
     >
-      <div className="h-72 min-h-72 min-w-[200px]">
+      <div className="h-80 min-h-80 min-w-[200px]">
         <ResponsiveContainer height="100%" minWidth={200} width="100%">
-          <PieChart>
-            <Pie
-              cx="50%"
-              cy="50%"
-              data={data}
-              dataKey="count"
-              innerRadius={58}
-              nameKey="name"
-              outerRadius={92}
-              paddingAngle={3}
-            >
+          <BarChart
+            data={data}
+            layout="vertical"
+            margin={{ bottom: 8, left: 8, right: 16, top: 8 }}
+          >
+            <CartesianGrid horizontal={false} stroke="#e2e8f0" />
+            <XAxis
+              allowDecimals={false}
+              axisLine={false}
+              tickFormatter={(value) => COUNT_FORMATTER.format(Number(value))}
+              tickLine={false}
+              type="number"
+            />
+            <YAxis
+              axisLine={false}
+              dataKey="name"
+              tickLine={false}
+              type="category"
+              width={72}
+            />
+            <Tooltip
+              formatter={(value) => [
+                COUNT_FORMATTER.format(Number(value)),
+                "Jumlah",
+              ]}
+            />
+            <Bar dataKey="count" name="Jumlah" radius={[0, 6, 6, 0]}>
               {data.map((item) => (
                 <Cell fill={item.color} key={item.label} />
               ))}
-            </Pie>
-            <Tooltip formatter={(value) => [value, "Jumlah"]} />
-          </PieChart>
+            </Bar>
+          </BarChart>
         </ResponsiveContainer>
       </div>
       <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
@@ -89,7 +114,7 @@ export function SentimentDistributionChart({
               {item.name}
             </p>
             <p className="text-sm font-semibold text-foreground">
-              {item.count} ({item.percentage}%)
+              {COUNT_FORMATTER.format(item.count)} ({item.percentage}%)
             </p>
           </div>
         ))}

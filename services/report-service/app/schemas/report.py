@@ -51,10 +51,40 @@ class RespondentSummary(BaseModel):
     note: str = ""
 
 
+class RespondentDetail(BaseModel):
+    respondent_id: str
+    original_code: str | None = None
+    source_type: str | None = None
+    role_category: str | None = None
+    education: str | None = None
+    experience: str | None = None
+    spotify_status: str | None = None
+    spotify_frequency: str | None = None
+    criteria_adequacy: str | None = None
+    top_criterion: str | None = None
+    consistency_ratio: float | None = None
+    is_consistent: bool | None = None
+
+
+class MatrixCriterion(BaseModel):
+    id: str
+    name: str
+
+
+class FuzzyTriangularNumber(BaseModel):
+    l: float
+    m: float
+    u: float
+
+
 class RankingComparisonData(BaseModel):
     run_label: str
     is_sample: bool = False
     items: list[RankingComparisonItem] = Field(default_factory=list)
     summary: dict = Field(default_factory=dict)
     respondent_summary: RespondentSummary = Field(default_factory=RespondentSummary)
+    respondent_details: list[RespondentDetail] = Field(default_factory=list)
+    criteria: list[MatrixCriterion] = Field(default_factory=list)
+    ahp_pairwise_matrix: list[list[float]] = Field(default_factory=list)
+    fuzzy_ahp_pairwise_matrix: list[list[FuzzyTriangularNumber]] = Field(default_factory=list)
     warnings: list[str] = Field(default_factory=list)

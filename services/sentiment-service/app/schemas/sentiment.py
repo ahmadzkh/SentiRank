@@ -1,4 +1,4 @@
-from typing import Literal
+from typing import Any, Literal
 
 from pydantic import BaseModel, Field, field_validator
 
@@ -52,5 +52,7 @@ class SentimentEvaluationData(BaseModel):
     selected_candidate: str
     run_comparison: list[dict]
     selected_metrics: dict
+    classification_report: dict[str, Any] = Field(default_factory=dict)
+    prediction_samples: list[dict[str, Any]] = Field(default_factory=list)
     limitations: list[str]
     warnings: list[str] = Field(default_factory=list)

@@ -29,7 +29,8 @@ MODEL_UNSUPPORTED_WARNING = (
     "Returning fallback keyword classification."
 )
 MODEL_CONFIDENCE_UNAVAILABLE_WARNING = (
-    "SVM aspect model does not expose predict_proba; confidence is not available."
+    "SVM aspect model does not expose predict_proba or decision_function; "
+    "confidence is not available."
 )
 
 KEYWORD_RULES: tuple[tuple[str, tuple[str, ...]], ...] = (
@@ -205,24 +206,73 @@ class AspectClassifierService:
         raise ValueError("model returned an unsupported aspect label")
 
     def _prediction_scores(self, model: Any, text: str) -> tuple[dict[str, float], float | None, str | None]:
-        predict_proba = getattr(model, "predict_proba", None)
-        if not callable(predict_proba):
-            return {}, None, MODEL_CONFIDENCE_UNAVAILABLE_WARNING
-
-        probabilities = list(self._first_prediction(predict_proba([text])))
         raw_classes = getattr(model, "classes_", FINAL_ASPECT_LABELS)
         classes = [str(item) for item in list(raw_classes)]
 
+        predict_proba = getattr(model, "predict_proba", None)
+        if callable(predict_proba):
+            probabilities = list(self._first_prediction(predict_proba([text])))
+            scores = self._scores_from_probabilities(classes, probabilities)
+            confidence = max(scores.values()) if scores else None
+            return scores, confidence, None
+
+        decision_function = getattr(model, "decision_function", None)
+        if callable(decision_function):
+            margins = self._margins_from_decision_function(
+                classes,
+                self._first_prediction(decision_function([text])),
+            )
+            scores = self._scores_from_probabilities(classes, self._softmax(margins))
+            confidence = max(scores.values()) if scores else None
+            return scores, confidence, None if scores else MODEL_CONFIDENCE_UNAVAILABLE_WARNING
+
+        return {}, None, MODEL_CONFIDENCE_UNAVAILABLE_WARNING
+
+    @staticmethod
+    def _margins_from_decision_function(classes: list[str], raw_margins: Any) -> list[float]:
+        if isinstance(raw_margins, (str, bytes)):
+            return []
+
+        try:
+            margins = [float(value) for value in list(raw_margins)]
+        except TypeError:
+            margins = [float(raw_margins)]
+        except ValueError:
+            return []
+
+        if len(classes) == 2 and len(margins) == 1:
+            margins = [-margins[0], margins[0]]
+
+        if len(margins) != len(classes):
+            return []
+
+        if any(not math.isfinite(margin) for margin in margins):
+            return []
+
+        return margins
+
+    @staticmethod
+    def _softmax(values: list[float]) -> list[float]:
+        if not values:
+            return []
+
+        largest = max(values)
+        exp_values = [math.exp(value - largest) for value in values]
+        total = sum(exp_values)
+        if total <= 0 or not math.isfinite(total):
+            return []
+        return [value / total for value in exp_values]
+
+    @staticmethod
+    def _scores_from_probabilities(classes: list[str], probabilities: list[Any]) -> dict[str, float]:
         scores: dict[str, float] = {}
         for class_label, raw_probability in zip(classes, probabilities, strict=False):
             if class_label not in FINAL_ASPECT_LABELS:
                 continue
-            probability = self._safe_probability(raw_probability)
+            probability = AspectClassifierService._safe_probability(raw_probability)
             if probability is not None:
                 scores[class_label] = probability
-
-        confidence = max(scores.values()) if scores else None
-        return scores, confidence, None
+        return scores
 
     @staticmethod
     def _fallback_label(text: str) -> str:

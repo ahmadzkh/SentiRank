@@ -78,13 +78,13 @@ const historyColumns = [
   },
   {
     key: "sentimentConfidence",
-    header: "Confidence Sentimen",
+    header: "Konfidensi Sentimen",
     align: "right",
     render: (row) => formatInferenceConfidence(row.sentiment.confidence),
   },
   {
     key: "aspect",
-    header: "Aspek/Kriteria",
+    header: "Label Aspek",
     className: "min-w-[190px]",
     render: (row) => (
       <span className="inline-flex rounded-md border border-blue-200 bg-blue-50 px-2 py-1 text-xs font-medium text-blue-800">
@@ -94,13 +94,13 @@ const historyColumns = [
   },
   {
     key: "aspectConfidence",
-    header: "Confidence Aspek",
+    header: "Konfidensi Aspek",
     align: "right",
     render: (row) => formatInferenceConfidence(row.aspect.confidence),
   },
   {
     key: "source",
-    header: "Sumber Prediksi",
+    header: "Sumber prediksi",
     className: "min-w-[180px]",
     render: (row) => (
       <div className="space-y-1 text-xs text-muted-foreground">
@@ -225,100 +225,85 @@ export function RuntimeInferencePanel({
     <>
       <ApiGatewayAlert error={gatewayError} />
 
-      <ChartCard
-        description="Masukkan satu ulasan Spotify untuk dianalisis oleh IndoBERT dan SVM melalui API Gateway."
-        title="Input Ulasan"
-      >
-        <form className="space-y-4" onSubmit={handleSubmit}>
-          <div>
-            <div className="flex items-center justify-between gap-4">
-              <label
-                className="text-sm font-medium text-foreground"
-                htmlFor="runtime-review-text"
-              >
-                Teks ulasan
-              </label>
-              <span className="text-xs text-muted-foreground">
-                {reviewText.length.toLocaleString("id-ID")} / {MAX_REVIEW_LENGTH.toLocaleString("id-ID")}
-              </span>
-            </div>
-            <textarea
-              aria-describedby={
-                fieldError
-                  ? "runtime-review-help runtime-review-error"
-                  : "runtime-review-help"
-              }
-              aria-invalid={fieldError ? "true" : "false"}
-              className="mt-2 min-h-36 w-full resize-y rounded-md border border-input bg-white px-3 py-2 text-sm leading-6 text-foreground outline-none ring-offset-background placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-60"
-              disabled={isSubmitting}
-              id="runtime-review-text"
-              onChange={(event) => {
-                setReviewText(event.target.value);
-                if (fieldError) {
-                  setFieldError(null);
+      <section className="grid gap-6 xl:grid-cols-2">
+        <ChartCard
+          description="Analisis satu ulasan Spotify."
+          title="Input Ulasan"
+        >
+          <form className="space-y-4" onSubmit={handleSubmit}>
+            <div>
+              <div className="flex items-center justify-between gap-4">
+                <label
+                  className="text-sm font-medium text-foreground"
+                  htmlFor="runtime-review-text"
+                >
+                  Teks ulasan
+                </label>
+                <span className="text-xs text-muted-foreground">
+                  {reviewText.length.toLocaleString("id-ID")} / {MAX_REVIEW_LENGTH.toLocaleString("id-ID")}
+                </span>
+              </div>
+              <textarea
+                aria-describedby={
+                  fieldError
+                    ? "runtime-review-help runtime-review-error"
+                    : "runtime-review-help"
                 }
-              }}
-              placeholder="Contoh: iklan terlalu banyak dan aplikasi sering lag"
-              value={reviewText}
-            />
-            <p
-              className="mt-2 text-xs leading-5 text-muted-foreground"
-              id="runtime-review-help"
-            >
-              Teks hanya dipangkas pada spasi awal dan akhir sebelum dikirim.
-            </p>
-            {fieldError ? (
+                aria-invalid={fieldError ? "true" : "false"}
+                className="mt-2 min-h-36 w-full resize-y rounded-md border border-input bg-white px-3 py-2 text-sm leading-6 text-foreground outline-none ring-offset-background placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-60"
+                disabled={isSubmitting}
+                id="runtime-review-text"
+                onChange={(event) => {
+                  setReviewText(event.target.value);
+                  if (fieldError) {
+                    setFieldError(null);
+                  }
+                }}
+                placeholder="Contoh: iklan terlalu banyak dan aplikasi sering lag"
+                value={reviewText}
+              />
               <p
-                className="mt-2 text-sm font-medium text-red-700"
-                id="runtime-review-error"
-                role="alert"
+                className="mt-2 text-xs leading-5 text-muted-foreground"
+                id="runtime-review-help"
               >
-                {fieldError}
+                Teks hanya dipangkas pada spasi awal dan akhir sebelum dikirim.
               </p>
-            ) : null}
-          </div>
+              {fieldError ? (
+                <p
+                  className="mt-2 text-sm font-medium text-red-700"
+                  id="runtime-review-error"
+                  role="alert"
+                >
+                  {fieldError}
+                </p>
+              ) : null}
+            </div>
 
-          <button
-            className="inline-flex min-h-10 items-center justify-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground outline-none transition-colors hover:bg-primary/90 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
-            disabled={isSubmitting}
-            type="submit"
-          >
-            {isSubmitting ? (
-              <LoaderCircle aria-hidden="true" className="size-4 animate-spin" />
-            ) : (
-              <ScanSearch aria-hidden="true" className="size-4" />
-            )}
-            {isSubmitting ? "Menganalisis..." : "Analisis Ulasan"}
-          </button>
-        </form>
-      </ChartCard>
+            <button
+              className="inline-flex min-h-10 items-center justify-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground outline-none transition-colors hover:bg-primary/90 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+              disabled={isSubmitting}
+              type="submit"
+            >
+              {isSubmitting ? (
+                <LoaderCircle aria-hidden="true" className="size-4 animate-spin" />
+              ) : (
+                <ScanSearch aria-hidden="true" className="size-4" />
+              )}
+              {isSubmitting ? "Menganalisis..." : "Analisis ulasan"}
+            </button>
+          </form>
+        </ChartCard>
 
-      <div aria-live="polite">
-        {result ? (
-          <section className="space-y-6" aria-label="Hasil analisis ulasan">
-            <SummaryCard
-              description="Ringkasan hasil runtime dari layanan model dan status penyimpanan riwayat."
-              items={[
-                {
-                  label: "Teks dianalisis",
-                  value: <span className="break-words">{result.text}</span>,
-                },
-                {
-                  label: "Status riwayat",
-                  value: result.saved ? "Tersimpan" : "Belum tersimpan",
-                },
-                {
-                  label: "Waktu analisis",
-                  value: formatInferenceDateTime(result.created_at),
-                },
-              ]}
-              title="Ringkasan Hasil"
-            />
-
-            <div className="grid gap-6 xl:grid-cols-2">
+        <div aria-live="polite">
+          {result ? (
+            <section className="space-y-6" aria-label="Hasil analisis ulasan">
               <SummaryCard
-                description="Prediksi sentimen dari layanan IndoBERT."
+                description="Output model sentimen."
                 items={[
+                  {
+                    label: "Teks dianalisis",
+                    value: <span className="break-words">{result.text}</span>,
+                  },
                   {
                     label: "Sentimen",
                     value: (
@@ -328,11 +313,11 @@ export function RuntimeInferencePanel({
                     ),
                   },
                   {
-                    label: "Confidence",
+                    label: "Konfidensi",
                     value: formatInferenceConfidence(result.sentiment.confidence),
                   },
                   {
-                    label: "Model Sentimen",
+                    label: "Model sentimen",
                     value: result.sentiment.model_name === "rule_based_fallback" ? "Rule-based (fallback)" : "IndoBERT",
                   },
                   {
@@ -349,7 +334,7 @@ export function RuntimeInferencePanel({
                     ),
                   },
                 ]}
-                title="Hasil Sentimen"
+                title="Hasil Prediksi Sentimen"
               >
                 {sentimentProbabilities.length > 0 ? (
                   <div className="space-y-3">
@@ -357,32 +342,32 @@ export function RuntimeInferencePanel({
                       Probabilitas kelas
                     </p>
                     {sentimentProbabilities.map(([label, probability]) => (
-                        <div className="space-y-1" key={label}>
-                          <div className="flex items-center justify-between gap-4 text-xs">
-                            <span className="font-medium text-foreground">
-                              {label}
-                            </span>
-                            <span className="text-muted-foreground">
-                              {formatInferenceConfidence(probability)}
-                            </span>
-                          </div>
-                          <progress
-                            aria-label={`Probabilitas ${label}`}
-                            className="h-2 w-full overflow-hidden rounded-full accent-blue-600"
-                            max={1}
-                            value={probability}
-                          />
+                      <div className="space-y-1" key={label}>
+                        <div className="flex items-center justify-between gap-4 text-xs">
+                          <span className="font-medium text-foreground">
+                            {label}
+                          </span>
+                          <span className="text-muted-foreground">
+                            {formatInferenceConfidence(probability)}
+                          </span>
                         </div>
-                      ))}
+                        <progress
+                          aria-label={`Probabilitas ${label}`}
+                          className="h-2 w-full overflow-hidden rounded-full accent-blue-600"
+                          max={1}
+                          value={probability}
+                        />
+                      </div>
+                    ))}
                   </div>
                 ) : null}
               </SummaryCard>
 
               <SummaryCard
-                description="Klasifikasi aspek atau kriteria dari layanan SVM."
+                description="Klasifikasi aspek ulasan."
                 items={[
                   {
-                    label: "Aspek/Kriteria",
+                    label: "Aspek/kriteria",
                     value: (
                       <span className="inline-flex rounded-md border border-blue-200 bg-blue-50 px-2 py-1 text-xs font-medium text-blue-800">
                         {result.aspect.label ?? "Belum diklasifikasi"}
@@ -390,15 +375,15 @@ export function RuntimeInferencePanel({
                     ),
                   },
                   {
-                    label: "Confidence",
+                    label: "Konfidensi",
                     value: formatInferenceConfidence(result.aspect.confidence),
                     description:
                       result.aspect.confidence === null
-                        ? "Model SVM dapat tidak menyediakan probability."
+                        ? "Probabilitas tidak tersedia."
                         : undefined,
                   },
                   {
-                    label: "Model Aspek",
+                    label: "Model aspek",
                     value: result.aspect.model_name === "rule_based_fallback" ? "Rule-based (fallback)" : "SVM",
                   },
                   {
@@ -415,26 +400,62 @@ export function RuntimeInferencePanel({
                     ),
                   },
                 ]}
-                title="Hasil Aspek"
+                title="Hasil Label Aspek"
               />
-            </div>
 
-            {warnings.length > 0 ? (
-              <section
-                className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-900"
-                role="status"
-              >
-                <p className="font-semibold">Catatan hasil</p>
-                <ul className="mt-1 list-disc pl-5">
-                  {warnings.map((warning) => (
-                    <li key={warning}>{warning}</li>
-                  ))}
-                </ul>
-              </section>
-            ) : null}
-          </section>
-        ) : null}
-      </div>
+              {warnings.length > 0 ? (
+                <section
+                  className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-900"
+                  role="status"
+                >
+                  <p className="font-semibold">Catatan hasil</p>
+                  <ul className="mt-1 list-disc pl-5">
+                    {warnings.map((warning) => (
+                      <li key={warning}>{warning}</li>
+                    ))}
+                  </ul>
+                </section>
+              ) : null}
+            </section>
+          ) : (
+            <section className="space-y-6" aria-label="Hasil analisis ulasan belum tersedia">
+              <SummaryCard
+                description="Hasil akan muncul setelah satu ulasan dianalisis."
+                items={[
+                  {
+                    label: "Prediksi",
+                    value: <SentimentBadge />,
+                    description: "Belum ada ulasan yang dikirim pada sesi ini.",
+                  },
+                  {
+                    label: "Status",
+                    value: "-",
+                    description: "Masukkan teks ulasan di kolom kiri.",
+                  },
+                ]}
+                title="Hasil Prediksi Sentimen"
+              />
+
+              <SummaryCard
+                description="Label aspek akan muncul setelah satu ulasan dianalisis."
+                items={[
+                  {
+                    label: "Aspek/kriteria",
+                    value: "-",
+                    description: "Belum ada ulasan yang dikirim pada sesi ini.",
+                  },
+                  {
+                    label: "Status",
+                    value: "-",
+                    description: "Masukkan teks ulasan di kolom kiri.",
+                  },
+                ]}
+                title="Hasil Label Aspek"
+              />
+            </section>
+          )}
+        </div>
+      </section>
 
       <ChartCard
         actions={
@@ -448,10 +469,11 @@ export function RuntimeInferencePanel({
               aria-hidden="true"
               className={`size-3.5 ${isRefreshing ? "animate-spin" : ""}`}
             />
-            {isRefreshing ? "Memuat..." : "Muat Ulang Riwayat"}
+            {isRefreshing ? "Memuat..." : "Muat ulang riwayat"}
           </button>
         }
-        description={`Menampilkan ${history.length.toLocaleString("id-ID")} dari ${historyTotal.toLocaleString("id-ID")} riwayat terbaru yang tersedia.`}
+        description="Riwayat prediksi terbaru."
+        insight={`${history.length.toLocaleString("id-ID")} dari ${historyTotal.toLocaleString("id-ID")} riwayat ditampilkan.`}
         title="Riwayat Analisis Ulasan"
       >
         <SimpleTable
