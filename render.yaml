@@ -1,0 +1,99 @@
+services:
+  - type: web
+    name: sentirank-api-gateway-service
+    env: docker
+    plan: starter
+    dockerfilePath: ./services/api-gateway/Dockerfile.render
+    dockerContext: .
+    healthCheckPath: /health
+    envVars:
+      - key: GATEWAY_TIMEOUT_SECONDS
+        value: "30"
+      - key: REVIEW_SERVICE_URL
+        value: http://sentirank-review-service:8001
+      - key: SENTIMENT_SERVICE_URL
+        value: http://sentirank-sentiment-service:8002
+      - key: ASPECT_SERVICE_URL
+        value: http://sentirank-aspect-service:8003
+      - key: DECISION_SERVICE_URL
+        value: http://sentirank-decision-service:8004
+      - key: REPORT_SERVICE_URL
+        value: http://sentirank-report-service:8005
+      - key: API_GATEWAY_DATABASE_URL
+        fromDatabase:
+          name: sentirank-postgres
+          property: connectionString
+      - key: CORS_ORIGINS
+        sync: false
+
+  - type: pserv
+    name: sentirank-review-service
+    env: docker
+    plan: starter
+    dockerfilePath: ./services/review-service/Dockerfile.render
+    dockerContext: .
+    envVars:
+      - key: PORT
+        value: "8001"
+
+  - type: pserv
+    name: sentirank-sentiment-service
+    env: docker
+    plan: starter
+    dockerfilePath: ./services/sentiment-service/Dockerfile.render
+    dockerContext: .
+    envVars:
+      - key: PORT
+        value: "8002"
+      - key: SENTIMENT_MODEL_SOURCE
+        value: hf
+      - key: INDOBERT_MODEL_ID
+        value: ahmadzkh/sentirank-indobert-run3
+      - key: INDOBERT_MODEL_NAME
+        value: run_3_weighted_loss_lr_1e-5
+      - key: INDOBERT_MAX_LENGTH
+        value: "128"
+      - key: HF_TOKEN
+        sync: false
+
+  - type: pserv
+    name: sentirank-aspect-service
+    env: docker
+    plan: starter
+    dockerfilePath: ./services/aspect-service/Dockerfile.render
+    dockerContext: .
+    envVars:
+      - key: PORT
+        value: "8003"
+      - key: SVM_ASPECT_MODEL_SOURCE
+        value: hf
+      - key: SVM_ASPECT_MODEL_ID
+        value: ahmadzkh/sentirank-svm-aspect-merged-5class
+      - key: HF_TOKEN
+        sync: false
+
+  - type: pserv
+    name: sentirank-decision-service
+    env: docker
+    plan: starter
+    dockerfilePath: ./services/decision-service/Dockerfile.render
+    dockerContext: .
+    envVars:
+      - key: PORT
+        value: "8004"
+
+  - type: pserv
+    name: sentirank-report-service
+    env: docker
+    plan: starter
+    dockerfilePath: ./services/report-service/Dockerfile.render
+    dockerContext: .
+    envVars:
+      - key: PORT
+        value: "8005"
+
+databases:
+  - name: sentirank-postgres
+    plan: starter
+    databaseName: sentirank
+    user: sentirank

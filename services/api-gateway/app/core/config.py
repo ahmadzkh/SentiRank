@@ -5,6 +5,20 @@ from os import getenv
 
 from pydantic import BaseModel
 
+DEFAULT_CORS_ORIGINS = [
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+]
+
+
+def _configured_cors_origins() -> list[str]:
+    raw_origins = getenv("CORS_ORIGINS")
+    if not raw_origins:
+        return DEFAULT_CORS_ORIGINS
+
+    origins = [origin.strip() for origin in raw_origins.split(",") if origin.strip()]
+    return origins or DEFAULT_CORS_ORIGINS
+
 
 class Settings(BaseModel):
     service_name: str = "api-gateway-service"
@@ -16,10 +30,7 @@ class Settings(BaseModel):
     aspect_service_url: str = "http://aspect-service:8003"
     report_service_url: str = "http://report-service:8005"
     database_url: str = "sqlite:///./runtime_inference_history.db"
-    cors_origins: list[str] = [
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
-    ]
+    cors_origins: list[str] = DEFAULT_CORS_ORIGINS
 
 
 @lru_cache
@@ -35,4 +46,5 @@ def get_settings() -> Settings:
             "API_GATEWAY_DATABASE_URL",
             getenv("DATABASE_URL", "sqlite:///./runtime_inference_history.db"),
         ),
+        cors_origins=_configured_cors_origins(),
     )

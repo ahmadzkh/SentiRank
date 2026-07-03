@@ -7,12 +7,14 @@ from pathlib import Path
 from typing import Any, ClassVar
 
 from app.core.config import (
+    EXPECTED_PIPELINE_FILE,
     FINAL_ASPECT_CLASSIFIER,
     FINAL_ASPECT_LABELS,
     SVM_ASPECT_MODEL_NAME,
     Settings,
 )
 from app.schemas.aspect import AspectClassificationData
+
 
 MODEL_UNAVAILABLE_WARNING = (
     "SVM aspect model artifact is not available in this environment. "
@@ -47,10 +49,19 @@ KEYWORD_RULES: tuple[tuple[str, tuple[str, ...]], ...] = (
 
 @dataclass(frozen=True)
 class ModelCacheKey:
+    source: str
     path: Path
     exists: bool
     size: int | None
     mtime_ns: int | None
+    model_id: str | None
+    has_hf_token: bool
+
+
+@dataclass(frozen=True)
+class ModelCandidate:
+    source: str
+    location: str
 
 
 @dataclass(frozen=True)
@@ -144,33 +155,90 @@ class AspectClassifierService:
         )
 
     def _model_state(self) -> ModelState:
-        model_path = self.settings.aspect_model_path
-        cache_key = self._cache_key(model_path)
+        cache_key = self._cache_key()
         cached = self._model_cache.get(cache_key)
         if cached is not None:
             return cached
 
-        state = self._load_model(model_path)
+        state = self._load_model_state()
         self._model_cache[cache_key] = state
         return state
 
-    @staticmethod
-    def _cache_key(model_path: Path) -> ModelCacheKey:
+    def _cache_key(self) -> ModelCacheKey:
+        model_path = self.settings.aspect_model_path
         try:
             stat = model_path.stat()
-            return ModelCacheKey(
-                path=model_path.resolve(),
-                exists=True,
-                size=stat.st_size,
-                mtime_ns=stat.st_mtime_ns,
-            )
+            exists = True
+            size = stat.st_size
+            mtime_ns = stat.st_mtime_ns
         except OSError:
-            return ModelCacheKey(
-                path=model_path.resolve(),
-                exists=False,
-                size=None,
-                mtime_ns=None,
+            exists = False
+            size = None
+            mtime_ns = None
+
+        return ModelCacheKey(
+            source=self.settings.aspect_model_source,
+            path=model_path.resolve(),
+            exists=exists,
+            size=size,
+            mtime_ns=mtime_ns,
+            model_id=self.settings.aspect_model_id,
+            has_hf_token=bool(self.settings.hf_token),
+        )
+
+    def _load_model_state(self) -> ModelState:
+        for candidate in self._model_candidates():
+            state = self._load_candidate(candidate)
+            if state.available:
+                return state
+        return ModelState(model=None, available=False, load_error="missing_artifact")
+
+    def _model_candidates(self) -> list[ModelCandidate]:
+        source = self.settings.aspect_model_source
+        local_candidate = ModelCandidate(source="local", location=str(self.settings.aspect_model_path))
+        hf_candidate = (
+            ModelCandidate(source="hf", location=self.settings.aspect_model_id)
+            if self.settings.aspect_model_id
+            else None
+        )
+
+        if source == "local":
+            return [local_candidate]
+        if source == "hf":
+            return [hf_candidate] if hf_candidate is not None else []
+
+        candidates = []
+        if self.settings.aspect_model_path.exists():
+            candidates.append(local_candidate)
+        if hf_candidate is not None:
+            candidates.append(hf_candidate)
+        if not candidates:
+            candidates.append(local_candidate)
+        return candidates
+
+    def _load_candidate(self, candidate: ModelCandidate) -> ModelState:
+        if candidate.source == "hf":
+            try:
+                model_path = self._download_hf_model(candidate.location)
+            except ImportError:
+                return ModelState(model=None, available=False, load_error="huggingface_hub_unavailable")
+            except Exception:
+                return ModelState(model=None, available=False, load_error="hf_download_failed")
+        else:
+            model_path = Path(candidate.location)
+
+        return self._load_model(model_path)
+
+    def _download_hf_model(self, repo_id: str) -> Path:
+        from huggingface_hub import hf_hub_download
+
+        return Path(
+            hf_hub_download(
+                repo_id=repo_id,
+                filename=EXPECTED_PIPELINE_FILE,
+                token=self.settings.hf_token,
             )
+        )
 
     @staticmethod
     def _load_model(model_path: Path) -> ModelState:
