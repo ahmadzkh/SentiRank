@@ -1,0 +1,39 @@
+services:
+  api-gateway-service:
+    restart: unless-stopped
+    environment:
+      CORS_ORIGINS: ${CORS_ORIGINS:-https://sentirank.vercel.app}
+      API_GATEWAY_DATABASE_URL: ${API_GATEWAY_DATABASE_URL}
+      REVIEW_SERVICE_URL: ${REVIEW_SERVICE_URL:-http://review-service:8001}
+      SENTIMENT_SERVICE_URL: ${SENTIMENT_SERVICE_URL:-http://sentiment-service:8002}
+      ASPECT_SERVICE_URL: ${ASPECT_SERVICE_URL:-http://aspect-service:8003}
+      DECISION_SERVICE_URL: ${DECISION_SERVICE_URL:-http://decision-service:8004}
+      REPORT_SERVICE_URL: ${REPORT_SERVICE_URL:-http://report-service:8005}
+
+  review-service:
+    restart: unless-stopped
+
+  sentiment-service:
+    restart: unless-stopped
+    environment:
+      SENTIMENT_MODEL_SOURCE: ${SENTIMENT_MODEL_SOURCE:-hf}
+      INDOBERT_MODEL_ID: ${INDOBERT_MODEL_ID:-ahmadzkh/sentirank-indobert-run3}
+      INDOBERT_MODEL_NAME: ${INDOBERT_MODEL_NAME:-run_3_weighted_loss_lr_1e-5}
+      INDOBERT_MAX_LENGTH: ${INDOBERT_MAX_LENGTH:-128}
+      HF_TOKEN: ${HF_TOKEN:-}
+
+  aspect-service:
+    restart: unless-stopped
+    environment:
+      SVM_ASPECT_MODEL_SOURCE: ${SVM_ASPECT_MODEL_SOURCE:-hf}
+      SVM_ASPECT_MODEL_ID: ${SVM_ASPECT_MODEL_ID:-ahmadzkh/sentirank-svm-aspect-merged-5class}
+      HF_TOKEN: ${HF_TOKEN:-}
+
+  decision-service:
+    restart: unless-stopped
+
+  report-service:
+    restart: unless-stopped
+
+  database-service:
+    restart: unless-stopped
