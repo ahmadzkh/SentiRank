@@ -6,14 +6,19 @@ import type { RuntimeInferenceHistoryResponse } from "@/types";
 
 export const dynamic = "force-dynamic";
 
+const HISTORY_PAGE_SIZE = 10;
+
 const EMPTY_HISTORY: RuntimeInferenceHistoryResponse = {
   items: [],
   total: 0,
+  page: 1,
+  limit: HISTORY_PAGE_SIZE,
+  total_pages: 1,
 };
 
 export default async function InferencePage() {
   const inferenceResult = await safeGatewayData(
-    () => getRuntimeInferenceHistory({ limit: 20 }),
+    () => getRuntimeInferenceHistory({ limit: HISTORY_PAGE_SIZE, page: 1 }),
     EMPTY_HISTORY,
   );
 

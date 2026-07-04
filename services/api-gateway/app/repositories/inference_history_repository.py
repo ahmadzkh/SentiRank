@@ -66,12 +66,22 @@ class InferenceHistoryRepository:
             raise InferencePersistenceError(str(error)) from error
         return record
 
-    def list_latest(self, limit: int) -> list[dict[str, Any]]:
+    def list_latest(self, limit: int, offset: int = 0) -> list[dict[str, Any]]:
         try:
-            rows = self._list_latest_postgres(limit) if self._is_postgres else self._list_latest_sqlite(limit)
+            rows = (
+                self._list_latest_postgres(limit, offset)
+                if self._is_postgres
+                else self._list_latest_sqlite(limit, offset)
+            )
         except Exception as error:  # pragma: no cover - normalized boundary
             raise InferencePersistenceError(str(error)) from error
         return [self._row_to_history_item(row) for row in rows]
+
+    def count(self) -> int:
+        try:
+            return self._count_postgres() if self._is_postgres else self._count_sqlite()
+        except Exception as error:  # pragma: no cover - normalized boundary
+            raise InferencePersistenceError(str(error)) from error
 
     def check_ready(self) -> dict[str, Any]:
         try:
@@ -185,7 +195,7 @@ class InferenceHistoryRepository:
                 self._record_values(record, sqlite=True),
             )
 
-    def _list_latest_sqlite(self, limit: int) -> list[sqlite3.Row]:
+    def _list_latest_sqlite(self, limit: int, offset: int) -> list[sqlite3.Row]:
         self._ensure_sqlite_schema()
         with self._sqlite_connection() as connection:
             return list(
@@ -195,10 +205,17 @@ class InferenceHistoryRepository:
                     FROM {TABLE_NAME}
                     ORDER BY created_at DESC
                     LIMIT ?
+                    OFFSET ?
                     """,
-                    (limit,),
+                    (limit, offset),
                 )
             )
+
+    def _count_sqlite(self) -> int:
+        self._ensure_sqlite_schema()
+        with self._sqlite_connection() as connection:
+            row = connection.execute(f"SELECT COUNT(*) FROM {TABLE_NAME}").fetchone()
+            return int(row[0]) if row else 0
 
     def _postgres_connection(self):
         try:
@@ -278,7 +295,7 @@ class InferenceHistoryRepository:
                 )
             connection.commit()
 
-    def _list_latest_postgres(self, limit: int) -> list[dict[str, Any]]:
+    def _list_latest_postgres(self, limit: int, offset: int) -> list[dict[str, Any]]:
         self._ensure_postgres_schema()
         with self._postgres_connection() as connection:
             with connection.cursor() as cursor:
@@ -309,11 +326,20 @@ class InferenceHistoryRepository:
                     FROM {TABLE_NAME}
                     ORDER BY created_at DESC
                     LIMIT %s
+                    OFFSET %s
                     """,
-                    (limit,),
+                    (limit, offset),
                 )
                 columns = [description.name for description in cursor.description]
                 return [dict(zip(columns, row, strict=True)) for row in cursor.fetchall()]
+
+    def _count_postgres(self) -> int:
+        self._ensure_postgres_schema()
+        with self._postgres_connection() as connection:
+            with connection.cursor() as cursor:
+                cursor.execute(f"SELECT COUNT(*) FROM {TABLE_NAME}")
+                row = cursor.fetchone()
+                return int(row[0]) if row else 0
 
     def _record_values(self, record: InferenceRecord, sqlite: bool) -> tuple[Any, ...]:
         return (

@@ -69,11 +69,16 @@ class RuntimeReviewInferenceService:
             data["persistence_error"] = {"code": "INFERENCE_PERSISTENCE_ERROR", "details": str(error)}
             return data
 
-    def list_history(self, limit: int) -> dict[str, Any]:
-        items = self.repository.list_latest(limit)
+    def list_history(self, limit: int, page: int = 1) -> dict[str, Any]:
+        offset = (page - 1) * limit
+        items = self.repository.list_latest(limit, offset)
+        total = self.repository.count()
         return {
             "items": items,
-            "total": len(items),
+            "total": total,
+            "page": page,
+            "limit": limit,
+            "total_pages": max(1, (total + limit - 1) // limit),
         }
 
     def persistence_health(self) -> dict[str, Any]:

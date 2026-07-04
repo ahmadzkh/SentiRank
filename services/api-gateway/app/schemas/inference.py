@@ -23,6 +23,9 @@ class RuntimeInferenceHistoryItem(BaseModel):
 class RuntimeInferenceHistoryData(BaseModel):
     items: list[RuntimeInferenceHistoryItem] = Field(default_factory=list)
     total: int
+    page: int = 1
+    limit: int = 20
+    total_pages: int = 1
 
 
 class RuntimeInferenceResult(BaseModel):

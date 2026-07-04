@@ -46,8 +46,12 @@ export interface RuntimeInferenceHistoryItem {
 export interface RuntimeInferenceHistoryResponse {
   items: RuntimeInferenceHistoryItem[];
   total: number;
+  page?: number;
+  limit?: number;
+  total_pages?: number;
 }
 
 export interface RuntimeInferenceHistoryQuery {
   limit?: number;
+  page?: number;
 }

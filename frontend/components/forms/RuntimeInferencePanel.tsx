@@ -34,7 +34,11 @@ import type {
 } from "@/types/inference";
 
 const MAX_REVIEW_LENGTH = 2000;
-const HISTORY_LIMIT = 20;
+const HISTORY_PAGE_SIZE = 10;
+
+type RuntimeInferenceHistoryTableRow = RuntimeInferenceHistoryItem & {
+  rowNumber: number;
+};
 
 interface RuntimeInferencePanelProps {
   initialHistory: RuntimeInferenceHistoryResponse;
@@ -54,7 +58,7 @@ const historyColumns = [
     header: "No",
     align: "center",
     className: "w-16",
-    render: (_row, index) => index + 1,
+    render: (row) => row.rowNumber,
   },
   {
     key: "review",
@@ -119,7 +123,7 @@ const historyColumns = [
     className: "min-w-[170px]",
     render: (row) => formatInferenceDateTime(row.created_at),
   },
-] satisfies readonly SimpleTableColumn<RuntimeInferenceHistoryItem>[];
+] satisfies readonly SimpleTableColumn<RuntimeInferenceHistoryTableRow>[];
 
 export function RuntimeInferencePanel({
   initialHistory,
@@ -130,6 +134,14 @@ export function RuntimeInferencePanel({
   const [result, setResult] = useState<RuntimeInferenceResult | null>(null);
   const [history, setHistory] = useState(initialHistory.items);
   const [historyTotal, setHistoryTotal] = useState(initialHistory.total);
+  const [historyPage, setHistoryPage] = useState(initialHistory.page ?? 1);
+  const [historyLimit, setHistoryLimit] = useState(
+    initialHistory.limit ?? HISTORY_PAGE_SIZE,
+  );
+  const [historyTotalPages, setHistoryTotalPages] = useState(
+    initialHistory.total_pages ??
+      Math.max(1, Math.ceil(initialHistory.total / HISTORY_PAGE_SIZE)),
+  );
   const [gatewayError, setGatewayError] =
     useState<ApiGatewayFailure | null>(initialGatewayError);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -158,22 +170,57 @@ export function RuntimeInferencePanel({
       )
     : [];
 
-  async function refreshHistory() {
+  const historyStartNumber = historyTotal === 0 ? 0 : (historyPage - 1) * historyLimit + 1;
+  const historyEndNumber = Math.min(
+    historyTotal,
+    historyStartNumber + history.length - 1,
+  );
+  const historyRows = history.map((item, index) => ({
+    ...item,
+    rowNumber: historyStartNumber + index,
+  }));
+  const canGoToPreviousHistoryPage = historyPage > 1 && !isRefreshing && !isSubmitting;
+  const canGoToNextHistoryPage =
+    historyPage < historyTotalPages && !isRefreshing && !isSubmitting;
+
+  function applyHistory(nextHistory: RuntimeInferenceHistoryResponse) {
+    const nextLimit = nextHistory.limit ?? HISTORY_PAGE_SIZE;
+    setHistory(nextHistory.items);
+    setHistoryTotal(nextHistory.total);
+    setHistoryPage(nextHistory.page ?? 1);
+    setHistoryLimit(nextLimit);
+    setHistoryTotalPages(
+      nextHistory.total_pages ?? Math.max(1, Math.ceil(nextHistory.total / nextLimit)),
+    );
+  }
+
+  function clearHistory() {
+    setHistory([]);
+    setHistoryTotal(0);
+    setHistoryPage(1);
+    setHistoryLimit(HISTORY_PAGE_SIZE);
+    setHistoryTotalPages(1);
+  }
+
+  async function loadHistoryPage(page: number) {
     setIsRefreshing(true);
     try {
       const nextHistory = await getRuntimeInferenceHistory({
-        limit: HISTORY_LIMIT,
+        limit: HISTORY_PAGE_SIZE,
+        page,
       });
-      setHistory(nextHistory.items);
-      setHistoryTotal(nextHistory.total);
+      applyHistory(nextHistory);
       setGatewayError(null);
     } catch (error) {
-      setHistory([]);
-      setHistoryTotal(0);
+      clearHistory();
       setGatewayError(normalizeApiGatewayError(error));
     } finally {
       setIsRefreshing(false);
     }
+  }
+
+  async function refreshHistory() {
+    await loadHistoryPage(historyPage);
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -199,8 +246,7 @@ export function RuntimeInferencePanel({
       setGatewayError(null);
     } catch (error) {
       setResult(null);
-      setHistory([]);
-      setHistoryTotal(0);
+      clearHistory();
       setGatewayError(normalizeApiGatewayError(error));
       setIsSubmitting(false);
       return;
@@ -208,13 +254,12 @@ export function RuntimeInferencePanel({
 
     try {
       const nextHistory = await getRuntimeInferenceHistory({
-        limit: HISTORY_LIMIT,
+        limit: HISTORY_PAGE_SIZE,
+        page: 1,
       });
-      setHistory(nextHistory.items);
-      setHistoryTotal(nextHistory.total);
+      applyHistory(nextHistory);
     } catch (error) {
-      setHistory([]);
-      setHistoryTotal(0);
+      clearHistory();
       setGatewayError(normalizeApiGatewayError(error));
     } finally {
       setIsSubmitting(false);
@@ -473,12 +518,16 @@ export function RuntimeInferencePanel({
           </button>
         }
         description="Riwayat prediksi terbaru."
-        insight={`${history.length.toLocaleString("id-ID")} dari ${historyTotal.toLocaleString("id-ID")} riwayat ditampilkan.`}
+        insight={
+          historyTotal === 0
+            ? "Belum ada riwayat analisis ulasan."
+            : `Menampilkan ${historyStartNumber.toLocaleString("id-ID")}-${historyEndNumber.toLocaleString("id-ID")} dari ${historyTotal.toLocaleString("id-ID")} riwayat.`
+        }
         title="Riwayat Analisis Ulasan"
       >
         <SimpleTable
           columns={historyColumns}
-          data={gatewayError ? [] : history}
+          data={gatewayError ? [] : historyRows}
           emptyMessage={
             gatewayError
               ? EMPTY_GATEWAY_MESSAGE
@@ -489,6 +538,30 @@ export function RuntimeInferencePanel({
           minWidthClassName="min-w-[1280px]"
           rowKey={(row) => row.id}
         />
+
+        <div className="mt-4 flex flex-col gap-3 border-t border-border pt-4 text-sm text-muted-foreground md:flex-row md:items-center md:justify-between">
+          <p>
+            Halaman {historyPage.toLocaleString("id-ID")} dari {historyTotalPages.toLocaleString("id-ID")}
+          </p>
+          <div className="flex gap-2">
+            <button
+              className="inline-flex min-h-9 items-center rounded-md border border-border bg-white px-3 py-2 text-xs font-medium text-foreground outline-none transition-colors hover:bg-slate-50 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              disabled={!canGoToPreviousHistoryPage}
+              onClick={() => loadHistoryPage(historyPage - 1)}
+              type="button"
+            >
+              Sebelumnya
+            </button>
+            <button
+              className="inline-flex min-h-9 items-center rounded-md border border-border bg-white px-3 py-2 text-xs font-medium text-foreground outline-none transition-colors hover:bg-slate-50 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+              disabled={!canGoToNextHistoryPage}
+              onClick={() => loadHistoryPage(historyPage + 1)}
+              type="button"
+            >
+              Berikutnya
+            </button>
+          </div>
+        </div>
       </ChartCard>
     </>
   );

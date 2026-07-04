@@ -115,10 +115,14 @@ async def infer_review(request: Request) -> JSONResponse | dict[str, Any]:
 
 
 @router.get("/history", response_model=None)
-def inference_history(limit: int = DEFAULT_HISTORY_LIMIT) -> JSONResponse | dict[str, Any]:
+def inference_history(
+    limit: int = DEFAULT_HISTORY_LIMIT,
+    page: int = 1,
+) -> JSONResponse | dict[str, Any]:
     normalized_limit = max(1, min(limit, MAX_HISTORY_LIMIT))
+    normalized_page = max(1, page)
     try:
-        data = get_runtime_service().list_history(normalized_limit)
+        data = get_runtime_service().list_history(normalized_limit, normalized_page)
     except InferencePersistenceError as error:
         return error_response(
             message="Riwayat inference tidak dapat dimuat.",
