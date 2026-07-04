@@ -1,0 +1,11 @@
+{
+  "private": true,
+  "scripts": {
+    "build": "npm --prefix frontend run build",
+    "lint": "npm --prefix frontend run lint",
+    "vercel-build": "npm --prefix frontend run build"
+  },
+  "dependencies": {
+    "next": "latest"
+  }
+}
