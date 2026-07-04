@@ -1,4 +1,5 @@
 import { API_ENDPOINTS } from "@/lib/api-endpoints";
+import { STATIC_DATA_REQUEST } from "@/lib/api-cache";
 import { httpClient } from "@/lib/http-client";
 import type {
   GatewayRandomReviewsResponse,
@@ -11,6 +12,7 @@ export function getReviews(
   return httpClient.getData<GatewayRandomReviewsResponse>(
     API_ENDPOINTS.reviews.random,
     {
+      ...STATIC_DATA_REQUEST,
       query,
     },
   );
@@ -22,6 +24,7 @@ export function getLatestNegativeReviews(
   return httpClient.getData<GatewayRandomReviewsResponse>(
     API_ENDPOINTS.reviews.latestNegative,
     {
+      ...STATIC_DATA_REQUEST,
       query,
     },
   );

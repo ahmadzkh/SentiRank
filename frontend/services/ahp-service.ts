@@ -1,4 +1,5 @@
 import { API_ENDPOINTS } from "@/lib/api-endpoints";
+import { STATIC_DATA_REQUEST } from "@/lib/api-cache";
 import { httpClient } from "@/lib/http-client";
 import type {
   GatewayAhpCalculateRequest,
@@ -9,7 +10,10 @@ import type {
 } from "@/types";
 
 export function getAhpCriteria(): Promise<GatewayCriterion[]> {
-  return httpClient.getData<GatewayCriterion[]>(API_ENDPOINTS.ahp.criteria);
+  return httpClient.getData<GatewayCriterion[]>(
+    API_ENDPOINTS.ahp.criteria,
+    STATIC_DATA_REQUEST,
+  );
 }
 
 export function calculateAhp(

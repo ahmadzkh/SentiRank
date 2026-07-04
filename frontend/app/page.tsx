@@ -64,6 +64,7 @@ export default function HomePage(): ReactElement {
         <Link
           className="inline-flex items-center justify-center gap-2 rounded-md bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-primary/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
           href="/dashboard"
+          prefetch={true}
         >
           Buka Dashboard
           <ArrowRight aria-hidden="true" className="size-4" />
@@ -87,6 +88,7 @@ export default function HomePage(): ReactElement {
             <Link
               className="inline-flex items-center justify-center gap-2 rounded-md bg-primary px-5 py-3 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-primary/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
               href="/dashboard"
+              prefetch={true}
             >
               Buka Dashboard
               <ArrowRight aria-hidden="true" className="size-4" />

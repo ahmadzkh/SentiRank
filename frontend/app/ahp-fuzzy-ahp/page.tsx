@@ -25,7 +25,7 @@ import {
   type RespondentSummaryView,
 } from "@/services/ahp-overview-service";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 const EMPTY_MESSAGE = EMPTY_GATEWAY_MESSAGE;
 

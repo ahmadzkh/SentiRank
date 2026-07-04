@@ -23,6 +23,10 @@ export class ApiGatewayUnavailableError extends Error implements ApiGatewayFailu
   }
 }
 
+type GatewayFetchOptions = RequestInit & {
+  next?: ApiRequestOptions["next"];
+};
+
 function getApiBaseUrl() {
   if (typeof window === "undefined" && process.env.API_GATEWAY_INTERNAL_URL) {
     return process.env.API_GATEWAY_INTERNAL_URL;
@@ -150,13 +154,21 @@ async function request<TData>(
   }
 
   try {
-    const response = await fetch(buildUrl(endpoint, query), {
-      cache: "no-store",
+    const fetchOptions: GatewayFetchOptions = {
       ...requestOptions,
       body: typeof body === "undefined" ? undefined : JSON.stringify(body),
       headers: requestHeaders,
       signal: requestOptions.signal ?? abortController?.signal,
-    });
+    };
+
+    if (
+      typeof fetchOptions.cache === "undefined" &&
+      typeof fetchOptions.next === "undefined"
+    ) {
+      fetchOptions.cache = "no-store";
+    }
+
+    const response = await fetch(buildUrl(endpoint, query), fetchOptions);
     const payload = await parseResponseBody(response);
 
     if (!response.ok) {

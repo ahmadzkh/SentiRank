@@ -89,6 +89,7 @@ export function AppSidebar({ items, className }: AppSidebarProps) {
                 )}
                 href={item.href}
                 key={item.id}
+                prefetch={true}
               >
                 <Icon
                   aria-hidden="true"

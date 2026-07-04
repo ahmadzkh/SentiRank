@@ -30,7 +30,7 @@ import {
 import type { GatewayAspectPredictionSample } from "@/types";
 import type { ReviewSentimentLabel } from "@/types/sentiment";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 const SVM_SCENARIOS = [
   { scenario: "original_7class", label: "SVM original_7class" },

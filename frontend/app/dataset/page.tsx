@@ -24,7 +24,7 @@ import { getReviews } from "@/services/review-service";
 import { getScrapingSummary } from "@/services/scraping-service";
 import type { GatewayReviewSample } from "@/types";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 const datasetReviewColumns = [
   {

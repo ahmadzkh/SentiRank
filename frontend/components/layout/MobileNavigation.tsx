@@ -68,6 +68,7 @@ export function MobileNavigation({ items }: MobileNavigationProps) {
               )}
               href={item.href}
               key={item.id}
+              prefetch={true}
             >
               <Icon aria-hidden="true" className="size-3.5 shrink-0" />
               <span>{item.label}</span>

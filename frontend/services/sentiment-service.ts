@@ -1,4 +1,5 @@
 import { API_ENDPOINTS } from "@/lib/api-endpoints";
+import { STATIC_DATA_REQUEST } from "@/lib/api-cache";
 import { httpClient } from "@/lib/http-client";
 import type {
   GatewaySentimentEvaluation,
@@ -16,11 +17,13 @@ export function predictSentiment(
 export function getSentimentSummary(): Promise<GatewaySentimentSummary> {
   return httpClient.getData<GatewaySentimentSummary>(
     API_ENDPOINTS.sentiment.summary,
+    STATIC_DATA_REQUEST,
   );
 }
 
 export function getSentimentEvaluation(): Promise<GatewaySentimentEvaluation> {
   return httpClient.getData<GatewaySentimentEvaluation>(
     API_ENDPOINTS.sentiment.evaluation,
+    STATIC_DATA_REQUEST,
   );
 }

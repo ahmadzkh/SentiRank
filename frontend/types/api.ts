@@ -47,11 +47,17 @@ export type ApiQueryParams = Record<
   ApiQueryValue | readonly ApiQueryValue[]
 >;
 
+export interface ApiNextFetchOptions {
+  revalidate?: number | false;
+  tags?: string[];
+}
+
 export interface ApiRequestOptions<
   TBody = unknown,
   TQuery extends object = object,
 > extends Omit<RequestInit, "body"> {
   body?: TBody;
+  next?: ApiNextFetchOptions;
   query?: TQuery;
 }
 

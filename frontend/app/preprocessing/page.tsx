@@ -18,7 +18,7 @@ import type {
   GatewayPreprocessingSummary,
 } from "@/types";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 const COUNT_FORMATTER = new Intl.NumberFormat("id-ID");
 const PERCENT_FORMATTER = new Intl.NumberFormat("id-ID", {

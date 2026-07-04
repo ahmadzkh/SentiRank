@@ -29,7 +29,7 @@ import {
 import type { GatewaySentimentPredictionSample } from "@/types";
 import type { ReviewSentimentLabel } from "@/types/sentiment";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 const SENTIMENT_CLASS_LABELS = ["Negative", "Neutral", "Positive"] as const;
 const INDOBERT_RUN_NAMES = [
