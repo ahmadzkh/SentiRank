@@ -78,6 +78,7 @@ class RuntimeReviewInferenceService:
             "total": total,
             "page": page,
             "limit": limit,
+            "offset": offset,
             "total_pages": max(1, (total + limit - 1) // limit),
         }
 

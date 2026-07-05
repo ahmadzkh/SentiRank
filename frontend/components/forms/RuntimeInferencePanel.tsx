@@ -35,10 +35,66 @@ import type {
 
 const MAX_REVIEW_LENGTH = 2000;
 const HISTORY_PAGE_SIZE = 10;
+const MAX_VISIBLE_HISTORY_PAGE_BUTTONS = 5;
 
 type RuntimeInferenceHistoryTableRow = RuntimeInferenceHistoryItem & {
   rowNumber: number;
 };
+
+function getSafeHistoryLimit(limit: number | undefined): number {
+  if (typeof limit !== "number" || !Number.isFinite(limit)) {
+    return HISTORY_PAGE_SIZE;
+  }
+
+  return Math.max(1, Math.trunc(limit));
+}
+
+function getSafeHistoryTotal(total: number | undefined): number {
+  if (typeof total !== "number" || !Number.isFinite(total)) {
+    return 0;
+  }
+
+  return Math.max(0, Math.trunc(total));
+}
+
+function getHistoryTotalPages(total: number, limit: number): number {
+  if (total === 0) {
+    return 1;
+  }
+
+  return Math.max(1, Math.ceil(total / limit));
+}
+
+function getHistoryOffset(page: number, limit: number): number {
+  return (Math.max(1, page) - 1) * limit;
+}
+
+function getVisibleHistoryPages(currentPage: number, totalPages: number): number[] {
+  if (totalPages <= MAX_VISIBLE_HISTORY_PAGE_BUTTONS) {
+    return Array.from({ length: totalPages }, (_, index) => index + 1);
+  }
+
+  if (currentPage <= 3) {
+    return [1, 2, 3, 4, totalPages];
+  }
+
+  if (currentPage >= totalPages - 2) {
+    return [1, totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
+  }
+
+  return [1, currentPage - 1, currentPage, currentPage + 1, totalPages];
+}
+
+function hasPaginationMetadata(history: RuntimeInferenceHistoryResponse): boolean {
+  return (
+    typeof history.page === "number" &&
+    Number.isFinite(history.page) &&
+    typeof history.limit === "number" &&
+    Number.isFinite(history.limit) &&
+    typeof history.total_pages === "number" &&
+    Number.isFinite(history.total_pages)
+  );
+}
 
 interface RuntimeInferencePanelProps {
   initialHistory: RuntimeInferenceHistoryResponse;
@@ -132,15 +188,23 @@ export function RuntimeInferencePanel({
   const [reviewText, setReviewText] = useState("");
   const [fieldError, setFieldError] = useState<string | null>(null);
   const [result, setResult] = useState<RuntimeInferenceResult | null>(null);
-  const [history, setHistory] = useState(initialHistory.items);
-  const [historyTotal, setHistoryTotal] = useState(initialHistory.total);
-  const [historyPage, setHistoryPage] = useState(initialHistory.page ?? 1);
-  const [historyLimit, setHistoryLimit] = useState(
-    initialHistory.limit ?? HISTORY_PAGE_SIZE,
+  const initialHistoryLimit = getSafeHistoryLimit(initialHistory.limit);
+  const initialHistoryTotal = getSafeHistoryTotal(initialHistory.total);
+  const initialHistoryTotalPages = getHistoryTotalPages(
+    initialHistoryTotal,
+    initialHistoryLimit,
   );
+  const [history, setHistory] = useState(initialHistory.items);
+  const [historyTotal, setHistoryTotal] = useState(initialHistoryTotal);
+  const [historyPage, setHistoryPage] = useState(
+    Math.min(Math.max(1, initialHistory.page ?? 1), initialHistoryTotalPages),
+  );
+  const [historyLimit, setHistoryLimit] = useState(initialHistoryLimit);
   const [historyTotalPages, setHistoryTotalPages] = useState(
-    initialHistory.total_pages ??
-      Math.max(1, Math.ceil(initialHistory.total / HISTORY_PAGE_SIZE)),
+    Math.max(initialHistory.total_pages ?? 1, initialHistoryTotalPages),
+  );
+  const [historyHasReliablePagination, setHistoryHasReliablePagination] = useState(
+    hasPaginationMetadata(initialHistory),
   );
   const [gatewayError, setGatewayError] =
     useState<ApiGatewayFailure | null>(initialGatewayError);
@@ -170,28 +234,40 @@ export function RuntimeInferencePanel({
       )
     : [];
 
-  const historyStartNumber = historyTotal === 0 ? 0 : (historyPage - 1) * historyLimit + 1;
-  const historyEndNumber = Math.min(
-    historyTotal,
-    historyStartNumber + history.length - 1,
-  );
+  const historyOffset = getHistoryOffset(historyPage, historyLimit);
+  const loadedHistoryEndNumber = history.length === 0 ? 0 : historyOffset + history.length;
+  const historyStartNumber = history.length === 0 ? 0 : historyOffset + 1;
+  const historyEndNumber = historyHasReliablePagination
+    ? Math.min(historyTotal, loadedHistoryEndNumber)
+    : loadedHistoryEndNumber;
   const historyRows = history.map((item, index) => ({
     ...item,
-    rowNumber: historyStartNumber + index,
+    rowNumber: historyOffset + index + 1,
   }));
+  const historyPageNumbers = getVisibleHistoryPages(historyPage, historyTotalPages);
+  const historyTotalLabel = historyHasReliablePagination
+    ? `${historyTotal.toLocaleString("id-ID")} riwayat`
+    : `minimal ${historyEndNumber.toLocaleString("id-ID")} riwayat`;
   const canGoToPreviousHistoryPage = historyPage > 1 && !isRefreshing && !isSubmitting;
   const canGoToNextHistoryPage =
     historyPage < historyTotalPages && !isRefreshing && !isSubmitting;
 
   function applyHistory(nextHistory: RuntimeInferenceHistoryResponse) {
-    const nextLimit = nextHistory.limit ?? HISTORY_PAGE_SIZE;
-    setHistory(nextHistory.items);
-    setHistoryTotal(nextHistory.total);
-    setHistoryPage(nextHistory.page ?? 1);
-    setHistoryLimit(nextLimit);
-    setHistoryTotalPages(
-      nextHistory.total_pages ?? Math.max(1, Math.ceil(nextHistory.total / nextLimit)),
+    const nextLimit = getSafeHistoryLimit(nextHistory.limit);
+    const nextTotal = getSafeHistoryTotal(nextHistory.total);
+    const computedTotalPages = getHistoryTotalPages(nextTotal, nextLimit);
+    const nextTotalPages = Math.max(nextHistory.total_pages ?? 1, computedTotalPages);
+    const nextPage = Math.min(
+      Math.max(1, nextHistory.page ?? 1),
+      nextTotalPages,
     );
+
+    setHistory(nextHistory.items);
+    setHistoryTotal(nextTotal);
+    setHistoryPage(nextPage);
+    setHistoryLimit(nextLimit);
+    setHistoryTotalPages(nextTotalPages);
+    setHistoryHasReliablePagination(hasPaginationMetadata(nextHistory));
   }
 
   function clearHistory() {
@@ -200,14 +276,17 @@ export function RuntimeInferencePanel({
     setHistoryPage(1);
     setHistoryLimit(HISTORY_PAGE_SIZE);
     setHistoryTotalPages(1);
+    setHistoryHasReliablePagination(true);
   }
 
   async function loadHistoryPage(page: number) {
+    const targetPage = Math.min(Math.max(1, page), historyTotalPages);
+
     setIsRefreshing(true);
     try {
       const nextHistory = await getRuntimeInferenceHistory({
         limit: HISTORY_PAGE_SIZE,
-        page,
+        page: targetPage,
       });
       applyHistory(nextHistory);
       setGatewayError(null);
@@ -519,9 +598,9 @@ export function RuntimeInferencePanel({
         }
         description="Riwayat prediksi terbaru."
         insight={
-          historyTotal === 0
+          historyRows.length === 0
             ? "Belum ada riwayat analisis ulasan."
-            : `Menampilkan ${historyStartNumber.toLocaleString("id-ID")}-${historyEndNumber.toLocaleString("id-ID")} dari ${historyTotal.toLocaleString("id-ID")} riwayat.`
+            : `Menampilkan ${historyStartNumber.toLocaleString("id-ID")}-${historyEndNumber.toLocaleString("id-ID")} dari ${historyTotalLabel}.`
         }
         title="Riwayat Analisis Ulasan"
       >
@@ -539,11 +618,16 @@ export function RuntimeInferencePanel({
           rowKey={(row) => row.id}
         />
 
-        <div className="mt-4 flex flex-col gap-3 border-t border-border pt-4 text-sm text-muted-foreground md:flex-row md:items-center md:justify-between">
+        <nav
+          aria-label="Navigasi halaman riwayat analisis ulasan"
+          className="mt-4 flex flex-col gap-3 border-t border-border pt-4 text-sm text-muted-foreground lg:flex-row lg:items-center lg:justify-between"
+        >
           <p>
-            Halaman {historyPage.toLocaleString("id-ID")} dari {historyTotalPages.toLocaleString("id-ID")}
+            {historyHasReliablePagination
+              ? `Halaman ${historyPage.toLocaleString("id-ID")} dari ${historyTotalPages.toLocaleString("id-ID")}`
+              : `Halaman ${historyPage.toLocaleString("id-ID")} dari total yang belum tersedia`}
           </p>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <button
               className="inline-flex min-h-9 items-center rounded-md border border-border bg-white px-3 py-2 text-xs font-medium text-foreground outline-none transition-colors hover:bg-slate-50 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
               disabled={!canGoToPreviousHistoryPage}
@@ -552,6 +636,31 @@ export function RuntimeInferencePanel({
             >
               Sebelumnya
             </button>
+
+            <div className="flex flex-wrap items-center gap-1" role="group" aria-label="Nomor halaman riwayat">
+              {historyPageNumbers.map((pageNumber) => {
+                const isActivePage = pageNumber === historyPage;
+
+                return (
+                  <button
+                    aria-current={isActivePage ? "page" : undefined}
+                    aria-label={`Buka halaman ${pageNumber.toLocaleString("id-ID")}`}
+                    className={`inline-flex min-h-9 min-w-9 items-center justify-center rounded-md border px-3 py-2 text-xs font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60 ${
+                      isActivePage
+                        ? "border-primary bg-primary text-primary-foreground"
+                        : "border-border bg-white text-foreground hover:bg-slate-50"
+                    }`}
+                    disabled={isActivePage || isRefreshing || isSubmitting}
+                    key={pageNumber}
+                    onClick={() => loadHistoryPage(pageNumber)}
+                    type="button"
+                  >
+                    {pageNumber.toLocaleString("id-ID")}
+                  </button>
+                );
+              })}
+            </div>
+
             <button
               className="inline-flex min-h-9 items-center rounded-md border border-border bg-white px-3 py-2 text-xs font-medium text-foreground outline-none transition-colors hover:bg-slate-50 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
               disabled={!canGoToNextHistoryPage}
@@ -561,7 +670,7 @@ export function RuntimeInferencePanel({
               Berikutnya
             </button>
           </div>
-        </div>
+        </nav>
       </ChartCard>
     </>
   );

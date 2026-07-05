@@ -48,6 +48,7 @@ export interface RuntimeInferenceHistoryResponse {
   total: number;
   page?: number;
   limit?: number;
+  offset?: number;
   total_pages?: number;
 }
 
