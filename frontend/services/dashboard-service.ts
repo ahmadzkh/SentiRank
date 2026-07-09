@@ -234,6 +234,7 @@ function buildDatasetCards(sources: DashboardSources): DashboardDatasetCard[] {
     finiteNumber(sources.dataset?.total_review_count);
   const rawTotal =
     finiteNumber(sources.dataset?.raw_review_count) ??
+    scrapingRows ??
     finiteNumber(sources.dataset?.total_review_count);
   const processedTotal = finiteNumber(sources.preprocessing?.total_rows);
   const criteriaCount =

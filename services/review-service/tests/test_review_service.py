@@ -140,6 +140,57 @@ def test_scraping_summary_should_read_fixture_files(tmp_path: Path) -> None:
     assert summary["rating_3_limitation_note"] == "limited"
 
 
+def test_dataset_summary_should_use_tracked_acquisition_fallback(tmp_path: Path) -> None:
+    service = make_service(tmp_path)
+    write_reviews(service.datasets_dir / "processed" / "dataset_spotify_processed.csv")
+    write_noise_report(service.datasets_dir / "processed" / "dataset_spotify_noise_report.csv")
+    write_json(
+        service.datasets_dir
+        / "outputs"
+        / "eda"
+        / "01_data_acquisition"
+        / "scraping_quota_achievement.json",
+        [
+            {"rating": 1, "target_count": 5, "actual_count": 5},
+            {"rating": 5, "target_count": 5, "actual_count": 2},
+        ],
+    )
+
+    summary = service.dataset_summary()
+
+    assert summary["raw_review_count"] == 7
+    assert summary["total_review_count"] == 6
+    assert summary["dropped_review_count"] == 1
+    assert summary["source_application"]["app_id"] == "com.spotify.music"
+    assert summary["source_application"]["title"] == "Spotify"
+    assert summary["source_application"]["source_name"] == "Google Play"
+
+
+def test_scraping_summary_should_use_tracked_acquisition_fallback(tmp_path: Path) -> None:
+    service = make_service(tmp_path)
+    write_json(
+        service.datasets_dir
+        / "outputs"
+        / "eda"
+        / "01_data_acquisition"
+        / "scraping_quota_achievement.json",
+        [
+            {"rating": 1, "target_count": 5, "actual_count": 5},
+            {"rating": 3, "target_count": 5, "actual_count": 2},
+        ],
+    )
+
+    summary = service.scraping_summary()
+
+    assert summary["app_id"] == "com.spotify.music"
+    assert summary["app_title"] == "Spotify"
+    assert summary["source_name"] == "Google Play"
+    assert summary["total_achieved_rows"] == 7
+    assert summary["target_quota_per_rating"] == {"1": 5, "3": 5}
+    assert summary["achieved_count_per_rating"] == {"1": 5, "3": 2}
+    assert summary["rating_3_limitation_note"]
+
+
 def test_preprocessing_summary_should_read_fixture_files(tmp_path: Path) -> None:
     service = make_service(tmp_path)
     write_reviews(service.datasets_dir / "processed" / "dataset_spotify_processed.csv")
@@ -169,6 +220,36 @@ def test_preprocessing_summary_should_read_fixture_files(tmp_path: Path) -> None
     assert summary["sentiment_distribution_after"] == {"Negative": 3, "Positive": 3}
     assert summary["aspect_data_status"] == "needs_verification"
     assert "aspect_taxonomy_summary_available" not in summary
+
+
+def test_preprocessing_summary_should_use_indobert_split_artifact(tmp_path: Path) -> None:
+    service = make_service(tmp_path)
+    write_reviews(service.datasets_dir / "processed" / "dataset_spotify_processed.csv")
+    write_noise_report(service.datasets_dir / "processed" / "dataset_spotify_noise_report.csv")
+    write_json(
+        service.datasets_dir
+        / "outputs"
+        / "eda"
+        / "03_indobert"
+        / "indobert_dataset_summary.json",
+        {
+            "split_sizes": {"train": 4, "validation": 1, "test": 1},
+            "split_distribution": [
+                {"split": "train", "label": "Negative", "count": 2},
+                {"split": "train", "label": "Positive", "count": 2},
+                {"split": "validation", "label": "Negative", "count": 1},
+                {"split": "test", "label": "Positive", "count": 1},
+            ],
+        },
+    )
+
+    summary = service.preprocessing_summary()
+    indobert = summary["model_split_summary"]["indobert"]
+
+    assert indobert["total"] == 6
+    assert indobert["splits"] == {"train": 4, "validation": 1, "test": 1}
+    assert indobert["labels"]["Negative"] == {"train": 2, "validation": 1}
+    assert "Model split data is unavailable." not in summary["warnings"]
 
 
 def test_random_reviews_should_filter_and_sample_deterministically(tmp_path: Path) -> None:

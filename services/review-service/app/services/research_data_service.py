@@ -24,9 +24,9 @@ class ResearchDataService:
         canonical = self._canonical_dataset_stats(warnings)
         noise = self._noise_report_stats(warnings)
 
-        acquisition_summary = self._read_json(raw_dir / "data_acquisition_summary.json", warnings)
-        scraping_summary = self._read_json(raw_dir / "scraping_summary.json", warnings)
-        app_info = self._read_json(raw_dir / "app_info_spotify.json", warnings)
+        acquisition_summary = self._acquisition_summary(raw_dir, acquisition_dir, warnings)
+        scraping_summary = self._read_optional_json(raw_dir / "scraping_summary.json", warnings)
+        app_info = self._read_optional_json(raw_dir / "app_info_spotify.json", warnings)
         missing_values = self._read_json(acquisition_dir / "missing_value_summary.json", warnings)
         text_length_summary = self._read_json(
             eda_dir / "03_indobert" / "indobert_text_length_summary.json",
@@ -57,9 +57,13 @@ class ResearchDataService:
         raw_dir = self.datasets_dir / "raw"
         acquisition_dir = self.datasets_dir / "outputs" / "eda" / "01_data_acquisition"
 
-        scraping_summary = self._read_json(raw_dir / "scraping_summary.json", warnings)
-        acquisition_summary = self._read_json(raw_dir / "data_acquisition_summary.json", warnings)
-        quota_achievement = self._read_json(acquisition_dir / "scraping_quota_achievement.json", warnings)
+        scraping_summary = self._read_optional_json(raw_dir / "scraping_summary.json", warnings)
+        acquisition_summary = self._acquisition_summary(raw_dir, acquisition_dir, warnings)
+        quota_achievement = self._read_optional_json(
+            acquisition_dir / "scraping_quota_achievement.json",
+            warnings,
+        )
+        app_info = self._read_optional_json(raw_dir / "app_info_spotify.json", warnings)
 
         rating_results = scraping_summary.get("rating_results", {}) if isinstance(scraping_summary, dict) else {}
         achieved_by_rating = {
@@ -72,9 +76,13 @@ class ResearchDataService:
             achieved_by_rating = acquisition_summary.get("rows_per_rating", {})
 
         return {
-            "app_id": self._first_value(scraping_summary, "app_id", None),
-            "source_name": self._first_value(scraping_summary, "source_name", None),
-            "app_title": scraping_summary.get("app_title") if isinstance(scraping_summary, dict) else None,
+            "app_id": self._first_value(
+                scraping_summary,
+                "app_id",
+                self._first_value(app_info, "appId", "com.spotify.music"),
+            ),
+            "source_name": self._first_value(scraping_summary, "source_name", "Google Play"),
+            "app_title": self._first_value(scraping_summary, "app_title", self._first_value(app_info, "title", "Spotify")),
             "country": scraping_summary.get("country") if isinstance(scraping_summary, dict) else None,
             "lang": scraping_summary.get("lang") if isinstance(scraping_summary, dict) else None,
             "target_quota_per_rating": self._target_quota(scraping_summary, quota_achievement),
@@ -289,6 +297,72 @@ class ResearchDataService:
         except (OSError, json.JSONDecodeError):
             self._append_warning(warnings, "Some research summary data could not be read.")
             return {}
+
+    def _read_optional_json(self, path: Path, warnings: list[str]) -> Any:
+        if not path.exists():
+            return {}
+        try:
+            return json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            self._append_warning(warnings, "Some research summary data could not be read.")
+            return {}
+
+    def _acquisition_summary(
+        self,
+        raw_dir: Path,
+        acquisition_dir: Path,
+        warnings: list[str],
+    ) -> dict[str, Any]:
+        raw_summary = self._read_optional_json(
+            raw_dir / "data_acquisition_summary.json",
+            warnings,
+        )
+        if isinstance(raw_summary, dict) and raw_summary:
+            return raw_summary
+
+        quota_achievement = self._read_optional_json(
+            acquisition_dir / "scraping_quota_achievement.json",
+            warnings,
+        )
+        rating_distribution = self._read_optional_json(
+            acquisition_dir / "rating_distribution_raw.json",
+            warnings,
+        )
+        sentiment_distribution = self._read_optional_json(
+            acquisition_dir / "sentiment_distribution_raw.json",
+            warnings,
+        )
+
+        rows_per_rating = self._distribution_from_records(
+            quota_achievement,
+            label_key="rating",
+            count_key="actual_count",
+        ) or self._distribution_from_records(
+            rating_distribution,
+            label_key="rating",
+            count_key="count",
+        )
+        rows_per_initial_sentiment = self._distribution_from_records(
+            sentiment_distribution,
+            label_key="initial_sentiment",
+            count_key="count",
+        )
+        total_rows = sum(rows_per_rating.values()) if rows_per_rating else None
+
+        if total_rows is None:
+            self._append_warning(warnings, "Some research summary data is unavailable.")
+            return {}
+
+        summary: dict[str, Any] = {
+            "total_rows": total_rows,
+            "rows_per_rating": rows_per_rating,
+        }
+        if rows_per_initial_sentiment:
+            summary["rows_per_initial_sentiment"] = rows_per_initial_sentiment
+        rating_3_note = self._rating_3_limitation_note(quota_achievement)
+        if rating_3_note:
+            summary["rating_3_limitation_note"] = rating_3_note
+        return summary
 
     def _random_reviews_path(self, warnings: list[str]) -> Path | None:
         preferred = self.datasets_dir / "processed" / "dataset_spotify_processed.csv"
@@ -599,13 +673,45 @@ class ResearchDataService:
         }
 
     def _indobert_split_summary(self, warnings: list[str]) -> dict[str, Any]:
+        indobert_dir = self.datasets_dir / "outputs" / "eda" / "03_indobert"
+        dataset_summary = self._read_optional_json(
+            indobert_dir / "indobert_dataset_summary.json",
+            warnings,
+        )
+        if isinstance(dataset_summary, dict):
+            splits = self._normalise_split_sizes(dataset_summary.get("split_sizes"))
+            labels = self._label_split_counts(dataset_summary.get("split_distribution"))
+            if splits:
+                return {
+                    "scenario": "run_3_weighted_loss_lr_1e-5",
+                    "splits": splits,
+                    "total": sum(splits.values()),
+                    "labels": labels,
+                }
+
+        split_distribution = self._read_optional_json(
+            indobert_dir / "indobert_split_distribution.json",
+            warnings,
+        )
+        splits = self._split_counts(split_distribution)
+        if splits:
+            return {
+                "scenario": "run_3_weighted_loss_lr_1e-5",
+                "splits": splits,
+                "total": sum(splits.values()),
+                "labels": self._label_split_counts(split_distribution),
+            }
+
         split_dir = self.datasets_dir / "processed" / "indobert"
-        splits = {
+        splits_with_missing = {
             "train": self._csv_row_count(split_dir / "train.csv", warnings),
             "validation": self._csv_row_count(split_dir / "validation.csv", warnings),
             "test": self._csv_row_count(split_dir / "test.csv", warnings),
         }
-        return {"splits": splits, "total": sum(value for value in splits.values() if value is not None)}
+        return {
+            "splits": splits_with_missing,
+            "total": sum(value for value in splits_with_missing.values() if value is not None),
+        }
 
     def _svm_split_summary(self, warnings: list[str]) -> dict[str, Any]:
         path = self.datasets_dir / "outputs" / "eda" / "04_svm" / "svm_merged_5class_split_distribution.json"
@@ -636,6 +742,94 @@ class ResearchDataService:
         except OSError:
             self._append_warning(warnings, "Model split data could not be read.")
             return None
+
+    @classmethod
+    def _distribution_from_records(
+        cls,
+        payload: Any,
+        label_key: str,
+        count_key: str,
+    ) -> dict[str, int]:
+        if isinstance(payload, dict):
+            return {
+                str(key): count
+                for key, value in payload.items()
+                if (count := cls._safe_int(value)) is not None
+            }
+        if not isinstance(payload, list):
+            return {}
+
+        distribution: dict[str, int] = {}
+        for item in payload:
+            if not isinstance(item, dict):
+                continue
+            label = item.get(label_key)
+            count = cls._safe_int(item.get(count_key))
+            if label is None or count is None:
+                continue
+            distribution[str(label)] = distribution.get(str(label), 0) + count
+        return distribution
+
+    @classmethod
+    def _rating_3_limitation_note(cls, payload: Any) -> str | None:
+        if not isinstance(payload, list):
+            return None
+        for item in payload:
+            if not isinstance(item, dict) or cls._safe_int(item.get("rating")) != 3:
+                continue
+            target = cls._safe_int(item.get("target_count"))
+            actual = cls._safe_int(item.get("actual_count"))
+            if target is not None and actual is not None and actual < target:
+                return (
+                    f"Rating 3 target was {target:,} reviews, but only "
+                    f"{actual:,} were available. Dataset balancing is deferred "
+                    "to preprocessing and training."
+                )
+        return None
+
+    @classmethod
+    def _normalise_split_sizes(cls, payload: Any) -> dict[str, int]:
+        if not isinstance(payload, dict):
+            return {}
+        splits: dict[str, int] = {}
+        for split in ("train", "validation", "test"):
+            value = cls._safe_int(payload.get(split))
+            if value is not None:
+                splits[split] = value
+        return splits
+
+    @classmethod
+    def _split_counts(cls, payload: Any) -> dict[str, int]:
+        splits = {"train": 0, "validation": 0, "test": 0}
+        if not isinstance(payload, list):
+            return {}
+        found = False
+        for item in payload:
+            if not isinstance(item, dict):
+                continue
+            split = str(item.get("split") or "")
+            count = cls._safe_int(item.get("count"))
+            if split in splits and count is not None:
+                splits[split] += count
+                found = True
+        return splits if found else {}
+
+    @classmethod
+    def _label_split_counts(cls, payload: Any) -> dict[str, dict[str, int]]:
+        if not isinstance(payload, list):
+            return {}
+        labels: dict[str, dict[str, int]] = {}
+        for item in payload:
+            if not isinstance(item, dict):
+                continue
+            label = str(item.get("label") or "")
+            split = str(item.get("split") or "")
+            count = cls._safe_int(item.get("count"))
+            if not label or split not in {"train", "validation", "test"} or count is None:
+                continue
+            label_counts = labels.setdefault(label, {})
+            label_counts[split] = label_counts.get(split, 0) + count
+        return labels
 
     @staticmethod
     def _merge_distributions(
@@ -675,14 +869,14 @@ class ResearchDataService:
         app_info = app_info if isinstance(app_info, dict) else {}
         scraping_summary = scraping_summary if isinstance(scraping_summary, dict) else {}
         return {
-            "app_id": app_info.get("appId") or scraping_summary.get("app_id"),
-            "title": app_info.get("title") or scraping_summary.get("app_title"),
+            "app_id": app_info.get("appId") or scraping_summary.get("app_id") or "com.spotify.music",
+            "title": app_info.get("title") or scraping_summary.get("app_title") or "Spotify",
             "developer": app_info.get("developer"),
             "genre": app_info.get("genre"),
             "score": app_info.get("score"),
             "ratings": app_info.get("ratings"),
             "installs": app_info.get("installs"),
-            "source_name": scraping_summary.get("source_name"),
+            "source_name": scraping_summary.get("source_name") or "Google Play",
         }
 
     @staticmethod

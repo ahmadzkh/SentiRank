@@ -26,6 +26,8 @@ import type { GatewayReviewSample } from "@/types";
 
 export const revalidate = 300;
 
+const COUNT_FORMATTER = new Intl.NumberFormat("id-ID");
+
 const datasetReviewColumns = [
   {
     key: "no",
@@ -76,6 +78,15 @@ export default async function DatasetPage() {
   const targetTotal = Object.entries(
     scraping.target_quota_per_rating ?? {},
   ).reduce((total, [, v]) => total + (v ?? 0), 0);
+  const rawReviewCount =
+    dataset.raw_review_count ?? scraping.total_achieved_rows ?? 0;
+  const cleanReviewCount = dataset.total_review_count ?? 0;
+  const appId =
+    scraping.app_id ??
+    (typeof dataset.source_application?.app_id === "string"
+      ? dataset.source_application.app_id
+      : null) ??
+    "com.spotify.music";
 
   return (
     <AppShell>
@@ -91,23 +102,23 @@ export default async function DatasetPage() {
         <StatCard
           description="Target pengambilan data scraping."
           label="Target Ulasan"
-          value={targetTotal}
+          value={formatCount(targetTotal)}
         />
         <StatCard
           description="Jumlah ulasan sebelum filtering kualitas."
           label="Ulasan Mentah"
-          value={dataset.raw_review_count ?? 0}
+          value={formatCount(rawReviewCount)}
         />
         <StatCard
           description="Total ulasan valid setelah tahap filtering kualitas."
           label="Ulasan Bersih"
           tone="primary"
-          value={dataset.total_review_count ?? 0}
+          value={formatCount(cleanReviewCount)}
         />
         <StatCard
           description="Nama paket aplikasi di Google Play Store."
           label="Aplikasi"
-          value={scraping.app_id ?? "com.spotify.music"}
+          value={appId}
         />
       </section>
 
@@ -161,4 +172,8 @@ export default async function DatasetPage() {
       </ChartCard>
     </AppShell>
   );
+}
+
+function formatCount(value: number) {
+  return COUNT_FORMATTER.format(value);
 }
