@@ -3,7 +3,7 @@
 export function SkeletonShimmer({ className = "" }: { className?: string }) {
   return (
     <div
-      className={`animate-pulse rounded-md bg-gradient-to-r from-slate-200 via-slate-100 to-slate-200 bg-[length:200%_100%] ${className}`}
+      className={`rounded-md bg-gradient-to-r from-slate-300 via-slate-100 to-slate-300 bg-[length:200%_100%] ${className}`}
       style={{ animation: "shimmer 1.5s ease-in-out infinite" }}
     />
   );
