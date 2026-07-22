@@ -14,7 +14,7 @@ import {
 } from "@/services/dashboard-service";
 import { EMPTY_GATEWAY_MESSAGE } from "@/lib/api-status";
 
-export const revalidate = 300;
+export const dynamic = "force-dynamic";
 
 const EMPTY_MESSAGE = EMPTY_GATEWAY_MESSAGE;
 
