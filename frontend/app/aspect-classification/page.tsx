@@ -1,3 +1,5 @@
+"use client";
+
 import { ApiGatewayAlert } from "@/components/alerts/ApiGatewayAlert";
 import { SentimentBadge } from "@/components/badges/SentimentBadge";
 import { ChartCard } from "@/components/cards/ChartCard";
@@ -29,8 +31,7 @@ import {
 } from "@/services/aspect-service";
 import type { GatewayAspectPredictionSample } from "@/types";
 import type { ReviewSentimentLabel } from "@/types/sentiment";
-
-export const revalidate = 300;
+import { useEffect, useState } from "react";
 
 const SVM_SCENARIOS = [
   { scenario: "original_7class", label: "SVM original_7class" },

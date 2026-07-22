@@ -1,4 +1,7 @@
+"use client";
+
 import type { ReactNode } from "react";
+import { useEffect, useState } from "react";
 import { ApiGatewayAlert } from "@/components/alerts/ApiGatewayAlert";
 import { ChartCard } from "@/components/cards/ChartCard";
 import {
@@ -24,8 +27,6 @@ import {
   type RespondentDetailRow,
   type RespondentSummaryView,
 } from "@/services/ahp-overview-service";
-
-export const revalidate = 300;
 
 const EMPTY_MESSAGE = EMPTY_GATEWAY_MESSAGE;
 

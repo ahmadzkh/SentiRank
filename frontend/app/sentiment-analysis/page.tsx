@@ -1,3 +1,5 @@
+"use client";
+
 import { ApiGatewayAlert } from "@/components/alerts/ApiGatewayAlert";
 import { SentimentBadge } from "@/components/badges/SentimentBadge";
 import { ChartCard } from "@/components/cards/ChartCard";
@@ -28,8 +30,7 @@ import {
 } from "@/services/sentiment-service";
 import type { GatewaySentimentPredictionSample } from "@/types";
 import type { ReviewSentimentLabel } from "@/types/sentiment";
-
-export const revalidate = 300;
+import { useEffect, useState } from "react";
 
 const SENTIMENT_CLASS_LABELS = ["Negative", "Neutral", "Positive"] as const;
 const INDOBERT_RUN_NAMES = [

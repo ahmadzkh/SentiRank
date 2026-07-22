@@ -1,3 +1,5 @@
+"use client";
+
 import { ApiGatewayAlert } from "@/components/alerts/ApiGatewayAlert";
 import { ChartCard } from "@/components/cards/ChartCard";
 import { StatCard } from "@/components/cards/StatCard";
@@ -17,8 +19,7 @@ import type {
   GatewayPreprocessingSample,
   GatewayPreprocessingSummary,
 } from "@/types";
-
-export const revalidate = 300;
+import { useEffect, useState } from "react";
 
 const COUNT_FORMATTER = new Intl.NumberFormat("id-ID");
 const PERCENT_FORMATTER = new Intl.NumberFormat("id-ID", {
