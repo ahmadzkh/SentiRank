@@ -29,29 +29,34 @@ export function useCachedData<T>(key: string, fetcher: () => Promise<T>): {
 } {
   const cache = useCache();
   const [data, setData] = useState<T | null>(cache.get(key) as T | null);
-  const [loading, setLoading] = useState(!cache.has(key));
-  const fetchedRef = useRef(false);
+  const [loading, setLoading] = useState(() => !cache.has(key));
+  const inflight = useRef<Promise<T> | null>(null);
 
   useEffect(() => {
+    // Always prefer cache (set by preloader or previous fetch)
     if (cache.has(key)) {
       setData(cache.get(key) as T);
       setLoading(false);
+      inflight.current = null;
       return;
     }
-    if (fetchedRef.current) return;
-    fetchedRef.current = true;
+
+    // Already in flight — don't duplicate
+    if (inflight.current) return;
 
     setLoading(true);
-    fetcher()
+    const promise = fetcher()
       .then((result) => {
         cache.set(key, result);
         setData(result);
         setLoading(false);
+        inflight.current = null;
       })
       .catch(() => {
-        // do NOT cache errors — user can retry
         setLoading(false);
+        inflight.current = null;
       });
+    inflight.current = promise as Promise<T>;
   }, [key, fetcher, cache]);
 
   return { data, loading };
