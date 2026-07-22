@@ -31,8 +31,9 @@ import {
 } from "@/services/aspect-service";
 import type { GatewayAspectPredictionSample } from "@/types";
 import type { ReviewSentimentLabel } from "@/types/sentiment";
-import { useEffect, useState } from "react";
 import { PageSkeleton } from "@/components/ui/SkeletonShimmer";
+import { FadeIn } from "@/components/ui/FadeIn";
+import { useCachedData } from "@/lib/data-cache";
 
 const SVM_SCENARIOS = [
   { scenario: "original_7class", label: "SVM original_7class" },
@@ -360,43 +361,54 @@ const ShellPageSkeleton = () => (
 );
 
 export default function AspectClassificationPage() {
-  const [summaryResult, setSummaryResult] = useState<any>(null);
-  const [evaluationResult, setEvaluationResult] = useState<any>(null);
-
-  useEffect(() => {
-    Promise.all([
+  const { data, loading } = useCachedData("aspect", async () => {
+    const [summaryResult, evaluationResult] = await Promise.all([
       safeGatewayData(getAspectSummary, EMPTY_ASPECT_SUMMARY),
       safeGatewayData(getAspectEvaluation, EMPTY_ASPECT_EVALUATION),
-    ]).then(([s, e]) => { setSummaryResult(s); setEvaluationResult(e); });
-  }, []);
+    ]);
+    const summary = summaryResult.data;
+    const evaluation = evaluationResult.data;
+    const aspectRows = aspectRankingData(
+      summary.negative_aspect_distribution &&
+        Object.keys(summary.negative_aspect_distribution).length
+        ? summary.negative_aspect_distribution
+        : summary.aspect_distribution,
+    );
+    return {
+      summaryResult,
+      evaluationResult,
+      summary,
+      evaluation,
+      aspectRows,
+      topAspect: aspectRows[0],
+      predictionSamples: evaluation.prediction_samples ?? [],
+      selectedMetrics: evaluation.selected_metrics,
+      reportRows: classificationReportData(
+        evaluation.classification_report,
+        summary.final_aspect_labels,
+      ),
+      metricRows: evaluationMetricRows(evaluation.selected_metrics),
+      experimentRows: aspectExperimentRows(
+        evaluation.scenario_comparison,
+        evaluation.selected_candidate,
+      ),
+      accuracy: metricNumber(evaluation.selected_metrics, ["accuracy", "test_accuracy"]),
+      macroF1: metricNumber(evaluation.selected_metrics, ["f1_macro", "test_f1_macro"]),
+      apiError: summaryResult.error ?? evaluationResult.error,
+      modelStatus: summary.model_available ? "Aktif" : "Fallback",
+      modelNote: summary.weak_label_limitation || evaluation.limitations[0] || EMPTY_TEXT,
+    };
+  });
 
-  if (!summaryResult || !evaluationResult) return <ShellPageSkeleton />;
+  if (loading || !data) return <ShellPageSkeleton />;
 
-  const summary = summaryResult.data;
-  const evaluation = evaluationResult.data;
-  const aspectRows = aspectRankingData(
-    summary.negative_aspect_distribution &&
-      Object.keys(summary.negative_aspect_distribution).length
-      ? summary.negative_aspect_distribution
-      : summary.aspect_distribution,
-  );
-  const topAspect = aspectRows[0];
-  const predictionSamples = evaluation.prediction_samples ?? [];
-  const selectedMetrics = evaluation.selected_metrics;
-  const reportRows = classificationReportData(
-    evaluation.classification_report,
-    summary.final_aspect_labels,
-  );
-  const metricRows = evaluationMetricRows(selectedMetrics);
-  const experimentRows = aspectExperimentRows(
-    evaluation.scenario_comparison,
-    evaluation.selected_candidate,
-  );
-  const accuracy = metricNumber(selectedMetrics, ["accuracy", "test_accuracy"]);
-  const macroF1 = metricNumber(selectedMetrics, ["f1_macro", "test_f1_macro"]);
-  const apiError = summaryResult.error ?? evaluationResult.error;
-  const modelStatus = summary.model_available ? "Aktif" : "Fallback";
-  const modelNote = summary.weak_label_limitation || evaluation.limitations[0] || EMPTY_TEXT;
+  const {
+    summary, evaluation, aspectRows, topAspect,
+    predictionSamples, selectedMetrics, reportRows,
+    metricRows, experimentRows, accuracy, macroF1,
+    apiError, modelStatus, modelNote,
+    summaryResult, evaluationResult,
+  } = data;
 
   return (
     <AppShell>
@@ -405,7 +417,7 @@ export default function AspectClassificationPage() {
         eyebrow="SVM"
         title="Klasifikasi Aspek"
       />
-
+      <FadeIn>
       <ApiGatewayAlert error={apiError} />
 
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
@@ -507,6 +519,7 @@ export default function AspectClassificationPage() {
           </p>
         </div>
       </SummaryCard>
+      </FadeIn>
     </AppShell>
   );
 }

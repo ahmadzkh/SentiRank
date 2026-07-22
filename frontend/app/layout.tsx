@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
+import { DataProvider } from "@/lib/data-cache";
 
 export const metadata: Metadata = {
   title: "SentiRank",
@@ -16,7 +17,7 @@ export default function RootLayout({
   return (
     <html lang="id">
       <body>
-        {children}
+        <DataProvider>{children}</DataProvider>
         <Analytics />
       </body>
     </html>

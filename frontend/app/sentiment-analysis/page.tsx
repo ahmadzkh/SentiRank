@@ -30,8 +30,9 @@ import {
 } from "@/services/sentiment-service";
 import type { GatewaySentimentPredictionSample } from "@/types";
 import type { ReviewSentimentLabel } from "@/types/sentiment";
-import { useEffect, useState } from "react";
 import { PageSkeleton } from "@/components/ui/SkeletonShimmer";
+import { FadeIn } from "@/components/ui/FadeIn";
+import { useCachedData } from "@/lib/data-cache";
 
 const SENTIMENT_CLASS_LABELS = ["Negative", "Neutral", "Positive"] as const;
 const INDOBERT_RUN_NAMES = [
@@ -313,19 +314,20 @@ const ShellPageSkeleton = () => (
   </AppShell>
 );
 
+async function fetchSentimentPage() {
+  const [s, e] = await Promise.all([
+    safeGatewayData(getSentimentSummary, EMPTY_SENTIMENT_SUMMARY),
+    safeGatewayData(getSentimentEvaluation, EMPTY_SENTIMENT_EVALUATION),
+  ]);
+  return { summaryResult: s, evaluationResult: e };
+}
+
 export default function SentimentAnalysisPage() {
-  const [summaryResult, setSummaryResult] = useState<any>(null);
-  const [evaluationResult, setEvaluationResult] = useState<any>(null);
+  const { data: fetched, loading } = useCachedData("sentiment", fetchSentimentPage);
 
-  useEffect(() => {
-    Promise.all([
-      safeGatewayData(getSentimentSummary, EMPTY_SENTIMENT_SUMMARY),
-      safeGatewayData(getSentimentEvaluation, EMPTY_SENTIMENT_EVALUATION),
-    ]).then(([s, e]) => { setSummaryResult(s); setEvaluationResult(e); });
-  }, []);
+  if (loading) return <ShellPageSkeleton />;
 
-  if (!summaryResult || !evaluationResult) return <ShellPageSkeleton />;
-
+  const { summaryResult, evaluationResult } = fetched!;
   const summary = summaryResult.data;
   const evaluation = evaluationResult.data;
   const predictionSamples = evaluation.prediction_samples ?? [];
@@ -351,115 +353,117 @@ export default function SentimentAnalysisPage() {
   const modelNote = evaluation.limitations.find((item: string) => item.trim()) ?? EMPTY_TEXT;
 
   return (
-    <AppShell>
-      <PageHeader
-        description="Evaluasi dan hasil prediksi IndoBERT."
-        eyebrow="IndoBERT"
-        title="Analisis Sentimen"
-      />
+    <FadeIn>
+      <AppShell>
+        <PageHeader
+          description="Evaluasi dan hasil prediksi IndoBERT."
+          eyebrow="IndoBERT"
+          title="Analisis Sentimen"
+        />
 
-      <ApiGatewayAlert error={pageError} />
+        <ApiGatewayAlert error={pageError} />
 
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
-        <StatCard
-          description="Total ulasan bersih."
-          label="Ulasan Bersih"
-          value={totalCleanReviews}
-        />
-        <StatCard
-          description="Jumlah sampel tabel."
-          label="Sampel Prediksi"
-          value={predictionSamples.length}
-        />
-        <StatCard
-          description="Model siap digunakan."
-          label="Status Model"
-          tone={summary.is_fallback ? "neutral" : "positive"}
-          value={`${modelStatus} (IndoBERT)`}
-        />
-        <StatCard
-          description="Metrik utama model."
-          label="Accuracy"
-          value={formatMetricPercent(accuracy)}
-        />
-        <StatCard
-          description="Rata-rata F1 kelas."
-          label="Macro F1"
-          value={formatMetricPercent(macroF1)}
-        />
-      </section>
+        <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+          <StatCard
+            description="Total ulasan bersih."
+            label="Ulasan Bersih"
+            value={totalCleanReviews}
+          />
+          <StatCard
+            description="Jumlah sampel tabel."
+            label="Sampel Prediksi"
+            value={predictionSamples.length}
+          />
+          <StatCard
+            description="Model siap digunakan."
+            label="Status Model"
+            tone={summary.is_fallback ? "neutral" : "positive"}
+            value={`${modelStatus} (IndoBERT)`}
+          />
+          <StatCard
+            description="Metrik utama model."
+            label="Accuracy"
+            value={formatMetricPercent(accuracy)}
+          />
+          <StatCard
+            description="Rata-rata F1 kelas."
+            label="Macro F1"
+            value={formatMetricPercent(macroF1)}
+          />
+        </section>
 
-      <section className="grid gap-6 xl:grid-cols-2">
+        <section className="grid gap-6 xl:grid-cols-2">
+          <ChartCard
+            description="Precision, recall, dan F1 per polaritas."
+            insight={
+              reportRows.length > 0
+                ? "Metrik per kelas tersedia."
+                : EMPTY_GATEWAY_MESSAGE
+            }
+            title="Classification Report IndoBERT"
+          >
+            <SentimentClassificationReportChart data={reportRows} />
+          </ChartCard>
+
+          <ChartCard
+            description="Komposisi label sentimen."
+            insight={
+              sentimentRows.length > 0
+                ? "Distribusi data bersih."
+                : EMPTY_GATEWAY_MESSAGE
+            }
+            title="Distribusi Sentimen"
+          >
+            <SentimentDistributionChart data={sentimentRows} />
+          </ChartCard>
+        </section>
+
         <ChartCard
-          description="Precision, recall, dan F1 per polaritas."
-          insight={
-            reportRows.length > 0
-              ? "Metrik per kelas tersedia."
-              : EMPTY_GATEWAY_MESSAGE
-          }
-          title="Classification Report IndoBERT"
+          description="Akurasi dan rata-rata metrik."
+          title="Tabel Metrik Evaluasi"
         >
-          <SentimentClassificationReportChart data={reportRows} />
-        </ChartCard>
-
-        <ChartCard
-          description="Komposisi label sentimen."
-          insight={
-            sentimentRows.length > 0
-              ? "Distribusi data bersih."
-              : EMPTY_GATEWAY_MESSAGE
-          }
-          title="Distribusi Sentimen"
-        >
-          <SentimentDistributionChart data={sentimentRows} />
-        </ChartCard>
-      </section>
-
-      <ChartCard
-        description="Akurasi dan rata-rata metrik."
-        title="Tabel Metrik Evaluasi"
-      >
-        <SimpleTable
-          columns={metricColumns()}
-          data={metricRows}
-          emptyMessage={EMPTY_GATEWAY_MESSAGE}
-          minWidthClassName="min-w-[560px]"
-          rowKey={(row) => row.id}
-        />
-      </ChartCard>
-
-      <ChartCard
-        description="10 sampel prediksi data uji."
-        title="Tabel Ulasan Sentimen"
-      >
-        <SimpleTable
-          columns={sentimentResultColumns()}
-          data={predictionSamples}
-          emptyMessage={EMPTY_GATEWAY_MESSAGE}
-          minWidthClassName="min-w-[1180px]"
-          rowKey={(row, index) =>
-            row.external_id ?? `sentiment-review-${index}`
-          }
-        />
-      </ChartCard>
-
-      <SummaryCard
-        description="Daftar eksperimen IndoBERT dan batasan evaluasi."
-        title="Catatan Model"
-      >
-        <div className="space-y-4">
           <SimpleTable
-            columns={experimentColumns()}
-            data={experimentRows}
+            columns={metricColumns()}
+            data={metricRows}
             emptyMessage={EMPTY_GATEWAY_MESSAGE}
-            minWidthClassName="min-w-[760px]"
+            minWidthClassName="min-w-[560px]"
             rowKey={(row) => row.id}
           />
-          <p className="rounded-md border border-border bg-background px-4 py-3 text-sm leading-6 text-muted-foreground">
-            {evaluationResult.isAvailable ? modelNote : EMPTY_TEXT}
-          </p>
-        </div>
-      </SummaryCard>
-    </AppShell>
+        </ChartCard>
+
+        <ChartCard
+          description="10 sampel prediksi data uji."
+          title="Tabel Ulasan Sentimen"
+        >
+          <SimpleTable
+            columns={sentimentResultColumns()}
+            data={predictionSamples}
+            emptyMessage={EMPTY_GATEWAY_MESSAGE}
+            minWidthClassName="min-w-[1180px]"
+            rowKey={(row, index) =>
+              row.external_id ?? `sentiment-review-${index}`
+            }
+          />
+        </ChartCard>
+
+        <SummaryCard
+          description="Daftar eksperimen IndoBERT dan batasan evaluasi."
+          title="Catatan Model"
+        >
+          <div className="space-y-4">
+            <SimpleTable
+              columns={experimentColumns()}
+              data={experimentRows}
+              emptyMessage={EMPTY_GATEWAY_MESSAGE}
+              minWidthClassName="min-w-[760px]"
+              rowKey={(row) => row.id}
+            />
+            <p className="rounded-md border border-border bg-background px-4 py-3 text-sm leading-6 text-muted-foreground">
+              {evaluationResult.isAvailable ? modelNote : EMPTY_TEXT}
+            </p>
+          </div>
+        </SummaryCard>
+      </AppShell>
+    </FadeIn>
   );
 }

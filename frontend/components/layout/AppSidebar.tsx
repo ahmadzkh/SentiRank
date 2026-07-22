@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import type { NavigationItem } from "@/types/navigation";
 import { cn } from "@/lib/utils";
+import { useCachePreloader } from "@/lib/data-cache";
 
 const iconMap = {
   Database,
@@ -45,8 +46,56 @@ function getNavigationIcon(iconName: string) {
   return iconMap[iconName as keyof typeof iconMap] ?? Circle;
 }
 
+type Preloader = (p: ReturnType<typeof useCachePreloader>) => void;
+
+const ROUTE_PRELOADERS: Record<string, Preloader> = {
+  "/dashboard": (p) =>
+    p("dashboard-summary", () =>
+      import("@/services/dashboard-service").then((m) => m.getDashboardSummary()),
+    ),
+  "/dataset": (p) =>
+    p("dataset", () =>
+      Promise.all([
+        import("@/services/dataset-service").then((m) => m.getDatasetSummary()),
+        import("@/services/review-service").then((m) =>
+          m.getReviews({ limit: 10, seed: 10 }),
+        ),
+        import("@/services/scraping-service").then((m) => m.getScrapingSummary()),
+      ]),
+    ),
+  "/preprocessing": (p) =>
+    p("preprocessing", () =>
+      import("@/services/preprocessing-service").then((m) => m.getPreprocessingSummary()),
+    ),
+  "/sentiment-analysis": (p) =>
+    p("sentiment", () =>
+      Promise.all([
+        import("@/services/sentiment-service").then((m) => m.getSentimentSummary()),
+        import("@/services/sentiment-service").then((m) => m.getSentimentEvaluation()),
+      ]),
+    ),
+  "/aspect-classification": (p) =>
+    p("aspect", () =>
+      Promise.all([
+        import("@/services/aspect-service").then((m) => m.getAspectSummary()),
+        import("@/services/aspect-service").then((m) => m.getAspectEvaluation()),
+      ]),
+    ),
+  "/ahp-fuzzy-ahp": (p) =>
+    p("ahp-overview", () =>
+      import("@/services/ahp-overview-service").then((m) => m.getAhpFuzzyAhpOverview()),
+    ),
+  "/inference": (p) =>
+    p("inference-history", () =>
+      import("@/services/inference-service").then((m) =>
+        m.getRuntimeInferenceHistory({ limit: 10, page: 1 }),
+      ),
+    ),
+};
+
 export function AppSidebar({ items, className }: AppSidebarProps) {
   const pathname = usePathname();
+  const preload = useCachePreloader();
 
   return (
     <aside
@@ -89,6 +138,7 @@ export function AppSidebar({ items, className }: AppSidebarProps) {
                 )}
                 href={item.href}
                 key={item.id}
+                onMouseEnter={() => ROUTE_PRELOADERS[item.href]?.(preload)}
                 prefetch={true}
               >
                 <Icon

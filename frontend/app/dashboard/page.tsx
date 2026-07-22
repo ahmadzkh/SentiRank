@@ -15,8 +15,9 @@ import {
   type DashboardData,
   type DashboardReviewInsightRow,
 } from "@/services/dashboard-service";
-import { use, useEffect, useState } from "react";
 import { PageSkeleton } from "@/components/ui/SkeletonShimmer";
+import { FadeIn } from "@/components/ui/FadeIn";
+import { useCachedData } from "@/lib/data-cache";
 
 const ShellPageSkeleton = () => (
   <AppShell>
@@ -129,92 +130,93 @@ const reviewInsightColumns: readonly SimpleTableColumn<DashboardReviewInsightRow
 ];
 
 export default function DashboardPage() {
-  const [dashboard, setDashboard] = useState<DashboardData | null>(null);
+  const { data: dashboard, loading } = useCachedData(
+    "dashboard-summary",
+    getDashboardSummary,
+  );
 
-  useEffect(() => {
-    getDashboardSummary().then(setDashboard);
-  }, []);
-
-  if (!dashboard) return <ShellPageSkeleton />;
+  if (loading) return <ShellPageSkeleton />;
 
   return (
-    <AppShell>
-      <PageHeader
-        description="Ringkasan hasil penelitian analisis sentimen ulasan Spotify dan prioritas aspek layanan."
-        title="Dashboard"
-      />
+    <FadeIn>
+      <AppShell>
+        <PageHeader
+          description="Ringkasan hasil penelitian analisis sentimen ulasan Spotify dan prioritas aspek layanan."
+          title="Dashboard"
+        />
 
-      <ApiGatewayAlert error={dashboard.apiError} />
+        <ApiGatewayAlert error={dashboard!.apiError} />
 
-      <section>
-        <SectionHeading title="Ringkasan Dataset" />
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
-          {dashboard.datasetCards.map((card) => (
-            <StatCard
-              description={card.description}
-              key={card.id}
-              label={card.label}
-              tone={card.tone}
-              value={card.value}
+        <section>
+          <SectionHeading title="Ringkasan Dataset" />
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-6">
+            {dashboard!.datasetCards.map((card) => (
+              <StatCard
+                description={card.description}
+                key={card.id}
+                label={card.label}
+                tone={card.tone}
+                value={card.value}
+              />
+            ))}
+          </div>
+        </section>
+
+        <section>
+          <SectionHeading title="Ringkasan Performa Model" />
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+            {dashboard!.modelMetrics.map((metric) => (
+              <ModelMetricCard
+                description={metric.description}
+                key={metric.id}
+                label={metric.label}
+                value={metric.value}
+              />
+            ))}
+          </div>
+        </section>
+
+        <section className="grid gap-6 xl:grid-cols-2">
+          <ChartCard title="Distribusi Sentimen per Tahap">
+            <SentimentStageComparisonChart data={dashboard!.sentimentStages} />
+          </ChartCard>
+
+          <ChartCard title="Top 5 Aspek Negatif">
+            <AspectRankingChart data={dashboard!.topAspects} />
+          </ChartCard>
+        </section>
+
+        <ChartCard
+          className="w-full"
+          description="Perbandingan bobot AHP dan Fuzzy AHP per kriteria. Ranking menunjukkan prioritas relatif tiap aspek."
+          title="Perbandingan AHP vs Fuzzy AHP"
+        >
+          <AhpRankingComparisonChart data={dashboard!.priorityComparison} />
+          <div className="mt-6">
+            <SimpleTable
+              columns={comparisonColumns}
+              data={dashboard!.comparisonRows}
+              emptyMessage={EMPTY_MESSAGE}
+              minWidthClassName="min-w-[1080px]"
+              rowKey={(row) => row.id}
             />
-          ))}
-        </div>
-      </section>
-
-      <section>
-        <SectionHeading title="Ringkasan Performa Model" />
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          {dashboard.modelMetrics.map((metric) => (
-            <ModelMetricCard
-              description={metric.description}
-              key={metric.id}
-              label={metric.label}
-              value={metric.value}
-            />
-          ))}
-        </div>
-      </section>
-
-      <section className="grid gap-6 xl:grid-cols-2">
-        <ChartCard title="Distribusi Sentimen per Tahap">
-          <SentimentStageComparisonChart data={dashboard.sentimentStages} />
+          </div>
         </ChartCard>
 
-        <ChartCard title="Top 5 Aspek Negatif">
-          <AspectRankingChart data={dashboard.topAspects} />
-        </ChartCard>
-      </section>
-
-      <ChartCard
-        className="w-full"
-        description="Perbandingan bobot AHP dan Fuzzy AHP per kriteria. Ranking menunjukkan prioritas relatif tiap aspek."
-        title="Perbandingan AHP vs Fuzzy AHP"
-      >
-        <AhpRankingComparisonChart data={dashboard.priorityComparison} />
-        <div className="mt-6">
+        <ChartCard
+          description="Sampel insight review final dari API Gateway. Jika Gateway tidak aktif, tabel tetap kosong."
+          title="Sampel Hasil Review Terproses"
+        >
           <SimpleTable
-            columns={comparisonColumns}
-            data={dashboard.comparisonRows}
+            columns={reviewInsightColumns}
+            data={dashboard!.reviewInsightRows}
             emptyMessage={EMPTY_MESSAGE}
-            minWidthClassName="min-w-[1080px]"
+            minWidthClassName="min-w-[1320px]"
             rowKey={(row) => row.id}
           />
-        </div>
-      </ChartCard>
-
-      <ChartCard
-        description="Sampel insight review final dari API Gateway. Jika Gateway tidak aktif, tabel tetap kosong."
-        title="Sampel Hasil Review Terproses"
-      >
-        <SimpleTable
-          columns={reviewInsightColumns}
-          data={dashboard.reviewInsightRows}
-          emptyMessage={EMPTY_MESSAGE}
-          minWidthClassName="min-w-[1320px]"
-          rowKey={(row) => row.id}
-        />
-      </ChartCard>
-    </AppShell>
+        </ChartCard>
+      </AppShell>
+    </FadeIn>
   );
 }
 

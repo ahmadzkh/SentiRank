@@ -1,8 +1,10 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { useEffect, useState } from "react";
 import { ApiGatewayAlert } from "@/components/alerts/ApiGatewayAlert";
+import { PageSkeleton } from "@/components/ui/SkeletonShimmer";
+import { FadeIn } from "@/components/ui/FadeIn";
+import { useCachedData } from "@/lib/data-cache";
 import { ChartCard } from "@/components/cards/ChartCard";
 import {
   SummaryCard,
@@ -17,7 +19,6 @@ import {
 } from "@/components/tables/SimpleTable";
 import { EMPTY_GATEWAY_MESSAGE } from "@/lib/api-status";
 import { cn } from "@/lib/utils";
-import { PageSkeleton } from "@/components/ui/SkeletonShimmer";
 import {
   getAhpFuzzyAhpOverview,
   type AhpFuzzyAhpNotice,
@@ -150,13 +151,9 @@ const ShellPageSkeleton = () => (
 );
 
 export default function AhpFuzzyAhpPage() {
-  const [overview, setOverview] = useState<AhpFuzzyAhpOverview | null>(null);
+  const { data: overview, loading } = useCachedData("ahp-overview", getAhpFuzzyAhpOverview);
 
-  useEffect(() => {
-    getAhpFuzzyAhpOverview().then(setOverview);
-  }, []);
-
-  if (!overview) return <ShellPageSkeleton />;
+  if (loading || !overview) return <ShellPageSkeleton />;
 
   const matrixColumns = buildMatrixColumns(overview.matrixCriteria);
 
@@ -166,7 +163,7 @@ export default function AhpFuzzyAhpPage() {
         description="Halaman ini menampilkan prioritas aspek ulasan negatif berdasarkan metode AHP dan Fuzzy AHP. Bobot prioritas digunakan untuk membantu menentukan aspek yang perlu mendapatkan perhatian lebih dalam pengembangan layanan Spotify."
         title="AHP / Fuzzy AHP"
       />
-
+      <FadeIn>
       <ApiGatewayAlert error={overview.apiError} />
 
       {overview.dataStatus !== "unavailable" ? (
@@ -249,6 +246,7 @@ export default function AhpFuzzyAhpPage() {
           rowKey={(row) => row.id}
         />
       </ChartCard>
+      </FadeIn>
     </AppShell>
   );
 }

@@ -10,6 +10,8 @@ import { AppShell, PageHeader } from "@/components/layout";
 import { SimpleTable } from "@/components/tables/SimpleTable";
 import type { SimpleTableColumn } from "@/components/tables/SimpleTable";
 import { PageSkeleton } from "@/components/ui/SkeletonShimmer";
+import { FadeIn } from "@/components/ui/FadeIn";
+import { useCachedData } from "@/lib/data-cache";
 import { EMPTY_GATEWAY_MESSAGE, safeGatewayData } from "@/lib/api-status";
 import {
   EMPTY_DATASET_SUMMARY,
@@ -26,7 +28,6 @@ import { getDatasetSummary } from "@/services/dataset-service";
 import { getReviews } from "@/services/review-service";
 import { getScrapingSummary } from "@/services/scraping-service";
 import type { GatewayReviewSample } from "@/types";
-import { useEffect, useState } from "react";
 
 const COUNT_FORMATTER = new Intl.NumberFormat("id-ID");
 
@@ -75,32 +76,26 @@ const ShellPageSkeleton = () => (
   </AppShell>
 );
 
+async function fetchDatasetPage() {
+  const [dr, rr, sr] = await Promise.all([
+    safeGatewayData(getDatasetSummary, EMPTY_DATASET_SUMMARY),
+    safeGatewayData(() => getReviews({ limit: 10, seed: 10 }), EMPTY_RANDOM_REVIEWS),
+    safeGatewayData(getScrapingSummary, EMPTY_SCRAPING_SUMMARY),
+  ]);
+  return {
+    dataset: dr.data,
+    reviews: rr.data.reviews ?? ([] as GatewayReviewSample[]),
+    scraping: sr.data,
+    apiError: dr.error ?? rr.error ?? sr.error,
+  };
+}
+
 export default function DatasetPage() {
-  const [state, setState] = useState<{
-    dataset: any;
-    reviews: GatewayReviewSample[];
-    scraping: any;
-    apiError: any;
-  } | null>(null);
+  const { data: state, loading } = useCachedData("dataset", fetchDatasetPage);
 
-  useEffect(() => {
-    Promise.all([
-      safeGatewayData(getDatasetSummary, EMPTY_DATASET_SUMMARY),
-      safeGatewayData(() => getReviews({ limit: 10, seed: 10 }), EMPTY_RANDOM_REVIEWS),
-      safeGatewayData(getScrapingSummary, EMPTY_SCRAPING_SUMMARY),
-    ]).then(([dr, rr, sr]) => {
-      setState({
-        dataset: dr.data,
-        reviews: rr.data.reviews ?? [],
-        scraping: sr.data,
-        apiError: dr.error ?? rr.error ?? sr.error,
-      });
-    });
-  }, []);
+  if (loading) return <ShellPageSkeleton />;
 
-  if (!state) return <ShellPageSkeleton />;
-
-  const { dataset, reviews, scraping, apiError } = state;
+  const { dataset, reviews, scraping, apiError } = state!;
   const ratingRows = ratingDistributionRows(dataset.rating_distribution);
   const sentimentRows = sentimentDistributionData(dataset.sentiment_distribution);
   const targetTotal = Object.entries(
@@ -117,81 +112,83 @@ export default function DatasetPage() {
     "com.spotify.music";
 
   return (
-    <AppShell>
-      <PageHeader
-        description="Dataset ulasan Spotify yang digunakan dalam penelitian — dari proses pengumpulan, hasil scraping, hingga dataset akhir yang siap dianalisis."
-        eyebrow="Data dan kualitas"
-        title="Dataset"
-      />
-      <ApiGatewayAlert error={apiError} />
+    <FadeIn>
+      <AppShell>
+        <PageHeader
+          description="Dataset ulasan Spotify yang digunakan dalam penelitian — dari proses pengumpulan, hasil scraping, hingga dataset akhir yang siap dianalisis."
+          eyebrow="Data dan kualitas"
+          title="Dataset"
+        />
+        <ApiGatewayAlert error={apiError} />
 
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <StatCard
-          description="Target pengambilan data scraping."
-          label="Target Ulasan"
-          value={formatCount(targetTotal)}
-        />
-        <StatCard
-          description="Jumlah ulasan sebelum filtering kualitas."
-          label="Ulasan Mentah"
-          value={formatCount(rawReviewCount)}
-        />
-        <StatCard
-          description="Total ulasan valid setelah tahap filtering kualitas."
-          label="Ulasan Bersih"
-          tone="primary"
-          value={formatCount(cleanReviewCount)}
-        />
-        <StatCard
-          description="Nama paket aplikasi di Google Play Store."
-          label="Aplikasi"
-          value={appId}
-        />
-      </section>
+        <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <StatCard
+            description="Target pengambilan data scraping."
+            label="Target Ulasan"
+            value={formatCount(targetTotal)}
+          />
+          <StatCard
+            description="Jumlah ulasan sebelum filtering kualitas."
+            label="Ulasan Mentah"
+            value={formatCount(rawReviewCount)}
+          />
+          <StatCard
+            description="Total ulasan valid setelah tahap filtering kualitas."
+            label="Ulasan Bersih"
+            tone="primary"
+            value={formatCount(cleanReviewCount)}
+          />
+          <StatCard
+            description="Nama paket aplikasi di Google Play Store."
+            label="Aplikasi"
+            value={appId}
+          />
+        </section>
 
-      <ChartCard
-        description="Distribusi ulasan per tahun berdasarkan sentimen."
-        title="Ringkasan Dataset"
-      >
-        <YearReviewChart data={yearlySentimentData(dataset.yearly_sentiment_counts)} />
-      </ChartCard>
-
-      <section className="grid gap-6 xl:grid-cols-2">
         <ChartCard
-          description="Distribusi label sentimen dataset."
-          insight={
-            sentimentRows.length > 0
-              ? "Label dari hasil scraping awal."
-              : EMPTY_GATEWAY_MESSAGE
-          }
-          title="Distribusi Label Sentimen"
+          description="Distribusi ulasan per tahun berdasarkan sentimen."
+          title="Ringkasan Dataset"
         >
-          <SentimentDistributionChart data={sentimentRows} />
+          <YearReviewChart data={yearlySentimentData(dataset.yearly_sentiment_counts)} />
         </ChartCard>
+
+        <section className="grid gap-6 xl:grid-cols-2">
+          <ChartCard
+            description="Distribusi label sentimen dataset."
+            insight={
+              sentimentRows.length > 0
+                ? "Label dari hasil scraping awal."
+                : EMPTY_GATEWAY_MESSAGE
+            }
+            title="Distribusi Label Sentimen"
+          >
+            <SentimentDistributionChart data={sentimentRows} />
+          </ChartCard>
+          <ChartCard
+            description="Distribusi rating dari dataset scraping awal."
+            title="Distribusi Rating"
+          >
+            <RatingBarChart
+              data={ratingRows}
+              description="Data awal hasil scraping dari Google Play Store."
+            />
+          </ChartCard>
+        </section>
+
         <ChartCard
-          description="Distribusi rating dari dataset scraping awal."
-          title="Distribusi Rating"
+          description="Sampel data mentah hasil scraping sebelum melalui tahap preprocessing dan modeling."
+          title="Tabel Dataset Mentah"
         >
-          <RatingBarChart
-            data={ratingRows}
-            description="Data awal hasil scraping dari Google Play Store."
+          <SimpleTable
+            columns={datasetReviewColumns}
+            data={reviews}
+            emptyMessage={EMPTY_GATEWAY_MESSAGE}
+            minWidthClassName="min-w-[880px]"
+            rowKey={(row, index) => row.external_id ?? `dataset-review-${index}`}
           />
         </ChartCard>
-      </section>
-
-      <ChartCard
-        description="Sampel data mentah hasil scraping sebelum melalui tahap preprocessing dan modeling."
-        title="Tabel Dataset Mentah"
-      >
-        <SimpleTable
-          columns={datasetReviewColumns}
-          data={reviews}
-          emptyMessage={EMPTY_GATEWAY_MESSAGE}
-          minWidthClassName="min-w-[880px]"
-          rowKey={(row, index) => row.external_id ?? `dataset-review-${index}`}
-        />
-      </ChartCard>
-    </AppShell>
+      </AppShell>
+    </FadeIn>
   );
 }
 

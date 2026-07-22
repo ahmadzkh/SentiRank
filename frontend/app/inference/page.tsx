@@ -3,9 +3,10 @@
 import { RuntimeInferencePanel } from "@/components/forms/RuntimeInferencePanel";
 import { AppShell, PageHeader } from "@/components/layout";
 import { safeGatewayData } from "@/lib/api-status";
+import { useCachedData } from "@/lib/data-cache";
+import { FadeIn } from "@/components/ui/FadeIn";
 import { getRuntimeInferenceHistory } from "@/services/inference-service";
 import type { RuntimeInferenceHistoryResponse } from "@/types";
-import { useEffect, useState } from "react";
 import { PageSkeleton } from "@/components/ui/SkeletonShimmer";
 
 const HISTORY_PAGE_SIZE = 10;
@@ -30,16 +31,14 @@ const ShellPageSkeleton = () => (
 );
 
 export default function InferencePage() {
-  const [inferenceResult, setInferenceResult] = useState<{data: any; error: any} | null>(null);
-
-  useEffect(() => {
-    safeGatewayData(
+  const { data, loading } = useCachedData("inference-history", async () => {
+    return safeGatewayData(
       () => getRuntimeInferenceHistory({ limit: HISTORY_PAGE_SIZE, page: 1 }),
       EMPTY_HISTORY,
-    ).then(setInferenceResult);
-  }, []);
+    );
+  });
 
-  if (!inferenceResult) return <ShellPageSkeleton />;
+  if (loading || !data) return <ShellPageSkeleton />;
 
   return (
     <AppShell>
@@ -48,10 +47,12 @@ export default function InferencePage() {
         eyebrow="Runtime"
         title="Uji Ulasan"
       />
+      <FadeIn>
       <RuntimeInferencePanel
-        initialGatewayError={inferenceResult.error}
-        initialHistory={inferenceResult.data}
+        initialGatewayError={data.error}
+        initialHistory={data.data}
       />
+      </FadeIn>
     </AppShell>
   );
 }

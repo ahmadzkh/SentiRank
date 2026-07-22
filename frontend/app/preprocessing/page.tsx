@@ -19,8 +19,9 @@ import type {
   GatewayPreprocessingSample,
   GatewayPreprocessingSummary,
 } from "@/types";
-import { useEffect, useState } from "react";
 import { PageSkeleton } from "@/components/ui/SkeletonShimmer";
+import { FadeIn } from "@/components/ui/FadeIn";
+import { useCachedData } from "@/lib/data-cache";
 
 const COUNT_FORMATTER = new Intl.NumberFormat("id-ID");
 const PERCENT_FORMATTER = new Intl.NumberFormat("id-ID", {
@@ -143,17 +144,20 @@ const ShellPageSkeleton = () => (
   </AppShell>
 );
 
+async function fetchPreprocessingPage() {
+  const r = await safeGatewayData(getPreprocessingSummary, EMPTY_PREPROCESSING_SUMMARY);
+  return r;
+}
+
 export default function PreprocessingPage() {
-  const [preprocessResult, setPreprocessResult] = useState<{data: any; error: any} | null>(null);
+  const { data: preprocessResult, loading } = useCachedData(
+    "preprocessing",
+    fetchPreprocessingPage,
+  );
 
-  useEffect(() => {
-    safeGatewayData(getPreprocessingSummary, EMPTY_PREPROCESSING_SUMMARY)
-      .then((r) => setPreprocessResult(r));
-  }, []);
+  if (loading) return <ShellPageSkeleton />;
 
-  if (!preprocessResult) return <ShellPageSkeleton />;
-
-  const preprocess = preprocessResult.data as GatewayPreprocessingSummary;
+  const preprocess = preprocessResult!.data as GatewayPreprocessingSummary;
 
   const totalValid = numberOrZero(preprocess.valid_review_count ?? preprocess.total_rows);
   const totalDropped = numberOrZero(preprocess.dropped_review_count);
@@ -170,113 +174,115 @@ export default function PreprocessingPage() {
   const splitSummary = preprocess.model_split_summary ?? {};
 
   return (
-    <AppShell>
-      <PageHeader
-        title="Laporan Prapemrosesan"
-        description="Laporan pembersihan, validasi kualitas, dan transformasi data ulasan Spotify sebelum digunakan oleh IndoBERT, SVM, AHP, dan Fuzzy AHP."
-        eyebrow="Persiapan Data"
-      />
-
-      <ApiGatewayAlert error={preprocessResult.error} />
-
-      <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        <StatCard
-          label="Total Data Mentah"
-          value={formatCount(totalRaw)}
-          description="Jumlah ulasan sebelum quality filtering."
+    <FadeIn>
+      <AppShell>
+        <PageHeader
+          title="Laporan Prapemrosesan"
+          description="Laporan pembersihan, validasi kualitas, dan transformasi data ulasan Spotify sebelum digunakan oleh IndoBERT, SVM, AHP, dan Fuzzy AHP."
+          eyebrow="Persiapan Data"
         />
-        <StatCard
-          label="Total Data Bersih"
-          value={formatCount(totalValid)}
-          description="Ulasan valid yang digunakan sebagai dataset canonical."
-          tone="positive"
-        />
-        <StatCard
-          label="Total Noise"
-          value={formatCount(totalDropped)}
-          description="Ulasan dibuang karena tidak layak untuk pemodelan."
-          tone="negative"
-        />
-        <StatCard
-          label="Persentase Data Valid"
-          value={`${PERCENT_FORMATTER.format(validPercent)}%`}
-          description="Proporsi data yang lolos prapemrosesan."
-          tone={validPercent >= 90 ? "positive" : "neutral"}
-        />
-      </section>
 
-      <ChartCard
-        title="Distribusi Sentimen per Tahap"
-        description="Perbandingan distribusi sentimen sebelum dan sesudah prapemrosesan untuk melihat dampak filtering terhadap komposisi kelas."
-      >
-        <SentimentStageComparisonChart data={sentimentStages} />
-      </ChartCard>
+        <ApiGatewayAlert error={preprocessResult!.error} />
 
-      <section className="grid gap-6 xl:grid-cols-2">
-        <ChartCard
-          title="Distribusi Jenis Noise"
-          description="Alasan ulasan dikeluarkan dari dataset bersih."
-        >
-          <HorizontalDistributionChart rows={noiseRows} />
-        </ChartCard>
+        <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+          <StatCard
+            label="Total Data Mentah"
+            value={formatCount(totalRaw)}
+            description="Jumlah ulasan sebelum quality filtering."
+          />
+          <StatCard
+            label="Total Data Bersih"
+            value={formatCount(totalValid)}
+            description="Ulasan valid yang digunakan sebagai dataset canonical."
+            tone="positive"
+          />
+          <StatCard
+            label="Total Noise"
+            value={formatCount(totalDropped)}
+            description="Ulasan dibuang karena tidak layak untuk pemodelan."
+            tone="negative"
+          />
+          <StatCard
+            label="Persentase Data Valid"
+            value={`${PERCENT_FORMATTER.format(validPercent)}%`}
+            description="Proporsi data yang lolos prapemrosesan."
+            tone={validPercent >= 90 ? "positive" : "neutral"}
+          />
+        </section>
 
         <ChartCard
-          title="Distribusi Rating Sebelum dan Sesudah"
-          description="Perbandingan jumlah ulasan per rating setelah noise dikeluarkan."
+          title="Distribusi Sentimen per Tahap"
+          description="Perbandingan distribusi sentimen sebelum dan sesudah prapemrosesan untuk melihat dampak filtering terhadap komposisi kelas."
         >
-          <RatingComparisonChart rows={ratingRows} />
+          <SentimentStageComparisonChart data={sentimentStages} />
         </ChartCard>
-      </section>
 
-      <ChartCard
-        title="Contoh Hasil Prapemrosesan"
-        description="Sepuluh sampel dari dataset: lima ulasan valid dan lima ulasan yang dibuang oleh quality filtering."
-      >
-        <SimpleTable
-          columns={sampleColumns}
-          data={(preprocess.preprocessing_samples ?? []).slice(0, 10)}
-          emptyMessage={EMPTY_GATEWAY_MESSAGE}
-          minWidthClassName="min-w-[1180px]"
-          rowKey={(row, index) => row.external_id ?? `preprocessing-sample-${index}`}
-        />
-      </ChartCard>
+        <section className="grid gap-6 xl:grid-cols-2">
+          <ChartCard
+            title="Distribusi Jenis Noise"
+            description="Alasan ulasan dikeluarkan dari dataset bersih."
+          >
+            <HorizontalDistributionChart rows={noiseRows} />
+          </ChartCard>
 
-      <ChartCard
-        title="Dampak terhadap Dataset Pemodelan"
-        description="Jumlah data yang masuk ke split pelatihan dan evaluasi untuk model IndoBERT dan SVM Aspect."
-      >
-        <div className="grid gap-4 md:grid-cols-2">
-          <ModelDatasetSummary
-            title="IndoBERT Sentiment"
-            summary={splitSummary.indobert}
-          />
-          <ModelDatasetSummary
-            title="SVM Aspect"
-            summary={splitSummary.svm}
-          />
-        </div>
-        <div className="mt-6">
+          <ChartCard
+            title="Distribusi Rating Sebelum dan Sesudah"
+            description="Perbandingan jumlah ulasan per rating setelah noise dikeluarkan."
+          >
+            <RatingComparisonChart rows={ratingRows} />
+          </ChartCard>
+        </section>
+
+        <ChartCard
+          title="Contoh Hasil Prapemrosesan"
+          description="Sepuluh sampel dari dataset: lima ulasan valid dan lima ulasan yang dibuang oleh quality filtering."
+        >
           <SimpleTable
-            columns={splitColumns}
-            data={splitRows}
+            columns={sampleColumns}
+            data={(preprocess.preprocessing_samples ?? []).slice(0, 10)}
             emptyMessage={EMPTY_GATEWAY_MESSAGE}
-            minWidthClassName="min-w-[720px]"
-            rowKey={(row) => row.split}
+            minWidthClassName="min-w-[1180px]"
+            rowKey={(row, index) => row.external_id ?? `preprocessing-sample-${index}`}
           />
-        </div>
-      </ChartCard>
+        </ChartCard>
 
-      <ChartCard title="Peran Prapemrosesan dalam Pipeline">
-        <p className="text-sm leading-6 text-muted-foreground">
-          Tahap prapemrosesan membersihkan data ulasan dari teks tidak valid,
-          simbol acak, pola Morse-like, rasio digit atau simbol berlebih, serta
-          ulasan yang terlalu pendek. Data yang lolos validasi digunakan sebagai
-          sumber utama pembentukan dataset IndoBERT dan SVM, sedangkan data yang
-          masuk noise report tidak digunakan untuk pelatihan maupun evaluasi
-          model.
-        </p>
-      </ChartCard>
-    </AppShell>
+        <ChartCard
+          title="Dampak terhadap Dataset Pemodelan"
+          description="Jumlah data yang masuk ke split pelatihan dan evaluasi untuk model IndoBERT dan SVM Aspect."
+        >
+          <div className="grid gap-4 md:grid-cols-2">
+            <ModelDatasetSummary
+              title="IndoBERT Sentiment"
+              summary={splitSummary.indobert}
+            />
+            <ModelDatasetSummary
+              title="SVM Aspect"
+              summary={splitSummary.svm}
+            />
+          </div>
+          <div className="mt-6">
+            <SimpleTable
+              columns={splitColumns}
+              data={splitRows}
+              emptyMessage={EMPTY_GATEWAY_MESSAGE}
+              minWidthClassName="min-w-[720px]"
+              rowKey={(row) => row.split}
+            />
+          </div>
+        </ChartCard>
+
+        <ChartCard title="Peran Prapemrosesan dalam Pipeline">
+          <p className="text-sm leading-6 text-muted-foreground">
+            Tahap prapemrosesan membersihkan data ulasan dari teks tidak valid,
+            simbol acak, pola Morse-like, rasio digit atau simbol berlebih, serta
+            ulasan yang terlalu pendek. Data yang lolos validasi digunakan sebagai
+            sumber utama pembentukan dataset IndoBERT dan SVM, sedangkan data yang
+            masuk noise report tidak digunakan untuk pelatihan maupun evaluasi
+            model.
+          </p>
+        </ChartCard>
+      </AppShell>
+    </FadeIn>
   );
 }
 
@@ -496,14 +502,14 @@ function countCell(value: number | null | undefined) {
   return value === null || value === undefined ? EMPTY_TABLE_CELL : formatCount(value);
 }
 
+function numberOrZero(value?: number | null) {
+  return value ?? 0;
+}
+
+function numberOrNull(value?: number | null) {
+  return value ?? null;
+}
+
 function formatCount(value: number) {
   return COUNT_FORMATTER.format(value);
-}
-
-function numberOrZero(value: unknown) {
-  return typeof value === "number" && Number.isFinite(value) ? value : 0;
-}
-
-function numberOrNull(value: unknown) {
-  return typeof value === "number" && Number.isFinite(value) ? value : null;
 }
