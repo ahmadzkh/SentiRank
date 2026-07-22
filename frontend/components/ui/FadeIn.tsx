@@ -1,24 +1,29 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 
+/**
+ * Wraps children with a fade-in animation.
+ * Shows nothing for `delayMs`, then fades content in.
+ * Used after data loads to smooth the skeleton→data transition.
+ */
 export function FadeIn({
   children,
-  className = "",
+  delayMs = 60,
 }: {
   children: React.ReactNode;
-  className?: string;
+  delayMs?: number;
 }) {
-  const [visible, setVisible] = useState(false);
+  const [show, setShow] = useState(false);
 
   useEffect(() => {
-    setVisible(true);
-  }, []);
+    const id = setTimeout(() => setShow(true), delayMs);
+    return () => clearTimeout(id);
+  }, [delayMs]);
 
+  if (!show) return null;
   return (
-    <div
-      className={`transition-opacity duration-300 ${visible ? "opacity-100" : "opacity-0"} ${className}`}
-    >
+    <div className="animate-[fadeIn_0.25s_ease-in-out]">
       {children}
     </div>
   );

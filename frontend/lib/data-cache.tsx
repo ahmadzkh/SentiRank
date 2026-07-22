@@ -1,70 +1,72 @@
 "use client";
 
-import { createContext, useContext, useRef, useCallback, useState } from "react";
-
-/**
- * Minimal in-memory cache for API responses.
- * Lifetime: browser session tab. No persistence.
- * Purpose: instant re-navigation + SPA-like feel.
- */
+import { createContext, useContext, useRef, useState, useEffect, type ReactNode } from "react";
 
 type CacheMap = Map<string, unknown>;
-
 const Ctx = createContext<CacheMap | null>(null);
 
-export function DataProvider({ children }: { children: React.ReactNode }) {
+export function DataProvider({ children }: { children: ReactNode }) {
   const cache = useRef<CacheMap>(new Map()).current;
   return <Ctx.Provider value={cache}>{children}</Ctx.Provider>;
 }
 
+export function useCache() {
+  const cache = useContext(Ctx);
+  if (!cache) throw new Error("useCache must be inside DataProvider");
+  return cache;
+}
+
 /**
- * Fetch-or-cache hook. Returns {data, loading}.
- * First visit: fetcher runs, stores result, re-renders.
- * Subsequent: instant from cache.
+ * Fetch-or-cache hook. Falls back to plain useEffect+useState on error.
+ * 
+ * - Cache hit: returns data immediately, loading=false
+ * - Cache miss: fires fetcher, stores result on success, returns {data:null, loading:true}
+ * - Error: does NOT cache the error, user can retry by re-mounting
  */
 export function useCachedData<T>(key: string, fetcher: () => Promise<T>): {
   data: T | null;
   loading: boolean;
 } {
-  const cache = useContext(Ctx);
-  if (!cache) throw new Error("useCachedData requires DataProvider");
+  const cache = useCache();
+  const [data, setData] = useState<T | null>(cache.get(key) as T | null);
+  const [loading, setLoading] = useState(!cache.has(key));
+  const fetchedRef = useRef(false);
 
-  // Check cache synchronously
-  if (cache.has(key)) {
-    return { data: cache.get(key) as T, loading: false };
-  }
+  useEffect(() => {
+    if (cache.has(key)) {
+      setData(cache.get(key) as T);
+      setLoading(false);
+      return;
+    }
+    if (fetchedRef.current) return;
+    fetchedRef.current = true;
 
-  // Cache miss — return loading, trigger fetch
-  // useState trick to trigger re-render when fetch completes
-  const [, setTick] = useState(0);
-  if (!(cache as CacheMap & {_fetching?: Set<string>})._fetching) {
-    (cache as CacheMap & {_fetching?: Set<string>})._fetching = new Set();
-  }
-  const fetching = (cache as CacheMap & {_fetching: Set<string>})._fetching;
+    setLoading(true);
+    fetcher()
+      .then((result) => {
+        cache.set(key, result);
+        setData(result);
+        setLoading(false);
+      })
+      .catch(() => {
+        // do NOT cache errors — user can retry
+        setLoading(false);
+      });
+  }, [key, fetcher, cache]);
 
-  if (!fetching.has(key)) {
-    fetching.add(key);
-    fetcher().then((result) => {
-      cache.set(key, result);
-      fetching.delete(key);
-      setTick((n) => n + 1); // force re-render
-    });
-  }
-
-  return { data: null, loading: true };
+  return { data, loading };
 }
 
 /**
- * Prefetch into cache. Call from sidebar onHover.
- * Returns void — fire-and-forget.
+ * Prefetch. Fire-and-forget. Uses cache to avoid re-fetch.
  */
 export function useCachePreloader() {
-  const cache = useContext(Ctx);
-  if (!cache) return () => {};
+  const cache = useCache();
 
   return <T,>(key: string, fetcher: () => Promise<T>) => {
-    if (!cache.has(key)) {
-      fetcher().then((data) => cache.set(key, data));
-    }
+    if (cache.has(key)) return;
+    fetcher()
+      .then((data) => cache.set(key, data))
+      .catch(() => {}); // silent
   };
 }
