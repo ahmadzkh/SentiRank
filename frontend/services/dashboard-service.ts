@@ -116,6 +116,14 @@ export interface DashboardData {
 }
 
 export async function getDashboardSummary(): Promise<DashboardData> {
+  console.log("[DASHBOARD] getDashboardSummary called at", new Date().toISOString());
+  console.log("[DASHBOARD] API_BASE_URL", process.env.NEXT_PUBLIC_API_BASE_URL ?? "not set");
+  try {
+    const testResp = await fetch(process.env.NEXT_PUBLIC_API_BASE_URL + "/health", { cache: "no-store" });
+    console.log("[DASHBOARD] health check status:", testResp.status);
+  } catch(e: any) {
+    console.error("[DASHBOARD] health check FAILED:", e?.message);
+  }
   const [
     scrapingResult,
     datasetResult,
