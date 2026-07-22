@@ -1,0 +1,3 @@
+frontend/.env.vercel
+frontend/.env.vercel-prod
+frontend/lib/.hermes-tmp*
