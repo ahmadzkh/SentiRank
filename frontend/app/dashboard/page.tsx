@@ -16,6 +16,14 @@ import {
   type DashboardReviewInsightRow,
 } from "@/services/dashboard-service";
 import { use, useEffect, useState } from "react";
+import { PageSkeleton } from "@/components/ui/SkeletonShimmer";
+
+const ShellPageSkeleton = () => (
+  <AppShell>
+    <PageHeader description="Ringkasan hasil penelitian analisis sentimen ulasan Spotify dan prioritas aspek layanan." title="Dashboard" />
+    <PageSkeleton />
+  </AppShell>
+);
 
 const EMPTY_MESSAGE = "Data belum tersedia karena API Gateway belum aktif.";
 
@@ -127,17 +135,7 @@ export default function DashboardPage() {
     getDashboardSummary().then(setDashboard);
   }, []);
 
-  if (!dashboard) {
-    return (
-      <AppShell>
-        <PageHeader
-          description="Ringkasan hasil penelitian analisis sentimen ulasan Spotify dan prioritas aspek layanan."
-          title="Dashboard"
-        />
-        <p className="text-sm text-muted-foreground p-4">Memuat data…</p>
-      </AppShell>
-    );
-  }
+  if (!dashboard) return <ShellPageSkeleton />;
 
   return (
     <AppShell>
