@@ -325,7 +325,7 @@ async function fetchSentimentPage() {
 export default function SentimentAnalysisPage() {
   const { data: fetched, loading } = useCachedData("sentiment", fetchSentimentPage);
 
-  if (loading) return <ShellPageSkeleton />;
+  if (loading || !fetched) return <ShellPageSkeleton />;
 
   const { summaryResult, evaluationResult } = fetched!;
   const summary = summaryResult.data;

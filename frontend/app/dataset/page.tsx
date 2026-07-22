@@ -93,7 +93,7 @@ async function fetchDatasetPage() {
 export default function DatasetPage() {
   const { data: state, loading } = useCachedData("dataset", fetchDatasetPage);
 
-  if (loading) return <ShellPageSkeleton />;
+  if (loading || !state) return <ShellPageSkeleton />;
 
   const { dataset, reviews, scraping, apiError } = state!;
   const ratingRows = ratingDistributionRows(dataset.rating_distribution);

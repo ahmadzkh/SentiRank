@@ -155,7 +155,7 @@ export default function PreprocessingPage() {
     fetchPreprocessingPage,
   );
 
-  if (loading) return <ShellPageSkeleton />;
+  if (loading || !preprocessResult) return <ShellPageSkeleton />;
 
   const preprocess = preprocessResult!.data as GatewayPreprocessingSummary;
 

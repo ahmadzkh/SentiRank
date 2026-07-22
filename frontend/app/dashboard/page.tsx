@@ -135,7 +135,7 @@ export default function DashboardPage() {
     getDashboardSummary,
   );
 
-  if (loading) return <ShellPageSkeleton />;
+  if (loading || !dashboard) return <ShellPageSkeleton />;
 
   return (
     <FadeIn>
