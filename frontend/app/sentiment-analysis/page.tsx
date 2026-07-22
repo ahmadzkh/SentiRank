@@ -31,6 +31,7 @@ import {
 import type { GatewaySentimentPredictionSample } from "@/types";
 import type { ReviewSentimentLabel } from "@/types/sentiment";
 import { useEffect, useState } from "react";
+import { PageSkeleton } from "@/components/ui/SkeletonShimmer";
 
 const SENTIMENT_CLASS_LABELS = ["Negative", "Neutral", "Positive"] as const;
 const INDOBERT_RUN_NAMES = [
@@ -301,11 +302,29 @@ function experimentColumns() {
   ] satisfies SimpleTableColumn<ModelExperimentRow>[];
 }
 
-export default async function SentimentAnalysisPage() {
-  const [summaryResult, evaluationResult] = await Promise.all([
-    safeGatewayData(getSentimentSummary, EMPTY_SENTIMENT_SUMMARY),
-    safeGatewayData(getSentimentEvaluation, EMPTY_SENTIMENT_EVALUATION),
-  ]);
+const ShellPageSkeleton = () => (
+  <AppShell>
+    <PageHeader
+      description="Loading..."
+      eyebrow="IndoBERT"
+      title="Analisis Sentimen"
+    />
+    <PageSkeleton />
+  </AppShell>
+);
+
+export default function SentimentAnalysisPage() {
+  const [summaryResult, setSummaryResult] = useState<any>(null);
+  const [evaluationResult, setEvaluationResult] = useState<any>(null);
+
+  useEffect(() => {
+    Promise.all([
+      safeGatewayData(getSentimentSummary, EMPTY_SENTIMENT_SUMMARY),
+      safeGatewayData(getSentimentEvaluation, EMPTY_SENTIMENT_EVALUATION),
+    ]).then(([s, e]) => { setSummaryResult(s); setEvaluationResult(e); });
+  }, []);
+
+  if (!summaryResult || !evaluationResult) return <ShellPageSkeleton />;
 
   const summary = summaryResult.data;
   const evaluation = evaluationResult.data;
@@ -329,7 +348,7 @@ export default async function SentimentAnalysisPage() {
     0,
   );
   const modelStatus = summary.is_fallback ? "Fallback" : "Aktif";
-  const modelNote = evaluation.limitations.find((item) => item.trim()) ?? EMPTY_TEXT;
+  const modelNote = evaluation.limitations.find((item: string) => item.trim()) ?? EMPTY_TEXT;
 
   return (
     <AppShell>

@@ -17,9 +17,11 @@ import {
 } from "@/components/tables/SimpleTable";
 import { EMPTY_GATEWAY_MESSAGE } from "@/lib/api-status";
 import { cn } from "@/lib/utils";
+import { PageSkeleton } from "@/components/ui/SkeletonShimmer";
 import {
   getAhpFuzzyAhpOverview,
   type AhpFuzzyAhpNotice,
+  type AhpFuzzyAhpOverview,
   type AhpFuzzyAhpSummaryCard,
   type ComparisonRow,
   type MatrixCriterionView,
@@ -137,8 +139,25 @@ const respondentColumns: readonly SimpleTableColumn<RespondentDetailRow>[] = [
   },
 ];
 
-export default async function AhpFuzzyAhpPage() {
-  const overview = await getAhpFuzzyAhpOverview();
+const ShellPageSkeleton = () => (
+  <AppShell>
+    <PageHeader
+      description="Halaman ini menampilkan prioritas aspek ulasan negatif berdasarkan metode AHP dan Fuzzy AHP. Bobot prioritas digunakan untuk membantu menentukan aspek yang perlu mendapatkan perhatian lebih dalam pengembangan layanan Spotify."
+      title="AHP / Fuzzy AHP"
+    />
+    <PageSkeleton />
+  </AppShell>
+);
+
+export default function AhpFuzzyAhpPage() {
+  const [overview, setOverview] = useState<AhpFuzzyAhpOverview | null>(null);
+
+  useEffect(() => {
+    getAhpFuzzyAhpOverview().then(setOverview);
+  }, []);
+
+  if (!overview) return <ShellPageSkeleton />;
+
   const matrixColumns = buildMatrixColumns(overview.matrixCriteria);
 
   return (

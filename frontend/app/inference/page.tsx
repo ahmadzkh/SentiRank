@@ -1,10 +1,12 @@
+"use client";
+
 import { RuntimeInferencePanel } from "@/components/forms/RuntimeInferencePanel";
 import { AppShell, PageHeader } from "@/components/layout";
 import { safeGatewayData } from "@/lib/api-status";
 import { getRuntimeInferenceHistory } from "@/services/inference-service";
 import type { RuntimeInferenceHistoryResponse } from "@/types";
-
-export const dynamic = "force-dynamic";
+import { useEffect, useState } from "react";
+import { PageSkeleton } from "@/components/ui/SkeletonShimmer";
 
 const HISTORY_PAGE_SIZE = 10;
 
@@ -16,11 +18,28 @@ const EMPTY_HISTORY: RuntimeInferenceHistoryResponse = {
   total_pages: 1,
 };
 
-export default async function InferencePage() {
-  const inferenceResult = await safeGatewayData(
-    () => getRuntimeInferenceHistory({ limit: HISTORY_PAGE_SIZE, page: 1 }),
-    EMPTY_HISTORY,
-  );
+const ShellPageSkeleton = () => (
+  <AppShell>
+    <PageHeader
+      description="Uji satu ulasan dengan IndoBERT dan SVM."
+      eyebrow="Runtime"
+      title="Uji Ulasan"
+    />
+    <PageSkeleton />
+  </AppShell>
+);
+
+export default function InferencePage() {
+  const [inferenceResult, setInferenceResult] = useState<{data: any; error: any} | null>(null);
+
+  useEffect(() => {
+    safeGatewayData(
+      () => getRuntimeInferenceHistory({ limit: HISTORY_PAGE_SIZE, page: 1 }),
+      EMPTY_HISTORY,
+    ).then(setInferenceResult);
+  }, []);
+
+  if (!inferenceResult) return <ShellPageSkeleton />;
 
   return (
     <AppShell>
@@ -29,7 +48,6 @@ export default async function InferencePage() {
         eyebrow="Runtime"
         title="Uji Ulasan"
       />
-
       <RuntimeInferencePanel
         initialGatewayError={inferenceResult.error}
         initialHistory={inferenceResult.data}

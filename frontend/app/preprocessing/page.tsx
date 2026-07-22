@@ -20,6 +20,7 @@ import type {
   GatewayPreprocessingSummary,
 } from "@/types";
 import { useEffect, useState } from "react";
+import { PageSkeleton } from "@/components/ui/SkeletonShimmer";
 
 const COUNT_FORMATTER = new Intl.NumberFormat("id-ID");
 const PERCENT_FORMATTER = new Intl.NumberFormat("id-ID", {
@@ -131,11 +132,27 @@ const splitColumns: readonly SimpleTableColumn<SplitRow>[] = [
   },
 ];
 
-export default async function PreprocessingPage() {
-  const preprocessResult = await safeGatewayData(
-    getPreprocessingSummary,
-    EMPTY_PREPROCESSING_SUMMARY,
-  );
+const ShellPageSkeleton = () => (
+  <AppShell>
+    <PageHeader
+      title="Laporan Prapemrosesan"
+      description="Loading..."
+      eyebrow="Persiapan Data"
+    />
+    <PageSkeleton />
+  </AppShell>
+);
+
+export default function PreprocessingPage() {
+  const [preprocessResult, setPreprocessResult] = useState<{data: any; error: any} | null>(null);
+
+  useEffect(() => {
+    safeGatewayData(getPreprocessingSummary, EMPTY_PREPROCESSING_SUMMARY)
+      .then((r) => setPreprocessResult(r));
+  }, []);
+
+  if (!preprocessResult) return <ShellPageSkeleton />;
+
   const preprocess = preprocessResult.data as GatewayPreprocessingSummary;
 
   const totalValid = numberOrZero(preprocess.valid_review_count ?? preprocess.total_rows);

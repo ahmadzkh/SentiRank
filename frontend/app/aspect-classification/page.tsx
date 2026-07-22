@@ -32,6 +32,7 @@ import {
 import type { GatewayAspectPredictionSample } from "@/types";
 import type { ReviewSentimentLabel } from "@/types/sentiment";
 import { useEffect, useState } from "react";
+import { PageSkeleton } from "@/components/ui/SkeletonShimmer";
 
 const SVM_SCENARIOS = [
   { scenario: "original_7class", label: "SVM original_7class" },
@@ -347,11 +348,29 @@ function experimentColumns() {
   ] satisfies SimpleTableColumn<ModelExperimentRow>[];
 }
 
-export default async function AspectClassificationPage() {
-  const [summaryResult, evaluationResult] = await Promise.all([
-    safeGatewayData(getAspectSummary, EMPTY_ASPECT_SUMMARY),
-    safeGatewayData(getAspectEvaluation, EMPTY_ASPECT_EVALUATION),
-  ]);
+const ShellPageSkeleton = () => (
+  <AppShell>
+    <PageHeader
+      description="Loading..."
+      eyebrow="SVM"
+      title="Klasifikasi Aspek"
+    />
+    <PageSkeleton />
+  </AppShell>
+);
+
+export default function AspectClassificationPage() {
+  const [summaryResult, setSummaryResult] = useState<any>(null);
+  const [evaluationResult, setEvaluationResult] = useState<any>(null);
+
+  useEffect(() => {
+    Promise.all([
+      safeGatewayData(getAspectSummary, EMPTY_ASPECT_SUMMARY),
+      safeGatewayData(getAspectEvaluation, EMPTY_ASPECT_EVALUATION),
+    ]).then(([s, e]) => { setSummaryResult(s); setEvaluationResult(e); });
+  }, []);
+
+  if (!summaryResult || !evaluationResult) return <ShellPageSkeleton />;
 
   const summary = summaryResult.data;
   const evaluation = evaluationResult.data;
