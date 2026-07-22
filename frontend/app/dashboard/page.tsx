@@ -1,3 +1,5 @@
+"use client";
+
 import { ApiGatewayAlert } from "@/components/alerts/ApiGatewayAlert";
 import { AhpRankingComparisonChart } from "@/components/charts/AhpRankingComparisonChart";
 import { AspectRankingChart } from "@/components/charts/AspectRankingChart";
@@ -10,13 +12,12 @@ import { SimpleTable, type SimpleTableColumn } from "@/components/tables/SimpleT
 import {
   getDashboardSummary,
   type DashboardComparisonRow,
+  type DashboardData,
   type DashboardReviewInsightRow,
 } from "@/services/dashboard-service";
-import { EMPTY_GATEWAY_MESSAGE } from "@/lib/api-status";
+import { use, useEffect, useState } from "react";
 
-export const dynamic = "force-dynamic";
-
-const EMPTY_MESSAGE = EMPTY_GATEWAY_MESSAGE;
+const EMPTY_MESSAGE = "Data belum tersedia karena API Gateway belum aktif.";
 
 const comparisonColumns: readonly SimpleTableColumn<DashboardComparisonRow>[] = [
   {
@@ -119,8 +120,24 @@ const reviewInsightColumns: readonly SimpleTableColumn<DashboardReviewInsightRow
   },
 ];
 
-export default async function DashboardPage() {
-  const dashboard = await getDashboardSummary();
+export default function DashboardPage() {
+  const [dashboard, setDashboard] = useState<DashboardData | null>(null);
+
+  useEffect(() => {
+    getDashboardSummary().then(setDashboard);
+  }, []);
+
+  if (!dashboard) {
+    return (
+      <AppShell>
+        <PageHeader
+          description="Ringkasan hasil penelitian analisis sentimen ulasan Spotify dan prioritas aspek layanan."
+          title="Dashboard"
+        />
+        <p className="text-sm text-muted-foreground p-4">Memuat data…</p>
+      </AppShell>
+    );
+  }
 
   return (
     <AppShell>
